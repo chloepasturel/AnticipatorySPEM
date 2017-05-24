@@ -14,7 +14,7 @@ import numpy as np
 # displayed on a 20” Viewsonic p227f monitor with resolution 1024 × 768 at 100 Hz
 
 
-def binomial_motion(N_trials, N_blocks, tau=25, seed=420, N_layer=3):
+def binomial_motion(N_trials, N_blocks, tau=25., seed=420, N_layer=3):
     np.random.seed(seed)
 
     trials = np.arange(N_trials)
@@ -79,9 +79,9 @@ class aSPEM(object):
         # exploration parameters
         N_blocks = 2 #
 
-        seed = 42
+        seed = 1973
         N_trials = 80
-        tau = N_trials//2
+        tau = N_trials/4.
 
         (trials, p) = binomial_motion(N_trials, N_blocks, tau=tau, seed=seed, N_layer=3)
 

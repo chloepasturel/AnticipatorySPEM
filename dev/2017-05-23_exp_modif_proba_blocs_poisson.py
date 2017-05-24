@@ -14,7 +14,7 @@ Nom_exp = 'Probabilite variable par bloc'
 dlg = gui.DlgFromDict(expInfo, title=Nom_exp)
 
 # ecran ou se deroulera l experience
-win=visual.Window([800, 600]) # ajouter : (1920, 1080), fullscr=True pour ecran total
+win=visual.Window([800, 600], fullscr=True) # ajouter : (1920, 1080) pour ecran total
 # ---------------------------------------------------
 
 # nombre dessais entrer
