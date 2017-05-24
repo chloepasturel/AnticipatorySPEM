@@ -11,14 +11,13 @@ import sys
 import os
 import pickle
 import numpy as np
-import MotionClouds as mc
 # displayed on a 20” Viewsonic p227f monitor with resolution 1024 × 768 at 100 Hz
 
 
 def binomial_motion(N_trials, N_blocks, tau=25, seed=420, N_layer=3):
     np.random.seed(seed)
 
-    trials = np.arange(N_tN_trialsime)
+    trials = np.arange(N_trials)
     p = np.random.rand(N_trials, N_blocks, N_layer)
     for trial in trials:
         p[trial, :, 2] = np.random.rand(1, N_blocks) < 1/tau
@@ -28,7 +27,7 @@ def binomial_motion(N_trials, N_blocks, tau=25, seed=420, N_layer=3):
     return (trials, p)
 
 class aSPEM(object):
-    """docstring for the SpeedDiscrimination class.
+    """docstring for the aSPEM class.
     """
     def __init__(self):
         # super(, self).__init__()
@@ -78,20 +77,17 @@ class aSPEM(object):
 
 
         # exploration parameters
-        if DEBUG:
-            N_blocks = 2 #
-        else:
-            N_blocks = 10
+        N_blocks = 2 #
 
-        seed = 1973
-        N_trials = 400
-        tau = 50
+        seed = 42
+        N_trials = 80
+        tau = N_trials//2
 
         (trials, p) = binomial_motion(N_trials, N_blocks, tau=tau, seed=seed, N_layer=3)
 
         total_conditions = N_trials *  N_blocks
-        stim_tau = .25 # in seconds
-        gray_tau = .25 # in seconds
+        stim_tau = .35 # in seconds
+        gray_tau = .0 # in seconds
         T =  stim_tau + gray_tau
         #N_frame_total'] = 128 # a full period. in time frames
         #info['N_frame'] = int(info['framerate']/stim_tau) # length of the presented period. in time frames
@@ -100,110 +96,73 @@ class aSPEM(object):
 
         self.params_protocol = dict(N_blocks=N_blocks, seed=seed, N_trials=N_trials,
                                stim_tau=stim_tau, gray_tau=gray_tau, T=T, N_frame=N_frame, N_frame_stim=N_frame_stim,
-                               total_conditions=total_conditions)
+                               total_conditions=total_conditions, p=p)
 
 
         # stimulus parameters
 
         N_X, N_Y = int(screen_width_px), int(screen_width_px)
-        dot_size = 0.1
-        V_X = 1.
+        dot_size = 0.01
+        V_X = .5
         V_Y = 0.
 
         self.params_stim = dict(N_X=N_X, N_Y=N_Y, V_X=V_X, V_Y=V_Y, dot_size=dot_size)
 
     def print_protocol(self):
         if True: #try:
-            N_seed = self.params_protocol['N_seed']
+            N_blocks = self.params_protocol['N_blocks']
             N_trials = self.params_protocol['N_trials']
-            N_frame_stim = self.params_MC['N_frame_stim']
+            N_frame_stim = self.params_protocol['N_frame_stim']
             T = self.params_protocol['T']
-            return """
-    ##########################
-    #  🐭 🐁 PROTOCOL 🐭 🐁 #
-    ##########################
-
-    We used a two alternative forced choice (2AFC) paradigm. In each trial, a gray fixation screen with a small dark fixation spot was followed by two stimulus intervals of {stim_tau} second each, separated by an uniformly gray {gray_tau} second inter-stimulus interval. The first stimulus had parameters (v1, z1) and the second had parameters (v2, z2). At the end of the trial, a gray screen appeared asking the participant to report which one of the two intervals was perceived as moving faster by pressing one of two buttons, that is whether v1 > v2 or v2 > v1.
-
-     * Presentation of stimuli at {framerate} Hz on the {screen_width_px}x{screen_width_px} array during {T} s
-
-     * fixed parameters:
-             - dot_size = {dot_size} dot's size,
-             - XXX
-
-    Fro each condition (blockid), we used {N_seed} repetitions of each of the {N_combinations} possible combinations of these parameters are made per block of {N_conditions} trials. Finally, {N_trials} such blocks were collected per condition (blockid) tested.
-
-     * parameters:
-             - N_seed = {N_seed} different seeds: seed={seed} and their {N_seed} increments to generate different movies within one block
-             - N_trials = {N_trials} different repetitions of the same block
-
-            Grand total for one block is
-             - {N_combinations} combinations ⨉
-             - {N_seed} repetitions x
-             - {T}s
-
-            That is,
-             - One block=  {N_conditions}  movies
-             - One block=  {total_frames}  frames
-             - One block= {time} seconds
-             - {N_trials} repetitions of one block= {total_time} seconds
-
-             Finally, the grand total time is equal to:
-
-             - {N_blockids} blocks  ⨉ {total_time} seconds = {grand_total_time} seconds
-
-
-     # and now... let's 💃
-        """.format(**self.params_protocol, **self.params_MC,
-                   time=N_combinations * N_trials * T,
-                   N_conditions=N_combinations * N_seed,
-                   total_frames=N_combinations* N_seed * N_frame_stim,
-                   total_time= N_seed * N_trials * N_combinations * T,
-                   grand_total_time=N_blockids * N_seed * N_trials * N_combinations * T)
+            return "TODO"
+    #         return """
+    # ##########################
+    # #  🐭 🐁 PROTOCOL 🐭 🐁 #
+    # ##########################
+    #
+    # We used a two alternative forced choice (2AFC) paradigm. In each trial, a gray fixation screen with a small dark fixation spot was followed by a moving target during {stim_tau} second each. Different trials are separated by an uniformly gray {gray_tau}  inter-stimulus interval. Before each trial, a gray screen appears asking the participant to report in which direction he thinks the target will go.
+    #
+    #  * Presentation of stimuli at {framerate} Hz on the {screen_width_px}x{screen_width_px} array during {T} s
+    #
+    #  * fixed parameters:
+    #          - dot_size = {dot_size} dot's size,
+    #          - XXX
+    #
+    # Fro each condition (blockid), we used {N_blocks} blocks of {N_trials} trials.
+    #
+    #  * parameters:
+    #          - N_blocks = {N_blocks} different blocks: seed={seed} and their {N_blocks} increments to generate different movies within one block
+    #          - N_trials = {N_trials} number of trials within a block
+    #
+    #         Grand total for one block is
+    #          - {N_trials} trials ⨉
+    #          - {N_blocks} blocks x
+    #          - {T}s
+    #
+    #         That is,
+    #          - One block=  {N_trials}  trials
+    #          - One block=  {total_frames}  frames
+    #          - One block= {time} seconds
+    #          - {N_blocks} repetitions of each block= {total_time} seconds
+    #
+    #
+    #  # and now... let's 💃
+    #     """.format(**self.params_protocol, **self.params_stim, **self.params_exp,
+    #                time=N_trials * T,
+    #                N_conditions=N_blocks * N_trials,
+    #                total_frames=N_blocks * N_trials * N_frame_stim,
+    #                total_time=N_blocks * N_trials * T)
 
         # except:
         #     return 'blurg'
 
-    def exp_name(self, observer, timeStr):
-        return os.path.join(self.info['datadir'], self.experiment + observer + '_' + timeStr + '.npy')
+    def exp_name(self, observer, block, timeStr):
+        return os.path.join(self.params_exp['datadir'], observer + '_' + str(block) + '_' + timeStr + '.npy')
 
-    def make_protocol(self, p_diconame='data/protocol.pkl'):
-        """
-        This function generates the diconame file to freeze the protocol given the global seed.
+    def load(self, observer, block, timeStr):
+        return np.load(self.exp_name(observer, block, timeStr))
 
-        """
-        self.generate_MC() # to get self.combinations
-
-        try:
-            with open(p_diconame, 'rb') as output:
-                protocol = pickle.load(output)
-        except:
-            protocol = {}
-
-            for i_blockid, blockid in enumerate(self.params_protocol['blockids']):
-                np.random.seed(self.params_protocol['seed'] + i_blockid)
-                number_cases = self.params_protocol['N_combinations']*self.params_protocol['N_seed']
-                order = np.random.permutation(range(number_cases))
-                ref_firsts = np.random.rand(number_cases) > .5
-
-                conditions = order // self.params_protocol['N_seed']
-                seeds  = order % self.params_protocol['N_seed']
-
-                delta_f = self.params_protocol['blockids'][blockid]['delta_f']
-                delta_V = self.params_protocol['blockids'][blockid]['delta_V']
-
-                protocol[blockid] = []
-                for condition, ref_first, seed_ in zip(conditions, ref_firsts, seeds):
-                    df = delta_f[condition // len(delta_f)]
-                    dV = delta_V[condition % len(delta_f)]
-                    protocol[blockid] += [dict(blockid=blockid, df=df, dV=dV, seed_=seed_, ref_first=ref_first)]
-
-            with open(p_diconame, 'wb') as output: pickle.dump(protocol, output)
-        self.protocol = protocol
-
-
-    def run_experiment(self, observer, blockid,  timeStr, verb=True):
-        self.make_protocol()
+    def run_experiment(self, observer, block, timeStr, verb=True):
 
         if verb: print('launching experiment')
         from psychopy import visual, core, event, logging, misc
@@ -214,29 +173,27 @@ class aSPEM(object):
         if verb: print('go!')
         # http://www.psychopy.org/general/monitors.html
 
-        win = visual.Window([self.info['screen_width_px'], self.info['screen_height_px']],
-                            allowGUI=False, fullscr=True, mouseVisible=False, screen=screen)
+        win = visual.Window([self.params_exp['screen_width_px'], self.params_exp['screen_height_px']],
+                            allowGUI=False, fullscr=True, screen=self.params_exp['screen'])
         win.setRecordFrameIntervals(True)
-        win._refreshThreshold=1/framerate+0.004 #i've got 50Hz monitor and want to allow 4ms tolerance
+        win._refreshThreshold=1/self.params_exp['framerate']+0.004 #i've got 50Hz monitor and want to allow 4ms tolerance
         #set the log module to report warnings to the std output window (default is errors only)
-        log.console.setLevel(log.WARNING)
+        # log.console.setLevel(log.WARNING)
         myMouse = event.Mouse(win=win)
 
 
-        if verb: print('FPS = ',  win.getActualFrameRate() , 'framerate=', framerate)
-        target = visual.Circle(win, lineColor='black', size=0.02, pos=(x, 0))
-        #  = visual.GratingStim(win,
-        #         size=(self.info['stim_diameter_height'], self.info['stim_diameter_height']), units='height',
-        #         interpolate=True,
-        #         mask = 'gauss',
-        #         autoLog=False)#this stim changes too much for autologging to be useful
+        if verb: print('FPS = ',  win.getActualFrameRate() , 'framerate=', self.params_exp['framerate'])
+        target = visual.Circle(win, lineColor='black',  units='height',
+                                radius = self.params_stim['dot_size'],
+                                interpolate = True, fillColor='Navy',
+                                autoLog=False)
 
         wait_for_response = visual.TextStim(win,
-                                text = u"?", units='norm', height=0.15, color='DarkSlateBlue',
-                                pos=[0., -0.], alignHoriz='center', alignVert='center' )
-        wait_for_next = visual.TextStim(win,
                                 text = u"+", units='norm', height=0.15, color='BlanchedAlmond',
                                 pos=[0., -0.], alignHoriz='center', alignVert='center' )
+        # wait_for_next = visual.TextStim(win,
+        #                         text = u"+", units='norm', height=0.15, color='BlanchedAlmond',
+        #                         pos=[0., -0.], alignHoriz='center', alignVert='center' )
 
         def getResponse():
             event.clearEvents() # clear the event buffer to start with
@@ -264,44 +221,34 @@ class aSPEM(object):
                         print ("hit LEFT or RIGHT (or Esc) (You hit %s)" %key)
 
         clock = core.Clock()
-        def presentStimulus(im):
-            """
-            Present stimulus
 
+        def presentStimulus(dir_bool):
+            """Present stimulus
             """
-            for i_frame in range(im.shape[-1]): # length of the stimulus
-                target.setPos(im[:, :, i_frame])
-                stim.draw()
+            clock.reset()
+            myMouse.setVisible(0)
+            dir_sign = dir_bool * 2 - 1
+            while clock.getTime() < self.params_protocol['stim_tau']:
+                target.setPos((dir_sign * self.params_stim['V_X']*np.float(clock.getTime()/self.params_protocol['stim_tau']), 0))
+                target.draw()
                 win.flip()
 
-        nTrials = len(self.protocol[blockid])
-        results = []
-        for trial in self.protocol[blockid]:
+        results = np.zeros((self.params_protocol['N_trials'], ))
+        for trial in range(self.params_protocol['N_trials']):
             clock.reset()
             t = clock.getTime()
-            fixSpot.draw()
+            # wait_for_next.draw()
+            # core.wait(self.params_protocol['gray_tau'])
+            # win.flip()
 
-            wait_for_next.draw()
-            win.flip()
-            # preparing data
-            im_ref, im_test
-            self.movie_name(trial['blockid'], trial['df'], trial['dV'], trial['seed_'])
-
-            if trial['ref_first']:
-                im_A, im_B = im_ref, im_test
-            else:
-                im_A, im_B = im_test, im_ref
-            while clock.getTime() < self.params_protocol['gray_tau']:
-                # waiting a bit
-                pass
-            presentStimulus(im_A)
-            core.wait(self.params_protocol['gray_tau'])
-            presentStimulus(im_A)
             wait_for_response.draw()
             win.flip()
             ans = getResponse()
-            results[0, i_trial] = ans
-            results[1, i_trial] = C_A
+            results[trial] = ans
+
+            presentStimulus(self.params_protocol['p'][trial, block, 0])
+            win.flip()
+
 
         win.update()
         core.wait(0.5)
@@ -311,37 +258,30 @@ class aSPEM(object):
 
         #save data
 
-        numpy.save(fileName, results)
+        np.save(self.exp_name(observer, block, timeStr), results)
         core.quit() # quit
 
 
 if __name__ == '__main__':
-    e = SpeedDiscrimination()
+    e = aSPEM()
     print('Starting protocol')
-    e.init()
-    #e.generate_MC()
-    e.make_protocol()
 
     try:
         observer = sys.argv[1]
     except:
         observer = 'anonymous'
     try:
-        seed = int(sys.argv[2])
+        block = int(sys.argv[2])
     except:
-        seed = e.params_protocol['seed']
-    try:
-        i_trial = int(sys.argv[3])
-    except:
-        i_trial = 0
+        block = 0
     try:
         # width and height of the stimulus
-        timeStr = sys.argv[4]
+        timeStr = sys.argv[3]
     except:
         import time, datetime
         timeStr = time.strftime("%Y-%m-%d_%H%M%S", time.localtime())
 
-    try:
-        e.run_experiment(observer, seed,  i_trial,  timeStr)
-    except:
-        print('not able to launch psychopy, try with python2')
+    if True:#try:
+        e.run_experiment(observer, block,  timeStr)
+    # except:
+    #     print('not able to launch psychopy, try with python2')
