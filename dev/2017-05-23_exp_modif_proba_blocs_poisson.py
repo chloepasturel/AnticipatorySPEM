@@ -15,7 +15,6 @@ expInfo = {"Nombre d'essais":'100'}
 Nom_exp = 'Probabilite variable par bloc'
 dlg = gui.DlgFromDict(expInfo, title=Nom_exp)
 
-<<<<<<< HEAD:2017-05-23_exp_modif_proba_blocs_poisson.py
 # Largeur et hauteur de l'écran en pixel
 Largeur_px = 800 #---------------------------------------------------------------- A MODIFIER (1024 ou 1920)
 Hauteur_px = 600 #---------------------------------------------------------------- A MODIFIER (768 ou 1080)
