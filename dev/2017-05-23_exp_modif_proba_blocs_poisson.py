@@ -1,7 +1,11 @@
 #!/usr/bin/env python2
 # -*- coding: utf-8 -*-
-from psychopy import visual, core, gui, event
+from psychopy import visual, core, gui, event, data
 import numpy as np
+import pickle
+
+### IMPORTANT ###
+# Avant de lancer ce script, lancer d'abord le script 'liste_binomiale.py', pour génèrer les listes binomiales
 
 #####################################################
 ###                   PARAMETRE                   ###
@@ -11,8 +15,8 @@ import numpy as np
 # ECRAN
 # ---------------------------------------------------
 # Présente un dialogue pour changer les paramètres
-expInfo = {"Nombre d'essais":'100'}
-Nom_exp = 'Probabilite variable par bloc'
+expInfo = {"Sujet":'test', "Session":'a'}
+Nom_exp = u'Probabilité variable par bloc'
 dlg = gui.DlgFromDict(expInfo, title=Nom_exp)
 
 # Largeur et hauteur de l'écran en pixel
@@ -22,15 +26,12 @@ Hauteur_px = 600 #--------------------------------------------------------------
 # écran où se deroulera l'expèrience
 win=visual.Window([Largeur_px, Hauteur_px], units='pix') # ajouter : fullscr=True pour écran total
 
-
 # ---------------------------------------------------
 # PARAMETRE EXPERIMENTAL
 # ---------------------------------------------------
-# nombre d'essais entrer dans la boite de dialogue
-nb_essais = int(expInfo["Nombre d'essais"])
-
-# définition des probabilités d'un mouvement à droite
-probabiliteD = [0.25, 0.5, 0.9] #------------------------------------------------- A MODIFIER
+session = expInfo["Session"]
+sujet = expInfo["Sujet"]
+nb_essais = 100 # ATTENTION faire correspondre avec nb_essais liste_binomiale.py-- A MODIFIER
 
 # définition de la vitesse de la cible
 Largeur_cm = 20. # largeur de l'écran en cm -------------------------------------- A MODIFIER (57.?)
@@ -38,36 +39,16 @@ Distance_oeil_cm = 20. # distance de l'oeil en cm ------------------------------
 Largeur_deg = 2. * np.arctan((Largeur_cm/2) / Distance_oeil_cm) * 180./np.pi # largeur de l'écran en degrés
 nb_px_deg = Largeur_px / Largeur_deg # nombre de pixel par degré
 
-Vitesse_deg_s = 12. # vitesse en degrés par seconde
+Vitesse_deg_s = 12. # vitesse en degrés par seconde ------------------------------ A MODIFIER
 Vitesse_px_s = nb_px_deg * Vitesse_deg_s # vitesse en pixel par seconde
 
 # définition du tps (en secondes) que la cible met à arriver à son point final (0.9*demi ecran)
 tps_mvt = (0.9*(Largeur_px/2) / Vitesse_px_s)
 
-
-# ---------------------------------------------------
-# BLOC DE DIFFÉRENTE PROBABILITÉ
-# ---------------------------------------------------
-# liste des tailles des différent blocs
-taille_moyenne_bloc = 15 #-------------------------------------------------------- A MODIFIER
-liste_blocs = []
-essais_add = 0      # essais additionés
-while essais_add <= nb_essais :
-    reste_essais = nb_essais - essais_add
-    taille_bloc = np.random.poisson(taille_moyenne_bloc)
-    essais_add = essais_add + taille_bloc
-    if essais_add <= nb_essais :
-        liste_blocs.append(taille_bloc)
-    else :
-        liste_blocs.append(reste_essais)
-
-# liste binomiale en fonction des probabilités des différents blocs
-liste_binomiale = []
-for bloc in liste_blocs :
-    proba_bloc = np.random.choice(probabiliteD)
-    liste_binomiale_bloc = np.random.binomial(1, proba_bloc, bloc)
-    for x in range(len(liste_binomiale_bloc)):
-        liste_binomiale.append(liste_binomiale_bloc[x])
+# liste binomiale
+with open('parametre_exp/%s'%session, 'rb') as fichier:
+    f = pickle.Unpickler(fichier)
+    liste_binomiale = f.load()
 
 
 # ---------------------------------------------------
@@ -152,3 +133,11 @@ for essais in range(nb_essais):
             win.flip()
 
 win.close()
+
+# enregistrement parametre session (voir ce qu'il peut être ajouté) :
+f = open('parametre_exp/parametre_session.txt', 'a') # 'a' ajoute texte, 'w' l'efface
+f.write('%s\n'%data.getDateStr())
+f.write('Sujet = %s\n'%sujet)
+f.write('session = %s\n\n'%session)
+f.write('Vitesse de la cible = %f'%Vitesse_deg_s)
+f.close()
