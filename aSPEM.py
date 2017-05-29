@@ -117,7 +117,7 @@ class aSPEM(object):
             return "TODO"
     #         return """
     # ##########################
-    # #  🐭 🐁 PROTOCOL 🐭 🐁 #
+    # #  PROTOCOL  #
     # ##########################
     #
     # We used a two alternative forced choice (2AFC) paradigm. In each trial, a gray fixation screen with a small dark fixation spot was followed by a moving target during {stim_tau} second each. Different trials are separated by an uniformly gray {gray_tau}  inter-stimulus interval. Before each trial, a gray screen appears asking the participant to report in which direction he thinks the target will go.
@@ -146,7 +146,7 @@ class aSPEM(object):
     #          - {N_blocks} repetitions of each block= {total_time} seconds
     #
     #
-    #  # and now... let's 💃
+    #  # and now... let's
     #     """.format(**self.params_protocol, **self.params_stim, **self.params_exp,
     #                time=N_trials * T,
     #                N_conditions=N_blocks * N_trials,
@@ -269,7 +269,7 @@ if __name__ == '__main__':
     try:
         observer = sys.argv[1]
     except:
-        observer = 'anonymous'
+        observer = 'anna'
     try:
         block = int(sys.argv[2])
     except:
