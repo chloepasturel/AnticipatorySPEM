@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 from psychopy import visual, core, gui, event, data
 import numpy as np
-import pickle
 import os
 
 #-----------------------
@@ -38,18 +37,6 @@ win=visual.Window([Largeur_px, Hauteur_px], units='pix') # ajouter : fullscr=Tru
 session = expInfo["Session"]
 sujet = expInfo["Sujet"]
 nb_essais = 10 # ATTENTION faire correspondre avec nb_essais liste_binomiale.py-- A MODIFIER
-
-# définition de la vitesse de la cible
-Largeur_cm = 20. # largeur de l'écran en cm -------------------------------------- A MODIFIER (57.?)
-Distance_oeil_cm = 20. # distance de l'oeil en cm -------------------------------- A MODIFIER (57.?)
-Largeur_deg = 2. * np.arctan((Largeur_cm/2) / Distance_oeil_cm) * 180./np.pi # largeur de l'écran en degrés
-nb_px_deg = Largeur_px / Largeur_deg # nombre de pixel par degré
-
-Vitesse_deg_s = 12. # vitesse en degrés par seconde ------------------------------ A MODIFIER
-Vitesse_px_s = nb_px_deg * Vitesse_deg_s # vitesse en pixel par seconde
-
-# définition du tps (en secondes) que la cible met à arriver à son point final (0.9*demi ecran)
-tps_mvt = (0.9*(Largeur_px/2) / Vitesse_px_s)
 
 # liste binomiale
 liste_binomiale = np.load(os.path.join('parametre_exp', session + '.npy'))
@@ -139,22 +126,18 @@ for essais in range(nb_essais):
     win.flip()
     core.wait(0.3)      # durée du GAP
     
-    # Mouvement cible
+    # Cible
     x = 0
     if liste_binomiale[essais]==1 :
-        for frameN in range(int(tps_mvt*frame)):
-            cible = visual.Circle(win, lineColor='white', size=6, lineWidth=2, pos=(x, 0))
-            cible.draw()
-            x = x + (Vitesse_px_s/frame)
-            escape_possible()
-            win.flip()
+        cible = visual.Circle(win, lineColor='white', size=6, lineWidth=2, pos=(0.5*(Largeur_px / 2), 0))
+        cible.draw()
+        win.flip()
+        core.wait(0.3) # durée de la cible
     else :
-        for frameN in range(int(tps_mvt*frame)):
-            cible = visual.Circle(win, lineColor='white', size=6, lineWidth=2, pos=(x, 0))
-            cible.draw()
-            x = x - (Vitesse_px_s/frame)
-            escape_possible()
-            win.flip()
+        cible = visual.Circle(win, lineColor='white', size=6, lineWidth=2, pos=(-0.5*(Largeur_px / 2), 0))
+        cible.draw()
+        win.flip()
+        core.wait(0.3) # durée de la cible
 
 win.close()
 
