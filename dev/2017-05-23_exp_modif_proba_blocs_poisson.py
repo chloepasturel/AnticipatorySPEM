@@ -87,6 +87,19 @@ def escape_possible() :
     if event.getKeys(keyList=["escape"]):
         core.quit()
 
+# ---------------------------------------------------
+# EVALUATION DE LA PROBABILITE
+# ---------------------------------------------------
+# échelle pour évaluation la probabilité
+ratingScale = visual.RatingScale(win, scale=None,
+    low=0, high=1, precision=100,
+    labels=('gauche', 'neutre', 'droite'), tickMarks=[0, 0.5, 1], tickHeight=-1.0,
+    marker='triangle', markerColor='black',
+    lineColor='White',
+    acceptPreText='', showValue=False, acceptText='Ok',
+    minTime=0.4, maxTime=0.0)
+
+
 
 
 #####################################################
@@ -98,11 +111,22 @@ fixation = visual.GratingStim(win, mask='circle', sf=0, color='white', size=6)
 frame = win.getActualFrameRate()    # renvoi le nombre de frame par seconde
 
 essais = 0
+
+resultat_evaluation = []
+
 for essais in range(nb_essais):
     
     # Pause
     if essais in pauses :
         pause()
+    
+    # échelle d'évaluation
+    ratingScale.reset()
+    while ratingScale.noResponse :
+        ratingScale.draw()
+        escape_possible()
+        win.flip()
+    resultat_evaluation.append(ratingScale.getRating())
     
     # Tps de fixation à durée variable
     tps_fixation = np.random.uniform(0.4, 0.8) # durée du point de fixation (entre 400 et 800 ms)
@@ -133,11 +157,12 @@ for essais in range(nb_essais):
             win.flip()
 
 win.close()
+print resultat_evaluation
 
 # enregistrement parametre session (voir ce qu'il peut être ajouté) :
 f = open('parametre_exp/parametre_session.txt', 'a') # 'a' ajoute texte, 'w' l'efface
 f.write('%s\n'%data.getDateStr())
 f.write('Sujet = %s\n'%sujet)
-f.write('session = %s\n\n'%session)
-f.write('Vitesse de la cible = %f'%Vitesse_deg_s)
+f.write('session = %s\n'%session)
+f.write('Vitesse de la cible = %2.2f\n\n'%Vitesse_deg_s)
 f.close()
