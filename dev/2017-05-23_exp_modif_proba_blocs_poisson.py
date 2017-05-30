@@ -3,6 +3,12 @@
 from psychopy import visual, core, gui, event, data
 import numpy as np
 import pickle
+import os
+
+#-----------------------
+import time, datetime
+timeStr = time.strftime("%Y-%m-%d_%H%M%S", time.localtime())
+#-----------------------------
 
 ### IMPORTANT ###
 # Avant de lancer ce script, lancer d'abord le script 'liste_binomiale.py', pour génèrer les listes binomiales
@@ -31,7 +37,7 @@ win=visual.Window([Largeur_px, Hauteur_px], units='pix') # ajouter : fullscr=Tru
 # ---------------------------------------------------
 session = expInfo["Session"]
 sujet = expInfo["Sujet"]
-nb_essais = 100 # ATTENTION faire correspondre avec nb_essais liste_binomiale.py-- A MODIFIER
+nb_essais = 10 # ATTENTION faire correspondre avec nb_essais liste_binomiale.py-- A MODIFIER
 
 # définition de la vitesse de la cible
 Largeur_cm = 20. # largeur de l'écran en cm -------------------------------------- A MODIFIER (57.?)
@@ -46,10 +52,7 @@ Vitesse_px_s = nb_px_deg * Vitesse_deg_s # vitesse en pixel par seconde
 tps_mvt = (0.9*(Largeur_px/2) / Vitesse_px_s)
 
 # liste binomiale
-with open('parametre_exp/%s'%session, 'rb') as fichier:
-    f = pickle.Unpickler(fichier)
-    liste_binomiale = f.load()
-
+liste_binomiale = np.load(os.path.join('parametre_exp', session + '.npy'))
 
 # ---------------------------------------------------
 # PAUSE ET STOP
@@ -98,9 +101,6 @@ ratingScale = visual.RatingScale(win, scale=None,
     lineColor='White',
     acceptPreText='', showValue=False, acceptText='Ok',
     minTime=0.4, maxTime=0.0)
-
-
-
 
 #####################################################
 ###                  EXPÉRIENCE                   ###
@@ -157,12 +157,7 @@ for essais in range(nb_essais):
             win.flip()
 
 win.close()
-print resultat_evaluation
 
-# enregistrement parametre session (voir ce qu'il peut être ajouté) :
-f = open('parametre_exp/parametre_session.txt', 'a') # 'a' ajoute texte, 'w' l'efface
-f.write('%s\n'%data.getDateStr())
-f.write('Sujet = %s\n'%sujet)
-f.write('session = %s\n'%session)
-f.write('Vitesse de la cible = %2.2f\n\n'%Vitesse_deg_s)
-f.close()
+# enregistrement resultat :
+resultat = os.path.join('data', sujet + '_' + session + '_' + timeStr + '.npy')
+np.save(resultat, resultat_evaluation)

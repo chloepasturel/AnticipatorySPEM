@@ -1,7 +1,8 @@
 #!/usr/bin/env python2
 # -*- coding: utf-8 -*-
 import numpy as np
-import pickle
+#import pickle
+import os
 
 def liste(session) :
 
@@ -42,17 +43,11 @@ def liste(session) :
     f.close
     return liste_binomiale
 
-A = liste('a')
-with open('parametre_exp/a', 'wb') as fichier:
-    f = pickle.Pickler(fichier)
-    f.dump(A)
+a = os.path.join('parametre_exp', 'a.npy')
+np.save(a, liste('a'))
 
-B = liste('b')
-with open('parametre_exp/b', 'wb') as fichier:
-    f = pickle.Pickler(fichier)
-    f.dump(B)
+b = os.path.join('parametre_exp', 'b.npy')
+np.save(b, liste('b'))
 
-C = liste('c')
-with open('parametre_exp/c', 'wb') as fichier:
-    f = pickle.Pickler(fichier)
-    f.dump(C)
+c = os.path.join('parametre_exp', 'c.npy')
+np.save(c, liste('c'))

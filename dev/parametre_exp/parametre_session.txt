@@ -1,5 +1,0 @@
-2017_mai_26_1426
-Sujet = test
-session = a
-Vitesse de la cible = 12.00
-
