@@ -146,6 +146,7 @@ class aSPEM(object):
         # except:
         #     return 'blurg'
 
+
     def exp_name(self, mode, observer, block, timeStr):
         return os.path.join(self.params_exp['datadir'], mode + '_' + observer + '_' + str(block) + '_' + timeStr + '.npy')
 
