@@ -94,8 +94,8 @@ class aSPEM(object):
         dot_size = (0.05*screen_height_px)            # 
         V_X_deg = 20.                                   # deg/s
         V_X = px_per_deg * V_X_deg     # pixel/s
-
-        self.params_stim = dict(dot_size=dot_size, V_X =V_X)
+        saccade_px = .618/2*screen_height_px
+        self.params_stim = dict(dot_size=dot_size, V_X =V_X, saccade_px=saccade_px)
 
 
     def print_protocol(self):
@@ -210,12 +210,20 @@ class aSPEM(object):
         #target = visual.Circle(win, lineColor='white', size=self.params_stim['dot_size'], lineWidth=2)
         target = visual.GratingStim(win, mask='circle', sf=0, color='white', size=self.params_stim['dot_size'])
 
-        fixation = visual.GratingStim(win, mask='circle', sf=0, color='white', size=self.params_stim['dot_size'])
+        #fixation = visual.GratingStim(win, mask='circle', sf=0, color='white', size=self.params_stim['dot_size'])
+        fixation = visual.TextStim(win,
+                                text = u"+", units='norm', height=0.15, color='BlanchedAlmond',
+                                pos=[0., -0.], alignHoriz='center', alignVert='center' )
 
-        ratingScale = visual.RatingScale(win, scale=None, low=-1, high=1, precision=100, size=.25, stretch=4.,
-                        labels=('Left', 'both', 'Right'), tickMarks=[-1, -.5, 0, 0.5, 1], tickHeight=-1.0,
+        ratingScale = visual.RatingScale(win, scale=None, low=-1, high=1, precision=100, size=.4, stretch=2.5,
+                        labels=('bet Left', 'unsure...', 'bet Right'), tickMarks=[-1, 0., 1], tickHeight=-1.0,
                         marker='triangle', markerColor='black', lineColor='White', showValue=False, singleClick=True,
-                        acceptPreText=None, acceptText=None)
+                        showAccept=False, flipVert=True)
+
+        scorebox = visual.TextStim(win,
+                                text = u"0", units='norm', height=0.15, color='BlanchedAlmond',
+                                pos=[0., .5], alignHoriz='center', alignVert='center' )
+
 
         # ---------------------------------------------------
         def escape_possible() :
@@ -227,7 +235,7 @@ class aSPEM(object):
 
         def presentStimulus_fixed(dir_bool):
             dir_sign = dir_bool * 2 - 1
-            target.setPos((dir_sign * 0.5 * (self.params_exp['screen_width_px'] / 2), 0))
+            target.setPos((dir_sign * (self.params_stim['saccade_px']), 0))
             target.draw()
             win.flip()
             core.wait(0.3)
@@ -251,8 +259,11 @@ class aSPEM(object):
         results = np.zeros((self.params_protocol['N_trials'], ))
 
         if mode == 'psychophysique' :
+            score = 0
 
             for trial in range(self.params_protocol['N_trials']):
+                scorebox.setText(str(score))
+                scorebox.draw()
 
                 ratingScale.reset()
                 while ratingScale.noResponse :
@@ -264,8 +275,11 @@ class aSPEM(object):
                 ans = ratingScale.getRating()
                 results[trial] = ans
 
-                presentStimulus_fixed(self.params_protocol['p'][trial, block, 0])
+                dir_bool = self.params_protocol['p'][trial, block, 0]
+                presentStimulus_fixed(dir_bool)
                 win.flip()
+                
+                score += ans * (dir_bool * 2 - 1)
 
 
         elif mode == 'enregistrement': # see for Eyelink
