@@ -7,8 +7,6 @@ import sys
 import os
 import numpy as np
 
-# displayed on a 20” Viewsonic p227f monitor with resolution 1024 × 768 at 100 Hz
-
 
 def binomial_motion(N_trials, N_blocks, tau=25., seed=420, N_layer=3):
 
@@ -27,12 +25,17 @@ def binomial_motion(N_trials, N_blocks, tau=25., seed=420, N_layer=3):
 class aSPEM(object):
     """ docstring for the aSPEM class. """
 
-    def __init__(self):
+    def __init__(self, mode, observer, block,  timeStr):
         # super(, self).__init__()
+        # TODO: propagate this to the rest of the code:
+        self.mode, self.observer, self.block,  timeStr = mode, observer, block,  timeStr
+        
         self.init()
 
 
     def init(self):
+
+        # TODO: use pickle to extract the parameters of an experiment that was already run
 
         self.dry_run = True
         self.dry_run = False
@@ -72,6 +75,15 @@ class aSPEM(object):
                     px_per_deg=px_per_deg)
 
         # ---------------------------------------------------
+        # stimulus parameters
+        # ---------------------------------------------------
+        dot_size = (0.05*screen_height_px)            # 
+        V_X_deg = 20.                                   # deg/s
+        V_X = px_per_deg * V_X_deg     # pixel/s
+        saccade_px = .618/2*screen_height_px
+        self.params_stim = dict(dot_size=dot_size, V_X =V_X, saccade_px=saccade_px)
+
+        # ---------------------------------------------------
         # exploration parameters
         # ---------------------------------------------------
         N_blocks = 2
@@ -87,15 +99,6 @@ class aSPEM(object):
 
         self.params_protocol = dict(N_blocks=N_blocks, seed=seed, N_trials=N_trials, p=p, stim_tau =stim_tau,
                         N_frame_stim=N_frame_stim, T=T)
-
-        # ---------------------------------------------------
-        # stimulus parameters
-        # ---------------------------------------------------
-        dot_size = (0.05*screen_height_px)            # 
-        V_X_deg = 20.                                   # deg/s
-        V_X = px_per_deg * V_X_deg     # pixel/s
-        saccade_px = .618/2*screen_height_px
-        self.params_stim = dict(dot_size=dot_size, V_X =V_X, saccade_px=saccade_px)
 
 
     def print_protocol(self):
@@ -155,8 +158,11 @@ class aSPEM(object):
         return np.load(self.exp_name(mode, observer, block, timeStr))
 
 
-    def plot(self, mode, observer, N_trials, N_blocks, p, timeStr, fig_width):
+    def plot(self, mode=None, observer=None, timeStr=None, fig_width=13):
         import matplotlib.pyplot as plt
+        N_trials = self.params_protocol['N_trials']
+        N_blocks = self.params_protocol['N_blocks']
+        p = self.params_protocol['p']
 
         fig_width= fig_width
         fig, axs = plt.subplots(3, 1, figsize=(fig_width, fig_width/1.6180))
@@ -173,10 +179,13 @@ class aSPEM(object):
             axs[i_layer].axis('tight')
             axs[i_layer].set_ylabel(label, fontsize=14)
 
-        for block in range(N_blocks):
-            results = self.load(mode, observer, block, timeStr)
-            corrects += (results == p[:, block, 0]).sum()
-            _ = axs[1].plot(range(N_trials), block + results, alpha=.9, color='r')
+        if not mode is None:
+            for block in range(N_blocks):
+                results = self.load(mode, observer, block, timeStr)
+                print ( results.shape, p[:, block, 0].shape )
+                print ( results*1. == p[:, block, 0]*1. )
+                corrects += (results == p[:, block, 0]).sum()
+                _ = axs[1].plot(range(N_trials), block + results, alpha=.9, color='r')
 
         fig.tight_layout()
         for i in range(2): axs[i].set_ylim(-.05, N_blocks + .05)
@@ -189,7 +198,7 @@ class aSPEM(object):
 
         if verb: print('launching experiment')
 
-        from psychopy import visual, core, event, logging
+        from psychopy import visual, core, event, logging, sound
 
         logging.console.setLevel(logging.DEBUG)
         if verb: print('launching experiment')
@@ -223,7 +232,8 @@ class aSPEM(object):
         scorebox = visual.TextStim(win,
                                 text = u"0", units='norm', height=0.15, color='BlanchedAlmond',
                                 pos=[0., .5], alignHoriz='center', alignVert='center' )
-
+        #TODO : creer 2 sons neg vs pos / régler le volume en fonction de la réussite  
+        # beep_pyo = sound.Sound('beep.wav')
 
         # ---------------------------------------------------
         def escape_possible() :
@@ -320,9 +330,6 @@ class aSPEM(object):
 
 
 if __name__ == '__main__':
-    e = aSPEM()
-    print('Starting protocol')
-
     try:
         mode = sys.argv[1]
     except:
@@ -344,5 +351,9 @@ if __name__ == '__main__':
         import time, datetime
         timeStr = time.strftime("%Y-%m-%d_%H%M%S", time.localtime())
 
-    if True:
-        e.run_experiment(mode, observer, block,  timeStr)
+    e = aSPEM(mode, observer, block,  timeStr)
+
+    if True: # TODO check if exists
+        print('Starting protocol')
+
+        e.run_experiment()
