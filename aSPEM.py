@@ -91,7 +91,7 @@ class aSPEM(object):
         # ---------------------------------------------------
         # stimulus parameters
         # ---------------------------------------------------
-        dot_size = 6            # 0.01
+        dot_size = (0.05*screen_height_px)            # 
         V_X_deg = 20.                                   # deg/s
         V_X = px_per_deg * V_X_deg     # pixel/s
 
@@ -207,19 +207,22 @@ class aSPEM(object):
         if verb: print('FPS = ',  win.getActualFrameRate() , 'framerate=', self.params_exp['framerate'])
 
         # ---------------------------------------------------
-        target = visual.Circle(win, lineColor='white', size=self.params_stim['dot_size'], lineWidth=2)
+        #target = visual.Circle(win, lineColor='white', size=self.params_stim['dot_size'], lineWidth=2)
+        target = visual.GratingStim(win, mask='circle', sf=0, color='white', size=self.params_stim['dot_size'])
 
         fixation = visual.GratingStim(win, mask='circle', sf=0, color='white', size=self.params_stim['dot_size'])
 
-        ratingScale = visual.RatingScale(win, scale=None, low=0, high=1, precision=100,
-                        labels=('Left', 'both', 'Right'), tickMarks=[0, 0.5, 1], tickHeight=-1.0,
-                        marker='triangle', markerColor='black', lineColor='White',
-                        acceptPreText='', showValue=False, acceptText='Ok')
+        ratingScale = visual.RatingScale(win, scale=None, low=-1, high=1, precision=100, size=.25, stretch=4.,
+                        labels=('Left', 'both', 'Right'), tickMarks=[-1, -.5, 0, 0.5, 1], tickHeight=-1.0,
+                        marker='triangle', markerColor='black', lineColor='White', showValue=False, singleClick=True,
+                        acceptPreText=None, acceptText=None)
 
         # ---------------------------------------------------
         def escape_possible() :
-            if event.getKeys(keyList=["escape"]):
+            if event.getKeys(keyList=["escape", "Q", "a"]):
                 core.quit()
+                import sys
+                sys.exit()
 
 
         def presentStimulus_fixed(dir_bool):
