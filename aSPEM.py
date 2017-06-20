@@ -28,7 +28,7 @@ class aSPEM(object):
     def __init__(self, mode, observer, block,  timeStr):
         # super(, self).__init__()
         # TODO: propagate this to the rest of the code:
-        self.mode, self.observer, self.block,  timeStr = mode, observer, block,  timeStr
+        self.mode, self.observer, self.block,  self.timeStr = mode, observer, block,  timeStr
         
         self.init()
 
@@ -194,7 +194,9 @@ class aSPEM(object):
         return corrects
 
 
-    def run_experiment(self, mode, observer, block, timeStr, verb=True):
+    def run_experiment(self, verb=True):
+        #mode, observer, block,  timeStr = self.mode, self.observer, self.block,  self.timeStr
+
 
         if verb: print('launching experiment')
 
@@ -221,19 +223,20 @@ class aSPEM(object):
 
         #fixation = visual.GratingStim(win, mask='circle', sf=0, color='white', size=self.params_stim['dot_size'])
         fixation = visual.TextStim(win,
-                                text = u"+", units='norm', height=0.15, color='BlanchedAlmond',
+                                text = u"+", units='norm', height=0.15, color='white',
                                 pos=[0., -0.], alignHoriz='center', alignVert='center' )
 
         ratingScale = visual.RatingScale(win, scale=None, low=-1, high=1, precision=100, size=.4, stretch=2.5,
                         labels=('bet Left', 'unsure...', 'bet Right'), tickMarks=[-1, 0., 1], tickHeight=-1.0,
                         marker='triangle', markerColor='black', lineColor='White', showValue=False, singleClick=True,
-                        showAccept=False, flipVert=True)
+                        showAccept=False)
 
         scorebox = visual.TextStim(win,
-                                text = u"0", units='norm', height=0.15, color='BlanchedAlmond',
+                                text = u"0", units='norm', height=0.05, color='white',
                                 pos=[0., .5], alignHoriz='center', alignVert='center' )
-        #TODO : creer 2 sons neg vs pos / régler le volume en fonction de la réussite  
-        # beep_pyo = sound.Sound('beep.wav')
+
+        Bip_pos = sound.Sound('200', secs=0.2)
+        Bip_neg = sound.Sound('3000', secs=0.2)
 
         # ---------------------------------------------------
         def escape_possible() :
@@ -272,11 +275,13 @@ class aSPEM(object):
             score = 0
 
             for trial in range(self.params_protocol['N_trials']):
-                scorebox.setText(str(score))
-                scorebox.draw()
 
                 ratingScale.reset()
                 while ratingScale.noResponse :
+                    
+                    scorebox.setText(str(score))
+                    scorebox.draw()
+
                     fixation.draw()
                     ratingScale.draw()
                     escape_possible()
@@ -290,7 +295,25 @@ class aSPEM(object):
                 win.flip()
                 
                 score += ans * (dir_bool * 2 - 1)
-
+                
+                if ans*(dir_bool * 2 - 1)>0 :
+                    if score > 0 :
+                        Bip_pos.play()
+                        Bip_pos.setVolume(score)
+                        core.wait(0.5)
+                    else :
+                        Bip_pos.play()
+                        Bip_pos.setVolume(0.1)
+                        core.wait(0.5)
+                else :
+                    if score < 0 :
+                        Bip_neg.play()
+                        Bip_neg.setVolume(-1*(score))
+                        core.wait(0.5)
+                    else :
+                        Bip_neg.play()
+                        Bip_neg.setVolume(0.1)
+                        core.wait(0.5)
 
         elif mode == 'enregistrement': # see for Eyelink
 
@@ -330,6 +353,8 @@ class aSPEM(object):
 
 
 if __name__ == '__main__':
+
+
     try:
         mode = sys.argv[1]
     except:
@@ -353,7 +378,6 @@ if __name__ == '__main__':
 
     e = aSPEM(mode, observer, block,  timeStr)
 
-    if True: # TODO check if exists
+    if True:
         print('Starting protocol')
-
         e.run_experiment()
