@@ -27,6 +27,6 @@ rating = ratingScale.getRating()
 decisionTime = ratingScale.getRT()
 choiceHistory = ratingScale.getHistory()
 
-print rating
-print decisionTime
-print choiceHistory
+print(rating)
+print(decisionTime)
+print(choiceHistory)
