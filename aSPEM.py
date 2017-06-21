@@ -25,15 +25,16 @@ def binomial_motion(N_trials, N_blocks, tau=25., seed=420, N_layer=3):
 class aSPEM(object):
     """ docstring for the aSPEM class. """
 
-    def __init__(self, mode, observer, block,  timeStr):
-        # super(, self).__init__()
-        # TODO: propagate this to the rest of the code:
-        self.mode, self.observer, self.block,  self.timeStr = mode, observer, block,  timeStr
+    def __init__(self, mode, observer, timeStr, num_block=0) :
+        self.mode = mode
+        self.observer = observer
+        self.num_block = num_block
+        self.timeStr = timeStr
         
         self.init()
 
 
-    def init(self):
+    def init(self) :
 
         # TODO: use pickle to extract the parameters of an experiment that was already run
 
@@ -48,7 +49,7 @@ class aSPEM(object):
         cachedir = 'data_cache'
         datadir = 'data'
         import os
-        for dir_ in [datadir, cachedir]:
+        for dir_ in [datadir, cachedir] :
             try:
                 os.mkdir(dir_)
             except:
@@ -88,7 +89,7 @@ class aSPEM(object):
         # ---------------------------------------------------
         N_blocks = 2
         seed = 1973
-        N_trials = 80
+        N_trials = 8
         tau = N_trials/4.
         (trials, p) = binomial_motion(N_trials, N_blocks, tau=tau, seed=seed, N_layer=3)
         stim_tau = .35 # in seconds
@@ -150,15 +151,15 @@ class aSPEM(object):
         #     return 'blurg'
 
 
-    def exp_name(self, mode, observer, block, timeStr):
-        return os.path.join(self.params_exp['datadir'], mode + '_' + observer + '_' + str(block) + '_' + timeStr + '.npy')
+    def exp_name(self, block):
+        return os.path.join(self.params_exp['datadir'], self.mode + '_' + self.observer + '_' + str(block) + '_' + self.timeStr + '.npy')
 
 
-    def load(self, mode, observer, block, timeStr):
-        return np.load(self.exp_name(mode, observer, block, timeStr))
+    def load(self):
+        return np.load(self.exp_name(self.num_block))
 
 
-    def plot(self, mode=None, observer=None, timeStr=None, fig_width=13):
+    def plot(self, mode=None, fig_width=13):
         import matplotlib.pyplot as plt
         N_trials = self.params_protocol['N_trials']
         N_blocks = self.params_protocol['N_blocks']
@@ -181,7 +182,7 @@ class aSPEM(object):
 
         if not mode is None:
             for block in range(N_blocks):
-                results = self.load(mode, observer, block, timeStr)
+                results = self.load()
                 print ( results.shape, p[:, block, 0].shape )
                 print ( results*1. == p[:, block, 0]*1. )
                 corrects += (results == p[:, block, 0]).sum()
@@ -195,8 +196,6 @@ class aSPEM(object):
 
 
     def run_experiment(self, verb=True):
-        #mode, observer, block,  timeStr = self.mode, self.observer, self.block,  self.timeStr
-
 
         if verb: print('launching experiment')
 
@@ -222,8 +221,7 @@ class aSPEM(object):
         target = visual.GratingStim(win, mask='circle', sf=0, color='white', size=self.params_stim['dot_size'])
 
         #fixation = visual.GratingStim(win, mask='circle', sf=0, color='white', size=self.params_stim['dot_size'])
-        fixation = visual.TextStim(win,
-                                text = u"+", units='norm', height=0.15, color='white',
+        fixation = visual.TextStim(win, text = u"+", units='norm', height=0.15, color='white',
                                 pos=[0., -0.], alignHoriz='center', alignVert='center' )
 
         ratingScale = visual.RatingScale(win, scale=None, low=-1, high=1, precision=100, size=.4, stretch=2.5,
@@ -231,20 +229,33 @@ class aSPEM(object):
                         marker='triangle', markerColor='black', lineColor='White', showValue=False, singleClick=True,
                         showAccept=False)
 
-        scorebox = visual.TextStim(win,
-                                text = u"0", units='norm', height=0.05, color='white',
+        scorebox = visual.TextStim(win, text = u"0", units='norm', height=0.05, color='white',
                                 pos=[0., .5], alignHoriz='center', alignVert='center' )
 
         Bip_pos = sound.Sound('200', secs=0.2)
         Bip_neg = sound.Sound('3000', secs=0.2)
 
         # ---------------------------------------------------
+        # fonction pause avec possibilité de quitter l'expérience
+        msg_pause = visual.TextStim(win, text=u"\n\n\nTaper sur une touche pour continuer\n\nESCAPE pour arrêter l'expérience",
+                                    font='calibri', height=25,
+                                    alignHoriz='center', alignVert='top')
+
+        def pause() :
+            msg_pause.draw()
+            win.flip()
+            
+            allKeys=event.waitKeys()
+            for thisKey in allKeys:
+                if thisKey in ['ESCAPE','q', 'a']:
+                    win.close()
+                    core.quit()
+
         def escape_possible() :
             if event.getKeys(keyList=["escape", "Q", "a"]):
                 core.quit()
-                import sys
-                sys.exit()
-
+                #import sys
+                #sys.exit()
 
         def presentStimulus_fixed(dir_bool):
             dir_sign = dir_bool * 2 - 1
@@ -271,70 +282,79 @@ class aSPEM(object):
 
         results = np.zeros((self.params_protocol['N_trials'], ))
 
-        if mode == 'psychophysique' :
-            score = 0
+        if self.mode == 'psychophysique' :
+            
+            for block in range(self.params_protocol['N_blocks']):
+                
+                score = 0
+                pause()
+                print block
+                
+                for trial in range(self.params_protocol['N_trials']):
 
-            for trial in range(self.params_protocol['N_trials']):
+                    ratingScale.reset()
+                    while ratingScale.noResponse :
+                        
+                        scorebox.setText(str(score))
+                        scorebox.draw()
+                        
+                        fixation.draw()
+                        ratingScale.draw()
+                        escape_possible()
+                        win.flip()
 
-                ratingScale.reset()
-                while ratingScale.noResponse :
+                    ans = ratingScale.getRating()
+                    results[trial] = ans
+
+                    dir_bool = self.params_protocol['p'][trial, block, 0]
+                    presentStimulus_fixed(dir_bool)
+                    win.flip()
                     
-                    scorebox.setText(str(score))
-                    scorebox.draw()
+                    score += ans * (dir_bool * 2 - 1)
+                    
+                    if ans*(dir_bool * 2 - 1)>0 :
+                        if score > 0 :
+                            Bip_pos.play()
+                            Bip_pos.setVolume(score)
+                            core.wait(0.5)
+                        else :
+                            Bip_pos.play()
+                            Bip_pos.setVolume(0.1)
+                            core.wait(0.5)
+                    else :
+                        if score < 0 :
+                            Bip_neg.play()
+                            Bip_neg.setVolume(-1*(score))
+                            core.wait(0.5)
+                        else :
+                            Bip_neg.play()
+                            Bip_neg.setVolume(0.1)
+                            core.wait(0.5)
+            
+            #save data
+            np.save(self.exp_name(block), results)
+        
+        elif self.mode == 'enregistrement': # see for Eyelink
+            for block in range(self.params_protocol['N_blocks']):
+
+                for trial in range(self.params_protocol['N_trials']):
+
+                    clock.reset()
+                    t = clock.getTime()
 
                     fixation.draw()
-                    ratingScale.draw()
                     escape_possible()
                     win.flip()
+                    core.wait(np.random.uniform(0.4, 0.8))
 
-                ans = ratingScale.getRating()
-                results[trial] = ans
+                    # GAP
+                    win.flip()
+                    core.wait(0.3)
 
-                dir_bool = self.params_protocol['p'][trial, block, 0]
-                presentStimulus_fixed(dir_bool)
-                win.flip()
-                
-                score += ans * (dir_bool * 2 - 1)
-                
-                if ans*(dir_bool * 2 - 1)>0 :
-                    if score > 0 :
-                        Bip_pos.play()
-                        Bip_pos.setVolume(score)
-                        core.wait(0.5)
-                    else :
-                        Bip_pos.play()
-                        Bip_pos.setVolume(0.1)
-                        core.wait(0.5)
-                else :
-                    if score < 0 :
-                        Bip_neg.play()
-                        Bip_neg.setVolume(-1*(score))
-                        core.wait(0.5)
-                    else :
-                        Bip_neg.play()
-                        Bip_neg.setVolume(0.1)
-                        core.wait(0.5)
+                    presentStimulus_move(self.params_protocol['p'][trial, block, 0])
+                    escape_possible()
 
-        elif mode == 'enregistrement': # see for Eyelink
-
-            for trial in range(self.params_protocol['N_trials']):
-
-                clock.reset()
-                t = clock.getTime()
-
-                fixation.draw()
-                escape_possible()
-                win.flip()
-                core.wait(np.random.uniform(0.4, 0.8))
-
-                # GAP
-                win.flip()
-                core.wait(0.3)
-
-                presentStimulus_move(self.params_protocol['p'][trial, block, 0])
-                escape_possible()
-
-                win.flip()
+                    win.flip()
 
 
         else :
@@ -347,8 +367,6 @@ class aSPEM(object):
 
         win.close()
 
-        #save data
-        np.save(self.exp_name(mode, observer, block, timeStr), results)
         core.quit()
 
 
@@ -366,9 +384,9 @@ if __name__ == '__main__':
         observer = 'anna'
 
     try:
-        block = int(sys.argv[3])
+        num_block = int(sys.argv[3])
     except:
-        block = 0
+        num_block = 2
 
     try:
         timeStr = sys.argv[4]
@@ -376,7 +394,7 @@ if __name__ == '__main__':
         import time, datetime
         timeStr = time.strftime("%Y-%m-%d_%H%M%S", time.localtime())
 
-    e = aSPEM(mode, observer, block,  timeStr)
+    e = aSPEM(mode, observer, timeStr, num_block)
 
     if True:
         print('Starting protocol')
