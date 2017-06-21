@@ -6,7 +6,7 @@
 import sys
 import os
 import numpy as np
-
+import pickle
 
 def binomial_motion(N_trials, N_blocks, tau=25., seed=420, N_layer=3):
 
@@ -25,23 +25,23 @@ def binomial_motion(N_trials, N_blocks, tau=25., seed=420, N_layer=3):
 class aSPEM(object):
     """ docstring for the aSPEM class. """
 
-    def __init__(self, mode, observer, timeStr, num_block=0) :
+    def __init__(self, mode, observer, timeStr) :
         self.mode = mode
         self.observer = observer
-        self.num_block = num_block
-        self.timeStr = timeStr
-        
+        self.timeStr = str(timeStr)
+
         self.init()
 
 
     def init(self) :
-
+        
         # TODO: use pickle to extract the parameters of an experiment that was already run
 
         self.dry_run = True
         self.dry_run = False
         self.experiment = 'aSPEM'
         self.instructions = """ TODO """
+
 
         # ---------------------------------------------------
         # setup values
@@ -55,115 +55,96 @@ class aSPEM(object):
             except:
                 pass
 
-        # width and height of your screen
-        # displayed on a 20” Viewsonic p227f monitor with resolution 1024 × 768 at 100 Hz
-        #w, h = 1920, 1200
-        #w, h = 2560, 1440 # iMac 27''
-        screen_width_px = 1024
-        screen_height_px = 768
-        framerate = 100.
-        screen = 0
+        file = self.mode + '_' + self.observer + '_' + self.timeStr + '.pkl'
+        if file in os.listdir(datadir) :
+            with open(os.path.join(datadir, file), 'rb') as fichier :
+                self.exp = pickle.load(fichier, encoding='latin1')
+                print (self.exp)
 
-        screen_width_cm = 57. # (cm)
-        viewingDistance = 57. # (cm) TODO : what is the equivalent viewing distance?
-        screen_width_deg = 2. * np.arctan((screen_width_cm/2) / viewingDistance) * 180/np.pi
-        px_per_deg = screen_height_px / screen_width_deg
+        else :
+            # width and height of your screen
+            # displayed on a 20” Viewsonic p227f monitor with resolution 1024 × 768 at 100 Hz
+            #w, h = 1920, 1200
+            #w, h = 2560, 1440 # iMac 27''
+            screen_width_px = 1024
+            screen_height_px = 768
+            framerate = 100.
+            screen = 0
 
-        self.params_exp = dict(datadir=datadir, cachedir=cachedir,
-                    framerate=framerate,
-                    screen=screen,
-                    screen_width_px=screen_width_px, screen_height_px=screen_height_px,
-                    px_per_deg=px_per_deg)
+            screen_width_cm = 57. # (cm)
+            viewingDistance = 57. # (cm) TODO : what is the equivalent viewing distance?
+            screen_width_deg = 2. * np.arctan((screen_width_cm/2) / viewingDistance) * 180/np.pi
+            px_per_deg = screen_height_px / screen_width_deg
 
-        # ---------------------------------------------------
-        # stimulus parameters
-        # ---------------------------------------------------
-        dot_size = (0.05*screen_height_px)            # 
-        V_X_deg = 20.                                   # deg/s
-        V_X = px_per_deg * V_X_deg     # pixel/s
-        saccade_px = .618/2*screen_height_px
-        self.params_stim = dict(dot_size=dot_size, V_X =V_X, saccade_px=saccade_px)
+            # ---------------------------------------------------
+            # stimulus parameters
+            # ---------------------------------------------------
+            dot_size = (0.05*screen_height_px)            # 
+            V_X_deg = 20.                                   # deg/s
+            V_X = px_per_deg * V_X_deg     # pixel/s
+            saccade_px = .618/2*screen_height_px
 
-        # ---------------------------------------------------
-        # exploration parameters
-        # ---------------------------------------------------
-        N_blocks = 2
-        seed = 1973
-        N_trials = 8
-        tau = N_trials/4.
-        (trials, p) = binomial_motion(N_trials, N_blocks, tau=tau, seed=seed, N_layer=3)
-        stim_tau = .35 # in seconds
+            # ---------------------------------------------------
+            # exploration parameters
+            # ---------------------------------------------------
+            N_blocks = 2
+            seed = 1973
+            N_trials = 8
+            tau = N_trials/4.
+            (trials, p) = binomial_motion(N_trials, N_blocks, tau=tau, seed=seed, N_layer=3)
+            stim_tau = .35 # in seconds
 
-        gray_tau = .0 # in seconds
-        T =  stim_tau + gray_tau
-        N_frame_stim = int(stim_tau*framerate)
+            gray_tau = .0 # in seconds
+            T =  stim_tau + gray_tau
+            N_frame_stim = int(stim_tau*framerate)
 
-        self.params_protocol = dict(N_blocks=N_blocks, seed=seed, N_trials=N_trials, p=p, stim_tau =stim_tau,
-                        N_frame_stim=N_frame_stim, T=T)
+
+            self.exp = dict(N_blocks=N_blocks, seed=seed, N_trials=N_trials, p=p, stim_tau =stim_tau,
+                            N_frame_stim=N_frame_stim, T=T,
+                            datadir=datadir, cachedir=cachedir,
+                            framerate=framerate,
+                            screen=screen,
+                            screen_width_px=screen_width_px, screen_height_px=screen_height_px,
+                            px_per_deg=px_per_deg,
+                            dot_size=dot_size, V_X =V_X, saccade_px=saccade_px)
+
+            #self.params_protocol = dict(N_blocks=N_blocks, seed=seed, N_trials=N_trials, p=p, stim_tau =stim_tau,
+            #                N_frame_stim=N_frame_stim, T=T)
+            
+            #self.params_exp = dict(datadir=datadir, cachedir=cachedir,
+            #            framerate=framerate,
+            #            screen=screen,
+            #            screen_width_px=screen_width_px, screen_height_px=screen_height_px,
+            #            px_per_deg=px_per_deg)
+            #self.params_stim = dict(dot_size=dot_size, V_X =V_X, saccade_px=saccade_px)
+
 
 
     def print_protocol(self):
         if True: #try:
-            N_blocks = self.params_protocol['N_blocks']
-            N_trials = self.params_protocol['N_trials']
-            N_frame_stim = self.params_protocol['N_frame_stim']
-            T = self.params_protocol['T']
+            N_blocks = self.exp['N_blocks']
+            N_trials = self.exp['N_trials']
+            N_frame_stim = self.exp['N_frame_stim']
+            T = self.exp['T']
             return "TODO"
     #         return """
     # ##########################
     # #  PROTOCOL  #
     # ##########################
     #
-    # We used a two alternative forced choice (2AFC) paradigm. In each trial, a gray fixation screen with a small dark fixation spot was followed by a moving target during {stim_tau} second each. Different trials are separated by an uniformly gray {gray_tau}  inter-stimulus interval. Before each trial, a gray screen appears asking the participant to report in which direction he thinks the target will go.
-    #
-    #  * Presentation of stimuli at {framerate} Hz on the {screen_width_px}x{screen_width_px} array during {T} s
-    #
-    #  * fixed parameters:
-    #          - dot_size = {dot_size} dot's size,
-    #          - XXX
-    #
-    # Fro each condition (blockid), we used {N_blocks} blocks of {N_trials} trials.
-    #
-    #  * parameters:
-    #          - N_blocks = {N_blocks} different blocks: seed={seed} and their {N_blocks} increments to generate different movies within one block
-    #          - N_trials = {N_trials} number of trials within a block
-    #
-    #         Grand total for one block is
-    #          - {N_trials} trials ⨉
-    #          - {N_blocks} blocks x
-    #          - {T}s
-    #
-    #         That is,
-    #          - One block=  {N_trials}  trials
-    #          - One block=  {total_frames}  frames
-    #          - One block= {time} seconds
-    #          - {N_blocks} repetitions of each block= {total_time} seconds
-    #
-    #
-    #  # and now... let's
-    #     """.format(**self.params_protocol, **self.params_stim, **self.params_exp,
-    #                time=N_trials * T,
-    #                N_conditions=N_blocks * N_trials,
-    #                total_frames=N_blocks * N_trials * N_frame_stim,
-    #                total_time=N_blocks * N_trials * T)
 
         # except:
         #     return 'blurg'
 
 
-    def exp_name(self, block):
-        return os.path.join(self.params_exp['datadir'], self.mode + '_' + self.observer + '_' + str(block) + '_' + self.timeStr + '.npy')
-
-
-    def load(self):
-        return np.load(self.exp_name(self.num_block))
-
+    def exp_name(self):
+        return os.path.join(self.exp['datadir'], self.mode + '_' + self.observer + '_' + self.timeStr + '.pkl')
 
     def plot(self, mode=None, fig_width=13):
         import matplotlib.pyplot as plt
-        N_trials = self.params_protocol['N_trials']
-        N_blocks = self.params_protocol['N_blocks']
-        p = self.params_protocol['p']
+        N_trials = self.exp['N_trials']
+        N_blocks = self.exp['N_blocks']
+        p = self.exp['p']
 
         fig_width= fig_width
         fig, axs = plt.subplots(3, 1, figsize=(fig_width, fig_width/1.6180))
@@ -181,12 +162,11 @@ class aSPEM(object):
             axs[i_layer].set_ylabel(label, fontsize=14)
 
         if not mode is None:
+            results = (self.exp['results']+1)/2 # results est sur [-1,1] on le ramene sur [0,1]
             for block in range(N_blocks):
-                results = self.load()
-                print ( results.shape, p[:, block, 0].shape )
-                print ( results*1. == p[:, block, 0]*1. )
-                corrects += (results == p[:, block, 0]).sum()
-                _ = axs[1].plot(range(N_trials), block + results, alpha=.9, color='r')
+
+                corrects += (results[:, block] == p[:, block, 0]).sum()
+                _ = axs[1].plot(range(N_trials), block + results[:, block], alpha=.9, color='r')
 
         fig.tight_layout()
         for i in range(2): axs[i].set_ylim(-.05, N_blocks + .05)
@@ -207,20 +187,20 @@ class aSPEM(object):
         if verb: print('go!')
 
         # ---------------------------------------------------
-        win = visual.Window([self.params_exp['screen_width_px'], self.params_exp['screen_height_px']],
-                            allowGUI=False, fullscr=True, screen=self.params_exp['screen'], units='pix')
+        win = visual.Window([self.exp['screen_width_px'], self.exp['screen_height_px']],
+                            allowGUI=False, fullscr=True, screen=self.exp['screen'], units='pix')
 
         win.setRecordFrameIntervals(True)
-        win._refreshThreshold = 1/self.params_exp['framerate'] + 0.004 # i've got 50Hz monitor and want to allow 4ms tolerance
+        win._refreshThreshold = 1/self.exp['framerate'] + 0.004 # i've got 50Hz monitor and want to allow 4ms tolerance
 
         # ---------------------------------------------------
-        if verb: print('FPS = ',  win.getActualFrameRate() , 'framerate=', self.params_exp['framerate'])
+        if verb: print('FPS = ',  win.getActualFrameRate() , 'framerate=', self.exp['framerate'])
 
         # ---------------------------------------------------
-        #target = visual.Circle(win, lineColor='white', size=self.params_stim['dot_size'], lineWidth=2)
-        target = visual.GratingStim(win, mask='circle', sf=0, color='white', size=self.params_stim['dot_size'])
+        #target = visual.Circle(win, lineColor='white', size=self.exp['dot_size'], lineWidth=2)
+        target = visual.GratingStim(win, mask='circle', sf=0, color='white', size=self.exp['dot_size'])
 
-        #fixation = visual.GratingStim(win, mask='circle', sf=0, color='white', size=self.params_stim['dot_size'])
+        #fixation = visual.GratingStim(win, mask='circle', sf=0, color='white', size=self.exp['dot_size'])
         fixation = visual.TextStim(win, text = u"+", units='norm', height=0.15, color='white',
                                 pos=[0., -0.], alignHoriz='center', alignVert='center' )
 
@@ -244,10 +224,10 @@ class aSPEM(object):
         def pause() :
             msg_pause.draw()
             win.flip()
-            
+
             allKeys=event.waitKeys()
             for thisKey in allKeys:
-                if thisKey in ['ESCAPE','q', 'a']:
+                if thisKey in ["escape", "Q", "a"]:
                     win.close()
                     core.quit()
 
@@ -259,7 +239,7 @@ class aSPEM(object):
 
         def presentStimulus_fixed(dir_bool):
             dir_sign = dir_bool * 2 - 1
-            target.setPos((dir_sign * (self.params_stim['saccade_px']), 0))
+            target.setPos((dir_sign * (self.exp['saccade_px']), 0))
             target.draw()
             win.flip()
             core.wait(0.3)
@@ -271,8 +251,8 @@ class aSPEM(object):
             clock.reset()
             myMouse.setVisible(0)
             dir_sign = dir_bool * 2 - 1
-            while clock.getTime() < self.params_protocol['stim_tau']:
-                target.setPos((dir_sign * self.params_stim['V_X']*np.float(clock.getTime()/self.params_protocol['stim_tau']), 0))
+            while clock.getTime() < self.exp['stim_tau']:
+                target.setPos((dir_sign * self.exp['V_X']*np.float(clock.getTime()/self.exp['stim_tau']), 0))
                 target.draw()
                 win.flip()
 
@@ -280,38 +260,37 @@ class aSPEM(object):
         # EXPERIMENT
         # ---------------------------------------------------
 
-        results = np.zeros((self.params_protocol['N_trials'], ))
-
         if self.mode == 'psychophysique' :
-            
-            for block in range(self.params_protocol['N_blocks']):
-                
+
+            results = np.zeros((self.exp['N_trials'], self.exp['N_blocks'] ))
+
+            for block in range(self.exp['N_blocks']):
+
                 score = 0
                 pause()
-                print block
-                
-                for trial in range(self.params_protocol['N_trials']):
+                #print block
+                for trial in range(self.exp['N_trials']):
 
                     ratingScale.reset()
                     while ratingScale.noResponse :
-                        
+
                         scorebox.setText(str(score))
                         scorebox.draw()
-                        
+
                         fixation.draw()
                         ratingScale.draw()
                         escape_possible()
                         win.flip()
 
                     ans = ratingScale.getRating()
-                    results[trial] = ans
+                    results[trial, block] = ans
 
-                    dir_bool = self.params_protocol['p'][trial, block, 0]
+                    dir_bool = self.exp['p'][trial, block, 0]
                     presentStimulus_fixed(dir_bool)
                     win.flip()
-                    
+
                     score += ans * (dir_bool * 2 - 1)
-                    
+
                     if ans*(dir_bool * 2 - 1)>0 :
                         if score > 0 :
                             Bip_pos.play()
@@ -330,14 +309,18 @@ class aSPEM(object):
                             Bip_neg.play()
                             Bip_neg.setVolume(0.1)
                             core.wait(0.5)
-            
-            #save data
-            np.save(self.exp_name(block), results)
-        
-        elif self.mode == 'enregistrement': # see for Eyelink
-            for block in range(self.params_protocol['N_blocks']):
 
-                for trial in range(self.params_protocol['N_trials']):
+            self.exp['results']=results
+            #save data
+            #np.save(self.exp_name(block), results)
+            with open(self.exp_name(), 'wb') as fichier:
+                f = pickle.Pickler(fichier)
+                f.dump(self.exp)
+
+        elif self.mode == 'enregistrement': # see for Eyelink
+            for block in range(self.exp['N_blocks']):
+
+                for trial in range(self.exp['N_trials']):
 
                     clock.reset()
                     t = clock.getTime()
@@ -351,7 +334,7 @@ class aSPEM(object):
                     win.flip()
                     core.wait(0.3)
 
-                    presentStimulus_move(self.params_protocol['p'][trial, block, 0])
+                    presentStimulus_move(self.exp['p'][trial, block, 0])
                     escape_possible()
 
                     win.flip()
@@ -372,7 +355,6 @@ class aSPEM(object):
 
 if __name__ == '__main__':
 
-
     try:
         mode = sys.argv[1]
     except:
@@ -381,12 +363,7 @@ if __name__ == '__main__':
     try:
         observer = sys.argv[2]
     except:
-        observer = 'anna'
-
-    try:
-        num_block = int(sys.argv[3])
-    except:
-        num_block = 2
+        observer = 'test'
 
     try:
         timeStr = sys.argv[4]
@@ -394,7 +371,7 @@ if __name__ == '__main__':
         import time, datetime
         timeStr = time.strftime("%Y-%m-%d_%H%M%S", time.localtime())
 
-    e = aSPEM(mode, observer, timeStr, num_block)
+    e = aSPEM(mode, observer, timeStr)
 
     if True:
         print('Starting protocol')
