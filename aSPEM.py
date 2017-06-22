@@ -69,9 +69,9 @@ class aSPEM(object):
             # width and height of your screen
             # displayed on a 20” Viewsonic p227f monitor with resolution 1024 × 768 at 100 Hz
             #w, h = 1920, 1200
-            #w, h = 2560, 1440 # iMac 27''
             screen_width_px = 1024
             screen_height_px = 768
+            screen_width_px, screen_height_px = 2560, 1440 # iMac 27''
             framerate = 100.
             screen = 0
 
@@ -190,10 +190,10 @@ class aSPEM(object):
         prefs.general['audioLib'] = [u'pygame']
         from psychopy import sound
 
-        logging.console.setLevel(logging.WARNING)
-        if verb: print('launching experiment')
-        logging.console.setLevel(logging.WARNING)
-        if verb: print('go!')
+#        logging.console.setLevel(logging.WARNING)
+#        if verb: print('launching experiment')
+#        logging.console.setLevel(logging.WARNING)
+#        if verb: print('go!')
 
         # ---------------------------------------------------
         win = visual.Window([self.exp['screen_width_px'], self.exp['screen_height_px']],
@@ -298,7 +298,7 @@ class aSPEM(object):
                     win.flip()
 
                     score_trial = ans * (dir_bool * 2 - 1)
-                    print(score_trial)
+                    #print(score_trial)
                     if score_trial > 0 :
                         Bip_pos.setVolume(score_trial)
                         Bip_pos.play()
@@ -307,30 +307,10 @@ class aSPEM(object):
                         Bip_neg.play()
                     core.wait(0.1)
 
-                    # if ans*(dir_bool * 2 - 1)>0 :
-                    #     if score_trial > 0 :
-                    #         Bip_pos.play()
-                    #         Bip_pos.setVolume(score_trial)
-                    #         core.wait(0.5)
-                    #     else :
-                    #         Bip_pos.play()
-                    #         Bip_pos.setVolume(0.1)
-                    #         core.wait(0.5)
-                    # else :
-                    #     if score_trial < 0 :
-                    #         Bip_neg.play()
-                    #         Bip_neg.setVolume(-1*(score_trial))
-                    #         core.wait(0.5)
-                    #     else :
-                    #         Bip_neg.play()
-                    #         Bip_neg.setVolume(0.1)
-                    #         core.wait(0.5)
-                    #
                     score += score_trial
 
-            self.exp['results']=results
-            #save data
-            #np.save(self.exp_name(block), results)
+            self.exp['results'] = results
+            
             with open(self.exp_name(), 'wb') as fichier:
                 f = pickle.Pickler(fichier)
                 f.dump(self.exp)
