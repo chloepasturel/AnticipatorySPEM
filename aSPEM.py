@@ -8,15 +8,19 @@ import os
 import numpy as np
 import pickle
 
-def binomial_motion(N_trials, N_blocks, tau=25., seed=420, N_layer=3):
-
-    np.random.seed(seed)
+def binomial_motion(N_trials, N_blocks, tau, seed, Jeffreys=True, N_layer=3):
+    from scipy.stats import beta
+    # np.random.seed(seed)
 
     trials = np.arange(N_trials)
     p = np.random.rand(N_trials, N_blocks, N_layer)
     for trial in trials:
         p[trial, :, 2] = np.random.rand(1, N_blocks) < 1/tau # switch
-        p[trial, :, 1] = (1 - p[trial, :, 2])*p[trial-1, :, 1] + p[trial, :, 2] * np.random.rand(1, N_blocks) # probability
+        if Jeffreys:
+            p_random = beta.rvs(a=.5, b=.5, size=N_blocks)
+        else:
+            p_random = np.random.rand(1, N_blocks)
+        p[trial, :, 1] = (1 - p[trial, :, 2])*p[trial-1, :, 1] + p[trial, :, 2] * p_random # probability
         p[trial, :, 0] =  p[trial, :, 1] > np.random.rand(1, N_blocks) # binomial
 
     return (trials, p)
@@ -34,7 +38,7 @@ class aSPEM(object):
 
 
     def init(self) :
-        
+
         # TODO: use pickle to extract the parameters of an experiment that was already run
 
         self.dry_run = True
@@ -79,7 +83,7 @@ class aSPEM(object):
             # ---------------------------------------------------
             # stimulus parameters
             # ---------------------------------------------------
-            dot_size = (0.05*screen_height_px)            # 
+            dot_size = (0.05*screen_height_px)            #
             V_X_deg = 20.                                   # deg/s
             V_X = px_per_deg * V_X_deg     # pixel/s
             saccade_px = .618/2*screen_height_px
@@ -89,8 +93,8 @@ class aSPEM(object):
             # ---------------------------------------------------
             N_blocks = 2
             seed = 1973
-            N_trials = 8
-            tau = N_trials/4.
+            N_trials = 200
+            tau = N_trials/5.
             (trials, p) = binomial_motion(N_trials, N_blocks, tau=tau, seed=seed, N_layer=3)
             stim_tau = .35 # in seconds
 
@@ -110,7 +114,7 @@ class aSPEM(object):
 
             #self.params_protocol = dict(N_blocks=N_blocks, seed=seed, N_trials=N_trials, p=p, stim_tau =stim_tau,
             #                N_frame_stim=N_frame_stim, T=T)
-            
+
             #self.params_exp = dict(datadir=datadir, cachedir=cachedir,
             #            framerate=framerate,
             #            screen=screen,
@@ -154,11 +158,13 @@ class aSPEM(object):
         stick[:, :, 2] = np.ones((N_trials, 1)) * np.arange(N_blocks)[np.newaxis, :]
         corrects = 0
 
-        for i_layer, label in enumerate([r'$\^x_1$', r'$\^p$', r'$\^x_3$']):
+        for i_layer, label in enumerate([r'$\^0$', r'$\^p$', r'$\^x_2$']):
             from cycler import cycler
             axs[i_layer].set_prop_cycle(cycler('color', [plt.cm.magma(h) for h in np.linspace(0, 1, N_blocks+1)]))
             _ = axs[i_layer].step(range(N_trials), p[:, :, i_layer]+stick[:, :, i_layer], lw=.5, alpha=.9)
             axs[i_layer].axis('tight')
+            axs[i_layer].set_yticks(np.arange(N_blocks)+.5)
+            axs[i_layer].set_yticklabels(np.arange(N_blocks) )
             axs[i_layer].set_ylabel(label, fontsize=14)
 
         if not mode is None:
@@ -170,7 +176,7 @@ class aSPEM(object):
 
         fig.tight_layout()
         for i in range(2): axs[i].set_ylim(-.05, N_blocks + .05)
-        axs[-1].set_xlabel('time', fontsize=14);
+        axs[-1].set_xlabel('trials', fontsize=14);
 
         return corrects
 
@@ -289,26 +295,38 @@ class aSPEM(object):
                     presentStimulus_fixed(dir_bool)
                     win.flip()
 
-                    score += ans * (dir_bool * 2 - 1)
+                    score_trial = ans * (dir_bool * 2 - 1)
 
-                    if ans*(dir_bool * 2 - 1)>0 :
-                        if score > 0 :
-                            Bip_pos.play()
-                            Bip_pos.setVolume(score)
-                            core.wait(0.5)
-                        else :
-                            Bip_pos.play()
-                            Bip_pos.setVolume(0.1)
-                            core.wait(0.5)
+                    if score_trial > 0 :
+                        Bip_pos.setVolume(score_trial)
+                        Bip_pos.play()
+                        core.wait(0.5)
                     else :
-                        if score < 0 :
-                            Bip_neg.play()
-                            Bip_neg.setVolume(-1*(score))
-                            core.wait(0.5)
-                        else :
-                            Bip_neg.play()
-                            Bip_neg.setVolume(0.1)
-                            core.wait(0.5)
+                        Bip_neg.setVolume(-1*(score_trial))
+                        Bip_neg.play()
+                        core.wait(0.5)
+
+                    score += score_
+                    # if ans*(dir_bool * 2 - 1)>0 :
+                    #     if score_trial > 0 :
+                    #         Bip_pos.play()
+                    #         Bip_pos.setVolume(score_trial)
+                    #         core.wait(0.5)
+                    #     else :
+                    #         Bip_pos.play()
+                    #         Bip_pos.setVolume(0.1)
+                    #         core.wait(0.5)
+                    # else :
+                    #     if score_trial < 0 :
+                    #         Bip_neg.play()
+                    #         Bip_neg.setVolume(-1*(score_trial))
+                    #         core.wait(0.5)
+                    #     else :
+                    #         Bip_neg.play()
+                    #         Bip_neg.setVolume(0.1)
+                    #         core.wait(0.5)
+                    #
+                    score += score_trial
 
             self.exp['results']=results
             #save data
@@ -363,13 +381,14 @@ if __name__ == '__main__':
     try:
         observer = sys.argv[2]
     except:
-        observer = 'test'
+        observer = 'lup'
 
     try:
         timeStr = sys.argv[4]
     except:
-        import time, datetime
+        import time
         timeStr = time.strftime("%Y-%m-%d_%H%M%S", time.localtime())
+        timeStr = '2017-06-22_102207'
 
     e = aSPEM(mode, observer, timeStr)
 
