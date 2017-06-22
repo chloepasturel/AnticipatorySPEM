@@ -10,7 +10,7 @@ import pickle
 
 def binomial_motion(N_trials, N_blocks, tau, seed, Jeffreys=True, N_layer=3):
     from scipy.stats import beta
-    # np.random.seed(seed)
+    np.random.seed(seed)
 
     trials = np.arange(N_trials)
     p = np.random.rand(N_trials, N_blocks, N_layer)
@@ -93,7 +93,7 @@ class aSPEM(object):
             # exploration parameters
             # ---------------------------------------------------
             N_blocks = 2
-            seed = 1973
+            seed = 2017
             N_trials = 200
             tau = N_trials/5.
             (trials, p) = binomial_motion(N_trials, N_blocks, tau=tau, seed=seed, N_layer=3)
@@ -144,14 +144,15 @@ class aSPEM(object):
     def exp_name(self):
         return os.path.join(self.exp['datadir'], self.mode + '_' + self.observer + '_' + self.timeStr + '.pkl')
 
-    def plot(self, mode=None, fig_width=13):
+    def plot(self, mode=None, fig=None, axs=None, fig_width=13):
         import matplotlib.pyplot as plt
         N_trials = self.exp['N_trials']
         N_blocks = self.exp['N_blocks']
         p = self.exp['p']
 
-        fig_width= fig_width
-        fig, axs = plt.subplots(3, 1, figsize=(fig_width, fig_width/1.6180))
+        if fig is None:
+            fig_width= fig_width
+            fig, axs = plt.subplots(3, 1, figsize=(fig_width, fig_width/1.6180))
         stick = np.zeros_like(p)
         stick[:, :, 0] = np.ones((N_trials, 1)) * np.arange(N_blocks)[np.newaxis, :]
         stick[:, :, 1] = np.ones((N_trials, 1)) * np.arange(N_blocks)[np.newaxis, :]
@@ -162,6 +163,7 @@ class aSPEM(object):
             from cycler import cycler
             axs[i_layer].set_prop_cycle(cycler('color', [plt.cm.magma(h) for h in np.linspace(0, 1, N_blocks+1)]))
             _ = axs[i_layer].step(range(N_trials), p[:, :, i_layer]+stick[:, :, i_layer], lw=.5, alpha=.9)
+            _ = axs[i_layer].fill_between
             axs[i_layer].axis('tight')
             axs[i_layer].set_yticks(np.arange(N_blocks)+.5)
             axs[i_layer].set_yticklabels(np.arange(N_blocks) )
@@ -170,15 +172,14 @@ class aSPEM(object):
         if not mode is None:
             results = (self.exp['results']+1)/2 # results est sur [-1,1] on le ramene sur [0,1]
             for block in range(N_blocks):
-
-                corrects += (results[:, block] == p[:, block, 0]).sum()
+                #corrects += (results[:, block] == p[:, block, 0]).sum()
                 _ = axs[1].plot(range(N_trials), block + results[:, block], alpha=.9, color='r')
-
+            #print('corrects', corrects)
         fig.tight_layout()
         for i in range(2): axs[i].set_ylim(-.05, N_blocks + .05)
         axs[-1].set_xlabel('trials', fontsize=14);
 
-        return corrects
+        return fig, axs
 
 
     def run_experiment(self, verb=True):
