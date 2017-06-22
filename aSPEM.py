@@ -257,7 +257,7 @@ class aSPEM(object):
 
         def presentStimulus_move(dir_bool):
             clock.reset()
-            myMouse.setVisible(0)
+            #myMouse.setVisible(0)
             dir_sign = dir_bool * 2 - 1
             while clock.getTime() < self.exp['stim_tau']:
                 target.setPos((dir_sign * self.exp['V_X']*np.float(clock.getTime()/self.exp['stim_tau']), self.exp['offset']))
