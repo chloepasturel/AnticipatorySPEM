@@ -1,5 +1,13 @@
-from psychopy import visual, core, event, logging, sound
-Bip_pos = sound.Sound('2000', secs=0.2)
-Bip_neg = sound.Sound('3000', secs=0.2)
-Bip_pos.setVolume(.1)
-Bip_pos.play()
+from psychopy import sound
+
+import numpy as np
+
+Bip_pos = sound.Sound('2000', secs=0.1)
+for volume in np.linspace(0, 1., 10):
+    Bip_pos.setVolume(volume)
+    Bip_pos.play()
+
+Bip_neg = sound.Sound('3000', secs=0.3)
+for volume in np.linspace(0, 1., 10):
+    Bip_neg.setVolume(volume)
+    Bip_neg.play()

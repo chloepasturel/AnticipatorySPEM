@@ -218,8 +218,8 @@ class aSPEM(object):
         scorebox = visual.TextStim(win, text = u"0", units='norm', height=0.05, color='white',
                                 pos=[0., .5], alignHoriz='center', alignVert='center' )
 
-        Bip_pos = sound.Sound('200', secs=0.2)
-        Bip_neg = sound.Sound('3000', secs=0.2)
+        Bip_pos = sound.Sound('2000', secs=0.05)
+        Bip_neg = sound.Sound('100', secs=0.4)
 
         # ---------------------------------------------------
         # fonction pause avec possibilité de quitter l'expérience
@@ -300,11 +300,11 @@ class aSPEM(object):
                     if score_trial > 0 :
                         Bip_pos.setVolume(score_trial)
                         Bip_pos.play()
-                        core.wait(0.5)
+                        # core.wait(0.1)
                     else :
                         Bip_neg.setVolume(-1*(score_trial))
                         Bip_neg.play()
-                        core.wait(0.5)
+                        # core.wait(0.5)
 
                     score += score_
                     # if ans*(dir_bool * 2 - 1)>0 :
@@ -381,7 +381,7 @@ if __name__ == '__main__':
     try:
         observer = sys.argv[2]
     except:
-        observer = 'lup'
+        observer = 'chloe'
 
     try:
         timeStr = sys.argv[4]
