@@ -86,7 +86,8 @@ class aSPEM(object):
             dot_size = (0.05*screen_height_px)            #
             V_X_deg = 20.                                   # deg/s
             V_X = px_per_deg * V_X_deg     # pixel/s
-            saccade_px = .618/2*screen_height_px
+            saccade_px = .618*screen_height_px
+            offset = .2*screen_height_px
 
             # ---------------------------------------------------
             # exploration parameters
@@ -102,14 +103,13 @@ class aSPEM(object):
             T =  stim_tau + gray_tau
             N_frame_stim = int(stim_tau*framerate)
 
-
             self.exp = dict(N_blocks=N_blocks, seed=seed, N_trials=N_trials, p=p, stim_tau =stim_tau,
                             N_frame_stim=N_frame_stim, T=T,
                             datadir=datadir, cachedir=cachedir,
                             framerate=framerate,
                             screen=screen,
                             screen_width_px=screen_width_px, screen_height_px=screen_height_px,
-                            px_per_deg=px_per_deg,
+                            px_per_deg=px_per_deg, offset=offset,
                             dot_size=dot_size, V_X =V_X, saccade_px=saccade_px)
 
             #self.params_protocol = dict(N_blocks=N_blocks, seed=seed, N_trials=N_trials, p=p, stim_tau =stim_tau,
@@ -185,7 +185,9 @@ class aSPEM(object):
 
         #if verb: print('launching experiment')
 
-        from psychopy import visual, core, event, logging, sound
+        from psychopy import visual, core, event, logging, prefs
+        prefs.general['audioLib'] = [u'pygame']
+        from psychopy import sound
 
         #logging.console.setLevel(logging.DEBUG)
         #if verb: print('launching experiment')
@@ -207,18 +209,18 @@ class aSPEM(object):
         target = visual.GratingStim(win, mask='circle', sf=0, color='white', size=self.exp['dot_size'])
 
         #fixation = visual.GratingStim(win, mask='circle', sf=0, color='white', size=self.exp['dot_size'])
-        fixation = visual.TextStim(win, text = u"+", units='norm', height=0.15, color='white',
-                                pos=[0., -0.], alignHoriz='center', alignVert='center' )
+        fixation = visual.TextStim(win, text = u"+", units='pix', height=self.exp['dot_size'], color='white',
+                                pos=[0., self.exp['offset']], alignHoriz='center', alignVert='center' )
 
         ratingScale = visual.RatingScale(win, scale=None, low=-1, high=1, precision=100, size=.4, stretch=2.5,
-                        labels=('bet Left', 'unsure...', 'bet Right'), tickMarks=[-1, 0., 1], tickHeight=-1.0,
+                        labels=('Left', 'unsure', 'Right'), tickMarks=[-1, 0., 1], tickHeight=-1.0,
                         marker='triangle', markerColor='black', lineColor='White', showValue=False, singleClick=True,
                         showAccept=False)
 
         #scorebox = visual.TextStim(win, text = u"0", units='norm', height=0.05, color='white', pos=[0., .5], alignHoriz='center', alignVert='center' )
 
         Bip_pos = sound.Sound('2000', secs=0.05)
-        Bip_neg = sound.Sound('100', secs=0.4)
+        Bip_neg = sound.Sound('200', secs=0.5)
 
         # ---------------------------------------------------
         # fonction pause avec possibilité de quitter l'expérience
@@ -244,7 +246,7 @@ class aSPEM(object):
 
         def presentStimulus_fixed(dir_bool):
             dir_sign = dir_bool * 2 - 1
-            target.setPos((dir_sign * (self.exp['saccade_px']), 0))
+            target.setPos((dir_sign * (self.exp['saccade_px']), self.exp['offset']))
             target.draw()
             win.flip()
             core.wait(0.3)
@@ -295,17 +297,15 @@ class aSPEM(object):
                     win.flip()
 
                     score_trial = ans * (dir_bool * 2 - 1)
-
+                    print(score_trial)
                     if score_trial > 0 :
                         Bip_pos.setVolume(score_trial)
                         Bip_pos.play()
-                        # core.wait(0.1)
                     else :
-                        Bip_neg.setVolume(-1*(score_trial))
+                        Bip_neg.setVolume(-score_trial)
                         Bip_neg.play()
-                        # core.wait(0.5)
+                    core.wait(0.1)
 
-                    score += score_trial
                     # if ans*(dir_bool * 2 - 1)>0 :
                     #     if score_trial > 0 :
                     #         Bip_pos.play()
@@ -380,7 +380,7 @@ if __name__ == '__main__':
     try:
         observer = sys.argv[2]
     except:
-        observer = 'chloe'
+        observer = 'laurent'
 
     try:
         timeStr = sys.argv[4]
