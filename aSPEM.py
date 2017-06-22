@@ -63,7 +63,7 @@ class aSPEM(object):
         if file in os.listdir(datadir) :
             with open(os.path.join(datadir, file), 'rb') as fichier :
                 self.exp = pickle.load(fichier, encoding='latin1')
-                print (self.exp)
+                #print (self.exp)
 
         else :
             # width and height of your screen
@@ -183,14 +183,14 @@ class aSPEM(object):
 
     def run_experiment(self, verb=True):
 
-        if verb: print('launching experiment')
+        #if verb: print('launching experiment')
 
         from psychopy import visual, core, event, logging, sound
 
-        logging.console.setLevel(logging.DEBUG)
-        if verb: print('launching experiment')
-        logging.console.setLevel(logging.DEBUG)
-        if verb: print('go!')
+        #logging.console.setLevel(logging.DEBUG)
+        #if verb: print('launching experiment')
+        #logging.console.setLevel(logging.DEBUG)
+        #if verb: print('go!')
 
         # ---------------------------------------------------
         win = visual.Window([self.exp['screen_width_px'], self.exp['screen_height_px']],
@@ -215,8 +215,7 @@ class aSPEM(object):
                         marker='triangle', markerColor='black', lineColor='White', showValue=False, singleClick=True,
                         showAccept=False)
 
-        scorebox = visual.TextStim(win, text = u"0", units='norm', height=0.05, color='white',
-                                pos=[0., .5], alignHoriz='center', alignVert='center' )
+        #scorebox = visual.TextStim(win, text = u"0", units='norm', height=0.05, color='white', pos=[0., .5], alignHoriz='center', alignVert='center' )
 
         Bip_pos = sound.Sound('2000', secs=0.05)
         Bip_neg = sound.Sound('100', secs=0.4)
@@ -225,7 +224,7 @@ class aSPEM(object):
         # fonction pause avec possibilité de quitter l'expérience
         msg_pause = visual.TextStim(win, text=u"\n\n\nTaper sur une touche pour continuer\n\nESCAPE pour arrêter l'expérience",
                                     font='calibri', height=25,
-                                    alignHoriz='center', alignVert='top')
+                                    alignHoriz='center')#, alignVert='top')
 
         def pause() :
             msg_pause.draw()
@@ -280,8 +279,8 @@ class aSPEM(object):
                     ratingScale.reset()
                     while ratingScale.noResponse :
 
-                        scorebox.setText(str(score))
-                        scorebox.draw()
+                        #scorebox.setText(str(score))
+                        #scorebox.draw()
 
                         fixation.draw()
                         ratingScale.draw()
@@ -306,7 +305,7 @@ class aSPEM(object):
                         Bip_neg.play()
                         # core.wait(0.5)
 
-                    score += score_
+                    score += score_trial
                     # if ans*(dir_bool * 2 - 1)>0 :
                     #     if score_trial > 0 :
                     #         Bip_pos.play()
@@ -388,7 +387,7 @@ if __name__ == '__main__':
     except:
         import time
         timeStr = time.strftime("%Y-%m-%d_%H%M%S", time.localtime())
-        timeStr = '2017-06-22_102207'
+        #timeStr = '2017-06-22_102207'
 
     e = aSPEM(mode, observer, timeStr)
 
