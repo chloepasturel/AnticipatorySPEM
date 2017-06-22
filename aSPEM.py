@@ -83,8 +83,8 @@ class aSPEM(object):
             # ---------------------------------------------------
             # stimulus parameters
             # ---------------------------------------------------
-            dot_size = (0.05*screen_height_px)            #
-            V_X_deg = 20.                                   # deg/s
+            dot_size = (0.02*screen_height_px)            #
+            V_X_deg = 40.                                   # deg/s
             V_X = px_per_deg * V_X_deg     # pixel/s
             saccade_px = .618*screen_height_px
             offset = .2*screen_height_px
@@ -190,10 +190,10 @@ class aSPEM(object):
         prefs.general['audioLib'] = [u'pygame']
         from psychopy import sound
 
-        #logging.console.setLevel(logging.DEBUG)
-        #if verb: print('launching experiment')
-        #logging.console.setLevel(logging.DEBUG)
-        #if verb: print('go!')
+        logging.console.setLevel(logging.WARNING)
+        if verb: print('launching experiment')
+        logging.console.setLevel(logging.WARNING)
+        if verb: print('go!')
 
         # ---------------------------------------------------
         win = visual.Window([self.exp['screen_width_px'], self.exp['screen_height_px']],
@@ -210,7 +210,7 @@ class aSPEM(object):
         target = visual.GratingStim(win, mask='circle', sf=0, color='white', size=self.exp['dot_size'])
 
         #fixation = visual.GratingStim(win, mask='circle', sf=0, color='white', size=self.exp['dot_size'])
-        fixation = visual.TextStim(win, text = u"+", units='pix', height=self.exp['dot_size'], color='white',
+        fixation = visual.TextStim(win, text = u"+", units='pix', height=self.exp['dot_size']*4, color='white',
                                 pos=[0., self.exp['offset']], alignHoriz='center', alignVert='center' )
 
         ratingScale = visual.RatingScale(win, scale=None, low=-1, high=1, precision=100, size=.4, stretch=2.5,
@@ -260,7 +260,7 @@ class aSPEM(object):
             myMouse.setVisible(0)
             dir_sign = dir_bool * 2 - 1
             while clock.getTime() < self.exp['stim_tau']:
-                target.setPos((dir_sign * self.exp['V_X']*np.float(clock.getTime()/self.exp['stim_tau']), 0))
+                target.setPos((dir_sign * self.exp['V_X']*np.float(clock.getTime()/self.exp['stim_tau']), self.exp['offset']))
                 target.draw()
                 win.flip()
 
@@ -294,7 +294,7 @@ class aSPEM(object):
                     results[trial, block] = ans
 
                     dir_bool = self.exp['p'][trial, block, 0]
-                    presentStimulus_fixed(dir_bool)
+                    presentStimulus_move(dir_bool)
                     win.flip()
 
                     score_trial = ans * (dir_bool * 2 - 1)
