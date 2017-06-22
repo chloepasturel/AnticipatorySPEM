@@ -159,11 +159,13 @@ class aSPEM(object):
         stick[:, :, 2] = np.ones((N_trials, 1)) * np.arange(N_blocks)[np.newaxis, :]
         corrects = 0
 
-        for i_layer, label in enumerate([r'$\^0$', r'$\^p$', r'$\^x_2$']):
+        for i_layer, label in enumerate([r'$\^x_0$', r'$\^p$', r'$\^x_2$']):
             from cycler import cycler
             axs[i_layer].set_prop_cycle(cycler('color', [plt.cm.magma(h) for h in np.linspace(0, 1, N_blocks+1)]))
-            _ = axs[i_layer].step(range(N_trials), p[:, :, i_layer]+stick[:, :, i_layer], lw=.5, alpha=.9)
-            _ = axs[i_layer].fill_between
+            _ = axs[i_layer].step(range(N_trials), p[:, :, i_layer]+stick[:, :, i_layer], lw=1, alpha=.9)
+            for i_block in range(N_blocks):
+                _ = axs[i_layer].fill_between(range(N_trials), i_block + np.zeros_like(p[:, i_block, i_layer]), i_block + p[:, i_block, i_layer], lw=.5, alpha=.1, facecolor='green', step='pre')
+                _ = axs[i_layer].fill_between(range(N_trials), i_block + np.ones_like(p[:, i_block, i_layer]), i_block + p[:, i_block, i_layer], lw=.5, alpha=.1, facecolor='red', step='pre')
             axs[i_layer].axis('tight')
             axs[i_layer].set_yticks(np.arange(N_blocks)+.5)
             axs[i_layer].set_yticklabels(np.arange(N_blocks) )
@@ -310,7 +312,7 @@ class aSPEM(object):
                     score += score_trial
 
             self.exp['results'] = results
-            
+
             with open(self.exp_name(), 'wb') as fichier:
                 f = pickle.Pickler(fichier)
                 f.dump(self.exp)
