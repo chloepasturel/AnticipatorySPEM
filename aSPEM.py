@@ -29,7 +29,7 @@ def binomial_motion(N_trials, N_blocks, tau, seed, Jeffreys=True, N_layer=3):
 class aSPEM(object):
     """ docstring for the aSPEM class. """
 
-    def __init__(self, mode, observer, timeStr) :
+    def __init__(self, mode, timeStr, observer='test') :
         self.mode = mode
         self.observer = observer
         self.timeStr = str(timeStr)
@@ -38,8 +38,6 @@ class aSPEM(object):
 
 
     def init(self) :
-
-        # TODO: use pickle to extract the parameters of an experiment that was already run
 
         self.dry_run = True
         self.dry_run = False
@@ -66,6 +64,14 @@ class aSPEM(object):
                 #print (self.exp)
 
         else :
+            from psychopy import gui
+            # Présente un dialogue pour changer les paramètres
+            expInfo = {"Sujet":''}
+            Nom_exp = u'aSPEM'
+            dlg = gui.DlgFromDict(expInfo, title=Nom_exp)
+            
+            self.observer = expInfo["Sujet"]
+            
             # width and height of your screen
             # displayed on a 20” Viewsonic p227f monitor with resolution 1024 × 768 at 100 Hz
             #w, h = 1920, 1200
@@ -73,7 +79,7 @@ class aSPEM(object):
             screen_height_px = 768
             screen_width_px, screen_height_px = 2560, 1440 # iMac 27''
             framerate = 100.
-            screen = 0
+            screen = 0 # 1 pour afficher sur l'écran 2
 
             screen_width_cm = 57. # (cm)
             viewingDistance = 57. # (cm) TODO : what is the equivalent viewing distance?
@@ -199,7 +205,7 @@ class aSPEM(object):
 
         # ---------------------------------------------------
         win = visual.Window([self.exp['screen_width_px'], self.exp['screen_height_px']],
-                            allowGUI=False, fullscr=True, screen=self.exp['screen'], units='pix')
+                            allowGUI=False, fullscr=True, screen=self.exp['screen'], units='pix') # fullscr=True à enlever pour afficher sur écran 2
 
         win.setRecordFrameIntervals(True)
         win._refreshThreshold = 1/self.exp['framerate'] + 0.004 # i've got 50Hz monitor and want to allow 4ms tolerance
@@ -223,7 +229,7 @@ class aSPEM(object):
         #scorebox = visual.TextStim(win, text = u"0", units='norm', height=0.05, color='white', pos=[0., .5], alignHoriz='center', alignVert='center' )
 
         Bip_pos = sound.Sound('2000', secs=0.05)
-        Bip_neg = sound.Sound('200', secs=0.5)
+        Bip_neg = sound.Sound('200', secs=0.5) # augmenter les fq
 
         # ---------------------------------------------------
         # fonction pause avec possibilité de quitter l'expérience
@@ -361,18 +367,13 @@ if __name__ == '__main__':
         mode = 'psychophysique'
 
     try:
-        observer = sys.argv[2]
-    except:
-        observer = 'laurent'
-
-    try:
         timeStr = sys.argv[4]
     except:
         import time
         timeStr = time.strftime("%Y-%m-%d_%H%M%S", time.localtime())
         #timeStr = '2017-06-22_102207'
 
-    e = aSPEM(mode, observer, timeStr)
+    e = aSPEM(mode, timeStr)
 
     if True:
         print('Starting protocol')
