@@ -90,7 +90,7 @@ class aSPEM(object):
             # stimulus parameters
             # ---------------------------------------------------
             dot_size = (0.02*screen_height_px)            #
-            V_X_deg = 40.                                   # deg/s
+            V_X_deg = 20. #40.                                   # deg/s
             V_X = px_per_deg * V_X_deg     # pixel/s
             saccade_px = .618*screen_height_px
             offset = .2*screen_height_px
@@ -287,6 +287,7 @@ class aSPEM(object):
                 #print block
                 for trial in range(self.exp['N_trials']):
 
+                    event.clearEvents()
                     ratingScale.reset()
                     while ratingScale.noResponse :
 
@@ -300,6 +301,10 @@ class aSPEM(object):
 
                     ans = ratingScale.getRating()
                     results[trial, block] = ans
+
+                    # GAP
+                    win.flip()
+                    core.wait(0.3)
 
                     dir_bool = self.exp['p'][trial, block, 0]
                     presentStimulus_move(dir_bool)
