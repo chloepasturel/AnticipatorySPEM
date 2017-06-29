@@ -98,7 +98,7 @@ class aSPEM(object):
             # ---------------------------------------------------
             # exploration parameters
             # ---------------------------------------------------
-            N_blocks = 2
+            N_blocks = 4
             seed = 2017
             N_trials = 200
             tau = N_trials/5.
@@ -116,7 +116,8 @@ class aSPEM(object):
                             screen=screen,
                             screen_width_px=screen_width_px, screen_height_px=screen_height_px,
                             px_per_deg=px_per_deg, offset=offset,
-                            dot_size=dot_size, V_X =V_X, saccade_px=saccade_px)
+                            dot_size=dot_size, V_X =V_X, saccade_px=saccade_px,
+                            mode=self.mode, observer=self.observer, timeStr=self.timeStr)
 
             #self.params_protocol = dict(N_blocks=N_blocks, seed=seed, N_trials=N_trials, p=p, stim_tau =stim_tau,
             #                N_frame_stim=N_frame_stim, T=T)
@@ -181,7 +182,7 @@ class aSPEM(object):
             results = (self.exp['results']+1)/2 # results est sur [-1,1] on le ramene sur [0,1]
             for block in range(N_blocks):
                 #corrects += (results[:, block] == p[:, block, 0]).sum()
-                _ = axs[1].plot(range(N_trials), block + results[:, block], alpha=.9, color='r')
+                _ = axs[1].step(range(N_trials), block + results[:, block], alpha=.9, color='r')
             #print('corrects', corrects)
         fig.tight_layout()
         for i in range(2): axs[i].set_ylim(-.05, N_blocks + .05)
