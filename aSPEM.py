@@ -74,41 +74,43 @@ class aSPEM(object):
             
             # width and height of your screen
             # displayed on a 20” Viewsonic p227f monitor with resolution 1024 × 768 at 100 Hz
-            #w, h = 1920, 1200
-            screen_width_px = 1024
-            screen_height_px = 768
-            screen_width_px, screen_height_px = 2560, 1440 # iMac 27''
+            #screen_width_px, screen_height_px = 1024, 768
+            #screen_width_px, screen_height_px = 2560, 1440 # iMac 27''
+            screen_width_px = 1280
+            screen_height_px = 1024
             framerate = 100.
             screen = 0 # 1 pour afficher sur l'écran 2
-
+            
             screen_width_cm = 57. # (cm)
             viewingDistance = 57. # (cm) TODO : what is the equivalent viewing distance?
             screen_width_deg = 2. * np.arctan((screen_width_cm/2) / viewingDistance) * 180/np.pi
-            px_per_deg = screen_height_px / screen_width_deg
-
+            #px_per_deg = screen_height_px / screen_width_deg
+            px_per_deg = screen_width_px / screen_width_deg
+            
             # ---------------------------------------------------
             # stimulus parameters
             # ---------------------------------------------------
-            dot_size = (0.02*screen_height_px)            #
-            V_X_deg = 20. #40.                                   # deg/s
+            dot_size = 10 # (0.02*screen_height_px)
+            V_X_deg = 15 #20. #40.                            # deg/s
             V_X = px_per_deg * V_X_deg     # pixel/s
             saccade_px = .618*screen_height_px
-            offset = .2*screen_height_px
+            offset = 0 #.2*screen_height_px
 
             # ---------------------------------------------------
             # exploration parameters
             # ---------------------------------------------------
-            N_blocks = 4
+            N_blocks = 2 #4
             seed = 2017
-            N_trials = 200
+            N_trials = 15 #2 #200
             tau = N_trials/5.
             (trials, p) = binomial_motion(N_trials, N_blocks, tau=tau, seed=seed, N_layer=3)
-            stim_tau = .35 # in seconds
+            stim_tau = 1.5 #.35 # in seconds
 
             gray_tau = .0 # in seconds
             T =  stim_tau + gray_tau
             N_frame_stim = int(stim_tau*framerate)
-
+            # ---------------------------------------------------
+            
             self.exp = dict(N_blocks=N_blocks, seed=seed, N_trials=N_trials, p=p, stim_tau =stim_tau,
                             N_frame_stim=N_frame_stim, T=T,
                             datadir=datadir, cachedir=cachedir,
@@ -118,18 +120,6 @@ class aSPEM(object):
                             px_per_deg=px_per_deg, offset=offset,
                             dot_size=dot_size, V_X =V_X, saccade_px=saccade_px,
                             mode=self.mode, observer=self.observer, timeStr=self.timeStr)
-
-            #self.params_protocol = dict(N_blocks=N_blocks, seed=seed, N_trials=N_trials, p=p, stim_tau =stim_tau,
-            #                N_frame_stim=N_frame_stim, T=T)
-
-            #self.params_exp = dict(datadir=datadir, cachedir=cachedir,
-            #            framerate=framerate,
-            #            screen=screen,
-            #            screen_width_px=screen_width_px, screen_height_px=screen_height_px,
-            #            px_per_deg=px_per_deg)
-            #self.params_stim = dict(dot_size=dot_size, V_X =V_X, saccade_px=saccade_px)
-
-
 
     def print_protocol(self):
         if True: #try:
@@ -143,7 +133,6 @@ class aSPEM(object):
     # #  PROTOCOL  #
     # ##########################
     #
-
         # except:
         #     return 'blurg'
 
@@ -152,7 +141,9 @@ class aSPEM(object):
         return os.path.join(self.exp['datadir'], self.mode + '_' + self.observer + '_' + self.timeStr + '.pkl')
 
     def plot(self, mode=None, fig=None, axs=None, fig_width=13):
+        
         import matplotlib.pyplot as plt
+        
         N_trials = self.exp['N_trials']
         N_blocks = self.exp['N_blocks']
         p = self.exp['p']
@@ -191,6 +182,99 @@ class aSPEM(object):
         return fig, axs
 
 
+    def plot_enregistrement(self, mode=None, fig=None, axs=None, fig_width=13) :
+        import matplotlib.pyplot as plt
+        from pygazeanalyser.edfreader import read_edf
+        
+        resultats = os.path.join(self.exp['datadir'], self.mode + '_' + self.observer + '_' + self.timeStr + '.asc')
+        data = read_edf(resultats, 'TRIALID')
+        
+        N_trials = self.exp['N_trials']
+        N_blocks = self.exp['N_blocks']
+        screen_width_px = self.exp['screen_width_px']
+        screen_height_px = self.exp['screen_height_px']
+        V_X = self.exp['V_X']
+        stim_tau = self.exp['stim_tau']
+        p = self.exp['p']
+        
+        if fig is None:
+            fig_width= fig_width
+            fig, axs = plt.subplots(N_trials*N_blocks, 1, figsize=(fig_width, (fig_width*N_trials)/1.6180))
+        plt.subplots_adjust(wspace=0, hspace=0)
+
+
+        for block in range(N_blocks) :
+            
+            for trial in range(N_trials) :
+                
+                trial_data = trial + N_trials*block
+                
+                data_x = data[trial_data]['x']
+                data_y = data[trial_data]['y']
+                trackertime = data[trial_data]['trackertime']
+                
+                TRIALID = data[trial_data]['events']['msg'][0][0]
+                StimulusOn = data[trial_data]['events']['msg'][10][0]
+                StimulusOf = data[trial_data]['events']['msg'][14][0]
+                TargetOn = data[trial_data]['events']['msg'][15][0]
+                TargetOff = data[trial_data]['events']['msg'][16][0]
+                fixations = data[trial_data]['events']['Efix']
+                saccades = data[trial_data]['events']['Esac']
+
+                start = TargetOn
+
+                TRIALID = TRIALID - start
+                StimulusOn = StimulusOn - start
+                StimulusOf = StimulusOf - start
+                TargetOn = TargetOn - start
+                TargetOff = TargetOff - start
+                trackertime = trackertime - start
+                
+                ##################################################
+                # TARGET
+                ##################################################
+                dir_bool = p[trial, block, 0]*2 - 1
+                tps_mvt = TargetOff-TargetOn
+                Target_trial = []
+                x = screen_width_px/2
+                
+                for t in range(len(trackertime)):
+                    if t < (TargetOn-trackertime[0])  :
+                        x = screen_width_px/2
+                    elif (t >= (TargetOn-trackertime[0]) and t <= ((TargetOn-trackertime[0])+stim_tau*1000)) :
+                        x = x + dir_bool*(V_X/1000)
+                    else :
+                        x = x
+                    Target_trial.append(x)
+                ##################################################
+
+                axs[trial_data].axis([StimulusOf-10, TargetOff+10, 0, 1280])
+                
+                axs[trial_data].plot(trackertime, np.ones(len(trackertime))*(screen_height_px/2), color='grey', linewidth=1.5)
+                axs[trial_data].plot(trackertime, data_y, color='c', linewidth=1.5)
+                
+                axs[trial_data].plot(trackertime, Target_trial, color='k', linewidth=1.5)
+                axs[trial_data].plot(trackertime, data_x, color='r', linewidth=1.5)
+
+                #axs[trial_data].bar(TRIALID, 1280, color='g', width=5, linewidth=0)
+                #axs[trial_data].bar(StimulusOn, 1280, color='r', width=5, linewidth=0)
+                axs[trial_data].bar(StimulusOf, 1280, color='r', width=5, linewidth=0)
+                axs[trial_data].bar(TargetOn, 1280, color='k', width=5, linewidth=0)
+                axs[trial_data].bar(TargetOff, 1280, color='k', width=5, linewidth=0)
+
+                axs[trial_data].set_xlabel('Temps en msec', fontsize=14)
+                axs[trial_data].xaxis.set_ticks(range(StimulusOf+1, TargetOff, 100))
+                axs[trial_data].set_ylabel(trial, fontsize=14)
+                axs[trial_data].yaxis.set_ticks(range(0, 1280, 300))
+
+                for f in range(len(fixations)) :
+                    axs[trial_data]. axvspan(fixations[f][0]-start, fixations[f][1]-start, color='r', alpha=0.1)
+                for s in range(len(saccades)) :
+                    axs[trial_data]. axvspan(saccades[s][0]-start, saccades[s][1]-start, color='k', alpha=0.2)
+
+        return fig, axs
+
+
     def run_experiment(self, verb=True):
 
         #if verb: print('launching experiment')
@@ -198,6 +282,10 @@ class aSPEM(object):
         from psychopy import visual, core, event, logging, prefs
         prefs.general['audioLib'] = [u'pygame']
         from psychopy import sound
+        
+        if self.mode=='enregistrement' :
+            import EyeTracking as ET
+            ET = ET.EyeTracking(self.exp['screen_width_px'], self.exp['screen_height_px'], self.exp['dot_size'], self.exp['N_trials'], self.observer, self.exp['datadir'], self.timeStr)
 
 #        logging.console.setLevel(logging.WARNING)
 #        if verb: print('launching experiment')
@@ -206,7 +294,7 @@ class aSPEM(object):
 
         # ---------------------------------------------------
         win = visual.Window([self.exp['screen_width_px'], self.exp['screen_height_px']],
-                            allowGUI=False, fullscr=True, screen=self.exp['screen'], units='pix') # fullscr=True à enlever pour afficher sur écran 2
+                            allowGUI=False, fullscr=True, screen=self.exp['screen'], units='pix') # enlever fullscr=True pour écran 2
 
         win.setRecordFrameIntervals(True)
         win._refreshThreshold = 1/self.exp['framerate'] + 0.004 # i've got 50Hz monitor and want to allow 4ms tolerance
@@ -215,19 +303,17 @@ class aSPEM(object):
         if verb: print('FPS = ',  win.getActualFrameRate() , 'framerate=', self.exp['framerate'])
 
         # ---------------------------------------------------
-        #target = visual.Circle(win, lineColor='white', size=self.exp['dot_size'], lineWidth=2)
-        target = visual.GratingStim(win, mask='circle', sf=0, color='white', size=self.exp['dot_size'])
+        target = visual.Circle(win, lineColor='white', size=self.exp['dot_size'], lineWidth=2)
+        #target = visual.GratingStim(win, mask='circle', sf=0, color='white', size=self.exp['dot_size'])
 
-        #fixation = visual.GratingStim(win, mask='circle', sf=0, color='white', size=self.exp['dot_size'])
-        fixation = visual.TextStim(win, text = u"+", units='pix', height=self.exp['dot_size']*4, color='white',
-                                pos=[0., self.exp['offset']], alignHoriz='center', alignVert='center' )
+        fixation = visual.GratingStim(win, mask='circle', sf=0, color='white', size=self.exp['dot_size'])
+        #fixation = visual.TextStim(win, text = u"+", units='pix', height=self.exp['dot_size']*4, color='white',
+        #                        pos=[0., self.exp['offset']], alignHoriz='center', alignVert='center' )
 
         ratingScale = visual.RatingScale(win, scale=None, low=-1, high=1, precision=100, size=.4, stretch=2.5,
                         labels=('Left', 'unsure', 'Right'), tickMarks=[-1, 0., 1], tickHeight=-1.0,
                         marker='triangle', markerColor='black', lineColor='White', showValue=False, singleClick=True,
                         showAccept=False)
-
-        #scorebox = visual.TextStim(win, text = u"0", units='norm', height=0.05, color='white', pos=[0., .5], alignHoriz='center', alignVert='center' )
 
         Bip_pos = sound.Sound('2000', secs=0.05)
         Bip_neg = sound.Sound('200', secs=0.5) # augmenter les fq
@@ -238,21 +324,35 @@ class aSPEM(object):
                                     font='calibri', height=25,
                                     alignHoriz='center')#, alignVert='top')
 
-        def pause() :
+        def pause(mode) :
             msg_pause.draw()
             win.flip()
-
+            
+            event.clearEvents()
+            
             allKeys=event.waitKeys()
             for thisKey in allKeys:
-                if thisKey in ["escape", "Q", "a"]:
-                    win.close()
+                if thisKey in ['escape', 'a', 'q']:
                     core.quit()
+                    win.close()
+                    if mode=='enregistrement' :
+                        ET.End_trial()
+                        ET.End_exp()
+            if mode=='enregistrement' :
+                win.winHandle.set_fullscreen(False)
+                #win.winHandle.set_visible(False)
+                ET.drift_correction()
+                #win.winHandle.set_visible(True)
+                win.winHandle.set_fullscreen(True)
 
-        def escape_possible() :
+        def escape_possible(mode) :
+            event.clearEvents()
             if event.getKeys(keyList=["escape", "Q", "a"]):
+                win.close()
                 core.quit()
-                #import sys
-                #sys.exit()
+                if mode=='enregistrement' :
+                    ET.End_trial()
+                    ET.End_exp()
 
         def presentStimulus_fixed(dir_bool):
             dir_sign = dir_bool * 2 - 1
@@ -269,50 +369,83 @@ class aSPEM(object):
             #myMouse.setVisible(0)
             dir_sign = dir_bool * 2 - 1
             while clock.getTime() < self.exp['stim_tau']:
-                target.setPos((dir_sign * self.exp['V_X']*np.float(clock.getTime()/self.exp['stim_tau']), self.exp['offset']))
+                target.setPos((dir_sign * self.exp['V_X']*clock.getTime(), self.exp['offset']))
                 target.draw()
                 win.flip()
 
         # ---------------------------------------------------
         # EXPERIMENT
         # ---------------------------------------------------
-
         if self.mode == 'psychophysique' :
-
             results = np.zeros((self.exp['N_trials'], self.exp['N_blocks'] ))
-
-            for block in range(self.exp['N_blocks']):
-
+        
+        if self.mode == 'enregistrement':
+            ET.Start_exp()
+            
+            # Effectuez la configuration du suivi au début de l'expérience.
+            win.winHandle.set_fullscreen(False)
+            #win.winHandle.set_visible(False)
+            ET.calibration()
+            #win.winHandle.set_visible(True)
+            win.winHandle.set_fullscreen(True)
+        
+        for block in range(self.exp['N_blocks']):
+            if self.mode == 'psychophysique' :
                 score = 0
-                pause()
-                #print block
-                for trial in range(self.exp['N_trials']):
+            
+            pause(self.mode)
 
+            for trial in range(self.exp['N_trials']):
+                
+                # ---------------------------------------------------
+                # FIXATION
+                # ---------------------------------------------------
+                if self.mode == 'psychophysique' :
                     event.clearEvents()
                     ratingScale.reset()
                     while ratingScale.noResponse :
-
-                        #scorebox.setText(str(score))
-                        #scorebox.draw()
-
                         fixation.draw()
                         ratingScale.draw()
-                        escape_possible()
+                        escape_possible(mode)
                         win.flip()
-
                     ans = ratingScale.getRating()
                     results[trial, block] = ans
+                
+                if self.mode == 'enregistrement':
 
-                    # GAP
+                    ET.check()
+                    ET.Start_trial(trial)
+                    
+                    fixation.draw()
+                    tps_start_fix = time.time()
                     win.flip()
-                    core.wait(0.3)
-
-                    dir_bool = self.exp['p'][trial, block, 0]
-                    presentStimulus_move(dir_bool)
-                    win.flip()
-
+                    escape_possible(self.mode)
+                    
+                    ET.StimulusON(tps_start_fix)
+                    ET.Fixation(fixation, tps_start_fix, win, escape_possible)
+                
+                # ---------------------------------------------------
+                # GAP
+                # ---------------------------------------------------
+                escape_possible(self.mode)
+                win.flip()
+                if self.mode == 'enregistrement':
+                    ET.StimulusOFF()
+                core.wait(0.3)
+                
+                # ---------------------------------------------------
+                # Mouvement cible
+                # ---------------------------------------------------
+                escape_possible(self.mode)
+                dir_bool = self.exp['p'][trial, block, 0]
+                if self.mode == 'enregistrement':
+                    ET.TargetON()
+                presentStimulus_move(dir_bool)
+                escape_possible(self.mode)
+                win.flip()
+                
+                if self.mode == 'psychophysique' :
                     score_trial = ans * (dir_bool * 2 - 1)
-                    #print(score_trial)
                     if score_trial > 0 :
                         Bip_pos.setVolume(score_trial)
                         Bip_pos.play()
@@ -322,39 +455,21 @@ class aSPEM(object):
                     core.wait(0.1)
 
                     score += score_trial
-
+                
+                if self.mode == 'enregistrement':
+                    ET.TargetOFF()
+                    ret_value = ET.fin_enregistrement()
+                    ET.check_trial(ret_value)
+                    
+        if self.mode == 'psychophysique' :
             self.exp['results'] = results
 
-            with open(self.exp_name(), 'wb') as fichier:
-                f = pickle.Pickler(fichier)
-                f.dump(self.exp)
+        if self.mode == 'enregistrement':
+            ET.End_exp()
 
-        elif self.mode == 'enregistrement': # see for Eyelink
-            for block in range(self.exp['N_blocks']):
-
-                for trial in range(self.exp['N_trials']):
-
-                    clock.reset()
-                    t = clock.getTime()
-
-                    fixation.draw()
-                    escape_possible()
-                    win.flip()
-                    core.wait(np.random.uniform(0.4, 0.8))
-
-                    # GAP
-                    win.flip()
-                    core.wait(0.3)
-
-                    presentStimulus_move(self.exp['p'][trial, block, 0])
-                    escape_possible()
-
-                    win.flip()
-
-
-        else :
-            print ('mode incorect')
-
+        with open(self.exp_name(), 'wb') as fichier:
+            f = pickle.Pickler(fichier)
+            f.dump(self.exp)
 
         win.update()
         core.wait(0.5)
@@ -370,7 +485,7 @@ if __name__ == '__main__':
     try:
         mode = sys.argv[1]
     except:
-        mode = 'psychophysique'
+        mode = 'enregistrement' #'psychophysique' # 
 
     try:
         timeStr = sys.argv[4]
