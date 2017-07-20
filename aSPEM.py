@@ -119,7 +119,7 @@ class aSPEM(object):
                             screen=screen,
                             screen_width_px=screen_width_px, screen_height_px=screen_height_px,
                             px_per_deg=px_per_deg, offset=offset,
-                            dot_size=dot_size, V_X =V_X, saccade_px=saccade_px,
+                            dot_size=dot_size, V_X_deg=V_X_deg, V_X =V_X, saccade_px=saccade_px,
                             mode=self.mode, observer=self.observer, timeStr=self.timeStr)
 
     def print_protocol(self):
@@ -238,7 +238,7 @@ class aSPEM(object):
             dir_sign = dir_bool * 2 - 1
             while clock.getTime() < self.exp['stim_tau']:
                 escape_possible(self.mode)
-                target.setPos((dir_sign * self.exp['V_X']*clock.getTime(), self.exp['offset']))
+                target.setPos(((dir_sign * self.exp['V_X']*clock.getTime())-(dir_sign * self.exp['V_X']*0.1), self.exp['offset']))
                 target.draw()
                 escape_possible(self.mode)
                 win.flip()
