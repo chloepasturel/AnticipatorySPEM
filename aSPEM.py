@@ -73,11 +73,8 @@ class aSPEM(object):
             self.observer = expInfo["Sujet"]
             
             # width and height of your screen
-            # displayed on a 20” Viewsonic p227f monitor with resolution 1024 × 768 at 100 Hz
-            #screen_width_px, screen_height_px = 1024, 768
-            #screen_width_px, screen_height_px = 2560, 1440 # iMac 27''
-            screen_width_px = 1280
-            screen_height_px = 1024
+            screen_width_px = 1920 #1280 for ordi enregistrement
+            screen_height_px = 1080 #1024 for ordi enregistrement
             framerate = 100.
             screen = 0 # 1 pour afficher sur l'écran 2
             
@@ -91,7 +88,7 @@ class aSPEM(object):
             # stimulus parameters
             # ---------------------------------------------------
             dot_size = 10 # (0.02*screen_height_px)
-            V_X_deg = 15 #20. #40.                            # deg/s
+            V_X_deg = 40. #20. #40.                            # deg/s   # 15 for 'enregistrement'
             V_X = px_per_deg * V_X_deg     # pixel/s
             saccade_px = .618*screen_height_px
             offset = 0 #.2*screen_height_px
@@ -99,12 +96,12 @@ class aSPEM(object):
             # ---------------------------------------------------
             # exploration parameters
             # ---------------------------------------------------
-            N_blocks = 2 #4
+            N_blocks = 4
             seed = 2017
-            N_trials = 15 #2 #200
+            N_trials = 200
             tau = N_trials/5.
             (trials, p) = binomial_motion(N_trials, N_blocks, tau=tau, seed=seed, N_layer=3)
-            stim_tau = 1.5 #.35 # in seconds
+            stim_tau = .35 # in seconds # 1.5 for 'enregistrement'
 
             gray_tau = .0 # in seconds
             T =  stim_tau + gray_tau
@@ -180,7 +177,6 @@ class aSPEM(object):
         axs[-1].set_xlabel('trials', fontsize=14);
 
         return fig, axs
-
 
     def plot_enregistrement(self, mode=None, fig=None, axs=None, fig_width=13) :
         import matplotlib.pyplot as plt
@@ -310,10 +306,10 @@ class aSPEM(object):
         #fixation = visual.TextStim(win, text = u"+", units='pix', height=self.exp['dot_size']*4, color='white',
         #                        pos=[0., self.exp['offset']], alignHoriz='center', alignVert='center' )
 
-        ratingScale = visual.RatingScale(win, scale=None, low=-1, high=1, precision=100, size=.4, stretch=2.5,
+        ratingScale = visual.RatingScale(win, scale=None, low=-1, high=1, precision=100, size=.7, stretch=2.5,
                         labels=('Left', 'unsure', 'Right'), tickMarks=[-1, 0., 1], tickHeight=-1.0,
                         marker='triangle', markerColor='black', lineColor='White', showValue=False, singleClick=True,
-                        showAccept=False)
+                        showAccept=False, pos=(0, -self.exp['screen_height_px']/3)) #size=.4
 
         Bip_pos = sound.Sound('2000', secs=0.05)
         Bip_neg = sound.Sound('200', secs=0.5) # augmenter les fq
@@ -323,6 +319,10 @@ class aSPEM(object):
         msg_pause = visual.TextStim(win, text=u"\n\n\nTaper sur une touche pour continuer\n\nESCAPE pour arrêter l'expérience",
                                     font='calibri', height=25,
                                     alignHoriz='center')#, alignVert='top')
+
+        text_score = visual.TextStim(win, font='calibri', height=30, pos=(0, self.exp['screen_height_px']/5))
+
+
 
         def pause(mode) :
             msg_pause.draw()
@@ -346,8 +346,7 @@ class aSPEM(object):
                 win.winHandle.set_fullscreen(True)
 
         def escape_possible(mode) :
-            event.clearEvents()
-            if event.getKeys(keyList=["escape", "Q", "a"]):
+            if event.getKeys(keyList=['escape', 'a', 'q']):
                 win.close()
                 core.quit()
                 if mode=='enregistrement' :
@@ -369,8 +368,10 @@ class aSPEM(object):
             #myMouse.setVisible(0)
             dir_sign = dir_bool * 2 - 1
             while clock.getTime() < self.exp['stim_tau']:
+                escape_possible(self.mode)
                 target.setPos((dir_sign * self.exp['V_X']*clock.getTime(), self.exp['offset']))
                 target.draw()
+                escape_possible(self.mode)
                 win.flip()
 
         # ---------------------------------------------------
@@ -396,7 +397,7 @@ class aSPEM(object):
             pause(self.mode)
 
             for trial in range(self.exp['N_trials']):
-                
+
                 # ---------------------------------------------------
                 # FIXATION
                 # ---------------------------------------------------
@@ -404,9 +405,11 @@ class aSPEM(object):
                     event.clearEvents()
                     ratingScale.reset()
                     while ratingScale.noResponse :
+                        text_score.text = score
+                        text_score.draw()
                         fixation.draw()
                         ratingScale.draw()
-                        escape_possible(mode)
+                        escape_possible(self.mode)
                         win.flip()
                     ans = ratingScale.getRating()
                     results[trial, block] = ans
@@ -427,8 +430,8 @@ class aSPEM(object):
                 # ---------------------------------------------------
                 # GAP
                 # ---------------------------------------------------
-                escape_possible(self.mode)
                 win.flip()
+                escape_possible(self.mode)
                 if self.mode == 'enregistrement':
                     ET.StimulusOFF()
                 core.wait(0.3)
@@ -485,7 +488,7 @@ if __name__ == '__main__':
     try:
         mode = sys.argv[1]
     except:
-        mode = 'enregistrement' #'psychophysique' # 
+        mode = 'psychophysique' # 'enregistrement' #
 
     try:
         timeStr = sys.argv[4]
