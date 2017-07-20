@@ -64,12 +64,16 @@ class aSPEM(object):
                 #print (self.exp)
 
         else :
-            from psychopy import gui
             # Présente un dialogue pour changer les paramètres
             expInfo = {"Sujet":''}
             Nom_exp = u'aSPEM'
-            dlg = gui.DlgFromDict(expInfo, title=Nom_exp)
-            
+            try:
+                from psychopy import gui
+                dlg = gui.DlgFromDict(expInfo, title=Nom_exp)
+                PSYCHOPY = True
+            except:
+                PSYCHOPY = False
+                
             self.observer = expInfo["Sujet"]
             
             # width and height of your screen
@@ -136,141 +140,6 @@ class aSPEM(object):
 
     def exp_name(self):
         return os.path.join(self.exp['datadir'], self.mode + '_' + self.observer + '_' + self.timeStr + '.pkl')
-
-    def plot(self, mode=None, fig=None, axs=None, fig_width=13):
-        
-        import matplotlib.pyplot as plt
-        
-        N_trials = self.exp['N_trials']
-        N_blocks = self.exp['N_blocks']
-        p = self.exp['p']
-
-        if fig is None:
-            fig_width= fig_width
-            fig, axs = plt.subplots(3, 1, figsize=(fig_width, fig_width/1.6180))
-        stick = np.zeros_like(p)
-        stick[:, :, 0] = np.ones((N_trials, 1)) * np.arange(N_blocks)[np.newaxis, :]
-        stick[:, :, 1] = np.ones((N_trials, 1)) * np.arange(N_blocks)[np.newaxis, :]
-        stick[:, :, 2] = np.ones((N_trials, 1)) * np.arange(N_blocks)[np.newaxis, :]
-        corrects = 0
-
-        for i_layer, label in enumerate([r'$\^x_0$', r'$\^p$', r'$\^x_2$']):
-            from cycler import cycler
-            axs[i_layer].set_prop_cycle(cycler('color', [plt.cm.magma(h) for h in np.linspace(0, 1, N_blocks+1)]))
-            _ = axs[i_layer].step(range(N_trials), p[:, :, i_layer]+stick[:, :, i_layer], lw=1, alpha=.9)
-            for i_block in range(N_blocks):
-                _ = axs[i_layer].fill_between(range(N_trials), i_block + np.zeros_like(p[:, i_block, i_layer]), i_block + p[:, i_block, i_layer], lw=.5, alpha=.1, facecolor='green', step='pre')
-                _ = axs[i_layer].fill_between(range(N_trials), i_block + np.ones_like(p[:, i_block, i_layer]), i_block + p[:, i_block, i_layer], lw=.5, alpha=.1, facecolor='red', step='pre')
-            axs[i_layer].axis('tight')
-            axs[i_layer].set_yticks(np.arange(N_blocks)+.5)
-            axs[i_layer].set_yticklabels(np.arange(N_blocks) )
-            axs[i_layer].set_ylabel(label, fontsize=14)
-
-        if not mode is None:
-            results = (self.exp['results']+1)/2 # results est sur [-1,1] on le ramene sur [0,1]
-            for block in range(N_blocks):
-                #corrects += (results[:, block] == p[:, block, 0]).sum()
-                _ = axs[1].step(range(N_trials), block + results[:, block], alpha=.9, color='r')
-            #print('corrects', corrects)
-        fig.tight_layout()
-        for i in range(2): axs[i].set_ylim(-.05, N_blocks + .05)
-        axs[-1].set_xlabel('trials', fontsize=14);
-
-        return fig, axs
-
-    def plot_enregistrement(self, mode=None, fig=None, axs=None, fig_width=13) :
-        import matplotlib.pyplot as plt
-        from pygazeanalyser.edfreader import read_edf
-        
-        resultats = os.path.join(self.exp['datadir'], self.mode + '_' + self.observer + '_' + self.timeStr + '.asc')
-        data = read_edf(resultats, 'TRIALID')
-        
-        N_trials = self.exp['N_trials']
-        N_blocks = self.exp['N_blocks']
-        screen_width_px = self.exp['screen_width_px']
-        screen_height_px = self.exp['screen_height_px']
-        V_X = self.exp['V_X']
-        stim_tau = self.exp['stim_tau']
-        p = self.exp['p']
-        
-        if fig is None:
-            fig_width= fig_width
-            fig, axs = plt.subplots(N_trials*N_blocks, 1, figsize=(fig_width, (fig_width*N_trials)/1.6180))
-        plt.subplots_adjust(wspace=0, hspace=0)
-
-
-        for block in range(N_blocks) :
-            
-            for trial in range(N_trials) :
-                
-                trial_data = trial + N_trials*block
-                
-                data_x = data[trial_data]['x']
-                data_y = data[trial_data]['y']
-                trackertime = data[trial_data]['trackertime']
-                
-                TRIALID = data[trial_data]['events']['msg'][0][0]
-                StimulusOn = data[trial_data]['events']['msg'][10][0]
-                StimulusOf = data[trial_data]['events']['msg'][14][0]
-                TargetOn = data[trial_data]['events']['msg'][15][0]
-                TargetOff = data[trial_data]['events']['msg'][16][0]
-                fixations = data[trial_data]['events']['Efix']
-                saccades = data[trial_data]['events']['Esac']
-
-                start = TargetOn
-
-                TRIALID = TRIALID - start
-                StimulusOn = StimulusOn - start
-                StimulusOf = StimulusOf - start
-                TargetOn = TargetOn - start
-                TargetOff = TargetOff - start
-                trackertime = trackertime - start
-                
-                ##################################################
-                # TARGET
-                ##################################################
-                dir_bool = p[trial, block, 0]*2 - 1
-                tps_mvt = TargetOff-TargetOn
-                Target_trial = []
-                x = screen_width_px/2
-                
-                for t in range(len(trackertime)):
-                    if t < (TargetOn-trackertime[0])  :
-                        x = screen_width_px/2
-                    elif (t >= (TargetOn-trackertime[0]) and t <= ((TargetOn-trackertime[0])+stim_tau*1000)) :
-                        x = x + dir_bool*(V_X/1000)
-                    else :
-                        x = x
-                    Target_trial.append(x)
-                ##################################################
-
-                axs[trial_data].axis([StimulusOf-10, TargetOff+10, 0, 1280])
-                
-                axs[trial_data].plot(trackertime, np.ones(len(trackertime))*(screen_height_px/2), color='grey', linewidth=1.5)
-                axs[trial_data].plot(trackertime, data_y, color='c', linewidth=1.5)
-                
-                axs[trial_data].plot(trackertime, Target_trial, color='k', linewidth=1.5)
-                axs[trial_data].plot(trackertime, data_x, color='r', linewidth=1.5)
-
-                #axs[trial_data].bar(TRIALID, 1280, color='g', width=5, linewidth=0)
-                #axs[trial_data].bar(StimulusOn, 1280, color='r', width=5, linewidth=0)
-                axs[trial_data].bar(StimulusOf, 1280, color='r', width=5, linewidth=0)
-                axs[trial_data].bar(TargetOn, 1280, color='k', width=5, linewidth=0)
-                axs[trial_data].bar(TargetOff, 1280, color='k', width=5, linewidth=0)
-
-                axs[trial_data].set_xlabel('Temps en msec', fontsize=14)
-                axs[trial_data].xaxis.set_ticks(range(StimulusOf+1, TargetOff, 100))
-                axs[trial_data].set_ylabel(trial, fontsize=14)
-                axs[trial_data].yaxis.set_ticks(range(0, 1280, 300))
-
-                for f in range(len(fixations)) :
-                    axs[trial_data]. axvspan(fixations[f][0]-start, fixations[f][1]-start, color='r', alpha=0.1)
-                for s in range(len(saccades)) :
-                    axs[trial_data]. axvspan(saccades[s][0]-start, saccades[s][1]-start, color='k', alpha=0.2)
-
-        return fig, axs
-
-
     def run_experiment(self, verb=True):
 
         #if verb: print('launching experiment')
@@ -482,6 +351,139 @@ class aSPEM(object):
 
         core.quit()
 
+    def plot(self, mode=None, fig=None, axs=None, fig_width=13):
+        
+        import matplotlib.pyplot as plt
+        
+        N_trials = self.exp['N_trials']
+        N_blocks = self.exp['N_blocks']
+        p = self.exp['p']
+
+        if fig is None:
+            fig_width= fig_width
+            fig, axs = plt.subplots(3, 1, figsize=(fig_width, fig_width/1.6180))
+        stick = np.zeros_like(p)
+        stick[:, :, 0] = np.ones((N_trials, 1)) * np.arange(N_blocks)[np.newaxis, :]
+        stick[:, :, 1] = np.ones((N_trials, 1)) * np.arange(N_blocks)[np.newaxis, :]
+        stick[:, :, 2] = np.ones((N_trials, 1)) * np.arange(N_blocks)[np.newaxis, :]
+        corrects = 0
+
+        for i_layer, label in enumerate([r'$\^x_0$', r'$\^p$', r'$\^x_2$']):
+            from cycler import cycler
+            axs[i_layer].set_prop_cycle(cycler('color', [plt.cm.magma(h) for h in np.linspace(0, 1, N_blocks+1)]))
+            _ = axs[i_layer].step(range(N_trials), p[:, :, i_layer]+stick[:, :, i_layer], lw=1, alpha=.9)
+            for i_block in range(N_blocks):
+                _ = axs[i_layer].fill_between(range(N_trials), i_block + np.zeros_like(p[:, i_block, i_layer]), i_block + p[:, i_block, i_layer], lw=.5, alpha=.1, facecolor='green', step='pre')
+                _ = axs[i_layer].fill_between(range(N_trials), i_block + np.ones_like(p[:, i_block, i_layer]), i_block + p[:, i_block, i_layer], lw=.5, alpha=.1, facecolor='red', step='pre')
+            axs[i_layer].axis('tight')
+            axs[i_layer].set_yticks(np.arange(N_blocks)+.5)
+            axs[i_layer].set_yticklabels(np.arange(N_blocks) )
+            axs[i_layer].set_ylabel(label, fontsize=14)
+
+        if not mode is None:
+            results = (self.exp['results']+1)/2 # results est sur [-1,1] on le ramene sur [0,1]
+            for block in range(N_blocks):
+                #corrects += (results[:, block] == p[:, block, 0]).sum()
+                _ = axs[1].step(range(N_trials), block + results[:, block], alpha=.9, color='r')
+            #print('corrects', corrects)
+        fig.tight_layout()
+        for i in range(2): axs[i].set_ylim(-.05, N_blocks + .05)
+        axs[-1].set_xlabel('trials', fontsize=14);
+
+        return fig, axs
+
+    def plot_enregistrement(self, mode=None, fig=None, axs=None, fig_width=13) :
+        import matplotlib.pyplot as plt
+        # from pygazeanalyser.edfreader import read_edf
+        from edfreader import read_edf
+        
+        resultats = os.path.join(self.exp['datadir'], self.mode + '_' + self.observer + '_' + self.timeStr + '.asc')
+        data = read_edf(resultats, 'TRIALID')
+        
+        N_trials = self.exp['N_trials']
+        N_blocks = self.exp['N_blocks']
+        screen_width_px = self.exp['screen_width_px']
+        screen_height_px = self.exp['screen_height_px']
+        V_X = self.exp['V_X']
+        stim_tau = self.exp['stim_tau']
+        p = self.exp['p']
+        
+        if fig is None:
+            fig_width= fig_width
+            fig, axs = plt.subplots(N_trials*N_blocks, 1, figsize=(fig_width, (fig_width*N_trials)/1.6180))
+        plt.subplots_adjust(wspace=0, hspace=0)
+
+
+        for block in range(N_blocks) :
+            
+            for trial in range(N_trials) :
+                
+                trial_data = trial + N_trials*block
+                
+                data_x = data[trial_data]['x']
+                data_y = data[trial_data]['y']
+                trackertime = data[trial_data]['trackertime']
+                
+                TRIALID = data[trial_data]['events']['msg'][0][0]
+                StimulusOn = data[trial_data]['events']['msg'][10][0]
+                StimulusOf = data[trial_data]['events']['msg'][14][0]
+                TargetOn = data[trial_data]['events']['msg'][15][0]
+                TargetOff = data[trial_data]['events']['msg'][16][0]
+                fixations = data[trial_data]['events']['Efix']
+                saccades = data[trial_data]['events']['Esac']
+
+                start = TargetOn
+
+                TRIALID = TRIALID - start
+                StimulusOn = StimulusOn - start
+                StimulusOf = StimulusOf - start
+                TargetOn = TargetOn - start
+                TargetOff = TargetOff - start
+                trackertime = trackertime - start
+                
+                ##################################################
+                # TARGET
+                ##################################################
+                dir_bool = p[trial, block, 0]*2 - 1
+                tps_mvt = TargetOff-TargetOn
+                Target_trial = []
+                x = screen_width_px/2
+                
+                for t in range(len(trackertime)):
+                    if t < (TargetOn-trackertime[0])  :
+                        x = screen_width_px/2
+                    elif (t >= (TargetOn-trackertime[0]) and t <= ((TargetOn-trackertime[0])+stim_tau*1000)) :
+                        x = x + dir_bool*(V_X/1000)
+                    else :
+                        x = x
+                    Target_trial.append(x)
+                ##################################################
+
+                axs[trial_data].axis([StimulusOf-10, TargetOff+10, 0, 1280])
+                
+                axs[trial_data].plot(trackertime, np.ones(len(trackertime))*(screen_height_px/2), color='grey', linewidth=1.5)
+                axs[trial_data].plot(trackertime, data_y, color='c', linewidth=1.5)
+                
+                axs[trial_data].plot(trackertime, Target_trial, color='k', linewidth=1.5)
+                axs[trial_data].plot(trackertime, data_x, color='r', linewidth=1.5)
+
+                #axs[trial_data].bar(TRIALID, 1280, color='g', width=5, linewidth=0)
+                #axs[trial_data].bar(StimulusOn, 1280, color='r', width=5, linewidth=0)
+                axs[trial_data].bar(StimulusOf, 1280, color='r', width=5, linewidth=0)
+                axs[trial_data].bar(TargetOn, 1280, color='k', width=5, linewidth=0)
+                axs[trial_data].bar(TargetOff, 1280, color='k', width=5, linewidth=0)
+
+                axs[trial_data].set_xlabel('Temps en msec', fontsize=14)
+                axs[trial_data].xaxis.set_ticks(range(StimulusOf+1, TargetOff, 100))
+                axs[trial_data].set_ylabel(trial, fontsize=14)
+                axs[trial_data].yaxis.set_ticks(range(0, 1280, 300))
+
+                for f in range(len(fixations)) :
+                    axs[trial_data]. axvspan(fixations[f][0]-start, fixations[f][1]-start, color='r', alpha=0.1)
+                for s in range(len(saccades)) :
+                    axs[trial_data]. axvspan(saccades[s][0]-start, saccades[s][1]-start, color='k', alpha=0.2)
+
+        return fig, axs
 
 if __name__ == '__main__':
 

@@ -1,3 +1,4 @@
+PyGazeAnalyser
 *.pyc
 .ipynb_checkpoints
 lastFrameIntervals.log
