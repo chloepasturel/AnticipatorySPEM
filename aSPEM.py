@@ -508,9 +508,9 @@ class aSPEM(object):
             plt.tight_layout() # pour supprimer les marge trop grande
             plt.subplots_adjust(hspace=0) # pour enlever espace entre les figures
 
-            plt.savefig('Figure/%s_%s_block-%s_%s-trials.pdf'%(self.observer, self.timeStr, block+1, N_trials))
+            plt.savefig('figures/%s_%s_block-%s_%s-trials.pdf'%(self.observer, self.timeStr, block+1, N_trials))
         plt.close()
-        #return fig, axs
+        return fig, axs
         
 
 
