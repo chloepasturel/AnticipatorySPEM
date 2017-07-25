@@ -77,8 +77,8 @@ class aSPEM(object):
             self.observer = expInfo["Sujet"]
             
             # width and height of your screen
-            screen_width_px = 1920 #1280 for ordi enregistrement
-            screen_height_px = 1080 #1024 for ordi enregistrement
+            screen_width_px = 1280 #1920 #1280 for ordi enregistrement
+            screen_height_px = 1024 #1080 #1024 for ordi enregistrement
             framerate = 100.
             screen = 0 # 1 pour afficher sur l'écran 2
             
@@ -92,8 +92,11 @@ class aSPEM(object):
             # stimulus parameters
             # ---------------------------------------------------
             dot_size = 10 # (0.02*screen_height_px)
-            V_X_deg = 40. #20. #40.                            # deg/s   # 15 for 'enregistrement'
+            V_X_deg = 12 #20. #40.                            # deg/s   # 15 for 'enregistrement'
             V_X = px_per_deg * V_X_deg     # pixel/s
+            
+            RashBass  = 100  # ms - pour reculer la cible à t=0 de sa vitesse * latence=RashBass
+            
             saccade_px = .618*screen_height_px
             offset = 0 #.2*screen_height_px
 
@@ -105,7 +108,7 @@ class aSPEM(object):
             N_trials = 200
             tau = N_trials/5.
             (trials, p) = binomial_motion(N_trials, N_blocks, tau=tau, seed=seed, N_layer=3)
-            stim_tau = .35 # in seconds # 1.5 for 'enregistrement'
+            stim_tau = 1 #.35 # in seconds # 1.5 for 'enregistrement'
 
             gray_tau = .0 # in seconds
             T =  stim_tau + gray_tau
@@ -119,7 +122,7 @@ class aSPEM(object):
                             screen=screen,
                             screen_width_px=screen_width_px, screen_height_px=screen_height_px,
                             px_per_deg=px_per_deg, offset=offset,
-                            dot_size=dot_size, V_X_deg=V_X_deg, V_X =V_X, saccade_px=saccade_px,
+                            dot_size=dot_size, V_X_deg=V_X_deg, V_X =V_X, RashBass=RashBass, saccade_px=saccade_px,
                             mode=self.mode, observer=self.observer, timeStr=self.timeStr)
 
     def print_protocol(self):
@@ -140,6 +143,7 @@ class aSPEM(object):
 
     def exp_name(self):
         return os.path.join(self.exp['datadir'], self.mode + '_' + self.observer + '_' + self.timeStr + '.pkl')
+
     def run_experiment(self, verb=True):
 
         #if verb: print('launching experiment')
@@ -158,7 +162,7 @@ class aSPEM(object):
 #        if verb: print('go!')
 
         # ---------------------------------------------------
-        win = visual.Window([self.exp['screen_width_px'], self.exp['screen_height_px']],
+        win = visual.Window([self.exp['screen_width_px'], self.exp['screen_height_px']], color=(0, 0, 0),
                             allowGUI=False, fullscr=True, screen=self.exp['screen'], units='pix') # enlever fullscr=True pour écran 2
 
         win.setRecordFrameIntervals(True)
@@ -209,9 +213,9 @@ class aSPEM(object):
                         ET.End_exp()
             if mode=='enregistrement' :
                 win.winHandle.set_fullscreen(False)
-                #win.winHandle.set_visible(False)
+                win.winHandle.set_visible(False) # remis pour voir si ça enléve l'écran blanc juste après calibration
                 ET.drift_correction()
-                #win.winHandle.set_visible(True)
+                win.winHandle.set_visible(True) # remis pour voir si ça enléve l'écran blanc juste après calibration
                 win.winHandle.set_fullscreen(True)
 
         def escape_possible(mode) :
@@ -238,7 +242,8 @@ class aSPEM(object):
             dir_sign = dir_bool * 2 - 1
             while clock.getTime() < self.exp['stim_tau']:
                 escape_possible(self.mode)
-                target.setPos(((dir_sign * self.exp['V_X']*clock.getTime())-(dir_sign * self.exp['V_X']*0.1), self.exp['offset']))
+                # la cible à t=0 recule de sa vitesse * latence=RashBass (ici mis en s)
+                target.setPos(((dir_sign * self.exp['V_X']*clock.getTime())-(dir_sign * self.exp['V_X']*(self.exp['RashBass']/1000)), self.exp['offset']))
                 target.draw()
                 escape_possible(self.mode)
                 win.flip()
@@ -254,14 +259,17 @@ class aSPEM(object):
             
             # Effectuez la configuration du suivi au début de l'expérience.
             win.winHandle.set_fullscreen(False)
-            #win.winHandle.set_visible(False)
+            win.winHandle.set_visible(False) # remis pour voir si ça enléve l'écran blanc juste après calibration
             ET.calibration()
-            #win.winHandle.set_visible(True)
+            win.winHandle.set_visible(True) # remis pour voir si ça enléve l'écran blanc juste après calibration
             win.winHandle.set_fullscreen(True)
         
         for block in range(self.exp['N_blocks']):
             if self.mode == 'psychophysique' :
                 score = 0
+            
+            if self.mode == 'enregistrement' :
+                x = 0
             
             pause(self.mode)
 
@@ -285,6 +293,11 @@ class aSPEM(object):
                 
                 if self.mode == 'enregistrement':
 
+                    if x == 50 :
+                        pause(self.mode)
+                        x = -1
+                    x = x +1
+                    
                     ET.check()
                     ET.Start_trial(trial)
                     
@@ -392,7 +405,7 @@ class aSPEM(object):
 
         return fig, axs
 
-    def plot_enregistrement(self, mode=None, fig=None, axs=None, fig_width=13) :
+    def plot_enregistrement(self, mode=None, fig=None, axs=None, fig_width=5) :
         import matplotlib.pyplot as plt
         # from pygazeanalyser.edfreader import read_edf
         from edfreader import read_edf
@@ -405,19 +418,23 @@ class aSPEM(object):
         screen_width_px = self.exp['screen_width_px']
         screen_height_px = self.exp['screen_height_px']
         V_X = self.exp['V_X']
+        ##################################
+        RashBass = self.exp['RashBass']
+        #RashBass = 100
+        ##################################
         stim_tau = self.exp['stim_tau']
         p = self.exp['p']
-        
-        if fig is None:
-            fig_width= fig_width
-            fig, axs = plt.subplots(N_trials*N_blocks, 1, figsize=(fig_width, (fig_width*N_trials)/1.6180))
-        plt.subplots_adjust(wspace=0, hspace=0)
-
 
         for block in range(N_blocks) :
             
+            if fig is None:
+                fig_width= fig_width
+                fig, axs = plt.subplots(N_trials, 1, figsize=(fig_width, (fig_width*(N_trials/2))/1.6180))
+            
+            
             for trial in range(N_trials) :
                 
+                #if trial <= 2 :
                 trial_data = trial + N_trials*block
                 
                 data_x = data[trial_data]['x']
@@ -449,48 +466,60 @@ class aSPEM(object):
                 Target_trial = []
                 x = screen_width_px/2
                 
+                d = 100
                 for t in range(len(trackertime)):
-                    if t < (TargetOn-trackertime[0])  :
+                    if t < (TargetOn-trackertime[0]) :
                         x = screen_width_px/2
-                    elif (t >= (TargetOn-trackertime[0]) and t <= ((TargetOn-trackertime[0])+stim_tau*1000)) :
-                        x = x + dir_bool*(V_X/1000)
+                    elif t == (TargetOn-trackertime[0]) :
+                        # la cible à t=0 recule de sa vitesse * latence=RashBass (ici mis en ms)
+                        x = x -(dir_bool * ((V_X/1000)*RashBass))
+                    elif (t > (TargetOn-trackertime[0]) and t <= ((TargetOn-trackertime[0])+stim_tau*1000)) :
+                        x = x + (dir_bool*(V_X/1000))
                     else :
                         x = x
                     Target_trial.append(x)
                 ##################################################
-
-                axs[trial_data].axis([StimulusOf-10, TargetOff+10, 0, 1280])
+                axs[trial].cla() # pour remettre ax figure a zero
+                axs[trial].axis([StimulusOf-10, TargetOff+10, 0, 1280])
                 
-                axs[trial_data].plot(trackertime, np.ones(len(trackertime))*(screen_height_px/2), color='grey', linewidth=1.5)
-                axs[trial_data].plot(trackertime, data_y, color='c', linewidth=1.5)
+                axs[trial].plot(trackertime, np.ones(len(trackertime))*(screen_height_px/2), color='grey', linewidth=1.5)
+                axs[trial].plot(trackertime, data_y, color='c', linewidth=1.5)
                 
-                axs[trial_data].plot(trackertime, Target_trial, color='k', linewidth=1.5)
-                axs[trial_data].plot(trackertime, data_x, color='r', linewidth=1.5)
+                axs[trial].plot(trackertime, Target_trial, color='k', linewidth=1.5)
+                axs[trial].plot(trackertime, data_x, color='r', linewidth=1.5)
 
-                #axs[trial_data].bar(TRIALID, 1280, color='g', width=5, linewidth=0)
-                #axs[trial_data].bar(StimulusOn, 1280, color='r', width=5, linewidth=0)
-                axs[trial_data].bar(StimulusOf, 1280, color='r', width=5, linewidth=0)
-                axs[trial_data].bar(TargetOn, 1280, color='k', width=5, linewidth=0)
-                axs[trial_data].bar(TargetOff, 1280, color='k', width=5, linewidth=0)
+                #axs[trial].bar(TRIALID, 1280, color='g', width=5, linewidth=0)
+                #axs[trial].bar(StimulusOn, 1280, color='r', width=5, linewidth=0)
+                axs[trial].bar(StimulusOf, 1280, color='r', width=5, linewidth=0)
+                axs[trial].bar(TargetOn, 1280, color='k', width=5, linewidth=0)
+                axs[trial].bar(TargetOff, 1280, color='k', width=5, linewidth=0)
 
-                axs[trial_data].set_xlabel('Temps en msec', fontsize=14)
-                axs[trial_data].xaxis.set_ticks(range(StimulusOf+1, TargetOff, 100))
-                axs[trial_data].set_ylabel(trial, fontsize=14)
-                axs[trial_data].yaxis.set_ticks(range(0, 1280, 300))
+                axs[trial].set_xlabel('Time (ms)', fontsize=9)
+                axs[trial].xaxis.set_ticks(range(StimulusOf+1, TargetOff, 100))
+                axs[trial].xaxis.set_ticklabels(range(StimulusOf+1, TargetOff, 100), fontsize=8)
+                axs[trial].set_ylabel(trial+1, fontsize=9)
+                axs[trial].yaxis.set_ticks(range(0, 1280, 600))
+                axs[trial].yaxis.set_ticklabels(range(0, 1280, 600), fontsize=8)
 
                 for f in range(len(fixations)) :
-                    axs[trial_data]. axvspan(fixations[f][0]-start, fixations[f][1]-start, color='r', alpha=0.1)
+                    axs[trial]. axvspan(fixations[f][0]-start, fixations[f][1]-start, color='r', alpha=0.1)
                 for s in range(len(saccades)) :
-                    axs[trial_data]. axvspan(saccades[s][0]-start, saccades[s][1]-start, color='k', alpha=0.2)
+                    axs[trial]. axvspan(saccades[s][0]-start, saccades[s][1]-start, color='k', alpha=0.2)
+            plt.tight_layout() # pour supprimer les marge trop grande
+            plt.subplots_adjust(hspace=0) # pour enlever espace entre les figures
 
-        return fig, axs
+            plt.savefig('Figure/%s_%s_block-%s_%s-trials.pdf'%(self.observer, self.timeStr, block+1, N_trials))
+        plt.close()
+        #return fig, axs
+        
+
 
 if __name__ == '__main__':
 
     try:
         mode = sys.argv[1]
     except:
-        mode = 'psychophysique' # 'enregistrement' #
+        mode = 'psychophysique' #'enregistrement' #
 
     try:
         timeStr = sys.argv[4]
