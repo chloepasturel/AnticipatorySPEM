@@ -16,7 +16,7 @@ def binomial_motion(N_trials, N_blocks, tau, seed, Jeffreys=True, N_layer=3):
     p = np.random.rand(N_trials, N_blocks, N_layer)
     for trial in trials:
         p[trial, :, 2] = np.random.rand(1, N_blocks) < 1/tau # switch
-        if Jeffreys:
+        if Jeffreys: # /!\ REDEMANDER à laurent
             p_random = beta.rvs(a=.5, b=.5, size=N_blocks)
         else:
             p_random = np.random.rand(1, N_blocks)
@@ -61,11 +61,10 @@ class aSPEM(object):
         if file in os.listdir(datadir) :
             with open(os.path.join(datadir, file), 'rb') as fichier :
                 self.exp = pickle.load(fichier, encoding='latin1')
-                #print (self.exp)
 
         else :
             # Présente un dialogue pour changer les paramètres
-            expInfo = {"Sujet":''}
+            expInfo = {"Sujet":'', "Age":''}
             Nom_exp = u'aSPEM'
             try:
                 from psychopy import gui
@@ -73,38 +72,39 @@ class aSPEM(object):
                 PSYCHOPY = True
             except:
                 PSYCHOPY = False
-                
+
             self.observer = expInfo["Sujet"]
-            
+            self.age = expInfo["Age"]
+
             # width and height of your screen
             screen_width_px = 1280 #1920 #1280 for ordi enregistrement
             screen_height_px = 1024 #1080 #1024 for ordi enregistrement
-            framerate = 100.
-            screen = 0 # 1 pour afficher sur l'écran 2
-            
+            framerate = 100 #60 #100.for ordi enregistrement
+            screen = 0 # 1 pour afficher sur l'écran 2 (ne marche pas pour enregistrement (mac))
+
             screen_width_cm = 57. # (cm)
             viewingDistance = 57. # (cm) TODO : what is the equivalent viewing distance?
             screen_width_deg = 2. * np.arctan((screen_width_cm/2) / viewingDistance) * 180/np.pi
             #px_per_deg = screen_height_px / screen_width_deg
             px_per_deg = screen_width_px / screen_width_deg
-            
+
             # ---------------------------------------------------
             # stimulus parameters
             # ---------------------------------------------------
             dot_size = 10 # (0.02*screen_height_px)
-            V_X_deg = 12 #20. #40.                            # deg/s   # 15 for 'enregistrement'
+            V_X_deg = 20   # deg/s   # 15 for 'enregistrement'
             V_X = px_per_deg * V_X_deg     # pixel/s
-            
+
             RashBass  = 100  # ms - pour reculer la cible à t=0 de sa vitesse * latence=RashBass
-            
+
             saccade_px = .618*screen_height_px
             offset = 0 #.2*screen_height_px
 
             # ---------------------------------------------------
             # exploration parameters
             # ---------------------------------------------------
-            N_blocks = 4
-            seed = 2017
+            N_blocks = 3 # 4 blocks avant
+            seed = 51 #119 #2017
             N_trials = 200
             tau = N_trials/5.
             (trials, p) = binomial_motion(N_trials, N_blocks, tau=tau, seed=seed, N_layer=3)
@@ -114,7 +114,7 @@ class aSPEM(object):
             T =  stim_tau + gray_tau
             N_frame_stim = int(stim_tau*framerate)
             # ---------------------------------------------------
-            
+
             self.exp = dict(N_blocks=N_blocks, seed=seed, N_trials=N_trials, p=p, stim_tau =stim_tau,
                             N_frame_stim=N_frame_stim, T=T,
                             datadir=datadir, cachedir=cachedir,
@@ -123,7 +123,7 @@ class aSPEM(object):
                             screen_width_px=screen_width_px, screen_height_px=screen_height_px,
                             px_per_deg=px_per_deg, offset=offset,
                             dot_size=dot_size, V_X_deg=V_X_deg, V_X =V_X, RashBass=RashBass, saccade_px=saccade_px,
-                            mode=self.mode, observer=self.observer, timeStr=self.timeStr)
+                            mode=self.mode, observer=self.observer, age=self.age, timeStr=self.timeStr)
 
     def print_protocol(self):
         if True: #try:
@@ -151,7 +151,7 @@ class aSPEM(object):
         from psychopy import visual, core, event, logging, prefs
         prefs.general['audioLib'] = [u'pygame']
         from psychopy import sound
-        
+
         if self.mode=='enregistrement' :
             import EyeTracking as ET
             ET = ET.EyeTracking(self.exp['screen_width_px'], self.exp['screen_height_px'], self.exp['dot_size'], self.exp['N_trials'], self.observer, self.exp['datadir'], self.timeStr)
@@ -173,19 +173,14 @@ class aSPEM(object):
 
         # ---------------------------------------------------
         target = visual.Circle(win, lineColor='white', size=self.exp['dot_size'], lineWidth=2)
-        #target = visual.GratingStim(win, mask='circle', sf=0, color='white', size=self.exp['dot_size'])
-
         fixation = visual.GratingStim(win, mask='circle', sf=0, color='white', size=self.exp['dot_size'])
-        #fixation = visual.TextStim(win, text = u"+", units='pix', height=self.exp['dot_size']*4, color='white',
-        #                        pos=[0., self.exp['offset']], alignHoriz='center', alignVert='center' )
-
         ratingScale = visual.RatingScale(win, scale=None, low=-1, high=1, precision=100, size=.7, stretch=2.5,
                         labels=('Left', 'unsure', 'Right'), tickMarks=[-1, 0., 1], tickHeight=-1.0,
                         marker='triangle', markerColor='black', lineColor='White', showValue=False, singleClick=True,
                         showAccept=False, pos=(0, -self.exp['screen_height_px']/3)) #size=.4
 
-        Bip_pos = sound.Sound('2000', secs=0.05)
-        Bip_neg = sound.Sound('200', secs=0.5) # augmenter les fq
+        #Bip_pos = sound.Sound('2000', secs=0.05)
+        #Bip_neg = sound.Sound('200', secs=0.5) # augmenter les fq
 
         # ---------------------------------------------------
         # fonction pause avec possibilité de quitter l'expérience
@@ -193,16 +188,14 @@ class aSPEM(object):
                                     font='calibri', height=25,
                                     alignHoriz='center')#, alignVert='top')
 
-        text_score = visual.TextStim(win, font='calibri', height=30, pos=(0, self.exp['screen_height_px']/5))
-
-
+        text_score = visual.TextStim(win, font='calibri', height=30, pos=(0, self.exp['screen_height_px']/9))
 
         def pause(mode) :
             msg_pause.draw()
             win.flip()
-            
+
             event.clearEvents()
-            
+
             allKeys=event.waitKeys()
             for thisKey in allKeys:
                 if thisKey in ['escape', 'a', 'q']:
@@ -226,6 +219,7 @@ class aSPEM(object):
                     ET.End_trial()
                     ET.End_exp()
 
+        # ---------------------------------------------------
         def presentStimulus_fixed(dir_bool):
             dir_sign = dir_bool * 2 - 1
             target.setPos((dir_sign * (self.exp['saccade_px']), self.exp['offset']))
@@ -248,67 +242,82 @@ class aSPEM(object):
                 escape_possible(self.mode)
                 win.flip()
 
+
         # ---------------------------------------------------
         # EXPERIMENT
         # ---------------------------------------------------
-        if self.mode == 'psychophysique' :
+        if self.mode == 'pari' :
             results = np.zeros((self.exp['N_trials'], self.exp['N_blocks'] ))
-        
+
         if self.mode == 'enregistrement':
             ET.Start_exp()
-            
+
             # Effectuez la configuration du suivi au début de l'expérience.
             win.winHandle.set_fullscreen(False)
             win.winHandle.set_visible(False) # remis pour voir si ça enléve l'écran blanc juste après calibration
             ET.calibration()
             win.winHandle.set_visible(True) # remis pour voir si ça enléve l'écran blanc juste après calibration
             win.winHandle.set_fullscreen(True)
-        
+
         for block in range(self.exp['N_blocks']):
-            if self.mode == 'psychophysique' :
+            if self.mode == 'pari' :
                 score = 0
-            
-            if self.mode == 'enregistrement' :
-                x = 0
-            
+
+            x = 0
+
+            if self.mode == 'pari' :
+                text_score.text = '%1.0f/100' %(score / 50 * 100)
+                text_score.draw()
+                score = 0
             pause(self.mode)
+
 
             for trial in range(self.exp['N_trials']):
 
                 # ---------------------------------------------------
+                # PAUSE tous les 50 essais
+                # ---------------------------------------------------
+                if x == 50 :
+                    if self.mode == 'pari' :
+                        text_score.text = '%1.0f/100' %(score / 50 * 100)
+                        text_score.draw()
+                        score = 0
+
+                    pause(self.mode)
+                    x = 0
+
+                x = x +1
+
+                # ---------------------------------------------------
                 # FIXATION
                 # ---------------------------------------------------
-                if self.mode == 'psychophysique' :
+                if self.mode == 'pari' :
+
                     event.clearEvents()
                     ratingScale.reset()
+
                     while ratingScale.noResponse :
-                        text_score.text = score
-                        text_score.draw()
                         fixation.draw()
                         ratingScale.draw()
                         escape_possible(self.mode)
                         win.flip()
+
                     ans = ratingScale.getRating()
                     results[trial, block] = ans
-                
+
                 if self.mode == 'enregistrement':
 
-                    if x == 50 :
-                        pause(self.mode)
-                        x = -1
-                    x = x +1
-                    
                     ET.check()
                     ET.Start_trial(trial)
-                    
+
                     fixation.draw()
                     tps_start_fix = time.time()
                     win.flip()
                     escape_possible(self.mode)
-                    
+
                     ET.StimulusON(tps_start_fix)
                     ET.Fixation(fixation, tps_start_fix, win, escape_possible)
-                
+
                 # ---------------------------------------------------
                 # GAP
                 # ---------------------------------------------------
@@ -317,7 +326,7 @@ class aSPEM(object):
                 if self.mode == 'enregistrement':
                     ET.StimulusOFF()
                 core.wait(0.3)
-                
+
                 # ---------------------------------------------------
                 # Mouvement cible
                 # ---------------------------------------------------
@@ -328,25 +337,25 @@ class aSPEM(object):
                 presentStimulus_move(dir_bool)
                 escape_possible(self.mode)
                 win.flip()
-                
-                if self.mode == 'psychophysique' :
+
+                if self.mode == 'pari' :
                     score_trial = ans * (dir_bool * 2 - 1)
-                    if score_trial > 0 :
-                        Bip_pos.setVolume(score_trial)
-                        Bip_pos.play()
-                    else :
-                        Bip_neg.setVolume(-score_trial)
-                        Bip_neg.play()
-                    core.wait(0.1)
+                #    if score_trial > 0 :
+                #        Bip_pos.setVolume(score_trial)
+                #        Bip_pos.play()
+                #    else :
+                #        Bip_neg.setVolume(-score_trial)
+                #        Bip_neg.play()
+                #    core.wait(0.1)
 
                     score += score_trial
-                
+
                 if self.mode == 'enregistrement':
                     ET.TargetOFF()
                     ret_value = ET.fin_enregistrement()
                     ET.check_trial(ret_value)
-                    
-        if self.mode == 'psychophysique' :
+
+        if self.mode == 'pari' :
             self.exp['results'] = results
 
         if self.mode == 'enregistrement':
@@ -365,9 +374,9 @@ class aSPEM(object):
         core.quit()
 
     def plot(self, mode=None, fig=None, axs=None, fig_width=13):
-        
+
         import matplotlib.pyplot as plt
-        
+
         N_trials = self.exp['N_trials']
         N_blocks = self.exp['N_blocks']
         p = self.exp['p']
@@ -403,16 +412,16 @@ class aSPEM(object):
         for i in range(2): axs[i].set_ylim(-.05, N_blocks + .05)
         axs[-1].set_xlabel('trials', fontsize=14);
 
-        return fig, axs
+        return fig, axs, p
 
     def plot_enregistrement(self, mode=None, fig=None, axs=None, fig_width=5) :
         import matplotlib.pyplot as plt
         # from pygazeanalyser.edfreader import read_edf
         from edfreader import read_edf
-        
+
         resultats = os.path.join(self.exp['datadir'], self.mode + '_' + self.observer + '_' + self.timeStr + '.asc')
         data = read_edf(resultats, 'TRIALID')
-        
+
         N_trials = self.exp['N_trials']
         N_blocks = self.exp['N_blocks']
         screen_width_px = self.exp['screen_width_px']
@@ -426,21 +435,21 @@ class aSPEM(object):
         p = self.exp['p']
 
         for block in range(N_blocks) :
-            
+
             if fig is None:
                 fig_width= fig_width
                 fig, axs = plt.subplots(N_trials, 1, figsize=(fig_width, (fig_width*(N_trials/2))/1.6180))
-            
-            
+
+
             for trial in range(N_trials) :
-                
+
                 #if trial <= 2 :
                 trial_data = trial + N_trials*block
-                
+
                 data_x = data[trial_data]['x']
                 data_y = data[trial_data]['y']
                 trackertime = data[trial_data]['trackertime']
-                
+
                 TRIALID = data[trial_data]['events']['msg'][0][0]
                 StimulusOn = data[trial_data]['events']['msg'][10][0]
                 StimulusOf = data[trial_data]['events']['msg'][14][0]
@@ -457,7 +466,7 @@ class aSPEM(object):
                 TargetOn = TargetOn - start
                 TargetOff = TargetOff - start
                 trackertime = trackertime - start
-                
+
                 ##################################################
                 # TARGET
                 ##################################################
@@ -465,7 +474,7 @@ class aSPEM(object):
                 tps_mvt = TargetOff-TargetOn
                 Target_trial = []
                 x = screen_width_px/2
-                
+
                 d = 100
                 for t in range(len(trackertime)):
                     if t < (TargetOn-trackertime[0]) :
@@ -481,10 +490,10 @@ class aSPEM(object):
                 ##################################################
                 axs[trial].cla() # pour remettre ax figure a zero
                 axs[trial].axis([StimulusOf-10, TargetOff+10, 0, 1280])
-                
+
                 axs[trial].plot(trackertime, np.ones(len(trackertime))*(screen_height_px/2), color='grey', linewidth=1.5)
                 axs[trial].plot(trackertime, data_y, color='c', linewidth=1.5)
-                
+
                 axs[trial].plot(trackertime, Target_trial, color='k', linewidth=1.5)
                 axs[trial].plot(trackertime, data_x, color='r', linewidth=1.5)
 
@@ -519,7 +528,7 @@ if __name__ == '__main__':
     try:
         mode = sys.argv[1]
     except:
-        mode = 'psychophysique' #'enregistrement' #
+        mode = 'pari' #'enregistrement' #
 
     try:
         timeStr = sys.argv[4]
