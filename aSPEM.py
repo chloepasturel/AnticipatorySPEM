@@ -79,10 +79,10 @@ class aSPEM(object):
             # width and height of your screen
             screen_width_px = 1280 #1920 #1280 for ordi enregistrement
             screen_height_px = 1024 #1080 #1024 for ordi enregistrement
-            framerate = 100 #60 #100.for ordi enregistrement
+            framerate = 60 #100.for ordi enregistrement
             screen = 0 # 1 pour afficher sur l'écran 2 (ne marche pas pour enregistrement (mac))
 
-            screen_width_cm = 57. # (cm)
+            screen_width_cm = 37 #57. # (cm)
             viewingDistance = 57. # (cm) TODO : what is the equivalent viewing distance?
             screen_width_deg = 2. * np.arctan((screen_width_cm/2) / viewingDistance) * 180/np.pi
             #px_per_deg = screen_height_px / screen_width_deg
@@ -92,7 +92,7 @@ class aSPEM(object):
             # stimulus parameters
             # ---------------------------------------------------
             dot_size = 10 # (0.02*screen_height_px)
-            V_X_deg = 20   # deg/s   # 15 for 'enregistrement'
+            V_X_deg = 15 #20   # deg/s   # 15 for 'enregistrement'
             V_X = px_per_deg * V_X_deg     # pixel/s
 
             RashBass  = 100  # ms - pour reculer la cible à t=0 de sa vitesse * latence=RashBass
@@ -105,10 +105,10 @@ class aSPEM(object):
             # ---------------------------------------------------
             N_blocks = 3 # 4 blocks avant
             seed = 51 #119 #2017
-            N_trials = 200
+            N_trials = 10 #200
             tau = N_trials/5.
             (trials, p) = binomial_motion(N_trials, N_blocks, tau=tau, seed=seed, N_layer=3)
-            stim_tau = 1 #.35 # in seconds # 1.5 for 'enregistrement'
+            stim_tau = .75 #1 #.35 # in seconds # 1.5 for 'enregistrement'
 
             gray_tau = .0 # in seconds
             T =  stim_tau + gray_tau
@@ -229,7 +229,7 @@ class aSPEM(object):
 
         clock = core.Clock()
         myMouse = event.Mouse(win=win)
-
+        
         def presentStimulus_move(dir_bool):
             clock.reset()
             #myMouse.setVisible(0)
@@ -239,9 +239,10 @@ class aSPEM(object):
                 # la cible à t=0 recule de sa vitesse * latence=RashBass (ici mis en s)
                 target.setPos(((dir_sign * self.exp['V_X']*clock.getTime())-(dir_sign * self.exp['V_X']*(self.exp['RashBass']/1000)), self.exp['offset']))
                 target.draw()
-                escape_possible(self.mode)
                 win.flip()
-
+                win.flip()
+                escape_possible(self.mode)
+                #win.flip()
 
         # ---------------------------------------------------
         # EXPERIMENT
@@ -259,9 +260,10 @@ class aSPEM(object):
             win.winHandle.set_visible(True) # remis pour voir si ça enléve l'écran blanc juste après calibration
             win.winHandle.set_fullscreen(True)
 
+        if self.mode == 'pari' :
+            score = 0
+
         for block in range(self.exp['N_blocks']):
-            if self.mode == 'pari' :
-                score = 0
 
             x = 0
 
@@ -277,7 +279,7 @@ class aSPEM(object):
                 # ---------------------------------------------------
                 # PAUSE tous les 50 essais
                 # ---------------------------------------------------
-                if x == 50 :
+                if x == 5 : #50 :
                     if self.mode == 'pari' :
                         text_score.text = '%1.0f/100' %(score / 50 * 100)
                         text_score.draw()
@@ -528,8 +530,8 @@ if __name__ == '__main__':
     try:
         mode = sys.argv[1]
     except:
-        mode = 'pari' #'enregistrement' #
-
+        mode = 'pari'
+        #mode = 'enregistrement'
     try:
         timeStr = sys.argv[4]
     except:
