@@ -18,5 +18,3 @@ for volume in np.linspace(0, 1., 10):
 
 Bip_pos.play()
 core.wait(.5)
-
-
