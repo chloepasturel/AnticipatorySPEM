@@ -105,7 +105,7 @@ class aSPEM(object):
             # ---------------------------------------------------
             N_blocks = 3 # 4 blocks avant
             seed = 51 #119 #2017
-            N_trials = 10 #200
+            N_trials = 200
             tau = N_trials/5.
             (trials, p) = binomial_motion(N_trials, N_blocks, tau=tau, seed=seed, N_layer=3)
             stim_tau = .75 #1 #.35 # in seconds # 1.5 for 'enregistrement'
