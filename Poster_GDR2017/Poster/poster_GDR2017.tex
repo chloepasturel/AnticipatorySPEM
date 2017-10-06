@@ -10,10 +10,14 @@
 %\newcommand{\Email}{Laurent.Perrinet@univ-amu.fr}%
 
 \newcommand{\Title}{Estimating and anticipating a dynamic probabilistic bias in visual motion direction}
-\newcommand{\Conference}{GDR Vision 2017 / Lille, France}%
+%\newcommand{\Conference}{GDR Vision 2017 / Lille, France \\
+%Acknowledgments : ANR grant <<Reinforcement and Eye Movements>> \textbf{ANR-13-APPR-0008-02}}%
+
+\newcommand{\Conference}{\textbf{GDR Vision 2017}, Lille, France \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ Acknowledgments : ANR grant <<Reinforcement and Eye Movements>> \textbf{ANR-13-APPR-0008-02}}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\documentclass[profile,final,english, draft]{sciposter}%landscape,french]{sciposter}% ,draft]{sciposter}% 
+\documentclass[profile,final,english, draft
+]{sciposter}%landscape,french]{sciposter}% ,draft]{sciposter}% 
 \usepackage{babel}
 % MATHS (AMS)
 \usepackage{amsmath}
@@ -105,6 +109,10 @@ pdfsubject={\Conference}%
 \rightlogo[1.2]{logo_CNRS-AMU}
 \conference{\Conference}
 
+
+
+
+
 \setlength{\columnseprule}{0pt}
 %%%%%%%%%%%% Her begynner selve dokumentet %%%%%%%%%%%%%%%
 \begin{document}%
@@ -147,13 +155,11 @@ We asked subjects to do two tasks :
 \end{itemize}
 
 
-
 \subsection*{<<Bet>>}
-In this first part, the subjects must simply answer before each test the question \textit{<<At what point are you sure that the point will go left or right?>>}
+In this first part, the subjects must simply answer, by adjusting a cursor on the screen, before each trial at the question \textit{<<At what point are you sure that the target will go left or right?>>}
 
 \subsection*{<<Recording>>}
-Then we recorded their eye movements when it was only watching that same sequence.
-
+Then we recorded their eye movements when they were tracking the target's motion that same sequence.
 \section*{Results}
 
 \subsection*{<<Bet>>}
@@ -180,15 +186,13 @@ of predefined patterns : \textbf{the typical smooth pursuit velocity profile}.
     \includegraphics[width=1\columnwidth]{Fit_vitesse}
 \end{center}
 
-
-
 It is the acceleration of anticipation that we have extracted in order to compare it to the real probability :
 
 \begin{center} 
     \includegraphics[width=1\columnwidth]{p_true--v_a}
 \end{center}
 
-\subsection*{comparison of the two}
+\subsection*{<<Bet>> and <<Recording>>}
 
 We now compare the probability bet during the bet with the acceleration of anticipation :
 
@@ -204,5 +208,7 @@ We now compare the probability bet during the bet with the acceleration of antic
 \printbibliography
 }
 \end{multicols}
+
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \end{document}%
