@@ -162,7 +162,7 @@ However, such estimate may become particularly challenging in a dynamic context,
 
 \section*{Material and Method}
 
-In order to answer these questions, we have set up an experiment comprising 3 blocks of 200 trials. For each trial, a target makes either to the left or to the right, this direction being drawn from a Bernouilli process. The probability of this process varied in a piecewise-constant (that is, a step function varying between $0$ and $1$), similar to~\textcite{Meyniel13}. The occurence of these switches is itself drawn from a Bernouilli process of probability $p_{switch}=1/40$.
+In order to answer these questions, we have set up an experiment comprising 3 blocks of 200 trials. For each trial, a target makes either to the left or to the right, this direction being drawn from a Bernoulli process. The probability of this process varied in a piecewise-constant (that is, a step function varying between $0$ and $1$), similar to~\textcite{Meyniel13}. The occurence of these switches is itself drawn from a Bernouilli process of probability $p_{switch}=1/40$.
 
 \begin{center} 
     \includegraphics[width=1\columnwidth]{exp}
@@ -224,23 +224,23 @@ Example of results obtained during the recording overlaid with the results of th
 \end{center}
 
 \columnbreak
-Let's plot the acceleration of anticipation (slope of aSPEM) as a function of the real probability at every given trial :
+Let's plot the acceleration of anticipation (slope of aSPEM) refocused on the mean of the acceleration for each subject as a function of the real probability at every given trial :
 
 \begin{center} 
-    \includegraphics[width=1\columnwidth]{p_true--v_a}
+    \includegraphics[width=1\columnwidth]{p_true--v_a_mean}
 \end{center}
 
 When we omit the first 15 trials after the switches, it gives :
 
 \begin{center} 
-    \includegraphics[width=1\columnwidth]{p_true--v_a_15}
+    \includegraphics[width=1\columnwidth]{p_true--v_a_15_mean}
 \end{center}
 
 Which give a low, yet positive Spearman coefficient.
 
 \subsection*{Relating the Bet to the Recording}
 
-We now compare the probability bet during the bet with the acceleration of anticipation during the recording (we omit the first 15 trials after the switches) :
+We now compare the probability bet during the bet with the refocused acceleration of anticipation during the recording (we omit the first 15 trials after the switches) :
 
 
 %\begin{center} 
@@ -248,7 +248,7 @@ We now compare the probability bet during the bet with the acceleration of antic
 %\end{center}
 
 \begin{center} 
-    \includegraphics[width=1\columnwidth]{p_parie--v_a_15}
+    \includegraphics[width=1\columnwidth]{p_parie--v_a_15_mean}
 \end{center}
 
 \section*{Conclusions}
