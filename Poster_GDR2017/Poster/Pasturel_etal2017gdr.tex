@@ -137,7 +137,7 @@ pdfsubject={\Conference}%
 
 Humans are able to accurately track a moving object with a combination of saccades and smooth eye movements. These movements allow us to align and stabilize the object on the fovea, thus enabling high-resolution visual detection. When predictive information is available about target motion, anticipatory smooth pursuit eye movements (aSPEM) are efficiently generated before target appearance, which reduce the typical sensorimotor delay between target motion onset and foveation. It is generally assumed that the role of anticipatory eye movements is to limit the behavioral impairment due to eye-to-target position and velocity mismatch.
 
-By manipulating the probability for target motion direction we were able to bias the direction and mean velocity of aSPEM, as measured during a fixed duration gap before target ramp-motion onset. This suggests that probabilistic information may be used to inform the internal representation of motion prediction for the initiation of anticipatory movements (\textcite{Montagnini2010}).
+By manipulating the probability for target motion direction we were able to bias the direction and mean velocity of aSPEM, as measured during a fixed duration gap before target ramp-motion onset. This suggests that probabilistic information may be used to inform the internal representation of motion prediction for the initiation of anticipatory movements~\parencite{Montagnini2010}.
 
 %\begin{center}
 %\includegraphics[width=1\columnwidth]{anna_methode}
@@ -162,7 +162,7 @@ However, such estimate may become particularly challenging in a dynamic context,
 
 \section*{Material and Method}
 
-In order to answer these questions, we have set up an experiment comprising 3 blocks of 200 trials. For each trial, a target makes either to the left or to the right, this direction being drawn from a Bernoulli process. The probability of this process varied in a piecewise-constant (that is, a step function varying between $0$ and $1$), similar to~\textcite{Meyniel13}. The occurence of these switches is itself drawn from a Bernouilli process of probability $p_{switch}=1/40$.
+In order to answer these questions, we have set up an experiment comprising 3 blocks of 200 trials. For each trial, a target makes either to the left or to the right, this direction being drawn from a Bernoulli process. The probability of this process varied in a piecewise-constant (that is, a step function varying between~$0$ and~$1$), similarly to~\textcite{Meyniel13}. The occurence of these switches is itself drawn from a Bernoulli process of probability $p_{switch}=1/40$.
 
 \begin{center} 
     \includegraphics[width=1\columnwidth]{exp}
@@ -199,7 +199,7 @@ Example of results obtained during the bet :
 \end{center}
 
 %Comparison of probabilities bet with respect to the real probability :
-Let's plot the probability bet as a function of the real probability at every given trial :
+The scatter plot of the value of the bet (probability bet) as a function of the real probability at every given trial shows that there is a good correlation between both values:
 
 \begin{center}
     \includegraphics[width=1\columnwidth]{p_true--p_parie}
@@ -236,11 +236,11 @@ When we omit the first 15 trials after the switches, it gives :
     \includegraphics[width=1\columnwidth]{p_true--v_a_15_mean}
 \end{center}
 
-Which give a low, yet positive Spearman coefficient.
+Which give a low, yet positive Pearson coefficient.
 
 \subsection*{Relating the Bet to the Recording}
 
-We now compare the probability bet during the bet with the recentered acceleration of anticipation during the recording (we omit the first 15 trials after the switches) :
+We now compare the value of bet during the bet experiment with the recentered acceleration of anticipation during the recording (we omit the first 15 trials after the switches) :
 
 
 %\begin{center} 
@@ -255,11 +255,11 @@ We now compare the probability bet during the bet with the recentered accelerati
 
 
 \begin{itemize}\setlength{\itemsep}{0ex}
-\item There is a strong correlation between the real probability and the one which is bet,
+\item There is a strong correlation between the real probability and the value of the bet,
 
-\item there is a low, yet positive correlation between the strength of anticipation and the probability of the process and that which is bet,
+\item there is a low, yet positive correlation between the strength of anticipation and the probability of the process,
 
-\item we are now developing a Bayesian model of an agent computing an estimate of changing points and of the probability and which should provide a more significant correlation. The parameters of such agents should provide useful to characterise the response of the subjects.
+\item we are now developing a Bayesian model of an agent computing an estimate of changing points. This allows to dynamically infer the probability of the process and should provide with a more significant correlation. The parameters of such agents will be crucial to characterise the differences in the response of the subjects.
 
 \end{itemize}
 
