@@ -115,7 +115,8 @@ class aSPEM(object):
             N_frame_stim = int(stim_tau*framerate)
             # ---------------------------------------------------
 
-            self.exp = dict(N_blocks=N_blocks, seed=seed, N_trials=N_trials, p=p, stim_tau =stim_tau,
+            self.exp = dict(N_blocks=N_blocks, seed=seed, N_trials=N_trials, p=p, tau=tau,
+                            stim_tau =stim_tau,
                             N_frame_stim=N_frame_stim, T=T,
                             datadir=datadir, cachedir=cachedir,
                             framerate=framerate,
@@ -229,7 +230,7 @@ class aSPEM(object):
 
         clock = core.Clock()
         myMouse = event.Mouse(win=win)
-        
+
         def presentStimulus_move(dir_bool):
             clock.reset()
             #myMouse.setVisible(0)
@@ -522,7 +523,7 @@ class aSPEM(object):
             plt.savefig('figures/%s_%s_block-%s_%s-trials.pdf'%(self.observer, self.timeStr, block+1, N_trials))
         plt.close()
         return fig, axs
-        
+
 
 
 if __name__ == '__main__':
