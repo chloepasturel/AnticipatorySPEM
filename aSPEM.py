@@ -9,6 +9,14 @@ import numpy as np
 import pickle
 
 def binomial_motion(N_trials, N_blocks, tau, seed, Jeffreys=True, N_layer=3):
+    """
+
+    about Jeffrey's prior : see wikipedia
+    st_dict = dict( fontsize =14, fontstyle = 'italic’) % déjà j’ai pensé à ca :)
+
+
+    """
+
     from scipy.stats import beta
     np.random.seed(seed)
 
