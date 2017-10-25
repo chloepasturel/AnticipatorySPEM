@@ -399,26 +399,26 @@ class aSPEM(object):
         stick[:, :, 0] = np.ones((N_trials, 1)) * np.arange(N_blocks)[np.newaxis, :]
         stick[:, :, 1] = np.ones((N_trials, 1)) * np.arange(N_blocks)[np.newaxis, :]
         stick[:, :, 2] = np.ones((N_trials, 1)) * np.arange(N_blocks)[np.newaxis, :]
-        corrects = 0
 
         for i_layer, label in enumerate([r'$\^x_0$', r'$\^p$', r'$\^x_2$']):
             from cycler import cycler
-            axs[i_layer].set_prop_cycle(cycler('color', [plt.cm.magma(h) for h in np.linspace(0, 1, N_blocks+1)]))
-            _ = axs[i_layer].step(range(N_trials), p[:, :, i_layer]+stick[:, :, i_layer], lw=1, alpha=.9)
+            #axs[i_layer].set_prop_cycle(cycler('color', [plt.cm.magma(h) for h in np.linspace(0, 1, N_blocks+1)]))
+            _ = axs[i_layer].step(range(N_trials), p[:, :, i_layer]+stick[:, :, i_layer], lw=1, c='k', alpha=.9)
             for i_block in range(N_blocks):
-                _ = axs[i_layer].fill_between(range(N_trials), i_block + np.zeros_like(p[:, i_block, i_layer]), i_block + p[:, i_block, i_layer], lw=.5, alpha=.1, facecolor='green', step='pre')
-                _ = axs[i_layer].fill_between(range(N_trials), i_block + np.ones_like(p[:, i_block, i_layer]), i_block + p[:, i_block, i_layer], lw=.5, alpha=.1, facecolor='red', step='pre')
+                _ = axs[i_layer].fill_between(range(N_trials), i_block + np.zeros_like(p[:, i_block, i_layer]), i_block + p[:, i_block, i_layer], lw=.5, alpha=.2, facecolor='k', step='pre')
+                #_ = axs[i_layer].fill_between(range(N_trials), i_block + np.ones_like(p[:, i_block, i_layer]), i_block + p[:, i_block, i_layer], lw=.5, alpha=.1, facecolor='red', step='pre')
             axs[i_layer].axis('tight')
             axs[i_layer].set_yticks(np.arange(N_blocks)+.5)
             axs[i_layer].set_yticklabels(np.arange(N_blocks) )
             axs[i_layer].set_ylabel(label, fontsize=14)
+            axs[i_layer].bar(49, 3.1, bottom=-0.05, color='k', width=0, linewidth=2)
+            axs[i_layer].bar(99, 3.1, bottom=-0.05, color='k', width=0, linewidth=2)
+            axs[i_layer].bar(149, 3.1, bottom=-0.05, color='k', width=0, linewidth=2)
 
         if not mode is None:
             results = (self.exp['results']+1)/2 # results est sur [-1,1] on le ramene sur [0,1]
             for block in range(N_blocks):
-                #corrects += (results[:, block] == p[:, block, 0]).sum()
-                _ = axs[1].step(range(N_trials), block + results[:, block], alpha=.9, color='r')
-            #print('corrects', corrects)
+                _ = axs[1].step(range(N_trials), block + results[:, block], alpha=.9, color='darkred')
         fig.tight_layout()
         for i in range(2): axs[i].set_ylim(-.05, N_blocks + .05)
         axs[-1].set_xlabel('trials', fontsize=14);
@@ -528,7 +528,7 @@ class aSPEM(object):
             plt.tight_layout() # pour supprimer les marge trop grande
             plt.subplots_adjust(hspace=0) # pour enlever espace entre les figures
 
-            plt.savefig('figures/%s_%s_block-%s_%s-trials.pdf'%(self.observer, self.timeStr, block+1, N_trials))
+            plt.savefig('figures/enregistrement_%s_%s_block-%s_%s-trials.pdf'%(self.observer, self.timeStr, block+1, N_trials))
         plt.close()
         return fig, axs
 
