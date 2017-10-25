@@ -203,7 +203,7 @@ Example of results obtained during the bet :
 The scatter plot of the value of the bet (probability bet) as a function of the real probability at every given trial shows that there is a good correlation between both values:
 
 \begin{center}
-    \includegraphics[width=1\columnwidth]{p_true--p_parie}
+    \includegraphics[width=1\columnwidth]{p_real--p_bet}
 \end{center}
 
 
@@ -225,23 +225,23 @@ Example of results obtained during the recording overlaid with the results of th
 \end{center}
 
 \columnbreak
-Let's plot the acceleration of anticipation (slope of aSPEM) recentered with respect to the individual mean acceleration for each subject as a function of the real probability at every given trial :
+Let's plot the acceleration of anticipation (slope of aSPEM) as a function of the real probability at every given trial :
 
 \begin{center} 
-    \includegraphics[width=1\columnwidth]{p_true--v_a_mean}
+    \includegraphics[width=1\columnwidth]{p_real--v_a}
 \end{center}
 
 When we omit the first 15 trials after the switches, it gives :
 
 \begin{center} 
-    \includegraphics[width=1\columnwidth]{p_true--v_a_15_mean}
+    \includegraphics[width=1\columnwidth]{p_real--v_a_15}
 \end{center}
 
-Which give a low, yet positive Pearson coefficient.
+Which give a strong and positive Pearson coefficient.
 
 \subsection*{Relating the Bet to the Recording}
 
-We now compare the value of bet during the bet experiment with the recentered acceleration of anticipation during the recording (we omit the first 15 trials after the switches) :
+We now compare the value of bet during the bet experiment with the acceleration of anticipation during the recording (we omit the first 15 trials after the switches) :
 
 
 %\begin{center} 
@@ -249,7 +249,7 @@ We now compare the value of bet during the bet experiment with the recentered ac
 %\end{center}
 
 \begin{center} 
-    \includegraphics[width=1\columnwidth]{p_parie--v_a_15_mean}
+    \includegraphics[width=1\columnwidth]{p_bet--v_a_15}
 \end{center}
 
 \section*{Conclusions}
@@ -258,7 +258,7 @@ We now compare the value of bet during the bet experiment with the recentered ac
 \begin{itemize}\setlength{\itemsep}{0ex}
 \item There is a strong correlation between the real probability and the value of the bet,
 
-\item there is a low, yet positive correlation between the strength of anticipation and the probability of the process,
+\item there is a stong correlation between the strength of anticipation and the probability of the process,
 
 \item we are now developing a Bayesian model of an agent computing an estimate of changing points. This allows to dynamically infer the probability of the process and should provide with a more significant correlation. The parameters of such agents will be crucial to characterise the differences in the response of the subjects.
 
