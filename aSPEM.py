@@ -41,9 +41,7 @@ class aSPEM(object):
         self.mode = mode
         self.observer = observer
         self.timeStr = str(timeStr)
-
         self.init()
-
 
     def init(self) :
 
@@ -51,7 +49,6 @@ class aSPEM(object):
         self.dry_run = False
         self.experiment = 'aSPEM'
         self.instructions = """ TODO """
-
 
         # ---------------------------------------------------
         # setup values
@@ -71,15 +68,16 @@ class aSPEM(object):
                 self.exp = pickle.load(fichier, encoding='latin1')
 
         else :
-            # Présente un dialogue pour changer les paramètres
             expInfo = {"Sujet":'', "Age":''}
-            Nom_exp = u'aSPEM'
-            try:
-                from psychopy import gui
-                dlg = gui.DlgFromDict(expInfo, title=Nom_exp)
-                PSYCHOPY = True
-            except:
-                PSYCHOPY = False
+            if not self.mode is 'model':
+                # Présente un dialogue pour changer les paramètres
+                Nom_exp = u'aSPEM'
+                try:
+                    from psychopy import gui
+                    dlg = gui.DlgFromDict(expInfo, title=Nom_exp)
+                    PSYCHOPY = True
+                except:
+                    PSYCHOPY = False
 
             self.observer = expInfo["Sujet"]
             self.age = expInfo["Age"]
@@ -549,7 +547,6 @@ if __name__ == '__main__':
         #timeStr = '2017-06-22_102207'
 
     e = aSPEM(mode, timeStr)
-
-    if True:
+    if not mode is 'model':
         print('Starting protocol')
         e.run_experiment()
