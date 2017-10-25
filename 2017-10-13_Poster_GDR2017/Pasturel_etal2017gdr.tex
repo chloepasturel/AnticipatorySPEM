@@ -1,0 +1,276 @@
+%!TeX TS-program = pdflatex
+%!TeX encoding = UTF-8 Unicode
+%!TeX spellcheck = en-US
+%!BIB TS-program = bibtex
+% -*- coding: UTF-8; -*-
+% vim: set fenc=utf-8
+%TODO include changing point theory and bibliography
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newcommand{\AuthorA}{Chlo\'e Pasturel}
+\newcommand{\AuthorB}{Jean-Bernard Damasse}%
+\newcommand{\AuthorC}{Anna Montagnini}%
+\newcommand{\AuthorD}{Laurent U.~Perrinet}%
+
+\newcommand{\Address}{Institut de Neurosciences de la Timone, CNRS / Aix-Marseille Universit\'e - Marseille, France}%
+
+%\newcommand{\Website}{http://invibe.net/LaurentPerrinet}%
+%\newcommand{\Email}{Laurent.Perrinet@univ-amu.fr}%
+
+\newcommand{\Title}{Estimating and anticipating a dynamic probabilistic bias in visual motion direction}
+%\newcommand{\Conference}{GDR Vision 2017 / Lille, France \\
+%Acknowledgments : ANR grant <<Reinforcement and Eye Movements>> \textbf{ANR-13-APPR-0008-02}}%
+
+\newcommand{\Conference}{\textbf{GDR Vision 2017}, Lille, France \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ Acknowledgments : ANR grant <<Reinforcement and Eye Movements>> \textbf{ANR-13-APPR-0008-02}}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\documentclass[profile,final,english, draft]{sciposter}%landscape,french]{sciposter}% ,draft]{sciposter}% 
+%\documentclass[english]{sciposter}%landscape,french]{sciposter}% ,draft]{sciposter}% 
+\usepackage{babel}
+% MATHS (AMS)
+\usepackage{amsmath}
+\usepackage{amsfonts} 
+\usepackage{amssymb}
+\usepackage{amsthm}
+\newtheorem*{thm}{Proposition}
+
+
+%% ========  polices de caracteres =============
+\usepackage[T1]{fontenc}% 
+\usepackage{lmodern}%
+\usepackage{t1enc}
+\usepackage{ragged2e}
+%============ graphics ===================
+\usepackage[pdftex]{graphicx}% 
+\DeclareGraphicsExtensions{.pdf,.png, .jpg}%
+\graphicspath{{./figures/}}%
+%\usepackage[numbers,comma,sort&compress,round]{natbib} %
+\usepackage[%style=nature,
+maxcitenames=2,
+maxnames = 2,
+firstinits=true,
+uniquename=init,
+sorting=none,
+url=false,
+isbn=false,
+eprint=false,
+texencoding=latin1,
+bibencoding=utf8,
+autocite=superscript,
+backend=bibtex,
+%articletitle=false
+]{biblatex}%
+
+\addbibresource{Pasturel_etal2017gdr.bib}%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% OPTIONAL MACRO FILES
+%\usepackage{tikz,tkz-euclide} \usetkzobj{all} % loading all objects
+%\usetikzlibrary{positioning} \usetikzlibrary{calc}
+%\usepackage{sfmath}
+%============ hyperref ===================
+\usepackage[unicode,linkcolor=red,citecolor=red,filecolor=black,urlcolor=red,pdfborder={0 0 0}]{hyperref}%
+\hypersetup{%
+pdftitle={\Title},%
+pdfauthor={\AuthorA},%< \Email > \Address},%
+pdfsubject={\Conference}%
+}%
+\usepackage{color,multicol}%
+%%============= margins ==================
+\setlength{\columnseprule}{.05mm}
+\makeatletter
+\renewcommand{\section}{\@startsection
+        {section}%              % the name 
+        {1}%                    % the level
+        {0mm}%                  % the indent
+        {1\baselineskip}%      % the beforeskip
+        {1mm}%                  % the afterskip
+        {\LARGE\color{red}\bfseries}}% % the style
+\renewcommand{\subsection}{\@startsection
+        {subsection}%              % the name 
+        {2}%                    % the level
+        {0mm}%                  % the indent
+        {0.5\baselineskip}%      % the beforeskip
+        {1mm}%                  % the afterskip
+        %{\large\color{DarkRed}\bfseries}}% % the style
+        {\normalsize\color[rgb]{0.4,0,0}\bfseries}}% % the style
+        
+\makeatother
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%                mycaption                     %%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%\newcounter{figure}
+\setcounter{figure}{1}
+\newcommand{\mycaption}[1]{
+  \vspace{0.5cm}
+  \begin{quote}
+    {{\sc Figure} \arabic{figure}: #1}
+  \end{quote}
+  \vspace{1cm}
+  \stepcounter{figure}
+}%
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% sciposter defs
+\renewcommand{\titlesize}{\Huge}
+\leftlogo[0.9]{logo_INT-AMU}
+\title{\Title}%
+\author{\AuthorA, \AuthorB,  \AuthorC,  \AuthorD}%{\large}%
+\institute{\Address}%\scriptsize
+\rightlogo[0.9]{logo_CNRS-ANR}
+\conference{\Conference}
+
+
+
+\setlength{\columnseprule}{0pt}
+%%%%%%%%%%%% Her begynner selve dokumentet %%%%%%%%%%%%%%%
+\begin{document}%
+\maketitle%
+\begin{multicols}{3}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% Abstract
+%\begin{abstract}
+%\end{abstract}
+
+
+%\columnbreak
+
+\section*{Problematic}
+
+Humans are able to accurately track a moving object with a combination of saccades and smooth eye movements. These movements allow us to align and stabilize the object on the fovea, thus enabling high-resolution visual detection. When predictive information is available about target motion, anticipatory smooth pursuit eye movements (aSPEM) are efficiently generated before target appearance, which reduce the typical sensorimotor delay between target motion onset and foveation. It is generally assumed that the role of anticipatory eye movements is to limit the behavioral impairment due to eye-to-target position and velocity mismatch.
+
+By manipulating the probability for target motion direction we were able to bias the direction and mean velocity of aSPEM, as measured during a fixed duration gap before target ramp-motion onset. This suggests that probabilistic information may be used to inform the internal representation of motion prediction for the initiation of anticipatory movements~\parencite{Montagnini2010}.
+
+%\begin{center}
+%\includegraphics[width=1\columnwidth]{anna_methode}
+%\end{center}
+
+
+
+\begin{tabular}{cc} 
+    \includegraphics[width=.49\columnwidth]{image_anna_1} & 	\includegraphics[width=.49\columnwidth]{image_anna_2}
+\end{tabular}
+%\vspace{0.5cm}
+%\begin{center}
+%\includegraphics[width=0.9\columnwidth]{image_anna_1}
+%\end{center}
+%\vspace{0.5cm}
+%\begin{center}
+%\includegraphics[width=0.9\columnwidth]{image_anna_2}
+%\end{center}
+
+However, such estimate may become particularly challenging in a dynamic context, where the probabilistic contingencies vary in time in an unpredictable way. In addition, whether and how the information processing underlying the buildup of aSPEM is linked to an explicit estimate of probabilities is unknown.
+
+
+\section*{Material and Method}
+
+In order to answer these questions, we have set up an experiment comprising 3 blocks of 200 trials. For each trial, a target makes either to the left or to the right, this direction being drawn from a Bernoulli process. The probability of this process varied in a piecewise-constant (that is, a step function varying between~$0$ and~$1$), similarly to~\textcite{Meyniel13}. The occurence of these switches is itself drawn from a Bernoulli process of probability $p_{switch}=1/40$.
+
+\begin{center} 
+    \includegraphics[width=1\columnwidth]{exp}
+\end{center}
+
+We asked subjects to perform two tasks on different days :
+%\begin{itemize}\setlength{\itemsep}{0ex}
+%\item a <<Bet>>
+%\item a <<recording>>
+%\end{itemize}
+
+\subsection*{The Bet}
+In this first part, the subjects must simply answer before each trial at the question \textit{ ``How sure are you that the target will go left or right''}. This was performed by adjusting a cursor on the screen using the mouse (see Figure).
+\begin{center} 
+    \includegraphics[width=1\columnwidth]{materiel_bet}
+\end{center}
+
+\subsection*{The Recording}
+Then, we recorded their eye movements as they were tracking the target's motion. Importantly, we used that exact same sequence.
+\begin{center} 
+    \includegraphics[width=1\columnwidth]{materiel_recording}
+\end{center}
+
+\columnbreak
+
+\section*{Results}
+
+\subsection*{The Bet}
+
+Example of results obtained during the bet :
+
+\begin{center} 
+    \includegraphics[width=1\columnwidth]{results_pari}
+\end{center}
+
+%Comparison of probabilities bet with respect to the real probability :
+The scatter plot of the value of the bet (probability bet) as a function of the real probability at every given trial shows that there is a good correlation between both values:
+
+\begin{center}
+    \includegraphics[width=1\columnwidth]{p_true--p_parie}
+\end{center}
+
+
+\subsection*{The Recording}
+
+In order to extract the relevant parameters of the oculomotor responses, we developed new tools based on a best-fitting procedure of predefined patterns and in particular the typical smooth pursuit velocity profile that was recorded for the aSPEM (Top row). This was applied to each trial individually, and we show below some prototypical example of respectively a neutral, anticipatory positive and anticipatory negative aSPEMs examples (respectively second to bottom rows) :
+
+\begin{center} 
+    \includegraphics[width=1\columnwidth]{Fonction_Fit}
+    \includegraphics[width=1\columnwidth]{Fit_vitesse}
+\end{center}
+
+%\columnbreak
+
+Example of results obtained during the recording overlaid with the results of the bet experiment :
+
+\begin{center}
+    \includegraphics[width=1\columnwidth]{results_enregistrement}
+\end{center}
+
+\columnbreak
+Let's plot the acceleration of anticipation (slope of aSPEM) recentered with respect to the individual mean acceleration for each subject as a function of the real probability at every given trial :
+
+\begin{center} 
+    \includegraphics[width=1\columnwidth]{p_true--v_a_mean}
+\end{center}
+
+When we omit the first 15 trials after the switches, it gives :
+
+\begin{center} 
+    \includegraphics[width=1\columnwidth]{p_true--v_a_15_mean}
+\end{center}
+
+Which give a low, yet positive Pearson coefficient.
+
+\subsection*{Relating the Bet to the Recording}
+
+We now compare the value of bet during the bet experiment with the recentered acceleration of anticipation during the recording (we omit the first 15 trials after the switches) :
+
+
+%\begin{center} 
+%    \includegraphics[width=1\columnwidth]{p_parie--v_a}
+%\end{center}
+
+\begin{center} 
+    \includegraphics[width=1\columnwidth]{p_parie--v_a_15_mean}
+\end{center}
+
+\section*{Conclusions}
+
+
+\begin{itemize}\setlength{\itemsep}{0ex}
+\item There is a strong correlation between the real probability and the value of the bet,
+
+\item there is a low, yet positive correlation between the strength of anticipation and the probability of the process,
+
+\item we are now developing a Bayesian model of an agent computing an estimate of changing points. This allows to dynamically infer the probability of the process and should provide with a more significant correlation. The parameters of such agents will be crucial to characterise the differences in the response of the subjects.
+
+\end{itemize}
+
+{\small
+\printbibliography
+}
+
+
+\end{multicols}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\end{document}%
