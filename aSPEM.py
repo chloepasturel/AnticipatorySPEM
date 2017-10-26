@@ -33,7 +33,6 @@ def binomial_motion(N_trials, N_blocks, tau, seed, Jeffreys=True, N_layer=3):
 
     return (trials, p)
 
-
 class aSPEM(object):
     """ docstring for the aSPEM class. """
 
