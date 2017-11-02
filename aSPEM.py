@@ -286,7 +286,7 @@ class aSPEM(object):
                 # ---------------------------------------------------
                 # PAUSE tous les 50 essais
                 # ---------------------------------------------------
-                if x == 5 : #50 :
+                if x == 50 :
                     if self.mode == 'pari' :
                         text_score.text = '%1.0f/100' %(score / 50 * 100)
                         text_score.draw()
