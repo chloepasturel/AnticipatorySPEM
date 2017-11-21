@@ -14,7 +14,6 @@ def binomial_motion(N_trials, N_blocks, tau, seed, Jeffreys=True, N_layer=3):
     about Jeffrey's prior : see wikipedia
     st_dict = dict( fontsize =14, fontstyle = 'italic’) % déjà j’ai pensé à ca :)
 
-
     """
 
     from scipy.stats import beta
@@ -381,50 +380,73 @@ class aSPEM(object):
 
         core.quit()
 
-    def plot(self, mode=None, fig=None, axs=None, fig_width=15, t_titre=35, t_label=25):
+    def plot(self, mode=None, fig=None, axs=None, fig_width=15, t_titre=35, t_label=20):
 
         import matplotlib.pyplot as plt
 
         N_trials = self.exp['N_trials']
         N_blocks = self.exp['N_blocks']
         p = self.exp['p']
-
+        ec = 0.2
+        
         if fig is None:
             fig_width= fig_width
             fig, axs = plt.subplots(3, 1, figsize=(fig_width, fig_width/1.6180))
-        stick = np.zeros_like(p)
-        stick[:, :, 0] = np.ones((N_trials, 1)) * np.arange(N_blocks)[np.newaxis, :]
-        stick[:, :, 1] = np.ones((N_trials, 1)) * np.arange(N_blocks)[np.newaxis, :]
-        stick[:, :, 2] = np.ones((N_trials, 1)) * np.arange(N_blocks)[np.newaxis, :]
 
-        for i_layer, label in enumerate(['Target Direction', 'Probability', 'Switch']): #([r'$\^x_0$', r'$\^p$', r'$\^x_2$']):
-            #from cycler import cycler
-            #axs[i_layer].set_prop_cycle(cycler('color', [plt.cm.magma(h) for h in np.linspace(0, 1, N_blocks+1)]))
-            axs[i_layer].step(range(N_trials), p[:, :, i_layer]+stick[:, :, i_layer], lw=1, c='k', alpha=.3)
+        for i_layer, label in enumerate(['Target Direction', 'Probability', 'Switch']) :
             for i_block in range(N_blocks):
-                _ = axs[i_layer].fill_between(range(N_trials), i_block + np.zeros_like(p[:, i_block, i_layer]), i_block + p[:, i_block, i_layer], lw=.5, alpha=.3, facecolor='k', step='pre')
-                #_ = axs[i_layer].fill_between(range(N_trials), i_block + np.ones_like(p[:, i_block, i_layer]), i_block + p[:, i_block, i_layer], lw=.5, alpha=.1, facecolor='red', step='pre')
-            axs[i_layer].axis('tight')
-            axs[i_layer].set_yticks(np.arange(N_blocks)+.5)
-            axs[i_layer].set_yticklabels(np.arange(N_blocks)+1)
-            axs[i_layer].set_xticks([0, 49, 99,149])
-            axs[i_layer].set_xticklabels([1, 50, 100, 150])
+                axs[i_layer].step(range(N_trials), p[:, i_block, i_layer]+i_block+ec*i_block, lw=1, c='k', alpha=.3)
+                axs[i_layer].fill_between(range(N_trials), i_block+np.zeros_like(p[:, i_block, i_layer])+ec*i_block, i_block+p[:, i_block, i_layer]+ec*i_block,
+                                          lw=.5, alpha=.3, facecolor='k', step='pre')
+
+            axs[i_layer].set_xlim(-1, N_trials)
+            
+            if i_layer==2 :
+                axs[i_layer].set_xticks([-1, 49, 99,149])
+                axs[i_layer].set_xticklabels([0, 50, 100, 150], ha='left')
+                axs[i_layer].yaxis.set_tick_params(width=0)
+                axs[i_layer].xaxis.set_ticks_position('bottom')
+            else :
+                axs[i_layer].set_xticks([])
+
+            axs[i_layer].set_ylim(-(ec/2), N_blocks +ec*3-(ec/2))
             axs[i_layer].set_ylabel(label, fontsize=t_label)
-            axs[i_layer].bar(49, 3.1, bottom=-0.05, color='k', width=0, linewidth=2)
-            axs[i_layer].bar(99, 3.1, bottom=-0.05, color='k', width=0, linewidth=2)
-            axs[i_layer].bar(149, 3.1, bottom=-0.05, color='k', width=0, linewidth=2)
-            axs[i_layer].xaxis.set_ticks_position('bottom')
+            axs[i_layer].set_yticks([0, 1, 1+ec, 2+ec, 2+ec*2, 3+ec*2])
+            axs[i_layer].yaxis.set_label_coords(-0.05, 0.5)
+            axs[i_layer].yaxis.set_tick_params(direction='out')
             axs[i_layer].yaxis.set_ticks_position('left')
             
+            axs[i_layer].bar(49, 3+ec*3, bottom=-ec/2, color='k', width=0, linewidth=2)
+            axs[i_layer].bar(99, 3+ec*3, bottom=-ec/2, color='k', width=0, linewidth=2)
+            axs[i_layer].bar(149, 3+ec*3, bottom=-ec/2, color='k', width=0, linewidth=2)
+            
+            
+            
+            #------------------------------------------------
+            ax_block = axs[i_layer].twinx()
+            if i_layer==0 :
+                ax_block.set_ylabel('Block', fontsize=t_label/1.5, rotation='horizontal', ha='left', va='bottom') #'top', 'bottom', 'center', 'baseline'
+                ax_block.yaxis.set_label_coords(1.01, 1.05)
+
+            ax_block.set_ylim(-.05, N_blocks + .05)
+            ax_block.set_yticks(np.arange(N_blocks)+0.5)
+            ax_block.set_yticklabels(np.arange(N_blocks)+1, fontsize=t_label/1.5)
+            ax_block.yaxis.set_tick_params(width=0, pad=(t_label/1.5)+10)
+            #------------------------------------------------
+
         if not mode is None:
             results = (self.exp['results']+1)/2 # results est sur [-1,1] on le ramene sur [0,1]
             for block in range(N_blocks):
                 _ = axs[1].step(range(N_trials), block + results[:, block], alpha=.9, color='darkred')
-        fig.tight_layout()
         
-        for i in range(2): axs[i].set_ylim(-.05, N_blocks + .05)
+        fig.tight_layout()
+        plt.subplots_adjust(hspace=0.05)
+        axs[0].set_yticklabels(['left','right','left','right','left','right'])
+        axs[1].set_yticklabels(['0','1','0','1','0','1'])
+        axs[2].set_yticklabels(['No','Yes','No','Yes','No','Yes'])
         axs[-1].set_xlabel('trials', fontsize=t_label);
-        axs[0].set_title('Experiment', fontsize=t_titre)
+        axs[0].set_title('Experiment', fontsize=t_titre, x=0.5, y=1.1)
+        
         return fig, axs, p
 
     def plot_enregistrement(self, mode=None, fig=None, axs=None, fig_width=5) :
@@ -532,7 +554,7 @@ class aSPEM(object):
             plt.tight_layout() # pour supprimer les marge trop grande
             plt.subplots_adjust(hspace=0) # pour enlever espace entre les figures
 
-            plt.savefig('figures/enregistrement_%s_%s_block-%s_%s-trials.pdf'%(self.observer, self.timeStr, block+1, N_trials))
+            plt.savefig('figures/enregistrement_%s_%s.pdf'%(self.observer, block+1))
         plt.close()
         return fig, axs
 
