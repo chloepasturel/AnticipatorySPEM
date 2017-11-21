@@ -1,0 +1,61 @@
+This is BibTeX, Version 0.99d (TeX Live 2015/Debian)
+Capacity: max_strings=35307, hash_size=35307, hash_prime=30011
+The top-level auxiliary file: Pasturel_etal2017gdr.aux
+The style file: biblatex.bst
+Reallocated singl_function (elt_size=4) to 100 items from 50.
+Reallocated singl_function (elt_size=4) to 100 items from 50.
+Reallocated singl_function (elt_size=4) to 100 items from 50.
+Reallocated singl_function (elt_size=4) to 100 items from 50.
+Reallocated singl_function (elt_size=4) to 100 items from 50.
+Reallocated wiz_functions (elt_size=4) to 6000 items from 3000.
+Reallocated singl_function (elt_size=4) to 100 items from 50.
+Reallocated singl_function (elt_size=4) to 100 items from 50.
+Reallocated singl_function (elt_size=4) to 100 items from 50.
+Reallocated singl_function (elt_size=4) to 100 items from 50.
+Reallocated singl_function (elt_size=4) to 100 items from 50.
+Database file #1: Pasturel_etal2017gdr-blx.bib
+Database file #2: Pasturel_etal2017gdr.bib
+Biblatex version: 3.3
+Reallocated singl_function (elt_size=4) to 100 items from 50.
+Reallocated wiz_functions (elt_size=4) to 9000 items from 6000.
+You've used 3 entries,
+            6047 wiz_defined-function locations,
+            1149 strings with 9781 characters,
+and the built_in function-call counts, 7458 in all, are:
+= -- 268
+> -- 248
+< -- 35
++ -- 99
+- -- 100
+* -- 588
+:= -- 660
+add.period$ -- 0
+call.type$ -- 3
+change.case$ -- 14
+chr.to.int$ -- 34
+cite$ -- 4
+duplicate$ -- 759
+empty$ -- 783
+format.name$ -- 162
+if$ -- 1618
+int.to.chr$ -- 0
+int.to.str$ -- 4
+missing$ -- 0
+newline$ -- 100
+num.names$ -- 76
+pop$ -- 692
+preamble$ -- 1
+purify$ -- 24
+quote$ -- 0
+skip$ -- 384
+stack$ -- 0
+substring$ -- 189
+swap$ -- 273
+text.length$ -- 58
+text.prefix$ -- 0
+top$ -- 1
+type$ -- 102
+warning$ -- 0
+while$ -- 83
+width$ -- 0
+write$ -- 96
