@@ -403,7 +403,7 @@ class aSPEM(object):
             
             if i_layer==2 :
                 axs[i_layer].set_xticks([-1, 49, 99,149])
-                axs[i_layer].set_xticklabels([0, 50, 100, 150], ha='left')
+                axs[i_layer].set_xticklabels([0, 50, 100, 150], ha='left',fontsize=t_label/2)
                 axs[i_layer].yaxis.set_tick_params(width=0)
                 axs[i_layer].xaxis.set_ticks_position('bottom')
             else :
@@ -425,8 +425,8 @@ class aSPEM(object):
             #------------------------------------------------
             ax_block = axs[i_layer].twinx()
             if i_layer==0 :
-                ax_block.set_ylabel('Block', fontsize=t_label/1.5, rotation='horizontal', ha='left', va='bottom') #'top', 'bottom', 'center', 'baseline'
-                ax_block.yaxis.set_label_coords(1.01, 1.05)
+                ax_block.set_ylabel('Block', fontsize=t_label/1.5, rotation='horizontal', ha='left', va='bottom')
+                ax_block.yaxis.set_label_coords(1.01, 1.08)
 
             ax_block.set_ylim(-.05, N_blocks + .05)
             ax_block.set_yticks(np.arange(N_blocks)+0.5)
@@ -441,10 +441,10 @@ class aSPEM(object):
         
         fig.tight_layout()
         plt.subplots_adjust(hspace=0.05)
-        axs[0].set_yticklabels(['left','right','left','right','left','right'])
-        axs[1].set_yticklabels(['0','1','0','1','0','1'])
-        axs[2].set_yticklabels(['No','Yes','No','Yes','No','Yes'])
-        axs[-1].set_xlabel('trials', fontsize=t_label);
+        axs[0].set_yticklabels(['left','right','left','right','left','right'],fontsize=t_label/2)
+        axs[1].set_yticklabels(['0','1','0','1','0','1'],fontsize=t_label/2)
+        axs[2].set_yticklabels(['No','Yes','No','Yes','No','Yes'],fontsize=t_label/2)
+        axs[-1].set_xlabel('Trials', fontsize=t_label);
         axs[0].set_title('Experiment', fontsize=t_titre, x=0.5, y=1.1)
         
         return fig, axs, p
