@@ -187,21 +187,10 @@ Then, we recorded their eye movements as they were tracking the target's motion.
     \includegraphics[width=1\columnwidth]{materiel_recording}
 \end{center}
 
-\subsection*{Bayesian change point}
-
-We have adapted Adams and Mackay's Bayesian Online Changepoint Detection model~\parencite{AdamsMackay2007} to model an agent behaving like the subject. For the third blocks we have these results:
-
-\begin{center} 
-    \includegraphics[width=1\columnwidth]{bayesianchangepoint_e}
-\end{center}
-
-\begin{center} 
-    \includegraphics[width=1\columnwidth]{bayesianchangepoint_m}
-\end{center}
 
 %\columnbreak
 
-\section*{Results}
+%\section*{Results}
 
 %\subsection*{The Bet}
 %Example of results obtained during the bet :
@@ -216,7 +205,7 @@ We have adapted Adams and Mackay's Bayesian Online Changepoint Detection model~\
 %\end{center}
 
 
-\subsection*{Eye mouvements recording}
+%\subsection*{Eye mouvements recording}
 
 In order to extract the relevant parameters of the oculomotor responses, we developed new tools based on a best-fitting procedure of predefined patterns and in particular the typical smooth pursuit velocity profile that was recorded for the aSPEM (Top row). This was applied to each trial individually, and we show below some prototypical example of respectively a neutral, anticipatory positive and anticipatory negative aSPEMs examples (respectively second to bottom rows) :
 
@@ -224,6 +213,8 @@ In order to extract the relevant parameters of the oculomotor responses, we deve
     \includegraphics[width=1\columnwidth]{Fonction_Fit}
     \includegraphics[width=1\columnwidth]{Fit_vitesse}
 \end{center}
+
+\section*{Results}
 
 \subsection*{Eye mouvements recording and the Bet}
 %Example of results obtained during the recording overlaid with the results of the bet experiment :
@@ -249,12 +240,9 @@ Let's plot the value of the bet (probability bet)  and the acceleration of antic
 
 Which give a strong and positive Pearson coefficient.
 
-\columnbreak
-
 \subsection*{Relating the Bet to the Recording}
 
 We now compare the value of bet during the bet experiment with the acceleration of anticipation during the recording :
-
 
 %\begin{center} 
 %    \includegraphics[width=1\columnwidth]{p_parie--v_a}
@@ -264,8 +252,26 @@ We now compare the value of bet during the bet experiment with the acceleration 
     \includegraphics[width=1\columnwidth]{p_bet--v_a}
 \end{center}
 
+\columnbreak
+
+\section*{Model}
 
 \subsection*{Bayesian change point}
+
+We have adapted Adams and Mackay's Bayesian Online Changepoint Detection model~\parencite{AdamsMackay2007} to model an agent behaving like the subject. For the third blocks we have these results:
+
+\begin{center} 
+    \includegraphics[width=1\columnwidth]{bayesianchangepoint_e}
+\end{center}
+
+\begin{center} 
+    \includegraphics[width=1\columnwidth]{bayesianchangepoint_m}
+\end{center}
+
+
+%\subsection*{Bayesian change point}
+\subsection*{Relating Bayesian change point and results}
+
 
 We now compare the value of bet during the bet experiment and the acceleration of anticipation during the recording with the value obtained with of model :
 
