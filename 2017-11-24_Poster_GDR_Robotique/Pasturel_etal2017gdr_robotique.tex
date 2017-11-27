@@ -84,7 +84,7 @@ pdfsubject={\Conference}%
         {0mm}%                  % the indent
         {1\baselineskip}%      % the beforeskip
         {1mm}%                  % the afterskip
-        {\LARGE\color{red}\bfseries}}% % the style
+        {\large\color{red}\bfseries}}% % the style
 \renewcommand{\subsection}{\@startsection
         {subsection}%              % the name 
         {2}%                    % the level
@@ -256,24 +256,28 @@ We now compare the value of bet during the bet experiment with the acceleration 
 
 \section*{Model}
 
-\subsection*{Bayesian change point}
+\subsection*{Bayesian change point model}
 
-We have adapted Adams and Mackay's Bayesian Online Changepoint Detection model~\parencite{AdamsMackay2007} to model an agent behaving like the subject. For the third blocks we have these results:
+We have designed an agent adapted from Adams and Mackay’s Bayesian Online Change-point Detection model~\parencite{AdamsMackay2007}. This model uses a latent variable r which represents the length of the current interval during which motion-direction probability ($\hat{P}$) has not changed. The agent infers at each trial the likelihood  of r and then deduces the optimal $\hat{P}$ (we used the expected value and the max as readouts) and the uncertainty associated to it. We simulated the model across our experimental sequences, as illustrated by the example for the third block.
 
-\begin{center} 
-    \includegraphics[width=1\columnwidth]{bayesianchangepoint_e}
-\end{center}
 
 \begin{center} 
-    \includegraphics[width=1\columnwidth]{bayesianchangepoint_m}
+    \includegraphics[width=1\columnwidth]{bayesianchangepoint}
 \end{center}
+
+%\begin{center} 
+%    \includegraphics[width=1\columnwidth]{bayesianchangepoint_e}
+%\end{center}
+
+%\begin{center} 
+%    \includegraphics[width=1\columnwidth]{bayesianchangepoint_m}
+%\end{center}
 
 
 %\subsection*{Bayesian change point}
-\subsection*{Relating Bayesian change point and results}
+\subsection*{Comparing the Bayesian change point model with humans}
 
-
-We now compare the value of bet during the bet experiment and the acceleration of anticipation during the recording with the value obtained with of model :
+We now compare the individual guesses during the bet experiment and the acceleration of anticipation during the eye movement recordings with the model simulations :
 
 \begin{center} 
     \includegraphics[width=1\columnwidth]{results_bayesianchangepoint_e}
@@ -293,11 +297,11 @@ We now compare the value of bet during the bet experiment and the acceleration o
 
 \item there is a stong correlation between the strength of anticipation and the probability of the process,
 
-\item we are now developing a Bayesian model of an agent computing an estimate of changing points. This allows to dynamically infer the probability of the process and should provide with a more significant correlation. The parameters of such agents will be crucial to characterise the differences in the response of the subjects.
+\item we have developed a Bayesian model of an agent estimating the probability of changing points. This allows to dynamically infer the direction probability and directly compare model and human behaviour.
 
 \end{itemize}
 
-{\small
+{\tiny
 \printbibliography
 }
 
