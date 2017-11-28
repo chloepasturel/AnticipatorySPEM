@@ -541,11 +541,10 @@ class aSPEM(object):
 class Analysis(object):
     """ docstring for the aSPEM class. """
 
-    def __init__(self, mode, timeStr, observer=None) :
+    def __init__(self, observer=None, mode=None) :
         self.subjects = ['AM','BMC','CS','DC','FM','IP','LB','OP','RS','SR','TN','YK']
         self.mode = mode
         self.observer = observer
-        self.timeStr = str(timeStr)
         self.init()
     
     def init(self) :
@@ -573,7 +572,7 @@ class Analysis(object):
         for fname in glob.glob('data/*pkl'):
             a = fname.split('/')[1].split('.')[0].split('_')
             liste.append(a)
-            
+
         self.PARI = []
         for x in range(len(liste)) :
             if liste[x][0]=='pari' and liste[x][1] in self.subjects:
@@ -590,22 +589,27 @@ class Analysis(object):
                     b = pickle.load(fichier, encoding='latin1')
                     self.ENREGISTREMENT.append(b)
         # ---------------------------------------------------
-        if self.observer is not None :
-            for x in range(len(liste)):
-                if liste[x][1] == self.observer :
-                    print(liste[x])
-                    if self.mode == 'pari' :
-                        self.exp = self.PARI[0] # FIX !
-                    elif self.mode == 'enregistrement' :
-                        self.exp = self.PARI[0]
-                        self.param = self.ENREGISTREMENT[0]
+        if self.observer is None :
+            self.observer = liste[12][1]
+        if self.mode is None :
+            self.mode = 'enregistrement'
 
+        for x in range(len(liste)):
+            if liste[x][1] == self.observer and liste[x][0] == self.mode :
+                self.timeStr = liste[x][2]+'_'+liste[x][3]
+        
+        if self.mode == 'pari' :
+            for x in range(len(self.PARI)):
+                if self.PARI[x]['observer'] == self.observer :
+                    self.exp = self.PARI[x]
         else :
-            if self.mode == 'pari' :
-                self.exp = self.PARI[0]
-            elif self.mode == 'enregistrement' :
-                self.exp = self.PARI[0]
-                self.param = self.ENREGISTREMENT[0]
+            for x in range(len(self.PARI)):
+                if self.PARI[x]['observer'] == self.observer :
+                    self.exp = self.PARI[x]
+            for x in range(len(self.ENREGISTREMENT)):
+                if self.ENREGISTREMENT[x]['observer'] == self.observer :
+                    self.param = self.ENREGISTREMENT[x]
+
 
     def plot_enregistrement(self, mode=None, fig=None, axs=None, fig_width=5) :
 
@@ -1934,8 +1938,8 @@ class Analysis(object):
             y = full_results
             values = np.vstack([x, y])
             kernel = stats.gaussian_kde(values)
-            xmin, xmax =  -0.032, 1.032
-            ymin, ymax =  -0.032, 1.032
+            xmin, xmax = np.min(x), np.max(x)# -0.032, 1.032
+            ymin, ymax =  np.min(y), np.max(y)#-0.032, 1.032
             xx, yy = np.mgrid[xmin:xmax:200j, ymin:ymax:200j]
             positions = np.vstack([xx.ravel(), yy.ravel()])
             f = np.reshape(kernel(positions).T, xx.shape)
@@ -1949,8 +1953,8 @@ class Analysis(object):
             y = full_va_nan
             values = np.vstack([x, y])
             kernel = stats.gaussian_kde(values)
-            xmin, xmax = -0.032, 1.032
-            ymin, ymax = -21.28, 21.28
+            xmin, xmax = np.min(x), np.max(x)#-0.032, 1.032
+            ymin, ymax = np.min(y), np.max(y)#-21.28, 21.28
             xx, yy = np.mgrid[xmin:xmax:300j, ymin:ymax:300j]
             positions = np.vstack([xx.ravel(), yy.ravel()])
             f = np.reshape(kernel(positions).T, xx.shape)
