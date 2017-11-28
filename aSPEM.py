@@ -542,6 +542,7 @@ class Analysis(object):
     """ docstring for the aSPEM class. """
 
     def __init__(self, mode, timeStr, observer=None) :
+        self.subjects = ['AM','BMC','CS','DC','FM','IP','LB','OP','RS','SR','TN','YK']
         self.mode = mode
         self.observer = observer
         self.timeStr = str(timeStr)
@@ -575,7 +576,7 @@ class Analysis(object):
             
         self.PARI = []
         for x in range(len(liste)) :
-            if liste[x][0]=='pari' and liste[x][1] in  ['AM','BMC','CS','DC','FM','IP','LB','OP','RS','SR','TN','YK']  :
+            if liste[x][0]=='pari' and liste[x][1] in self.subjects:
                 a = 'data/%s_%s_%s_%s.pkl'%(liste[x][0], liste[x][1],liste[x][2],liste[x][3])
                 with open(a, 'rb') as fichier :
                     b = pickle.load(fichier, encoding='latin1')
@@ -583,7 +584,7 @@ class Analysis(object):
         
         self.ENREGISTREMENT = []
         for x in range(len(liste)) :
-            if liste[x][0]=='enregistrement' and liste[x][1] in  ['AM','BMC','CS','DC','FM','IP','LB','OP','RS','SR','TN','YK']  :
+            if liste[x][0]=='enregistrement' and liste[x][1] in self.subjects:
                 a = 'parametre/param_Fit_%s.pkl'%(liste[x][1])
                 with open(a, 'rb') as fichier :
                     b = pickle.load(fichier, encoding='latin1')
@@ -594,7 +595,7 @@ class Analysis(object):
                 if liste[x][1] == self.observer :
                     print(liste[x])
                     if self.mode == 'pari' :
-                        self.exp = self.PARI[0]
+                        self.exp = self.PARI[0] # FIX !
                     elif self.mode == 'enregistrement' :
                         self.exp = self.PARI[0]
                         self.param = self.ENREGISTREMENT[0]
@@ -748,7 +749,7 @@ class Analysis(object):
 
             for trial in range(N_trials) :
 
-                print(block, trial)
+                print('block, trial = ', block, trial)
 
                 trial_data = trial + N_trials*block
                 data_x = data[trial_data]['x']
@@ -1487,14 +1488,14 @@ class Analysis(object):
             # Start_a
             # ---------------------------------
             axs[x].bar(trackertime_s[int(start_anti)], 80, bottom=-40, color='k', width=4, linewidth=0, alpha=0.7)
-            axs[x].text(trackertime_s[int(start_anti)]-25, -35, "Start anticipation = %0.2f s"%(start_anti-debut),
+            axs[x].text(trackertime_s[int(start_anti)]-25, -35, "Start anticipation = %0.2f ms"%(start_anti-debut),
                         color='k', alpha=0.7, fontsize=t_label/1.5, ha='right')
 
             # ---------------------------------
             # latence
             # ---------------------------------
             axs[x].bar(trackertime_s[int(latence)], 80, bottom=-40, color='firebrick', width=4, linewidth=0, alpha=1)
-            axs[x].text(trackertime_s[int(latence)]+25, -35, "Latency = %0.2f s"%(latence-debut),
+            axs[x].text(trackertime_s[int(latence)]+25, -35, "Latency = %0.2f ms"%(latence-debut),
                         color='firebrick', fontsize=t_label/1.5, va='center')
             
             # ---------------------------------
@@ -1677,7 +1678,7 @@ class Analysis(object):
 
         return fig, axs
 
-    def plot_bcp_2(self, block, view_essai=50, max_run_length=150, fig_width=15, t_titre=35, t_label=25):
+    def plot_bcp_2(self, block, trial=50, max_run_length=150, fig_width=15, t_titre=35, t_label=25):
         
         import matplotlib.pyplot as plt
         import bayesianchangepoint as bcp
@@ -1695,7 +1696,7 @@ class Analysis(object):
         p_true = p[:, block, 1]
 
         #------------------------------------------------
-        fig, axs = plt.subplots(5, 1, figsize=(fig_width, (fig_width)/((1.6180))))
+        fig, axs = plt.subplots(5, 1, figsize=(fig_width, (fig_width)/((1.6180))), sharex=True)
 
         gs1 = gridspec.GridSpec(2, 1)
         gs1.update(left=0, bottom=1/2, right=1, top=1., hspace=0.05)
@@ -1747,7 +1748,7 @@ class Analysis(object):
             #------------------------------------------------
             # Belief on r for trial view_essai
             #------------------------------------------------
-            r_essai = (beliefs[:, view_essai])
+            r_essai = (beliefs[:, trial])
             axs[4].plot(r_essai, c='k')
             axs[4].spines['top'].set_color('none')
             axs[4].spines['right'].set_color('none')
@@ -1765,7 +1766,7 @@ class Analysis(object):
                 axs[i_layer+a+x].xaxis.set_ticks_position('bottom')
                 axs[i_layer+a+x].yaxis.set_ticks_position('left')
 
-            axs[(a+1)+x].bar(view_essai-1, 140 + (.05*140)+.05*140, bottom=-.05*140, color='firebrick', width=0.5, linewidth=0, alpha=1)
+            axs[(a+1)+x].bar(trial-1, 140 + (.05*140)+.05*140, bottom=-.05*140, color='firebrick', width=0.5, linewidth=0, alpha=1)
             axs[(a+1)+x].set_ylim(-.05*140, 140 + (.05*140))
             axs[(a+1)+x].set_yticks(np.arange(0, 140 + (.05*140), 140/2))
             axs[(a+1)+x].yaxis.set_tick_params(labelsize=t_label/2)
@@ -1789,16 +1790,17 @@ class Analysis(object):
             axs[i_layer].xaxis.set_ticks_position('bottom')
             axs[i_layer].yaxis.set_ticks_position('left')
 
-        axs[4].set_xlabel('r$_{%s}$'%(view_essai), fontsize=t_label/1.5)
-        axs[4].set_ylabel('p(r$_{%s}$)'%(view_essai), fontsize=t_label/1.5)
-        axs[4].set_title('Belief on r for trial %s'%(view_essai), x=0.5, y=1., fontsize=t_titre/1.2)
+        axs[4].set_xscale('log')
+        axs[4].set_xlabel('r$_{%s}$'%(trial), fontsize=t_label/1.5)
+        axs[4].set_ylabel('p(r$_{%s}$)'%(trial), fontsize=t_label/1.5)
+        axs[4].set_title('Belief on r for trial %s'%(trial), x=0.5, y=1., fontsize=t_titre/1.2)
         axs[4].xaxis.set_tick_params(labelsize=t_label/1.9)
         axs[4].yaxis.set_tick_params(labelsize=t_label/1.9)
         #---------------------------------------------------------------------------
 
         return fig, axs
 
-    def plot_results_2(self, mode, kde=None, sujet=[6], fig_width=15, t_titre=35, t_label=25) :
+    def plot_results_2(self, mode, kde=None, tau=40., sujet=[6], fig_width=15, t_titre=35, t_label=25) :
 
         import matplotlib.pyplot as plt
         import matplotlib.gridspec as gridspec
@@ -1828,7 +1830,7 @@ class Analysis(object):
             N_trials = self.PARI[sujet[s]]['N_trials']
             N_blocks = self.PARI[sujet[s]]['N_blocks']
             p = self.PARI[sujet[s]]['p']
-            tau = N_trials/5.
+            # tau = N_trials/5.
             h = 1./tau 
             results = (self.PARI[sujet[s]]['results']+1)/2 # results est sur [-1,1] on le ramene sur [0,1]
             v_anti = self.ENREGISTREMENT[sujet[s]]['v_anti']
@@ -1930,14 +1932,14 @@ class Analysis(object):
         else :
             x = full_p_hat
             y = full_results
+            values = np.vstack([x, y])
+            kernel = stats.gaussian_kde(values)
             xmin, xmax =  -0.032, 1.032
             ymin, ymax =  -0.032, 1.032
             xx, yy = np.mgrid[xmin:xmax:200j, ymin:ymax:200j]
             positions = np.vstack([xx.ravel(), yy.ravel()])
-            values = np.vstack([x, y])
-            kernel = stats.gaussian_kde(values)
             f = np.reshape(kernel(positions).T, xx.shape)
-            axs[len(sujet)].contourf(xx, yy, f, cmap='Greys')
+            axs[len(sujet)].contourf(xx, yy, f, cmap='Greys', N=25)
             
             # masque les essais qui où full_va = NAN
             full_p_hat_nan = np.ma.masked_array(full_p_hat, mask=np.isnan(full_va)).compressed()
@@ -1945,14 +1947,14 @@ class Analysis(object):
 
             x = full_p_hat_nan
             y = full_va_nan
+            values = np.vstack([x, y])
+            kernel = stats.gaussian_kde(values)
             xmin, xmax = -0.032, 1.032
             ymin, ymax = -21.28, 21.28
             xx, yy = np.mgrid[xmin:xmax:300j, ymin:ymax:300j]
             positions = np.vstack([xx.ravel(), yy.ravel()])
-            values = np.vstack([x, y])
-            kernel = stats.gaussian_kde(values)
             f = np.reshape(kernel(positions).T, xx.shape)
-            axs[len(sujet)+1].contourf(xx, yy, f, cmap='Greys')
+            axs[len(sujet)+1].contourf(xx, yy, f, cmap='Greys', N=25)
         
         #------------------------------------------------
         # LINREGRESS
