@@ -402,7 +402,7 @@ class aSPEM(object):
             #axs[i_layer].set_prop_cycle(cycler('color', [plt.cm.magma(h) for h in np.linspace(0, 1, N_blocks+1)]))
             _ = axs[i_layer].step(range(N_trials), p[:, :, i_layer]+stick[:, :, i_layer], lw=1, c='k', alpha=.9)
             for i_block in range(N_blocks):
-                _ = axs[i_layer].fill_between(range(N_trials), i_block + np.zeros_like(p[:, i_block, i_layer]), i_block + p[:, i_block, i_layer], lw=.5, alpha=.2, facecolor='k', step='pre')
+                _ = axs[i_layer].fillween(range(N_trials), i_block + np.zeros_like(p[:, i_block, i_layer]), i_block + p[:, i_block, i_layer], lw=.5, alpha=.2, facecolor='k', step='pre')
                 #_ = axs[i_layer].fill_between(range(N_trials), i_block + np.ones_like(p[:, i_block, i_layer]), i_block + p[:, i_block, i_layer], lw=.5, alpha=.1, facecolor='red', step='pre')
             axs[i_layer].axis('tight')
             axs[i_layer].set_yticks(np.arange(N_blocks)+.5)

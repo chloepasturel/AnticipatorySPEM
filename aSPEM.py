@@ -1795,6 +1795,8 @@ class Analysis(object):
             axs[i_layer].yaxis.set_ticks_position('left')
 
         axs[4].set_xscale('log')
+        axs[4].set_xlim(0, max_run_length)
+
         axs[4].set_xlabel('r$_{%s}$'%(trial), fontsize=t_label/1.5)
         axs[4].set_ylabel('p(r$_{%s}$)'%(trial), fontsize=t_label/1.5)
         axs[4].set_title('Belief on r for trial %s'%(trial), x=0.5, y=1., fontsize=t_titre/1.2)
