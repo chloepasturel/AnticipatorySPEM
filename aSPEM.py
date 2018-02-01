@@ -186,6 +186,17 @@ def liste_tout(PARI, ENREGISTREMENT, P_HAT=None):
     else :
         return full_proba, full_bino, full_results, full_va, proba_sujet, bino_sujet, results_sujet, va_sujet
 
+def mutual_information(hgram):
+    """ Mutual information for joint histogram
+    https://matthew-brett.github.io/teaching/mutual_information.html"""
+    # Convert bins counts to probability values
+    pxy = hgram / float(np.sum(hgram))
+    px = np.sum(pxy, axis=1) # marginal for x over y
+    py = np.sum(pxy, axis=0) # marginal for y over x
+    px_py = px[:, None] * py[None, :] # Broadcast to multiply marginals
+    # Now we can do the calculation using the pxy, px_py 2D arrays
+    nzs = pxy > 0 # Only non-zero pxy values contribute to the sum
+    return np.sum(pxy[nzs] * np.log(pxy[nzs] / px_py[nzs]))
 
 
 class aSPEM(object):
@@ -1945,8 +1956,18 @@ class Analysis(object):
             xx, yy = np.mgrid[xmin:xmax:200j, ymin:ymax:200j]
             positions = np.vstack([xx.ravel(), yy.ravel()])
             f = np.reshape(kernel(positions).T, xx.shape)
-            axs[len(sujet)].contourf(xx, yy, f, cmap='Greys', N=25)
-            
+
+            if kde=='kde':
+                axs[len(sujet)].contourf(xx, yy, f, cmap='Greys', N=25)
+            elif kde=='moyenne':
+                fmean = []
+                for x in range(len(f)):
+                    fmean.append([])
+                    for y in range(len(f[x])):
+                        fmean[x].append(f[x][y]/np.sum(f[x]))
+                axs[len(sujet)].contourf(xx, yy, fmean, cmap='Greys')
+
+
             # masque les essais qui où full_va = NAN
             full_p_hat_nan = np.ma.masked_array(full_p_hat, mask=np.isnan(full_va)).compressed()
             full_va_nan = np.ma.masked_array(full_va, mask=np.isnan(full_va)).compressed()
@@ -1960,7 +1981,16 @@ class Analysis(object):
             xx, yy = np.mgrid[xmin:xmax:300j, ymin:ymax:300j]
             positions = np.vstack([xx.ravel(), yy.ravel()])
             f = np.reshape(kernel(positions).T, xx.shape)
-            axs[len(sujet)+1].contourf(xx, yy, f, cmap='Greys', N=25)
+
+            if kde=='kde':
+                axs[len(sujet)+1].contourf(xx, yy, f, cmap='Greys', N=25)
+            elif kde=='moyenne':
+                fmean = []
+                for x in range(len(f)):
+                    fmean.append([])
+                    for y in range(len(f[x])):
+                        fmean[x].append(f[x][y]/np.sum(f[x]))
+                axs[len(sujet)+1].contourf(xx, yy, fmean, cmap='Greys')
         
         #------------------------------------------------
         # LINREGRESS
@@ -1972,6 +2002,9 @@ class Analysis(object):
         axs[len(sujet)].plot(x_test, fitLine, c='k', linewidth=2)
         axs[len(sujet)].text(0.75,-0.032+(1.032--0.032)/10, 'r = %0.3f'%(r_), fontsize=t_label/1.2)
 
+        hist, x_edges, y_edges = np.histogram2d(full_p_hat,full_results,bins=20)
+        axs[len(sujet)].text(0.75,-0.032+2*(1.032--0.032)/10, 'MI = %0.3f'%(mutual_information(hist)), fontsize=t_label/1.2)
+
         # VA
         # masque les essais qui où full_va = NAN
         full_p_hat_nan = np.ma.masked_array(full_p_hat, mask=np.isnan(full_va)).compressed()
@@ -1982,6 +2015,13 @@ class Analysis(object):
         fitLine = slope * x_test + intercept
         axs[len(sujet)+1].plot(x_test, fitLine, c='k', linewidth=2)
         axs[len(sujet)+1].text(0.75,-21.28+(21.28--21.28)/10, 'r = %0.3f'%(r_value), fontsize=t_label/1.2)
+
+        hist, x_edges, y_edges = np.histogram2d(full_p_hat_nan,full_va_nan,bins=20)
+        axs[len(sujet)+1].text(0.75,-21.28+2*(21.28--21.28)/10, 'MI = %0.3f'%(mutual_information(hist)), fontsize=t_label/1.2)
+
+
+
+
 
         #------------------------------------------------
         # cosmétique
