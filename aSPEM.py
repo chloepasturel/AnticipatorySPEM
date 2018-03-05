@@ -32,173 +32,6 @@ def binomial_motion(N_trials, N_blocks, tau, seed, Jeffreys=True, N_layer=3):
 
     return (trials, p)
 
-def exponentiel (x, tau, maxi, start_anti, v_anti, latence, bino) :
-    '''
-    tau -- courbe
-    maxi -- maximum
-    latence -- tps où commence le mvt
-    bino -- binomial
-    
-    start_anti = debut de l'anticipation
-    v_anti =  vitesse de l'anticipation
-    ''' 
-    v_anti = v_anti/1000 # pour passer de sec à ms
-    time = np.arange(len(x))
-    vitesse = []
-                
-    for t in range(len(time)):
-        
-        if start_anti >= latence :
-            if time[t] < latence :
-                vitesse.append(0)
-            else :
-                vitesse.append((bino*2-1)*maxi*(1-np.exp(-1/tau*(time[t]-latence))))
-        else :
-
-            if time[t] < start_anti :
-                vitesse.append(0)
-            else :
-                if time[t] < latence :
-                    #vitesse.append((bino*2-1)*(time[t]-start_anti)*v_anti)
-                    vitesse.append((time[t]-start_anti)*v_anti)
-                    x = (time[t]-start_anti)*v_anti
-                else :
-                    vitesse.append((bino*2-1)*maxi*(1-np.exp(-1/tau*(time[t]-latence)))+x)
-    return vitesse
-
-def liste_p_hat(PARI):
-    import bayesianchangepoint as bcp
-    p_hat_bcp_e = [[],[],[],[],[],[],[],[],[],[],[],[],[]]
-    p_hat_bcp_m = [[],[],[],[],[],[],[],[],[],[],[],[],[]]
-
-    for x in range(len(PARI)):
-
-        N_trials = PARI[x]['N_trials']
-        N_blocks = PARI[x]['N_blocks']
-        p = PARI[x]['p']
-        tau = N_trials/5.
-        h = 1./tau
-
-        p_hat_block_e = [[],[],[]]
-        p_hat_block_m = [[],[],[]]
-
-
-        for block in range(N_blocks):
-            liste = [0,50,100,150,200]
-            for a in range(len(liste)-1) :
-                #----------------------------------------------------
-                p_bar, r, beliefs = bcp.inference(p[liste[a]:liste[a+1], block, 0], h=h, p0=.5)
-                p_hat_e, r_hat_e = bcp.readout(p_bar, r, beliefs, mode='expectation')
-                p_hat_m, r_hat_m = bcp.readout(p_bar, r, beliefs, mode='max')
-
-                p_hat_block_e[block].extend(p_hat_e)
-                p_hat_block_m[block].extend(p_hat_m)
-
-        p_hat_bcp_e[x] = p_hat_block_e
-        p_hat_bcp_m[x] = p_hat_block_m
-        
-    return p_hat_bcp_e, p_hat_bcp_m
-
-def liste_tout(PARI, ENREGISTREMENT, P_HAT=None):
-    
-    # liste de tout
-    full_proba = []
-    full_bino = []
-    full_results = []
-    full_va = []
-
-    # listes de tout par sujet
-    proba_sujet = []
-    bino_sujet = []
-    results_sujet = []
-    va_sujet = []
-    
-    if P_HAT is not None :
-        full_p_hat_e = []
-        full_p_hat_m = []
-        p_hat_sujet_e = []
-        p_hat_sujet_m = []
-        p_hat_bcp_e, p_hat_bcp_m = liste_p_hat(PARI)
-        
-    for x in range(len(PARI)):
-
-        N_trials = PARI[x]['N_trials']
-        N_blocks = PARI[x]['N_blocks']
-
-        p = PARI[x]['p']
-        results = (PARI[x]['results']+1)/2
-        v_anti = ENREGISTREMENT[x]['v_anti']
-
-
-        liste_proba = []
-        liste_bino = []
-        liste_results = []
-        liste_va = []
-
-        
-        if P_HAT is not None :
-            p_hat_e = p_hat_bcp_e[x]
-            p_hat_m = p_hat_bcp_m[x]
-            liste_p_hat_e = []
-            liste_p_hat_m = []
-            
-        for block in range(N_blocks):
-
-            switch = []
-            for s in range(N_trials):
-                if s in [0,50,100,150] :
-                    switch.append(s)
-                if p[s, block, 2]==1 :
-                    switch.append(s)
-            switch.append(N_trials)
-
-            for s1 in range(len(switch)-1) :
-
-                for trial in np.arange(switch[s1], switch[s1+1]) :
-                    full_proba.append(p[trial, block, 1])
-                    full_bino.append(p[trial, block, 0])
-                    full_results.append(results[trial, block])
-                    full_va.append(v_anti[block][trial])
-
-                    liste_proba.append(p[trial, block, 1])
-                    liste_bino.append(p[trial, block, 0])
-                    liste_results.append(results[trial, block])
-                    liste_va.append(v_anti[block][trial])
-                    
-                    if P_HAT is not None :
-                        full_p_hat_e.append(p_hat_e[block][trial])
-                        full_p_hat_m.append(p_hat_m[block][trial])
-
-                        liste_p_hat_e.append(p_hat_e[block][trial])
-                        liste_p_hat_m.append(p_hat_m[block][trial])
-
-
-        proba_sujet.append(liste_proba)
-        bino_sujet.append(liste_bino)
-        results_sujet.append(liste_results)
-        va_sujet.append(liste_va)
-        
-        if P_HAT is not None :
-            p_hat_sujet_e.append(liste_p_hat_e)
-            p_hat_sujet_m.append(liste_p_hat_m)
-    if P_HAT is not None :
-        return full_proba, full_bino, full_results, full_va, proba_sujet, bino_sujet, results_sujet, va_sujet, full_p_hat_e, full_p_hat_m, p_hat_sujet_e, p_hat_sujet_m
-    else :
-        return full_proba, full_bino, full_results, full_va, proba_sujet, bino_sujet, results_sujet, va_sujet
-
-def mutual_information(hgram):
-    """ Mutual information for joint histogram
-    https://matthew-brett.github.io/teaching/mutual_information.html"""
-    # Convert bins counts to probability values
-    pxy = hgram / float(np.sum(hgram))
-    px = np.sum(pxy, axis=1) # marginal for x over y
-    py = np.sum(pxy, axis=0) # marginal for y over x
-    px_py = px[:, None] * py[None, :] # Broadcast to multiply marginals
-    # Now we can do the calculation using the pxy, px_py 2D arrays
-    nzs = pxy > 0 # Only non-zero pxy values contribute to the sum
-    return np.sum(pxy[nzs] * np.log(pxy[nzs] / px_py[nzs]))
-
-
 class aSPEM(object):
     """ docstring for the aSPEM class. """
 
@@ -328,10 +161,10 @@ class aSPEM(object):
             import EyeTracking as ET
             ET = ET.EyeTracking(self.exp['screen_width_px'], self.exp['screen_height_px'], self.exp['dot_size'], self.exp['N_trials'], self.observer, self.exp['datadir'], self.timeStr)
 
-#        logging.console.setLevel(logging.WARNING)
-#        if verb: print('launching experiment')
-#        logging.console.setLevel(logging.WARNING)
-#        if verb: print('go!')
+        #logging.console.setLevel(logging.WARNING)
+        #if verb: print('launching experiment')
+        #logging.console.setLevel(logging.WARNING)
+        #if verb: print('go!')
 
         # ---------------------------------------------------
         win = visual.Window([self.exp['screen_width_px'], self.exp['screen_height_px']], color=(0, 0, 0),
@@ -549,6 +382,291 @@ class aSPEM(object):
 
 
 
+
+
+
+#############################################################################
+######################### ANALYSIS ##########################################
+#############################################################################
+
+def exponentiel (x, tau, maxi, start_anti, v_anti, latence, bino) :
+
+    '''
+    tau -- courbe
+    maxi -- maximum
+    latence -- tps où commence le mvt
+    bino -- binomial
+    start_anti = debut de l'anticipation
+    v_anti =  vitesse de l'anticipation
+    ''' 
+
+    v_anti = v_anti/1000 # pour passer de sec à ms
+    time = np.arange(len(x))
+    vitesse = []
+
+    for t in range(len(time)):
+
+        if start_anti >= latence :
+            if time[t] < latence :
+                vitesse.append(0)
+            else :
+                vitesse.append((bino*2-1)*maxi*(1-np.exp(-1/tau*(time[t]-latence))))
+        else :
+            if time[t] < start_anti :
+                vitesse.append(0)
+            else :
+                if time[t] < latence :
+                    #vitesse.append((bino*2-1)*(time[t]-start_anti)*v_anti)
+                    vitesse.append((time[t]-start_anti)*v_anti)
+                    x = (time[t]-start_anti)*v_anti
+                else :
+                    vitesse.append((bino*2-1)*maxi*(1-np.exp(-1/tau*(time[t]-latence)))+x)
+    return vitesse
+
+def full_liste(PARI, ENREGISTREMENT, P_HAT=None):
+
+    import pandas as pd
+    pd.set_option('mode.chained_assignment', None)
+
+    if P_HAT is not None :
+        import bayesianchangepoint as bcp
+        full = pd.DataFrame(index=np.arange(len(PARI)*600),columns=('sujet', 'proba','bino','results','va','p_hat_e','p_hat_m'))
+    else :
+        full = pd.DataFrame(index=np.arange(len(PARI)*600),columns=('sujet', 'proba','bino','results','va'))
+
+    for x in range(len(PARI)):
+
+        N_trials = PARI[x]['N_trials']
+        N_blocks = PARI[x]['N_blocks']
+
+        p = PARI[x]['p']
+        results = (PARI[x]['results']+1)/2
+        v_anti = ENREGISTREMENT[x]['v_anti']
+
+        for block in range(N_blocks):
+
+            nb = x*N_trials*N_blocks
+            a = nb + N_trials*block
+            b = (nb + N_trials*(block+1))
+
+            full['sujet'][a:b] = PARI[x]['observer'] 
+            full['proba'][a:b] = p[:, block, 1]
+            full['bino'][a:b] = p[:, block, 0]
+            full['results'][a:b] = results[:, block]
+            full['va'][a:b] = v_anti[block]
+
+            if P_HAT is not None :
+                tau = N_trials/5.
+                h = 1./tau
+                liste = [0,50,100,150,200]
+                p_hat_block_e = []
+                p_hat_block_m = []
+
+                for s in range(len(liste)-1) :
+                    p_bar, r, beliefs = bcp.inference(p[liste[s]:liste[s+1], block, 0], h=h, p0=.5)
+                    p_hat_e, r_hat_e = bcp.readout(p_bar, r, beliefs, mode='expectation')
+                    p_hat_m, r_hat_m = bcp.readout(p_bar, r, beliefs, mode='max')
+
+                    p_hat_block_e.extend(p_hat_e)
+                    p_hat_block_m.extend(p_hat_m)
+
+                full['p_hat_e'][a:b] = p_hat_block_e
+                full['p_hat_m'][a:b] = p_hat_block_m
+
+    return full
+
+def mutual_information(hgram):
+    """ Mutual information for joint histogram
+    https://matthew-brett.github.io/teaching/mutual_information.html"""
+    # Convert bins counts to probability values
+    pxy = hgram / float(np.sum(hgram))
+    px = np.sum(pxy, axis=1) # marginal for x over y
+    py = np.sum(pxy, axis=0) # marginal for y over x
+    px_py = px[:, None] * py[None, :] # Broadcast to multiply marginals
+    # Now we can do the calculation using the pxy, px_py 2D arrays
+    nzs = pxy > 0 # Only non-zero pxy values contribute to the sum
+    return np.sum(pxy[nzs] * np.log(pxy[nzs] / px_py[nzs]))
+
+def suppression_saccades(self, data_x, saccades, trackertime, trackertime_0, TargetOn) :
+
+    gradient_x = np.gradient(data_x)
+    gradient_deg = gradient_x * 1/self.exp['px_per_deg'] * 1000 # gradient en deg/sec
+    gradient_deg_NAN = gradient_deg
+
+    for s in range(len(saccades)) :
+        if saccades[s][1]-trackertime_0+15 <= (len(trackertime)) :
+            for x_data in np.arange((saccades[s][0]-trackertime_0-5), (saccades[s][1]-trackertime_0+15)) :
+                gradient_deg_NAN[x_data] = np.nan
+        else :
+            for x_data in np.arange((saccades[s][0]-trackertime_0-5), (len(trackertime))) :
+                gradient_deg_NAN[x_data] = np.nan
+
+    stop_latence = []    
+    for s in range(len(saccades)) :
+        if (saccades[s][0]-trackertime_0) >= (TargetOn-trackertime_0+100) :
+            stop_latence.append((saccades[s][0]-trackertime_0))
+    if stop_latence==[] :
+        stop_latence.append(len(trackertime))
+
+    return gradient_deg_NAN, stop_latence
+
+def Fit_exponentiel(gradient_deg_NAN, trackertime, trackertime_0, TargetOn, StimulusOf, stop_latence, bino, sup=True, exponentiel=exponentiel):
+
+    from lmfit import  Model, Parameters
+
+    model = Model(exponentiel)
+    params = Parameters()
+
+    params.add('tau', value=15., min=13., max=80.)#, vary=False)
+    params.add('maxi', value=15., min=1., max=40.)#, vary=False)
+    params.add('latence', value=TargetOn-trackertime_0+100, min=TargetOn-trackertime_0+50, max=stop_latence[0])
+    params.add('start_anti', value=TargetOn-trackertime_0-100, min=StimulusOf-trackertime_0, max=TargetOn-trackertime_0-50)
+    params.add('v_anti', value=(bino*2-1)*0, min=-40., max=40.)
+    params.add('bino', value=bino, min=0, max=1, vary=False)
+
+    #result_deg = model.fit(new_gradient_deg, params, x=new_time)
+    if sup==True :
+        result_deg = model.fit(gradient_deg_NAN[:-250], params, x=trackertime[:-250], fit_kws={'nan_policy': 'omit'})
+    else :
+        result_deg = model.fit(gradient_deg_NAN, params, x=trackertime, fit_kws={'nan_policy': 'omit'})
+
+    return result_deg
+
+def fig_fit(self, ax, trial_data, data, bino, plot, t_titre=35, t_label=20, report=None) :
+
+    '''plot == velocity, fonction '''
+
+    data_x = data[trial_data]['x']
+    data_y = data[trial_data]['y']
+    trackertime = data[trial_data]['trackertime']
+
+    StimulusOn = data[trial_data]['events']['msg'][10][0]
+    StimulusOf = data[trial_data]['events']['msg'][14][0]
+    TargetOn = data[trial_data]['events']['msg'][15][0]
+    TargetOff = data[trial_data]['events']['msg'][16][0]
+    saccades = data[trial_data]['events']['Esac']
+    trackertime_0 = data[trial_data]['trackertime'][0]
+
+    gradient_deg_NAN, stop_latence = suppression_saccades(self, data_x, saccades, trackertime, trackertime_0, TargetOn)
+
+    start = TargetOn
+    StimulusOn_s = StimulusOn - start
+    StimulusOf_s = StimulusOf - start
+    TargetOn_s = TargetOn - start
+    TargetOff_s = TargetOff - start
+    trackertime_s = trackertime - start
+
+    # FIT
+    result_deg = Fit_exponentiel(gradient_deg_NAN, trackertime, trackertime_0, TargetOn, StimulusOf, stop_latence, bino, sup=False)
+    
+    if plot == 'velocity' :
+
+        ax.plot(trackertime_s, gradient_deg_NAN, color='k', alpha=0.4)
+        #ax.plot(trackertime_s, result_deg.best_fit, color='k', linewidth=2)
+        
+        debut  = TargetOn - trackertime_0 # TargetOn - temps_0
+        start_anti = result_deg.values['start_anti']
+        v_anti = result_deg.values['v_anti']
+        latence = result_deg.values['latence']
+        tau = result_deg.values['tau']
+        maxi = result_deg.values['maxi']
+        result_fit = result_deg.best_fit
+
+    if plot == 'fonction' :
+
+        start_anti = TargetOn-trackertime_0-100
+        latence = TargetOn-trackertime_0+100
+        result_fit = result_deg.init_fit
+
+    # COSMETIQUE
+    ax.plot(trackertime_s[:int(start_anti)], result_fit[:int(start_anti)], 'k', linewidth=2)
+    ax.plot(trackertime_s[int(latence)+250:], result_fit[int(latence)+250:], 'k', linewidth=2)
+
+    ax.axvspan(StimulusOn_s, StimulusOf_s, color='k', alpha=0.2)
+    ax.axvspan(StimulusOf_s, TargetOn_s, color='r', alpha=0.2)
+    ax.axvspan(TargetOn_s, TargetOff_s, color='k', alpha=0.15)
+
+    # V_a ------------------------------------------------------------------------
+    ax.plot(trackertime_s[int(start_anti):int(latence)], result_fit[int(start_anti):int(latence)], c='r', linewidth=2)
+    ax.annotate('', xy=(trackertime_s[int(latence)], result_fit[int(latence)]-3), xycoords='data', fontsize=t_label/1.5,
+                xytext=(trackertime_s[int(start_anti)], result_fit[int(start_anti)]-3), textcoords='data', arrowprops=dict(arrowstyle="->", color='r'))
+    # Start_a --------------------------------------------------------------------
+    ax.bar(trackertime_s[int(start_anti)], 80, bottom=-40, color='k', width=4, linewidth=0, alpha=0.7)
+    # latence --------------------------------------------------------------------
+    ax.bar(trackertime_s[int(latence)], 80, bottom=-40, color='firebrick', width=4, linewidth=0, alpha=1)
+    # tau ------------------------------------------------------------------------
+    ax.plot(trackertime_s[int(latence):int(latence)+250], result_fit[int(latence):int(latence)+250], c='darkred', linewidth=2)
+    # Max ------------------------------------------------------------------------
+    ax.plot(trackertime_s[int(latence):], np.ones(len(trackertime_s[int(latence):]))*result_fit[int(latence)], '--k', linewidth=1, alpha=0.5)
+    ax.plot(trackertime_s[int(latence):], np.ones(len(trackertime_s[int(latence):]))*result_fit[int(latence)+250], '--k', linewidth=1, alpha=0.5)
+
+
+    if plot == 'velocity' :
+
+        # COSMETIQUE
+        for s in range(len(saccades)) :
+            ax.axvspan(saccades[s][0]-start, saccades[s][1]-start, color='k', alpha=0.15)
+
+        # V_a ------------------------------------------------------------------------
+        ax.text((trackertime_s[int(start_anti)]+trackertime_s[int(latence)])/2, result_fit[int(start_anti)]-15,
+                r"A$_a$ = %0.2f °/s$^2$"%(v_anti), color='r', fontsize=t_label/1.5, ha='center')
+        # Start_a --------------------------------------------------------------------
+        ax.text(trackertime_s[int(start_anti)]-25, -35, "Start anticipation = %0.2f ms"%(start_anti-debut),
+                color='k', alpha=0.7, fontsize=t_label/1.5, ha='right')
+        # latence --------------------------------------------------------------------
+        ax.text(trackertime_s[int(latence)]+25, -35, "Latency = %0.2f ms"%(latence-debut),
+                color='firebrick', fontsize=t_label/1.5, va='center')
+        # tau ------------------------------------------------------------------------
+        ax.text(trackertime_s[int(latence)]+70+t_label, (result_fit[int(latence)]),
+                r"= %0.2f"%(tau), color='darkred',va='bottom', fontsize=t_label/1.5)
+        ax.annotate(r'$\tau$', xy=(trackertime_s[int(latence)]+50, result_fit[int(latence)+50]), xycoords='data', fontsize=t_label/1., color='darkred', va='bottom',
+                    xytext=(trackertime_s[int(latence)]+70, result_fit[int(latence)]), textcoords='data', arrowprops=dict(arrowstyle="->", color='darkred'))
+        # Max ------------------------------------------------------------------------
+        ax.text(TargetOn_s+450+25, (result_fit[int(latence)]+result_fit[int(latence)+250])/2,
+                "Max = %0.2f °/s"%(-maxi), color='k', va='center', fontsize=t_label/1.5)
+        ax.annotate('', xy=(TargetOn_s+450, result_fit[int(latence)]), xycoords='data', fontsize=t_label/1.5,
+                    xytext=(TargetOn_s+450, result_fit[int(latence)+250]), textcoords='data', arrowprops=dict(arrowstyle="<->"))
+
+
+    if plot == 'fonction' :
+
+        # COSMETIQUE
+        ax.text(StimulusOf_s+(TargetOn_s-StimulusOf_s)/2, 31, "GAP", color='k', fontsize=t_label, ha='center', va='bottom')
+        ax.text((StimulusOf_s-750)/2, 31, "FIXATION", color='k', fontsize=t_label, ha='center', va='bottom')
+        ax.text((750-TargetOn_s)/2, 31, "PURSUIT", color='k', fontsize=t_label, ha='center', va='bottom')
+        ax.text(TargetOn_s, 15, "Anticipation", color='r', fontsize=t_label/1.5, ha='center')
+
+        # V_a ------------------------------------------------------------------------
+        ax.text(TargetOn_s-50, -5, r"A$_a$", color='r', fontsize=t_label/1.5, ha='center', va='top')
+        # Start_a --------------------------------------------------------------------
+        ax.text(TargetOn_s-100-25, -35, "Start anticipation", color='k', fontsize=t_label/1.5, alpha=0.7, ha='right')
+        # latence --------------------------------------------------------------------
+        ax.text(TargetOn_s+99+25, -35, "Latency", color='firebrick', fontsize=t_label/1.5)
+        # tau ------------------------------------------------------------------------
+        ax.annotate(r'$\tau$', xy=(TargetOn_s+140, result_fit[TargetOn-trackertime_0+140]), xycoords='data', fontsize=t_label/1., color='darkred', va='bottom',
+                xytext=(TargetOn_s+170, result_fit[TargetOn-trackertime_0]), textcoords='data', arrowprops=dict(arrowstyle="->", color='darkred'))
+        # Max ------------------------------------------------------------------------
+        ax.text(TargetOn_s+400+25, ((result_fit[TargetOn-trackertime_0+100]+result_fit[TargetOn-trackertime_0+250])/2),
+               'Max', color='k', fontsize=t_label/1.5, va='center')
+        ax.annotate('', xy=(TargetOn_s+400, result_fit[TargetOn-trackertime_0+100]), xycoords='data', fontsize=t_label/1.5,
+                xytext=(TargetOn_s+400, result_fit[TargetOn-trackertime_0+250]), textcoords='data', arrowprops=dict(arrowstyle="<->"))
+
+
+    #axs[x].axis([StimulusOn_s-10, TargetOff_s+10, -40, 40])
+    ax.axis([-750, 750, -39.5, 39.5])      
+    ax.xaxis.set_ticks_position('bottom')
+    ax.xaxis.set_tick_params(labelsize=t_label/2)
+    ax.yaxis.set_ticks_position('left')
+    ax.yaxis.set_tick_params(labelsize=t_label/2)
+    ax.set_xlabel('Time (ms)', fontsize=t_label)
+
+    if report is None :
+        return ax
+    else :
+        return ax, result_deg.fit_report()
+
+
+
 class Analysis(object):
     """ docstring for the aSPEM class. """
 
@@ -557,7 +675,7 @@ class Analysis(object):
         self.mode = mode
         self.observer = observer
         self.init()
-    
+
     def init(self) :
 
         self.dry_run = True
@@ -574,7 +692,7 @@ class Analysis(object):
                 os.mkdir(dir_)
             except:
                 pass
-        
+
         # ---------------------------------------------------
         # récuperation de toutes les données
         # ---------------------------------------------------
@@ -591,7 +709,7 @@ class Analysis(object):
                 with open(a, 'rb') as fichier :
                     b = pickle.load(fichier, encoding='latin1')
                     self.PARI.append(b)
-        
+
         self.ENREGISTREMENT = []
         for x in range(len(liste)) :
             if liste[x][0]=='enregistrement' and liste[x][1] in self.subjects:
@@ -693,7 +811,7 @@ class Analysis(object):
                         x = x
                     Target_trial.append(x)
                 #------------------------------------------------
-                
+
                 axs[trial].cla() # pour remettre ax figure a zero
                 axs[trial].axis([StimulusOf-10, TargetOff+10, 0, 1280])
 
@@ -717,12 +835,12 @@ class Analysis(object):
                 axs[trial].yaxis.set_ticklabels(range(0, 1280, 600), fontsize=8)
                 axs[trial].xaxis.set_ticks_position('bottom')
                 axs[trial].yaxis.set_ticks_position('left')
-                
+
                 for f in range(len(fixations)) :
                     axs[trial]. axvspan(fixations[f][0]-start, fixations[f][1]-start, color='r', alpha=0.1)
                 for s in range(len(saccades)) :
                     axs[trial]. axvspan(saccades[s][0]-start, saccades[s][1]-start, color='k', alpha=0.2)
-            
+
             plt.tight_layout() # pour supprimer les marge trop grande
             plt.subplots_adjust(hspace=0) # pour enlever espace entre les figures
 
@@ -730,10 +848,10 @@ class Analysis(object):
         plt.close()
         return fig, axs
 
+
     def Fit (self) :
 
         import matplotlib.pyplot as plt
-        from lmfit import  Model, Parameters
         from edfreader import read_edf
 
         resultats = os.path.join('data', self.mode + '_' + self.observer + '_' + self.timeStr + '.asc')
@@ -742,7 +860,6 @@ class Analysis(object):
         N_trials = self.exp['N_trials']
         N_blocks = self.exp['N_blocks']
         p = self.exp['p']
-
 
         liste_start_anti = []
         liste_liste_v_anti = []
@@ -776,31 +893,11 @@ class Analysis(object):
                 TargetOn = data[trial_data]['events']['msg'][15][0]
                 TargetOff = data[trial_data]['events']['msg'][16][0]
                 saccades = data[trial_data]['events']['Esac']
-
+                bino=p[trial, block, 0]
+                
                 trackertime_0 = data[trial_data]['trackertime'][0]
 
-                gradient_x = np.gradient(data_x)
-                gradient_deg = gradient_x * 1/self.exp['px_per_deg'] * 1000 # gradient en deg/sec
-
-                ##################################################
-                # SUPPRESSION DES SACCADES
-                ##################################################
-                gradient_deg_NAN = gradient_deg
-                for s in range(len(saccades)) :
-                    if saccades[s][1]-trackertime_0+15 <= (len(trackertime)) :
-                        for x_data in np.arange((saccades[s][0]-trackertime_0-5), (saccades[s][1]-trackertime_0+15)) :
-                            gradient_deg_NAN[x_data] = np.nan
-                    else :
-                        for x_data in np.arange((saccades[s][0]-trackertime_0-5), (len(trackertime))) :
-                            gradient_deg_NAN[x_data] = np.nan
-
-                stop_latence = []    
-                for s in range(len(saccades)) :
-                    if (saccades[s][0]-trackertime_0) >= (TargetOn-trackertime_0+100) :
-                        stop_latence.append((saccades[s][0]-trackertime_0))
-                if stop_latence==[] :
-                    stop_latence.append(len(trackertime))
-                ##################################################
+                gradient_deg_NAN, stop_latence = suppression_saccades(self, data_x, saccades, trackertime, trackertime_0, TargetOn)
 
                 start = TargetOn
 
@@ -813,17 +910,7 @@ class Analysis(object):
                 ##################################################
                 # FIT
                 ##################################################
-                model = Model(exponentiel)
-                bino=p[trial, block, 0]
-                params = Parameters()
-                params.add('tau', value=15., min=13., max=70.)#, vary=False)
-                params.add('maxi', value=15., min=1., max=40.)#, vary=False)
-                params.add('latence', value=TargetOn-trackertime_0+100, min=TargetOn-trackertime_0+50, max=stop_latence[0])
-                params.add('start_anti', value=TargetOn-trackertime_0-100, min=StimulusOf-trackertime_0, max=TargetOn-trackertime_0-50) #min=StimulusOf-trackertime_0+100, max=TargetOn-trackertime_0-50
-                params.add('v_anti', value=0., min=-40., max=40.)
-                params.add('bino', value=bino, min=0, max=1, vary=False)
-
-                result_deg = model.fit(gradient_deg_NAN[:-250], params, x=trackertime[:-250], fit_kws={'nan_policy': 'omit'})
+                result_deg = Fit_exponentiel(gradient_deg_NAN, trackertime, trackertime_0, TargetOn, StimulusOf, stop_latence, bino)
                 ##################################################
 
                 axs[trial].cla() # pour remettre ax figure a zero
@@ -910,12 +997,11 @@ class Analysis(object):
 
         print('FIN !!!')
 
-    def Fit_essai(self, block=0, trial=70, fig_width=15, t_titre=35, t_label=20) :
+    def plot_Fit(self, plot='fonction', block=0, trials=0, report=None, fig_width=15, t_titre=35, t_label=20):
 
         import matplotlib.pyplot as plt
         from edfreader import read_edf
-        from lmfit import  Model, Parameters
-
+        
         resultats = os.path.join('data', self.mode + '_' + self.observer + '_' + self.timeStr + '.asc')
         data = read_edf(resultats, 'TRIALID')
 
@@ -923,135 +1009,141 @@ class Analysis(object):
         N_blocks = self.exp['N_blocks']
         p = self.exp['p']
 
+        if type(trials) is not list :
+            trials = [trials]
 
-        fig, axs = plt.subplots(1, 1, figsize=(fig_width, (fig_width/2)/1.6180))
+        fig, axs = plt.subplots(len(trials), 1, figsize=(fig_width, (fig_width*(len(trials)/2)/1.6180)))
 
-        trial_data = trial + N_trials*block
+        results = []
+        x = 0
+        for t in trials :
 
-        data_x = data[trial_data]['x']
-        data_y = data[trial_data]['y']
-        trackertime = data[trial_data]['trackertime']
+            trial_data = t + N_trials*block
+            bino=p[t, block, 0]
 
-        StimulusOn = data[trial_data]['events']['msg'][10][0]
-        StimulusOf = data[trial_data]['events']['msg'][14][0]
-        TargetOn = data[trial_data]['events']['msg'][15][0]
-        TargetOff = data[trial_data]['events']['msg'][16][0]
-        saccades = data[trial_data]['events']['Esac']
-        trackertime_0 = data[trial_data]['trackertime'][0]
-
-        gradient_x = np.gradient(data_x) # gradient en px/ms
-        gradient_deg = gradient_x * 1/self.exp['px_per_deg'] * 1000 # gradient en deg/sec
-
-        ##################################################
-        # SUPPRESSION DES SACCADES
-        ##################################################
-        gradient_deg_NAN = gradient_deg
-
-        for s in range(len(saccades)) :
-            if saccades[s][1]-trackertime_0+15 <= (len(trackertime)) :
-                for x_data in np.arange((saccades[s][0]-trackertime_0-5), (saccades[s][1]-trackertime_0+15)) :
-                    gradient_deg_NAN[x_data] = np.nan
+            if len(trials)==1:
+                ax = axs
             else :
-                for x_data in np.arange((saccades[s][0]-trackertime_0-5), (len(trackertime))) :
-                    gradient_deg_NAN[x_data] = np.nan
+                ax = axs[x]
 
-        stop_latence = []    
-        for s in range(len(saccades)) :
-            if (saccades[s][0]-trackertime_0) >= (TargetOn-trackertime_0+100) :
-                stop_latence.append((saccades[s][0]-trackertime_0))
-        if stop_latence==[] :
-            stop_latence.append(len(trackertime))
-        ##################################################
+            if report is None :
+                ax = fig_fit(self, ax, trial_data, data, bino, plot=plot)
+            else :
+                ax, result = fig_fit(self, ax, trial_data, data, bino, plot=plot, report=report)
+                results.append(result)
+            if x == int((len(trials)-1)/2) :
+                ax.set_ylabel('Velocity (°/s)', fontsize=t_label)
+            if x!= (len(trials)-1) : 
+                ax.set_xticklabels([])
+            if x==0 :
+                if plot=='fonction':
+                    ax.set_title('Fit Function', fontsize=t_titre, x=0.5, y=1.05)
+                else :
+                    ax.set_title('Velocity Fit', fontsize=t_titre, x=0.5, y=1.05)
 
-        start = TargetOn
+            x=x+1
 
-        StimulusOn_s = StimulusOn - start
-        StimulusOf_s = StimulusOf - start
-        TargetOn_s = TargetOn - start
-        TargetOff_s = TargetOff - start
-        trackertime_s = trackertime - start
+        plt.tight_layout() # pour supprimer les marge trop grande
+        plt.subplots_adjust(hspace=0) # pour enlever espace entre les figures
 
-        # FIT
-        model = Model(exponentiel)
-        bino=p[trial, block, 0]
-        params = Parameters()
-
-        params.add('tau', value=15., min=13., max=80.)#, vary=False)
-        params.add('maxi', value=15., min=1., max=40.)#, vary=False)
-        params.add('latence', value=TargetOn-trackertime_0+100, min=TargetOn-trackertime_0+50, max=stop_latence[0])
-        params.add('start_anti', value=TargetOn-trackertime_0-100, min=StimulusOf-trackertime_0, max=TargetOn-trackertime_0-50)
-        params.add('v_anti', value=(bino*2-1)*0, min=-40., max=40.)
-        params.add('bino', value=bino, min=0, max=1, vary=False)
-
-        #result_deg = model.fit(new_gradient_deg, params, x=new_time)
-        result_deg = model.fit(gradient_deg_NAN[:-250], params, x=trackertime[:-250], fit_kws={'nan_policy': 'omit'})
-
-        debut  = TargetOn - trackertime_0 # TargetOn - temps_0
-
-        axs.axis([StimulusOn_s-10, TargetOff_s+10, -40, 40])
-
-        axs.plot(trackertime_s, gradient_deg_NAN, color='k', alpha=0.6)
-        axs.plot(trackertime_s[:-250], result_deg.init_fit, 'r--', linewidth=2)
-        axs.plot(trackertime_s[:-250], result_deg.best_fit, color='r', linewidth=2)
-        axs.plot(trackertime_s, np.ones(np.shape(trackertime_s)[0])*(bino*2-1)*15, color='k', linewidth=0.2, alpha=0.2)
-        axs.plot(trackertime_s, np.ones(np.shape(trackertime_s)[0])*(bino*2-1)*10, color='k', linewidth=0.2, alpha=0.2)
-
-
-        axs.axvspan(StimulusOn_s, StimulusOf_s, color='k', alpha=0.2)
-        axs.axvspan(StimulusOf_s, TargetOn_s, color='r', alpha=0.2)
-        axs.axvspan(TargetOn_s, TargetOff_s, color='k', alpha=0.15)
-        for s in range(len(saccades)) :
-            axs.axvspan(saccades[s][0]-start, saccades[s][1]-start, color='k', alpha=0.2)
-
-        start_anti = result_deg.values['start_anti']-debut
-        v_anti = result_deg.values['v_anti']
-        latence = result_deg.values['latence']-debut
-        tau = result_deg.values['tau']
-        maxi = result_deg.values['maxi']
-
-        if np.isnan(gradient_deg_NAN[int(result_deg.values['latence'])]) and np.isnan(gradient_deg_NAN[int(result_deg.values['latence'])-30]) and np.isnan(gradient_deg_NAN[int(result_deg.values['latence'])-70]) ==True :
-            print('lala')
-            start_anti = np.nan
-            v_anti = np.nan
-            latence = np.nan
-            tau = np.nan
-            maxi = np.nan
+        if report is None :
+            return fig, axs
         else :
-            axs.bar(latence, 80, bottom=-40, color='r', width=6, linewidth=0)
-            axs.text(latence+25, -35, "Latence", color='r', fontsize=14)#,  weight='bold')
-
-        axs.text(StimulusOn_s+(StimulusOf_s-StimulusOn_s)/2, 31, "FIXATION", color='k', fontsize=16, ha='center', va='bottom')
-        axs.text(StimulusOf_s+(TargetOn_s-StimulusOf_s)/2, 31, "GAP", color='r', fontsize=16, ha='center', va='bottom')
-        axs.text(TargetOn_s+(TargetOff_s-TargetOn_s)/2, 31, "POURSUITE", color='k', fontsize=16, ha='center', va='bottom')
-        axs.text(StimulusOn_s+15, 18, "start_anti: %s \nv_anti: %s"%(start_anti, v_anti), color='k', fontsize=14, va='bottom')
-        axs.text(StimulusOn_s+15, -18, "latence: %s \ntau: %s \nmaxi: %s"%(latence, tau, maxi), color='k', fontsize=14, va='top')
-
-        axs.set_xlabel('Temps (ms)', fontsize=12)
-        axs.set_ylabel('Vitesse', fontsize=12)
-        plt.show()
-
-        return fig, axs, result_deg.fit_report()
+            return fig, axs, results
 
 
-    def plot_experiment(self, mode=None, fig=None, axs=None, fig_width=15, t_titre=35, t_label=20):
+    def plot_experiment(self, sujet=[0], mode=None, fig=None, axs=None, fig_width=15, t_titre=35, t_label=25, return_proba=None):
 
         import matplotlib.pyplot as plt
-
         N_trials = self.exp['N_trials']
         N_blocks = self.exp['N_blocks']
         p = self.exp['p']
         ec = 0.2
-        
+
         if fig is None:
             fig_width= fig_width
-            fig, axs = plt.subplots(3, 1, figsize=(fig_width, fig_width/1.6180))
+            if len(sujet)==1 :
+                fig, axs = plt.subplots(3, 1, figsize=(fig_width, fig_width/1.6180))
+            else :
+                fig, axs = plt.subplots(len(sujet)+1, 1, figsize=(fig_width, ((len(sujet)+1)*fig_width/3)/(1.6180)))
 
-        for i_layer, label in enumerate(['Target Direction', 'Probability', 'Switch']) :
-            for i_block in range(N_blocks):
-                axs[i_layer].step(range(N_trials), p[:, i_block, i_layer]+i_block+ec*i_block, lw=1, c='k', alpha=.3)
-                axs[i_layer].fill_between(range(N_trials), i_block+np.zeros_like(p[:, i_block, i_layer])+ec*i_block, i_block+p[:, i_block, i_layer]+ec*i_block,
+
+        for i_block in range(N_blocks):
+            if len(sujet)==1 :
+                for i_layer, label in enumerate(['Target Direction', 'Probability', 'Switch']) :
+                    axs[i_layer].step(range(N_trials), p[:, i_block, i_layer]+i_block+ec*i_block, lw=1, c='k', alpha=.3)
+                    axs[i_layer].fill_between(range(N_trials), i_block+np.zeros_like(p[:, i_block, i_layer])+ec*i_block, i_block+p[:, i_block, i_layer]+ec*i_block,
+                                              lw=.5, alpha=.3, facecolor='k', step='pre')
+                    axs[i_layer].set_ylabel(label, fontsize=t_label)
+            else :
+                axs[0].step(range(N_trials), p[:, i_block, 0]+i_block+ec*i_block, lw=1, c='k', alpha=.3)
+                axs[0].fill_between(range(N_trials), i_block+np.zeros_like(p[:, i_block, 0])+ec*i_block,
+                                          i_block+p[:, i_block, 0]+ec*i_block,
                                           lw=.5, alpha=.3, facecolor='k', step='pre')
+                axs[0].set_ylabel('Target Direction', fontsize=t_label)
+                for s in range(len(sujet)) :
+                    axs[s+1].step(range(N_trials), p[:, i_block, 1]+i_block+ec*i_block, lw=1, c='k', alpha=.3)
+                    axs[s+1].fill_between(range(N_trials), i_block+np.zeros_like(p[:, i_block, 1])+ec*i_block, i_block+p[:, i_block, 1]+ec*i_block,
+                                              lw=.5, alpha=.3, facecolor='k', step='pre')
 
+                    axs[s+1].set_yticklabels(['0','1','0','1','0','1'],fontsize=t_label/2)
+                    axs[s+1].set_ylabel('Subject %s'%(sujet[s]), fontsize=t_label)
+
+        #-------------------------------------------------------------------------------------------------------------
+        for s in range(len(sujet)) :
+
+            if len(sujet)==1:
+                results = (self.exp['results']+1)/2 # results est sur [-1,1] on le ramene sur [0,1]
+                v_anti = self.param['v_anti']
+                print('sujet =', self.exp['observer'])
+                y_t = 1.1
+            else :
+                p = self.PARI[sujet[s]]['p']
+                results = (self.PARI[sujet[s]]['results']+1)/2 # results est sur [-1,1] on le ramene sur [0,1]
+                v_anti = self.ENREGISTREMENT[sujet[s]]['v_anti']
+                print('sujet', sujet[s], '=', self.PARI[sujet[s]]['observer'])
+                y_t = 1.25
+            #-------------------------------------------------------------------------------------------------------------
+
+            if mode == 'pari' :
+                for block in range(N_blocks):
+                    if block == 0 :
+                        axs[s+1].step(range(N_trials), block+results[:, block]+ec*block, lw=1, alpha=.9,
+                                      color='darkred', label='Individual guess')
+                    else :
+                        axs[s+1].step(range(N_trials), block+results[:, block]+ec*block, alpha=.9, color='darkred')
+                axs[0].set_title('Bet results', fontsize=t_titre, x=0.5, y=y_t)
+
+            #------------------------------------------------
+            elif mode == 'enregistrement' :
+                for block in range(N_blocks):
+                    if block == 0 :
+                        axs[s+1].step(range(N_trials), block+((np.array(v_anti[block])-np.nanmin(v_anti))/(np.nanmax(v_anti)-np.nanmin(v_anti)))+ec*block,
+                                      color='k', lw=1, alpha=1, label='Eye movement')
+                    else :
+                        axs[s+1].step(range(N_trials), block+((np.array(v_anti[block])-np.nanmin(v_anti))/(np.nanmax(v_anti)-np.nanmin(v_anti)))+ec*block,
+                                      color='k', lw=1, alpha=1)
+                axs[0].set_title('Eye movements recording results', fontsize=t_titre, x=0.5, y=y_t)
+
+            #------------------------------------------------
+            elif mode=='deux':
+                for block in range(N_blocks):
+                    if block == 0 :
+                        axs[s+1].step(range(N_trials), block+results[:, block]+ec*block, lw=1, alpha=.9,
+                                      color='darkred', label='Individual guess')
+                        axs[s+1].step(range(N_trials), block+((np.array(v_anti[block])-np.nanmin(v_anti))/(np.nanmax(v_anti)-np.nanmin(v_anti)))+ec*block,
+                                      color='k', lw=1, alpha=1, label='Eye movement')
+                    else :
+                        axs[s+1].step(range(N_trials), block+results[:, block]+ec*block, lw=1, alpha=.9, color='darkred')
+                        axs[s+1].step(range(N_trials), block+((np.array(v_anti[block])-np.nanmin(v_anti))/(np.nanmax(v_anti)-np.nanmin(v_anti)))+ec*block,color='k', lw=1, alpha=1)
+                axs[0].set_title('Eye movements recording results', fontsize=t_titre, x=0.5, y=y_t)
+
+            #------------------------------------------------
+            elif mode is None :
+                axs[0].set_title('Experiment', fontsize=t_titre, x=0.5, y=y_t)
+            #-------------------------------------------------------------------------------------------------------------
+
+        for i_layer in range(len(axs)):
             #------------------------------------------------
             # Barre Pause
             #------------------------------------------------
@@ -1076,8 +1168,8 @@ class Analysis(object):
             # cosmétique
             #------------------------------------------------
             axs[i_layer].set_xlim(-1, N_trials)
-            
-            if i_layer==2 :
+
+            if i_layer==(len(axs)-1) :
                 axs[i_layer].set_xticks([-1, 49, 99,149])
                 axs[i_layer].set_xticklabels([0, 50, 100, 150], ha='left',fontsize=t_label/2)
                 axs[i_layer].yaxis.set_tick_params(width=0)
@@ -1086,481 +1178,46 @@ class Analysis(object):
                 axs[i_layer].set_xticks([])
 
             axs[i_layer].set_ylim(-(ec/2), N_blocks +ec*3-(ec/2))
-            axs[i_layer].set_ylabel(label, fontsize=t_label)
+            
             axs[i_layer].set_yticks([0, 1, 1+ec, 2+ec, 2+ec*2, 3+ec*2])
             axs[i_layer].yaxis.set_label_coords(-0.05, 0.5)
             axs[i_layer].yaxis.set_tick_params(direction='out')
             axs[i_layer].yaxis.set_ticks_position('left')
-
-        #-------------------------------------------------------------------------------------------------------------
-        if mode == 'pari' :
-            results = (self.exp['results']+1)/2 # results est sur [-1,1] on le ramene sur [0,1]
-            for block in range(N_blocks):
-                if block == 0 :
-                    axs[1].step(range(N_trials), block+results[:, block]+ec*block, lw=1, alpha=.9, color='darkred', label='Results Bet')
-                else :
-                    axs[1].step(range(N_trials), block + results[:, block], alpha=.9, color='darkred')
-            axs[0].set_title('Bet results', fontsize=t_titre, x=0.5, y=1.1)
-
-        #------------------------------------------------
-        elif mode == 'enregistrement' :
-            v_anti = self.param['v_anti']
-            for block in range(N_blocks):
-                if block == 0 :
-                    axs[1].step(range(N_trials), block+((np.array(v_anti[block])-np.nanmin(v_anti))/(np.nanmax(v_anti)-np.nanmin(v_anti)))+ec*block, color='k', lw=1, alpha=1, label='Eye movement')
-                else :
-                    axs[1].step(range(N_trials), block+((np.array(v_anti[block])-np.nanmin(v_anti))/(np.nanmax(v_anti)-np.nanmin(v_anti)))+ec*block, color='k', lw=1, alpha=1)
-            axs[0].set_title('Eye movements recording results', fontsize=t_titre, x=0.5, y=1.1)
-
-        #------------------------------------------------
-        elif mode=='deux':
-            results = (self.exp['results']+1)/2 # results est sur [-1,1] on le ramene sur [0,1]
-            v_anti = self.param['v_anti']
-            for block in range(N_blocks):
-                if block == 0 :
-                    axs[1].step(range(N_trials), block+results[:, block]+ec*block, lw=1, alpha=.9, color='darkred', label='Results Bet')
-                    axs[1].step(range(N_trials), block+((np.array(v_anti[block])-np.nanmin(v_anti))/(np.nanmax(v_anti)-np.nanmin(v_anti)))+ec*block, color='k', lw=1, alpha=1, label='Eye movement')
-                else :
-                    axs[1].step(range(N_trials), block+results[:, block]+ec*block, lw=1, alpha=.9, color='darkred')
-                    axs[1].step(range(N_trials), block+((np.array(v_anti[block])-np.nanmin(v_anti))/(np.nanmax(v_anti)-np.nanmin(v_anti)))+ec*block,color='k', lw=1, alpha=1)
-            axs[0].set_title('Eye movements recording results', fontsize=t_titre, x=0.5, y=1.1)
-
-        #------------------------------------------------
-        elif mode is None :
-            axs[0].set_title('Experiment', fontsize=t_titre, x=0.5, y=1.1)
-        #-------------------------------------------------------------------------------------------------------------
 
         #------------------------------------------------
         # cosmétique
         #------------------------------------------------
-        axs[0].set_yticklabels(['left','right','left','right','left','right'],fontsize=t_label/2)
-        axs[1].set_yticklabels(['0','1','0','1','0','1'],fontsize=t_label/2)
-        axs[2].set_yticklabels(['No','Yes','No','Yes','No','Yes'],fontsize=t_label/2)
+        if len(sujet)==1 :
+            axs[0].set_yticklabels(['left','right','left','right','left','right'],fontsize=t_label/2)
+            axs[1].set_yticklabels(['0','1','0','1','0','1'],fontsize=t_label/2)
+            axs[2].set_yticklabels(['No','Yes','No','Yes','No','Yes'],fontsize=t_label/2)
+
+        else :
+            axs[1].legend(fontsize=t_label/1.3, bbox_to_anchor=(0., 2.1, 1, 0.), loc=3, ncol=2, mode="expand", borderaxespad=0.)
+ 
         axs[-1].set_xlabel('Trials', fontsize=t_label)
 
         fig.tight_layout()
         plt.subplots_adjust(hspace=0.05)
         #------------------------------------------------
 
-        return fig, axs, p
+        if return_proba is None :
+            return fig, axs
+        else :
+            return fig, axs, p
 
-    def plot_experiment_plus(self, sujet=[0], fig_width=15, t_titre=35, t_label=20) :
-
-        import matplotlib.pyplot as plt
-        fig, axs = plt.subplots(len(sujet)+1, 1, figsize=(fig_width, ((len(sujet)+1)*fig_width/3)/(1.6180)))
+    def plot_bcp(self, plot='normal', block=[0,1,2], trial=50, N_scan=100, pause=None, mode=['expectation', 'max'], max_run_length=150, fig_width=15, t_titre=35, t_label=20):
         
-        N_trials = self.exp['N_trials']
-        N_blocks = self.exp['N_blocks']
-        p = self.exp['p']
-        ec = 0.2
-
-        for i_block in range(N_blocks):
-            axs[0].step(range(N_trials), p[:, i_block, 0]+i_block+ec*i_block, lw=1, c='k', alpha=.3)
-            axs[0].fill_between(range(N_trials), i_block+np.zeros_like(p[:, i_block, 0])+ec*i_block,
-                                      i_block+p[:, i_block, 0]+ec*i_block,
-                                      lw=.5, alpha=.3, facecolor='k', step='pre')
-
-            for s in range(len(sujet)) :
-                axs[s+1].step(range(N_trials), p[:, i_block, 1]+i_block+ec*i_block, lw=1, c='k', alpha=.3)
-                axs[s+1].fill_between(range(N_trials), i_block+np.zeros_like(p[:, i_block, 1])+ec*i_block, i_block+p[:, i_block, 1]+ec*i_block,
-                                          lw=.5, alpha=.3, facecolor='k', step='pre')
-
-                axs[s+1].set_yticklabels(['0','1','0','1','0','1'],fontsize=t_label/2)
-
-        for i_layer in range(len(sujet)+1) :
-
-            if i_layer != 0 :
-
-                print('sujet', sujet[i_layer-1], '=', self.PARI[sujet[i_layer-1]]['observer'])
-                p = self.PARI[sujet[i_layer-1]]['p']
-                results = (self.PARI[sujet[i_layer-1]]['results']+1)/2 # results est sur [-1,1] on le ramene sur [0,1]
-                v_anti = self.ENREGISTREMENT[sujet[i_layer-1]]['v_anti']
-                axs[i_layer].set_ylabel('Subject %s'%(sujet[i_layer-1]), fontsize=t_label)
-
-                for block in range(N_blocks):
-
-                    if block == 0 :
-                        axs[i_layer].step(range(N_trials), block+results[:, block]+ec*block, lw=1, alpha=.9,
-                                    color='r', label='Individual guess')
-                        axs[i_layer].step(range(N_trials), block+((np.array(v_anti[block])-np.nanmin(v_anti))/(np.nanmax(v_anti)-np.nanmin(v_anti)))+ec*block, 
-                                    color='k', lw=1, alpha=1, label='Eye movements')
-                    else :
-                        axs[i_layer].step(range(N_trials), block+results[:, block]+ec*block, lw=1, alpha=.9,
-                                          color='r')
-                        axs[i_layer].step(range(N_trials), block+((np.array(v_anti[block])-np.nanmin(v_anti))/(np.nanmax(v_anti)-np.nanmin(v_anti)))+ec*block,
-                                    color='k', lw=1, alpha=1)
-
-            #------------------------------------------------
-            # Barre Pause
-            #------------------------------------------------
-            axs[i_layer].bar(49, 3+ec*3, bottom=-ec/2, color='k', width=0, linewidth=2)
-            axs[i_layer].bar(99, 3+ec*3, bottom=-ec/2, color='k', width=0, linewidth=2)
-            axs[i_layer].bar(149, 3+ec*3, bottom=-ec/2, color='k', width=0, linewidth=2)
-
-            #------------------------------------------------
-            # affiche les numéro des block sur le côté gauche
-            #------------------------------------------------
-            ax_block = axs[i_layer].twinx()
-            if i_layer==0 :
-                ax_block.set_ylabel('Block', fontsize=t_label/1.5, rotation='horizontal', ha='left', va='bottom')
-                ax_block.yaxis.set_label_coords(1.01, 1.08)
-
-            ax_block.set_ylim(0, N_blocks)
-            ax_block.set_yticks(np.arange(N_blocks)+0.5)
-            ax_block.set_yticklabels(np.arange(N_blocks)+1, fontsize=t_label/1.5)
-            ax_block.yaxis.set_tick_params(width=0, pad=(t_label/1.5)+10)
-
-            #------------------------------------------------
-            # cosmétique
-            #------------------------------------------------
-            if i_layer==len(sujet)+1 :
-                axs[i_layer].set_xticks([-1, 49, 99,149])
-                axs[i_layer].set_xticklabels([0, 50, 100, 150], ha='left',fontsize=t_label/2)
-                axs[i_layer].yaxis.set_tick_params(width=0)
-                axs[i_layer].xaxis.set_ticks_position('bottom')
-            else :
-                axs[i_layer].set_xticks([])
-            axs[i_layer].set_xlim(-1, N_trials)
-
-            axs[i_layer].set_ylim(-(ec/2), N_blocks +ec*3-(ec/2))
-            axs[i_layer].set_yticks([0, 1, 1+ec, 2+ec, 2+ec*2, 3+ec*2])
-            axs[i_layer].yaxis.set_label_coords(-0.05, 0.5)
-            axs[i_layer].yaxis.set_tick_params(direction='out')
-            axs[i_layer].yaxis.set_ticks_position('left')
-
-        axs[1].legend(fontsize=t_label/1.3, bbox_to_anchor=(0., 2.1, 1, 0.), loc=3, ncol=2, mode="expand", borderaxespad=0.)
-        axs[0].set_title('Eye movements recording results', fontsize=t_titre, x=0.5, y=1.25,va='bottom')
-        axs[0].set_ylabel('Target Direction', fontsize=t_label)
-        axs[0].set_yticklabels(['left','right','left','right','left','right'],fontsize=t_label/2)
-
-        axs[-1].set_xlabel('Trials', fontsize=t_label)
-
-        fig.tight_layout()
-        plt.subplots_adjust(hspace=0.05)
-        #------------------------------------------------
-
-        return fig, axs
-
-    def plot_fit_fonction(self, fig_width=15, t_titre=35, t_label=20) :
-
-        import matplotlib.pyplot as plt
-        from lmfit import  Model, Parameters
-        from edfreader import read_edf
-
-        resultats = os.path.join('data', self.mode + '_' + self.observer + '_' + self.timeStr + '.asc')
-        data = read_edf(resultats, 'TRIALID')
-
-        N_trials = self.exp['N_trials']
-        N_blocks = self.exp['N_blocks']
-        p = self.exp['p']
-
-
-        fig, axs = plt.subplots(1, 1, figsize=(fig_width, (fig_width/2)/1.6180))
-
-        block = 0
-        trial = 0
-
-        trial_data = trial + N_trials*block
-
-        data_x = data[trial_data]['x']
-        data_y = data[trial_data]['y']
-        trackertime = data[trial_data]['trackertime']
-
-        StimulusOn = data[trial_data]['events']['msg'][10][0]
-        StimulusOf = data[trial_data]['events']['msg'][14][0]
-        TargetOn = data[trial_data]['events']['msg'][15][0]
-        TargetOff = data[trial_data]['events']['msg'][16][0]
-        saccades = data[trial_data]['events']['Esac']
-        trackertime_0 = data[trial_data]['trackertime'][0]
-
-        gradient_x = np.gradient(data_x) # gradient en px/ms
-        gradient_deg = gradient_x * 1/self.exp['px_per_deg'] * 1000 # gradient en deg/sec
-
-        ##################################################
-        # SUPPRESSION DES SACCADES
-        ##################################################
-        gradient_deg_NAN = []
-        for x_data in range(len(data_x)):
-            saccade = None
-            for s in range(len(saccades)) :
-                if x_data in np.arange((saccades[s][0]-trackertime_0), (saccades[s][1]-trackertime_0+10)) :
-                    gradient_deg_NAN.append(np.nan)#gradient_deg_NAN[x_data-1])#'nan')
-                    saccade = 'yes'
-            if not saccade :
-                gradient_deg_NAN.append(gradient_deg[x_data])
-            saccade = None 
-            
-        stop_latence = []    
-        for s in range(len(saccades)) :
-            if (saccades[s][0]-trackertime_0) >= (TargetOn-trackertime_0+100) :
-                stop_latence.append((saccades[s][0]-trackertime_0))
-        if stop_latence==[] :
-            stop_latence.append(len(trackertime))
-        ##################################################
-
-        start = TargetOn
-
-        StimulusOn_s = StimulusOn - start
-        StimulusOf_s = StimulusOf - start
-        TargetOn_s = TargetOn - start
-        TargetOff_s = TargetOff - start
-        trackertime_s = trackertime - start
-                
-        # FIT
-        model = Model(exponentiel)
-        bino=p[trial, block, 0]
-        params = Parameters()
-
-        params.add('tau', value=15., min=13., max=80.)#, vary=False)
-        params.add('maxi', value=15., min=1., max=40.)#, vary=False)
-        params.add('latence', value=TargetOn-trackertime_0+100, min=TargetOn-trackertime_0+50, max=stop_latence[0])
-        params.add('start_anti', value=TargetOn-trackertime_0-100, min=StimulusOf-trackertime_0, max=TargetOn-trackertime_0-50)
-        params.add('v_anti', value=-25, min=-40., max=40.)
-        params.add('bino', value=bino, min=0, max=1, vary=False)
-
-        result_deg = model.fit(gradient_deg_NAN, params, x=trackertime, fit_kws={'nan_policy': 'omit'})
-
-        # -------------------------------------------------------------------------------------
-        # COSMETIQUE
-        # -------------------------------------------------------------------------------------
-        axs.plot(trackertime_s[:TargetOn-trackertime_0-100], result_deg.init_fit[:TargetOn-trackertime_0-100], 'k', linewidth=2)
-        axs.plot(trackertime_s[TargetOn-trackertime_0+250:], result_deg.init_fit[TargetOn-trackertime_0+250:], 'k', linewidth=2)
-
-        # ---------------------------------
-        axs.text(StimulusOf_s+(TargetOn_s-StimulusOf_s)/2, 31, "GAP", color='k', fontsize=t_label, ha='center', va='bottom')
-        axs.text((StimulusOf_s-750)/2, 31, "FIXATION", color='k', fontsize=t_label, ha='center', va='bottom')
-        axs.text((750-TargetOn_s)/2, 31, "PURSUIT", color='k', fontsize=t_label, ha='center', va='bottom')
-
-        axs.axvspan(StimulusOn_s, StimulusOf_s, color='k', alpha=0.2)
-        axs.axvspan(StimulusOf_s, TargetOn_s, color='r', alpha=0.2)
-        axs.axvspan(TargetOn_s, TargetOff_s, color='k', alpha=0.15)
-
-        # ---------------------------------
-        # Anticipation
-        # ---------------------------------
-        axs.text(TargetOn_s, 15, "Anticipation", color='r', fontsize=t_label/1.5, ha='center')
-
-        # ---------------------------------
-        # V_a
-        # ---------------------------------
-        axs.plot(trackertime_s[TargetOn-trackertime_0-100:TargetOn-trackertime_0+100], result_deg.init_fit[TargetOn-trackertime_0-100:TargetOn-trackertime_0+100], c='r', linewidth=2)
-        axs.text(TargetOn_s-50, -5, r"A$_a$", color='r', fontsize=t_label/1.5, ha='center', va='top')
-        axs.annotate('', xy=(TargetOn_s+100, result_deg.init_fit[TargetOn-trackertime_0+100]-3), xycoords='data', fontsize=t_label/1.2,
-                    xytext=(TargetOn_s-95, result_deg.init_fit[TargetOn-trackertime_0-95]-3), textcoords='data', arrowprops=dict(arrowstyle="->", color='r'))
-
-        # ---------------------------------
-        # Start_a
-        # ---------------------------------
-        axs.bar(TargetOn_s-100, 80, bottom=-40, color='k', width=4, linewidth=0, alpha=0.7)
-        axs.text(TargetOn_s-100-25, -35, "Start anticipation", color='k', fontsize=t_label/1.5, alpha=0.7, ha='right')
-
-        # ---------------------------------
-        # latence
-        # ---------------------------------
-
-        axs.bar(TargetOn_s+99, 80, bottom=-40, color='firebrick', width=4, linewidth=0, alpha=1)
-        axs.text(TargetOn_s+99+25, -35, "Latency", color='firebrick', fontsize=t_label/1.5)
-
-        # ---------------------------------
-        # tau
-        # ---------------------------------
-        axs.plot(trackertime_s[TargetOn-trackertime_0+100:TargetOn-trackertime_0+250], result_deg.init_fit[TargetOn-trackertime_0+100:TargetOn-trackertime_0+250], c='darkred', linewidth=2)
-        axs.annotate(r'$\tau$', xy=(TargetOn_s+140, result_deg.init_fit[TargetOn-trackertime_0+140]), xycoords='data', fontsize=t_label/1., color='darkred', va='bottom',
-                    xytext=(TargetOn_s+170, result_deg.init_fit[TargetOn-trackertime_0]), textcoords='data', arrowprops=dict(arrowstyle="->", color='darkred'))
-
-        # ---------------------------------
-        # Max
-        # ---------------------------------
-        axs.plot(trackertime_s[TargetOn-trackertime_0+100:], np.ones(len(trackertime_s[TargetOn-trackertime_0+100:]))*result_deg.init_fit[TargetOn-trackertime_0+100], '--k', linewidth=1, alpha=0.5)
-        axs.plot(trackertime_s[TargetOn-trackertime_0+100:], np.ones(len(trackertime_s[TargetOn-trackertime_0+100:]))*result_deg.init_fit[TargetOn-trackertime_0+250], '--k', linewidth=1, alpha=0.5)
-        axs.text(TargetOn_s+400+25, ((result_deg.init_fit[TargetOn-trackertime_0+100]+result_deg.init_fit[TargetOn-trackertime_0+250])/2),
-                 'Max', color='k', fontsize=t_label/1.5, va='center')
-        axs.annotate('', xy=(TargetOn_s+400, result_deg.init_fit[TargetOn-trackertime_0+100]), xycoords='data', fontsize=t_label/1.5,
-                    xytext=(TargetOn_s+400, result_deg.init_fit[TargetOn-trackertime_0+250]), textcoords='data', arrowprops=dict(arrowstyle="<->"))
-
-        # -------------------------------------------------------------------------------------
-        axs.axis([-750, 750, -40, 40])      
-        axs.xaxis.set_ticks_position('bottom')
-        axs.xaxis.set_tick_params(labelsize=t_label/2)
-        axs.yaxis.set_ticks_position('left')
-        axs.yaxis.set_tick_params(labelsize=t_label/2)
-
-        axs.set_xlabel('Time (ms)', fontsize=t_label)
-        axs.set_ylabel('Velocity (°/s)', fontsize=t_label)
-        axs.set_title('Fit Function', fontsize=t_titre, x=0.5, y=1.05)
-
-        return fig, axs
-
-    def plot_velocity_fit(self, block=0, liste=[19,71,83], fig_width=15, t_titre=35, t_label=20):
-
-        import matplotlib.pyplot as plt
-        from lmfit import  Model, Parameters
-        from edfreader import read_edf
-        
-        resultats = os.path.join('data', self.mode + '_' + self.observer + '_' + self.timeStr + '.asc')
-        data = read_edf(resultats, 'TRIALID')
-
-        N_trials = self.exp['N_trials']
-        N_blocks = self.exp['N_blocks']
-        p = self.exp['p']
-        
-        fig, axs = plt.subplots(len(liste), 1, figsize=(fig_width, (fig_width*(len(liste)/2)/1.6180)))
-
-        x = 0
-        for trial in liste :
-
-            trial_data = trial + N_trials*block
-            data_x = data[trial_data]['x']
-            data_y = data[trial_data]['y']
-            trackertime = data[trial_data]['trackertime']
-
-            StimulusOn = data[trial_data]['events']['msg'][10][0]
-            StimulusOf = data[trial_data]['events']['msg'][14][0]
-            TargetOn = data[trial_data]['events']['msg'][15][0]
-            TargetOff = data[trial_data]['events']['msg'][16][0]
-            saccades = data[trial_data]['events']['Esac']
-
-            trackertime_0 = data[trial_data]['trackertime'][0]
-
-            gradient_x = np.gradient(data_x)
-            gradient_deg = gradient_x * 1/self.exp['px_per_deg'] * 1000 # gradient en deg/sec
-
-            ##################################################
-            # SUPPRESSION DES SACCADES
-            ##################################################
-            gradient_deg_NAN = []
-            for x_data in range(len(data_x)):
-                saccade = None
-                for s in range(len(saccades)) :
-                    if x_data in np.arange((saccades[s][0]-trackertime_0), (saccades[s][1]-trackertime_0+10)) :
-                        gradient_deg_NAN.append(np.nan)
-                        saccade = 'yes'
-                if not saccade :
-                    gradient_deg_NAN.append(gradient_deg[x_data])
-                saccade = None        
-            ##################################################
-
-            start = TargetOn
-
-            StimulusOn_s = StimulusOn - start
-            StimulusOf_s = StimulusOf - start
-            TargetOn_s = TargetOn - start
-            TargetOff_s = TargetOff - start
-            trackertime_s = trackertime - start
-
-            ##################################################
-            # FIT
-            ##################################################
-            model = Model(exponentiel)
-            bino=p[trial, block, 0]
-            params = Parameters()
-            params.add('tau', value=15., min=13., max=70.)#, vary=False)
-            params.add('maxi', value=15., min=10., max=40.)#, vary=False)
-            params.add('latence', value=TargetOn-trackertime_0+100, min=TargetOn-trackertime_0+50, max=len(trackertime))
-            params.add('start_anti', value=TargetOn-trackertime_0-100, min=StimulusOf-trackertime_0+100, max=TargetOn-trackertime_0-50)
-            params.add('v_anti', value=0., min=-100., max=100.)
-            params.add('bino', value=bino, min=0, max=1, vary=False)
-
-            result_deg = model.fit(gradient_deg_NAN, params, x=trackertime, fit_kws={'nan_policy': 'omit'})
-            ##################################################
-
-            axs[x].plot(trackertime_s, gradient_deg_NAN, color='k', alpha=0.4)
-            #axs[x].plot(trackertime_s, result_deg.best_fit, color='k', linewidth=2)
-
-            # ---------------------------------
-            debut  = TargetOn - trackertime_0 # TargetOn - temps_0
-            start_anti = result_deg.values['start_anti']
-            v_anti = result_deg.values['v_anti']
-            latence = result_deg.values['latence']
-            tau = result_deg.values['tau']
-            maxi = result_deg.values['maxi']
-            ##################################################
-            
-            # -------------------------------------------------------------------------------------
-            # COSMETIQUE
-            # -------------------------------------------------------------------------------------
-
-            axs[x].plot(trackertime_s[:int(start_anti)], result_deg.best_fit[:int(start_anti)], 'k', linewidth=2)
-            axs[x].plot(trackertime_s[int(latence)+250:], result_deg.best_fit[int(latence)+250:], 'k', linewidth=2)
-
-            # ---------------------------------
-            axs[x].axvspan(StimulusOn_s, StimulusOf_s, color='k', alpha=0.2)
-            axs[x].axvspan(StimulusOf_s, TargetOn_s, color='r', alpha=0.2)
-            axs[x].axvspan(TargetOn_s, TargetOff_s, color='k', alpha=0.15)
-            for s in range(len(saccades)) :
-                axs[x].axvspan(saccades[s][0]-start, saccades[s][1]-start, color='k', alpha=0.15)
-
-            # ---------------------------------
-            # V_a
-            # ---------------------------------
-            axs[x].plot(trackertime_s[int(start_anti):int(latence)], result_deg.best_fit[int(start_anti):int(latence)], c='r', linewidth=2)
-            axs[x].text((trackertime_s[int(start_anti)]+trackertime_s[int(latence)])/2, result_deg.best_fit[int(start_anti)]-15,
-                        r"A$_a$ = %0.2f °/s$^2$"%(v_anti), color='r', fontsize=t_label/1.5, ha='center')
-            axs[x].annotate('', xy=(trackertime_s[int(latence)], result_deg.best_fit[int(latence)]-3), xycoords='data', fontsize=t_label/1.5,
-                    xytext=(trackertime_s[int(start_anti)], result_deg.best_fit[int(start_anti)]-3), textcoords='data', arrowprops=dict(arrowstyle="->", color='r'))
-
-            # ---------------------------------
-            # Start_a
-            # ---------------------------------
-            axs[x].bar(trackertime_s[int(start_anti)], 80, bottom=-40, color='k', width=4, linewidth=0, alpha=0.7)
-            axs[x].text(trackertime_s[int(start_anti)]-25, -35, "Start anticipation = %0.2f ms"%(start_anti-debut),
-                        color='k', alpha=0.7, fontsize=t_label/1.5, ha='right')
-
-            # ---------------------------------
-            # latence
-            # ---------------------------------
-            axs[x].bar(trackertime_s[int(latence)], 80, bottom=-40, color='firebrick', width=4, linewidth=0, alpha=1)
-            axs[x].text(trackertime_s[int(latence)]+25, -35, "Latency = %0.2f ms"%(latence-debut),
-                        color='firebrick', fontsize=t_label/1.5, va='center')
-            
-            # ---------------------------------
-            # tau
-            # ---------------------------------
-            axs[x].plot(trackertime_s[int(latence):int(latence)+250],
-                        result_deg.best_fit[int(latence):int(latence)+250], c='darkred', linewidth=2)
-            axs[x].annotate(r'$\tau$', xy=(trackertime_s[int(latence)]+50, result_deg.best_fit[int(latence)+50]), xycoords='data', fontsize=t_label/1., color='darkred', va='bottom',
-                    xytext=(trackertime_s[int(latence)]+70, result_deg.best_fit[int(latence)]), textcoords='data', arrowprops=dict(arrowstyle="->", color='darkred'))
-            axs[x].text(trackertime_s[int(latence)]+70+t_label, (result_deg.best_fit[int(latence)]),
-                        r"= %0.2f"%(tau), color='darkred',va='bottom', fontsize=t_label/1.5)
-            
-            # ---------------------------------
-            # Max
-            # ---------------------------------
-            axs[x].plot(trackertime_s[int(latence):], np.ones(len(trackertime_s[int(latence):]))*result_deg.best_fit[int(latence)], '--k', linewidth=1, alpha=0.5)
-            axs[x].plot(trackertime_s[int(latence):], np.ones(len(trackertime_s[int(latence):]))*result_deg.best_fit[int(latence)+250], '--k', linewidth=1, alpha=0.5)
-            axs[x].text(TargetOn_s+450+25, (result_deg.best_fit[int(latence)]+result_deg.best_fit[int(latence)+250])/2,
-                        "Max = %0.2f °/s"%(-maxi), color='k', va='center', fontsize=t_label/1.5)
-            axs[x].annotate('', xy=(TargetOn_s+450, result_deg.best_fit[int(latence)]), xycoords='data', fontsize=t_label/1.5,
-                        xytext=(TargetOn_s+450, result_deg.best_fit[int(latence)+250]), textcoords='data', arrowprops=dict(arrowstyle="<->"))
-
-            # -------------------------------------------------------------------------------------
-            #axs[x].axis([StimulusOn_s-10, TargetOff_s+10, -40, 40])
-            axs[x].axis([-750, 750, -39.5, 39.5])    
-            axs[x].xaxis.set_ticks_position('bottom')
-            axs[x].xaxis.set_tick_params(labelsize=t_label/2)
-            axs[x].yaxis.set_ticks_position('left')
-            axs[x].yaxis.set_tick_params(labelsize=t_label/2)
-
-            axs[x].set_xlabel('Time (ms)', fontsize=t_label)
-            if x == int((len(liste)-1)/2) :
-                axs[x].set_ylabel('Velocity (°/s)', fontsize=t_label)
-            if x!= (len(liste)-1) : 
-                axs[x].set_xticklabels([])
-            if x==0 :
-                axs[x].set_title('Velocity Fit', fontsize=t_titre, x=0.5, y=1.05)
-
-            x=x+1
-
-        plt.tight_layout() # pour supprimer les marge trop grande
-        plt.subplots_adjust(hspace=0) # pour enlever espace entre les figures
-
-        return fig, axs
-
-    def plot_bcp(self, N_scan=100, pause=None, mode='expectation', max_run_length=150, fig_width=15, t_titre=35, t_label=20):
+        '''plot='normal' -> bcp, 'detail' -> bcp2'''
         
         import matplotlib.pyplot as plt
         import bayesianchangepoint as bcp
         from scipy.stats import beta
+
+        if type(block) is not list :
+            block = [block]
+        if type(mode) is not list :
+            mode = [mode]
 
         N_trials = self.exp['N_trials']
         N_blocks = self.exp['N_blocks']
@@ -1568,256 +1225,203 @@ class Analysis(object):
         tau = N_trials/5.
         h = 1/tau
 
-        #---------------------------------------------------------------------------
-        # SCORE
-        #---------------------------------------------------------------------------
-        hs = h*np.logspace(-1, 1, N_scan)
-        modes = ['expectation', 'max']
-        score = np.zeros((len(modes), N_scan, N_blocks))
-        for i_mode, m in enumerate(modes):
-            for i_block in range(N_blocks):
-                o = p[:, i_block, 0]
-                for i_scan, h_ in enumerate(hs):
-                    p_bar, r, beliefs = bcp.inference(o, h=h_, p0=.5)
+        if plot=='detail' :
+
+            import matplotlib.gridspec as gridspec
+            block=[block[0]]
+            mode = ['expectation', 'max']
+            print('Block', block[0])
+
+            #------------------------------------------------
+            fig, axs = plt.subplots(5, 1, figsize=(fig_width, (fig_width)/((1.6180))), sharex=True)
+
+            gs1 = gridspec.GridSpec(2, 1)
+            gs1.update(left=0, bottom=1/2, right=1, top=1., hspace=0.05)
+            axs[0] = plt.subplot(gs1[0])
+            axs[1] = plt.subplot(gs1[1])
+
+            gs2 = gridspec.GridSpec(2, 1)
+            gs2.update(left=0, bottom=-0.16, right=1, top=(1/2)-0.16, hspace=0.05)
+            axs[2] = plt.subplot(gs2[0])
+            axs[3] = plt.subplot(gs2[1])
+
+            gs3 = gridspec.GridSpec(1, 1)
+            gs3.update(left=0, bottom=-(0.82)/1.5, right=1, top=-0.32, wspace=0.05)
+            axs[4] = plt.subplot(gs3[0])
+            #------------------------------------------------
+
+        if plot=='normal' :
+            #---------------------------------------------------------------------------
+            # SCORE
+            #---------------------------------------------------------------------------
+            hs = h*np.logspace(-1, 1, N_scan)
+            modes = ['expectation', 'max']
+            score = np.zeros((len(modes), N_scan, N_blocks))
+            for i_mode, m in enumerate(modes):
+                for i_block in range(N_blocks):
+                    o = p[:, i_block, 0]
+                    for i_scan, h_ in enumerate(hs):
+                        p_bar, r, beliefs = bcp.inference(o, h=h_, p0=.5)
+                        p_hat, r_hat = bcp.readout(p_bar, r, beliefs, mode=m)
+                        score[i_mode, i_scan, i_block] = np.mean(np.log2(1.e-12+bcp.likelihood(o, p_hat, r_hat)))
+            #---------------------------------------------------------------------------
+
+        for b in block :
+            for x, m in enumerate(mode) :
+                if plot=='normal':
+                    #------------------------------------------------
+                    fig, axs = plt.subplots(3, 1, figsize=(fig_width, (fig_width)/((1.6180*6)/2)))
+                    axs[0] = plt.subplot(221)
+                    axs[1] = plt.subplot(223)
+                    axs[2] = plt.subplot(143)
+                    plt.suptitle('Mode %s Block %s'%(m, (b+1)), fontsize=t_label, y=1.1, x=0.125, ha='left')
+                    #------------------------------------------------
+                    A=2
+                    num = 0
+
+                if plot=='detail' :
+                    A=4
+                    num=2*x
+
+                #---------------------------------------------------------------------------
+                # affiche la proba réel et les mouvements de la cible
+                #---------------------------------------------------------------------------
+                o = p[:, b, 0]
+                p_true = p[:, b, 1]
+                axs[num].step(range(N_trials), o, lw=1, alpha=.15, c='k')
+                axs[num].step(range(N_trials), p_true, lw=1, alpha=.13, c='k')
+                axs[num].fill_between(range(N_trials), np.zeros_like(o), o, lw=0, alpha=.15, facecolor='k', step='pre')
+                axs[num].fill_between(range(N_trials), np.zeros_like(p_true), p_true, lw=0, alpha=.13, facecolor='k', step='pre')
+
+                #---------------------------------------------------------------------------
+                # P_HAT
+                #---------------------------------------------------------------------------
+                if pause is not None :
+                    liste = [0,50,100,150,200]
+                    for a in range(len(liste)-1) :
+                        p_bar, r, beliefs = bcp.inference(p[liste[a]:liste[a+1], b, 0], h=h, p0=.5)
+                        p_hat, r_hat = bcp.readout(p_bar, r, beliefs, mode=m)
+                        p_low, p_sup = np.zeros_like(p_hat), np.zeros_like(p_hat)
+                        for i_trial in range(50):#N_trials):
+                            p_low[i_trial], p_sup[i_trial] = beta.ppf([.05, .95], a=p_hat[i_trial]*r_hat[i_trial], b=(1-p_hat[i_trial])*r_hat[i_trial])
+                        axs[num].plot(np.arange(liste[a], liste[a+1]), p_hat, c='darkred',  lw=1.5, alpha=.9)
+                        axs[num].plot(np.arange(liste[a], liste[a+1]), p_sup, c='darkred', ls='--', lw=1.2)
+                        axs[num].plot(np.arange(liste[a], liste[a+1]), p_low, c='darkred', ls='--', lw=1.2)
+                        axs[num].fill_between(np.arange(liste[a], liste[a+1]), p_sup, p_low, lw=.5, alpha=.11, facecolor='darkred')
+                        axs[num+1].imshow(np.log(beliefs[:max_run_length, :]+ 1.e-5), cmap='Greys',
+                                      extent=(liste[a],liste[a+1], np.max(r), np.min(r)))
+                        axs[num+1].plot(np.arange(liste[a], liste[a+1]), r_hat, lw=1.5, alpha=.9, c='r')
+
+                    for a in range(A):
+                        axs[a].bar(50, 140 + 2*(.05*140), bottom=-.05*140, color='k', width=0, linewidth=2)
+                        axs[a].bar(100, 140 + 2*(.05*140), bottom=-.05*140, color='k', width=0, linewidth=2)
+                        axs[a].bar(150, 140 + 2*(.05*140), bottom=-.05*140, color='k', width=0, linewidth=2)
+
+                else :
+                    p_bar, r, beliefs = bcp.inference(o, h=h, p0=.5)
                     p_hat, r_hat = bcp.readout(p_bar, r, beliefs, mode=m)
-                    score[i_mode, i_scan, i_block] = np.mean(np.log2(1.e-12+bcp.likelihood(o, p_hat, r_hat)))
-        #---------------------------------------------------------------------------
 
-        for block in range(N_blocks) :
-
-            fig, axs = plt.subplots(3, 1, figsize=(fig_width, (fig_width)/((1.6180*6)/2)))
-            axs[0] = plt.subplot(221)
-            axs[1] = plt.subplot(223)
-            axs[2] = plt.subplot(143)
-            plt.suptitle('Block %s'%(block), fontsize=t_label/2, y=1.05, x=0, ha='left')
-
-            #---------------------------------------------------------------------------
-            # affiche la proba réel et les mouvements de la cible
-            #---------------------------------------------------------------------------
-            o = p[:, block, 0]
-            p_true = p[:, block, 1]
-            
-            axs[0].step(range(N_trials), o, lw=1, alpha=.2, c='k')
-            axs[0].step(range(N_trials), p_true, lw=1, alpha=.5, c='k')
-            axs[0].fill_between(range(N_trials), np.zeros_like(o), o, lw=.5, alpha=.2, facecolor='k', step='pre')
-            axs[0].fill_between(range(N_trials), np.zeros_like(p_true), p_true, lw=.5, alpha=.2, facecolor='k', step='pre')
-
-            #---------------------------------------------------------------------------
-            # P_HAT
-            #---------------------------------------------------------------------------
-            if pause is not None :
-                liste = [0,50,100,150,200]
-                for a in range(len(liste)-1) :
-                    p_bar, r, beliefs = bcp.inference(p[liste[a]:liste[a+1], block, 0], h=h, p0=.5)
-                    p_hat, r_hat = bcp.readout(p_bar, r, beliefs, mode=mode)
                     p_low, p_sup = np.zeros_like(p_hat), np.zeros_like(p_hat)
-                    for i_trial in range(50):#N_trials):
+                    for i_trial in range(N_trials):
                         p_low[i_trial], p_sup[i_trial] = beta.ppf([.05, .95], a=p_hat[i_trial]*r_hat[i_trial], b=(1-p_hat[i_trial])*r_hat[i_trial])
-                    axs[0].plot(np.arange(liste[a], liste[a+1]), p_hat, c='r',  lw=1)
-                    axs[0].plot(np.arange(liste[a], liste[a+1]), p_sup, 'r--', lw=1)
-                    axs[0].plot(np.arange(liste[a], liste[a+1]), p_low, 'r--', lw=1)
-                    axs[0].fill_between(np.arange(liste[a], liste[a+1]), p_sup, p_low, lw=.5, alpha=.2, facecolor='r')
 
-                    axs[1].imshow(np.log(beliefs[:max_run_length, :]+ 1.e-5), cmap='Greys',
-                                  extent=(liste[a],liste[a+1], np.max(r), np.min(r)))
-                    axs[1].plot(np.arange(liste[a], liste[a+1]), r_hat, lw=1, alpha=.9, c='r')
+                    axs[num].plot(range(N_trials), p_hat, lw=1.5, alpha=.9, c='darkred')
+                    axs[num].plot(range(N_trials), p_sup, c='darkred', ls='--', lw=1.2, alpha=.9)
+                    axs[num].plot(range(N_trials), p_low, c='darkred', ls='--', lw=1.2, alpha=.9)
+                    axs[num].fill_between(range(N_trials), p_low, p_sup, lw=.5, alpha=.11, facecolor='darkred')
 
-                for a in range(2):
-                    axs[a].bar(50, 140 + 2*(.05*140), bottom=-.05*140, color='k', width=0, linewidth=2)
-                    axs[a].bar(100, 140 + 2*(.05*140), bottom=-.05*140, color='k', width=0, linewidth=2)
-                    axs[a].bar(150, 140 + 2*(.05*140), bottom=-.05*140, color='k', width=0, linewidth=2)
+                    axs[num+1].imshow(np.log(beliefs[:max_run_length, :] + 1.e-5 ), cmap='Greys')
+                    axs[num+1].plot(range(N_trials), r_hat, lw=1.5, alpha=.9, c='r')
 
-            #---------------------------------------------------
-            else :
-                p_bar, r, beliefs = bcp.inference(o, h=h, p0=.5)
-                p_hat, r_hat = bcp.readout(p_bar, r, beliefs, mode=mode)
+                #---------------------------------------------------------------------------
+                # affiche SCORE
+                #---------------------------------------------------------------------------
+                if plot=='normal' :
+                    if m=='expectation' :
+                        i_mode = 0
+                    else :
+                        i_mode = 1
 
-                p_low, p_sup = np.zeros_like(p_hat), np.zeros_like(p_hat)
-                for i_trial in range(N_trials):
-                    p_low[i_trial], p_sup[i_trial] = beta.ppf([.05, .95], a=p_hat[i_trial]*r_hat[i_trial], b=(1-p_hat[i_trial])*r_hat[i_trial])
+                    axs[2].plot(hs, np.mean(score[i_mode, ...], axis=1), c='r', label=m)
+                    axs[2].fill_between(hs,np.std(score[i_mode, ...], axis=1)+np.mean(score[i_mode, ...], axis=1), -np.std(score[i_mode, ...], axis=1)+np.mean(score[i_mode, ...], axis=1),  lw=.5, alpha=.2, facecolor='r', step='mid')
 
-                axs[0].plot(range(N_trials), p_hat, lw=1, alpha=.9, c='r')
-                axs[0].plot(range(N_trials), p_sup, 'r--', lw=1, alpha=.9)
-                axs[0].plot(range(N_trials), p_low, 'r--', lw=1, alpha=.9)
-                axs[0].fill_between(range(N_trials), p_low, p_sup, lw=.5, alpha=.2, facecolor='r')
+                    axs[2].vlines(h, ymin=np.nanmin(score), ymax=np.nanmax(score), lw=2, label='true')
+                    axs[2].set_xscale("log")
 
-                axs[1].imshow(np.log(beliefs[:max_run_length, :] + 1.e-5 ), cmap='Greys')
-                axs[1].plot(range(N_trials), r_hat, lw=1, alpha=.9, c='r')
+                #------------------------------------------------
+                # Belief on r for trial view_essai
+                #------------------------------------------------
+                if plot=='detail':
+                    r_essai = (beliefs[:, trial])
+                    axs[4].plot(r_essai, c='k')
+                    axs[4].spines['top'].set_color('none')
+                    axs[4].spines['right'].set_color('none')
+                    
+                    axs[4].set_xscale('log')
+                    axs[4].set_xlim(0, max_run_length)
 
-            #---------------------------------------------------------------------------
-            # affiche SCORE
-            #---------------------------------------------------------------------------
-            if mode=='expectation' :
-                i_mode = 0
-            else :
-                i_mode = 1
+                    axs[4].set_xlabel('r$_{%s}$'%(trial), fontsize=t_label/1.5)
+                    axs[4].set_ylabel('p(r$_{%s}$)'%(trial), fontsize=t_label/1.5)
+                    axs[4].set_title('Belief on r for trial %s'%(trial), x=0.5, y=1., fontsize=t_titre/1.2)
+                    axs[4].xaxis.set_tick_params(labelsize=t_label/1.9)
+                    axs[4].yaxis.set_tick_params(labelsize=t_label/1.9)
 
-            axs[2].plot(hs, np.mean(score[i_mode, ...], axis=1), c='r', label=mode)
-            axs[2].fill_between(hs,np.std(score[i_mode, ...], axis=1)+np.mean(score[i_mode, ...], axis=1), -np.std(score[i_mode, ...], axis=1)+np.mean(score[i_mode, ...], axis=1),  lw=.5, alpha=.2, facecolor='r', step='mid')
 
-            axs[2].vlines(h, ymin=np.nanmin(score), ymax=np.nanmax(score), lw=2, label='true')
-            axs[2].set_xscale("log")
+                #---------------------------------------------------------------------------
+                # cosmétique
+                #---------------------------------------------------------------------------
+                for i_layer, label in zip(range(2), ['$\hat{P}$ +/- CI', 'belief on r=p(r)']):
+                    axs[i_layer+num].set_xlim(0, N_trials)
+                    axs[i_layer+num].axis('tight')
+                    axs[i_layer+num].set_ylabel(label, fontsize=t_label/1.5)
+                    axs[i_layer+num].xaxis.set_ticks_position('bottom')
+                    axs[i_layer+num].yaxis.set_ticks_position('left')
 
-            #---------------------------------------------------------------------------
-            # cosmétique
-            #---------------------------------------------------------------------------
-            for i_layer, label in zip(range(2), ['$\hat{P}$ +/- CI', 'belief on r=p(r)']):
-                axs[i_layer].set_xlim(0, N_trials)
-                axs[i_layer].axis('tight')
-                axs[i_layer].set_ylabel(label, fontsize=t_label/2)
+                axs[num].set_ylim(-.05, 1 + .05)
+                axs[num].set_yticks(np.arange(0, 1 + .05, 1/2))
+                axs[num].set_xticks([])
+                axs[num].set_xticklabels([])
 
-            axs[0].set_ylim(-.05, 1 + .05)
-            axs[0].set_yticks(np.arange(0, 1 + .05, 1/2))
-            axs[0].set_xticks([])
-            axs[0].set_xticklabels([])
+                axs[num+1].set_ylim(-.05*140, 140 + (.05*140))
+                axs[num+1].set_yticks(np.arange(0, 140 + (.05*140), 140/2))
+                axs[num+1].set_xlabel('trials', fontsize=t_label);
+                axs[num+1].set_xticks([-1, 49, 99,149])
+                axs[num+1].set_xticklabels([0, 50, 100, 150], ha='left', fontsize=t_label/2)
 
-            axs[1].set_ylim(-.05*140, 140 + (.05*140))
-            axs[1].set_yticks(np.arange(0, 140 + (.05*140), 140/2))
-            axs[1].set_xlabel('trials', fontsize=t_label/2);
-            axs[1].set_xticks([-1, 49, 99,149])
-            axs[1].set_xticklabels([0, 50, 100, 150], ha='left')
+                if plot=='normal' :
+                    axs[2].set_xlabel('Hazard rate', fontsize=t_label/2)
+                    axs[2].set_ylabel('Mean log-likelihood (bits)', fontsize=t_label/2)
+                    axs[2].legend(frameon=False, loc="lower left")
 
-            axs[2].set_xlabel('Hazard rate', fontsize=t_label/2)
-            axs[2].set_ylabel('Mean log-likelihood (bits)', fontsize=t_label/2)
-            axs[2].legend(frameon=False, loc="lower left")
+                if plot=='detail':
+                    axs[num+1].bar(trial-1, 140 + (.05*140)+.05*140, bottom=-.05*140, color='firebrick', width=0.5, linewidth=0, alpha=1)
+                    axs[num+1].yaxis.set_tick_params(labelsize=t_label/2)
+                    axs[num+1].set_xlabel('Trials', fontsize=t_label);
 
-            for i_layer in range(len(axs)) :      
-                axs[i_layer].xaxis.set_ticks_position('bottom')
-                axs[i_layer].yaxis.set_ticks_position('left')
+                    axs[num].yaxis.set_tick_params(labelsize=t_label/2)
 
-            fig.tight_layout()
-            plt.subplots_adjust(hspace=0.1)
-            #---------------------------------------------------------------------------
+                    if m == 'expectation' :
+                        axs[num].set_title('Bayesian change point : expectation $\sum_{r=0}^\infty r p(r)$', x=0.5, y=1.20, fontsize=t_titre)
+                    else :
+                        axs[num].set_title('Bayesian change point : max(p(r))', x=0.5, y=1.05, fontsize=t_titre)
 
+                for i_layer in range(len(axs)) :      
+                    axs[i_layer].xaxis.set_ticks_position('bottom')
+                    axs[i_layer].yaxis.set_ticks_position('left')
+                #---------------------------------------------------------------------------
+
+                if plot=='normal':
+                    fig.tight_layout()
+                    plt.subplots_adjust(hspace=0.1)
+                    plt.show()
+
+        if plot=='detail':
             plt.show()
 
         return fig, axs
 
-    def plot_bcp_2(self, block, trial=50, max_run_length=150, fig_width=15, t_titre=35, t_label=25):
-        
-        import matplotlib.pyplot as plt
-        import bayesianchangepoint as bcp
-        import matplotlib.gridspec as gridspec
-        from scipy.stats import beta
 
-        print('Block', block)
-        N_trials = self.exp['N_trials']
-        N_blocks = self.exp['N_blocks']
-        tau = N_trials/5.
-        h = 1/tau
-
-        p = self.exp['p']
-        o = p[:, block, 0]
-        p_true = p[:, block, 1]
-
-        #------------------------------------------------
-        fig, axs = plt.subplots(5, 1, figsize=(fig_width, (fig_width)/((1.6180))), sharex=True)
-
-        gs1 = gridspec.GridSpec(2, 1)
-        gs1.update(left=0, bottom=1/2, right=1, top=1., hspace=0.05)
-        axs[0] = plt.subplot(gs1[0])
-        axs[1] = plt.subplot(gs1[1])
-
-        gs2 = gridspec.GridSpec(2, 1)
-        gs2.update(left=0, bottom=-0.16, right=1, top=(1/2)-0.16, hspace=0.05)
-        axs[2] = plt.subplot(gs2[0])
-        axs[3] = plt.subplot(gs2[1])
-
-        gs3 = gridspec.GridSpec(1, 1)
-        gs3.update(left=0, bottom=-(0.82)/1.5, right=1, top=-0.32, wspace=0.05)
-        axs[4] = plt.subplot(gs3[0])
-        #------------------------------------------------
-
-        for x, mode in enumerate(['expectation', 'max']) :
-
-            if x == 0 :
-                a=0
-            else:
-                a=1
-
-            #------------------------------------------------
-            # affiche la proba réel et les mouvements de la cible
-            #------------------------------------------------
-            axs[a+x].step(range(N_trials), o, lw=1, alpha=.15, c='k')
-            axs[a+x].step(range(N_trials), p_true, lw=1, alpha=.13, c='k')
-            axs[a+x].fill_between(range(N_trials), np.zeros_like(o), o, lw=0, alpha=.15, facecolor='k', step='pre')
-            axs[a+x].fill_between(range(N_trials), np.zeros_like(p_true), p_true, lw=0, alpha=.13, facecolor='k', step='pre')
-
-            #------------------------------------------------
-            # P_HAT
-            #------------------------------------------------
-            p_bar, r, beliefs = bcp.inference(o, h=h, p0=.5)
-            p_hat, r_hat = bcp.readout(p_bar, r, beliefs, mode=mode)
-            
-            p_low, p_sup = np.zeros_like(p_hat), np.zeros_like(p_hat)
-            for i_trial in range(N_trials):
-                p_low[i_trial], p_sup[i_trial] = beta.ppf([.05, .95], a=p_hat[i_trial]*r_hat[i_trial], b=(1-p_hat[i_trial])*r_hat[i_trial])
-
-            axs[a+x].plot(range(N_trials), p_hat, lw=1.5, c='darkred')
-            axs[a+x].plot(range(N_trials), p_sup, c='darkred', ls='--', lw=1.2)
-            axs[a+x].plot(range(N_trials), p_low, c='darkred', ls='--', lw=1.2)
-            axs[a+x].fill_between(range(N_trials), p_low, p_sup, lw=.5, alpha=.11, facecolor='darkred')
-
-            axs[(a+1)+x].imshow(np.log(beliefs[:max_run_length, :] + 1.e-5 ), cmap='Greys')
-
-            #------------------------------------------------
-            # Belief on r for trial view_essai
-            #------------------------------------------------
-            r_essai = (beliefs[:, trial])
-            axs[4].plot(r_essai, c='k')
-            axs[4].spines['top'].set_color('none')
-            axs[4].spines['right'].set_color('none')
-            
-            axs[(a+1)+x].plot(range(N_trials), r_hat, lw=1.5, c='r')
-
-            #---------------------------------------------------------------------------
-            # cosmétique
-            #---------------------------------------------------------------------------
-            for i_layer, label in zip(range(2), ['$\hat{P}$ $\pm$ CI', 'belief on r = p(r)']) :
-                axs[i_layer+a+x].set_xlim(0, N_trials)
-                axs[i_layer+a+x].axis('tight')
-                axs[i_layer+a+x].set_ylabel(label, fontsize=t_label/1.5)
-
-                axs[i_layer+a+x].xaxis.set_ticks_position('bottom')
-                axs[i_layer+a+x].yaxis.set_ticks_position('left')
-
-            axs[(a+1)+x].bar(trial-1, 140 + (.05*140)+.05*140, bottom=-.05*140, color='firebrick', width=0.5, linewidth=0, alpha=1)
-            axs[(a+1)+x].set_ylim(-.05*140, 140 + (.05*140))
-            axs[(a+1)+x].set_yticks(np.arange(0, 140 + (.05*140), 140/2))
-            axs[(a+1)+x].yaxis.set_tick_params(labelsize=t_label/2)
-            axs[(a+1)+x].set_xlabel('Trials', fontsize=t_label);
-
-            axs[a+x].set_ylim(-.05, 1 + .05)
-            axs[a+x].set_yticks(np.arange(0, 1 + .05, 1/2))
-            axs[a+x].yaxis.set_tick_params(labelsize=t_label/2)
-
-            axs[(a+1)+x].set_xticks([-1, 49, 99,149])
-            axs[(a+1)+x].set_xticklabels([0, 50, 100, 150], ha='left', fontsize=t_label/2)
-            axs[a+x].set_xticks([])
-            axs[a+x].set_xticklabels([])
-
-            if mode == 'expectation' :
-                axs[a+x].set_title('Bayesian change point : expectation $\sum_{r=0}^\infty r p(r)$', x=0.5, y=1.20, fontsize=t_titre)
-            else :
-                axs[a+x].set_title('Bayesian change point : max(p(r))', x=0.5, y=1.05, fontsize=t_titre)
-
-        for i_layer in range(len(axs)) :
-            axs[i_layer].xaxis.set_ticks_position('bottom')
-            axs[i_layer].yaxis.set_ticks_position('left')
-
-        axs[4].set_xscale('log')
-        axs[4].set_xlim(0, max_run_length)
-
-        axs[4].set_xlabel('r$_{%s}$'%(trial), fontsize=t_label/1.5)
-        axs[4].set_ylabel('p(r$_{%s}$)'%(trial), fontsize=t_label/1.5)
-        axs[4].set_title('Belief on r for trial %s'%(trial), x=0.5, y=1., fontsize=t_titre/1.2)
-        axs[4].xaxis.set_tick_params(labelsize=t_label/1.9)
-        axs[4].yaxis.set_tick_params(labelsize=t_label/1.9)
-        #---------------------------------------------------------------------------
-
-        return fig, axs
-
-    def plot_results_2(self, mode, kde=None, tau=40., sujet=[6], fig_width=15, t_titre=35, t_label=25) :
+    def plot_results(self, mode, kde=None, tau=40., sujet=[6], fig_width=15, t_titre=35, t_label=25) :
 
         import matplotlib.pyplot as plt
         import matplotlib.gridspec as gridspec
@@ -1826,7 +1430,7 @@ class Analysis(object):
 
         colors = ['black','dimgrey','grey','darkgrey','silver','rosybrown','lightcoral','indianred','firebrick','brown','darkred','red']
         nb_sujet = len(self.PARI)
-        full_proba, full_bino, full_results, full_va, proba_sujet, bino_sujet, results_sujet, va_sujet, full_p_hat_e, full_p_hat_m, p_hat_sujet_e, p_hat_sujet_m = liste_tout(self.PARI, self.ENREGISTREMENT, P_HAT=True)
+        full = full_liste(self.PARI, self.ENREGISTREMENT, P_HAT=True)
 
         fig, axs = plt.subplots(len(sujet)+2, 1, figsize=(fig_width, fig_width/(1.6180)))
         fig.subplots_adjust(left = 0, bottom = -1/2+(((len(sujet))*2/3)-0.16), right = 1, top =len(sujet))
@@ -1843,7 +1447,7 @@ class Analysis(object):
 
         ec = 0.2 # pour l'écart entre les différents blocks
         for s in range(len(sujet)) :
-            print(sujet[s], '=', self.PARI[sujet[s]]['observer'])
+            print('Subject', sujet[s], '=', self.PARI[sujet[s]]['observer'])
             N_trials = self.PARI[sujet[s]]['N_trials']
             N_blocks = self.PARI[sujet[s]]['N_blocks']
             p = self.PARI[sujet[s]]['p']
@@ -1929,26 +1533,27 @@ class Analysis(object):
             #------------------------------------------------
 
         if mode=='expectation' :
-            p_hat_sujet = p_hat_sujet_e
-            full_p_hat = full_p_hat_e
+            p_hat = 'p_hat_e'
+            full_p_hat = full['p_hat_e']
         elif mode=='max' :
-            p_hat_sujet = p_hat_sujet_m
-            full_p_hat = full_p_hat_m
-        
+            p_hat = 'p_hat_m'
+            full_p_hat = full['p_hat_m']
+
         #------------------------------------------------
         # SCATTER Plot
         #------------------------------------------------
         if kde is None :
             for x, color in enumerate(colors[:nb_sujet]):
-                axs[len(sujet)].scatter(p_hat_sujet[x], results_sujet[x], c=color, alpha=0.5, linewidths=0)
-                axs[len(sujet)+1].scatter(p_hat_sujet[x], va_sujet[x], c=color, alpha=0.5, linewidths=0)
-        
+                s = self.PARI[x]['observer']
+                axs[len(sujet)].scatter(full[full.sujet==s][p_hat], full[full.sujet==s]['results'], c=color, alpha=0.5, linewidths=0)
+                axs[len(sujet)+1].scatter(full[full.sujet==s][p_hat], full[full.sujet==s]['va'], c=color, alpha=0.5, linewidths=0)
+
         #------------------------------------------------
         # KDE
         #------------------------------------------------
         else :
-            x = full_p_hat
-            y = full_results
+            x = full_p_hat.values.tolist()
+            y = full['results'].values.tolist()
             values = np.vstack([x, y])
             kernel = stats.gaussian_kde(values)
             xmin, xmax = np.min(x), np.max(x)# -0.032, 1.032
@@ -1967,10 +1572,9 @@ class Analysis(object):
                         fmean[x].append(f[x][y]/np.sum(f[x]))
                 axs[len(sujet)].contourf(xx, yy, fmean, cmap='Greys')
 
-
             # masque les essais qui où full_va = NAN
-            full_p_hat_nan = np.ma.masked_array(full_p_hat, mask=np.isnan(full_va)).compressed()
-            full_va_nan = np.ma.masked_array(full_va, mask=np.isnan(full_va)).compressed()
+            full_p_hat_nan = np.ma.masked_array(full_p_hat.values.tolist(), mask=np.isnan(full['va'].values.tolist())).compressed()
+            full_va_nan = np.ma.masked_array(full['va'].values.tolist(), mask=np.isnan(full['va'].values.tolist())).compressed()
 
             x = full_p_hat_nan
             y = full_va_nan
@@ -1991,25 +1595,25 @@ class Analysis(object):
                     for y in range(len(f[x])):
                         fmean[x].append(f[x][y]/np.sum(f[x]))
                 axs[len(sujet)+1].contourf(xx, yy, fmean, cmap='Greys')
-        
+
         #------------------------------------------------
         # LINREGRESS
         #------------------------------------------------
         # RESULTS
-        slope, intercept, r_, p_value, std_err = stats.linregress(full_p_hat, full_results)
-        x_test = np.linspace(np.min(full_p_hat), np.max(full_p_hat), 100)
+        slope, intercept, r_, p_value, std_err = stats.linregress(full_p_hat.values.tolist(), full['results'].values.tolist())
+        x_test = np.linspace(np.min(full_p_hat.values.tolist()), np.max(full_p_hat.values.tolist()), 100)
         fitLine = slope * x_test + intercept
         axs[len(sujet)].plot(x_test, fitLine, c='k', linewidth=2)
         axs[len(sujet)].text(0.75,-0.032+(1.032--0.032)/10, 'r = %0.3f'%(r_), fontsize=t_label/1.2)
 
-        hist, x_edges, y_edges = np.histogram2d(full_p_hat,full_results,bins=20)
+        hist, x_edges, y_edges = np.histogram2d(full_p_hat.values.tolist(),full['results'].values.tolist(),bins=20)
         axs[len(sujet)].text(0.75,-0.032+2*(1.032--0.032)/10, 'MI = %0.3f'%(mutual_information(hist)), fontsize=t_label/1.2)
 
         # VA
         # masque les essais qui où full_va = NAN
-        full_p_hat_nan = np.ma.masked_array(full_p_hat, mask=np.isnan(full_va)).compressed()
-        full_va_nan = np.ma.masked_array(full_va, mask=np.isnan(full_va)).compressed()
-        
+        full_p_hat_nan = np.ma.masked_array(full_p_hat.values.tolist(), mask=np.isnan(full['va'].values.tolist())).compressed()
+        full_va_nan = np.ma.masked_array(full['va'].values.tolist(), mask=np.isnan(full['va'].values.tolist())).compressed()
+
         slope, intercept, r_value, p_value, std_err = stats.linregress(full_p_hat_nan, full_va_nan)
         x_test = np.linspace(np.min(full_p_hat), np.max(full_p_hat), 100)
         fitLine = slope * x_test + intercept
@@ -2019,10 +1623,6 @@ class Analysis(object):
         hist, x_edges, y_edges = np.histogram2d(full_p_hat_nan,full_va_nan,bins=20)
         axs[len(sujet)+1].text(0.75,-21.28+2*(21.28--21.28)/10, 'MI = %0.3f'%(mutual_information(hist)), fontsize=t_label/1.2)
 
-
-
-
-
         #------------------------------------------------
         # cosmétique
         #------------------------------------------------
@@ -2030,7 +1630,7 @@ class Analysis(object):
         axs[len(sujet)].set_ylabel('Probability Bet', fontsize=t_label/1.2)
         axs[len(sujet)].set_title("Probability Bet", fontsize=t_titre/1.2, x=0.5, y=1.05)
         axs[len(sujet)].set_xlabel('$\hat{P}_{%s}$'%(mode), fontsize=t_label/1) 
-        
+
         axs[len(sujet)+1].axis([-0.032, 1.032, -21.28, 21.28])
         axs[len(sujet)+1].set_ylabel('Acceleration of anticipation (°/s$^2$)', fontsize=t_label/1.2)
         axs[len(sujet)+1].set_title("Acceleration", fontsize=t_titre/1.2, x=0.5, y=1.05)
@@ -2075,3 +1675,5 @@ if __name__ == '__main__':
     if not mode is 'model':
         print('Starting protocol')
         e.run_experiment()
+
+
