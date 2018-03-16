@@ -519,14 +519,14 @@ def Fit_exponentiel(gradient_deg_NAN, trackertime, trackertime_0, TargetOn, Stim
 
     params.add('tau', value=15., min=13., max=80.)#, vary=False)
     params.add('maxi', value=15., min=1., max=40.)#, vary=False)
-    params.add('latence', value=TargetOn-trackertime_0+100, min=TargetOn-trackertime_0+50, max=stop_latence[0])
-    params.add('start_anti', value=TargetOn-trackertime_0-100, min=StimulusOf-trackertime_0, max=TargetOn-trackertime_0-50)
+    params.add('latence', value=TargetOn-trackertime_0+100, min=TargetOn-trackertime_0+75, max=stop_latence[0])
+    params.add('start_anti', value=TargetOn-trackertime_0-100, min=StimulusOf-trackertime_0, max=TargetOn-trackertime_0+75)
     params.add('v_anti', value=(bino*2-1)*0, min=-40., max=40.)
     params.add('bino', value=bino, min=0, max=1, vary=False)
 
     #result_deg = model.fit(new_gradient_deg, params, x=new_time)
     if sup==True :
-        result_deg = model.fit(gradient_deg_NAN[:-250], params, x=trackertime[:-250], fit_kws={'nan_policy': 'omit'})
+        result_deg = model.fit(gradient_deg_NAN[:-280], params, x=trackertime[:-280], fit_kws={'nan_policy': 'omit'})
     else :
         result_deg = model.fit(gradient_deg_NAN, params, x=trackertime, fit_kws={'nan_policy': 'omit'})
 
@@ -714,9 +714,12 @@ class Analysis(object):
         for x in range(len(liste)) :
             if liste[x][0]=='enregistrement' and liste[x][1] in self.subjects:
                 a = 'parametre/param_Fit_%s.pkl'%(liste[x][1])
-                with open(a, 'rb') as fichier :
-                    b = pickle.load(fichier, encoding='latin1')
-                    self.ENREGISTREMENT.append(b)
+                try :
+                    with open(a, 'rb') as fichier :
+                        b = pickle.load(fichier, encoding='latin1')
+                        self.ENREGISTREMENT.append(b)
+                except :
+                    print('/!\ Le fichier param Fit n\'existe pas pour %s !'%(liste[x][1]))
         # ---------------------------------------------------
         if self.observer is None :
             self.observer = liste[12][1]
@@ -861,6 +864,7 @@ class Analysis(object):
         N_blocks = self.exp['N_blocks']
         p = self.exp['p']
 
+        liste_fit = []
         liste_start_anti = []
         liste_liste_v_anti = []
         liste_latence = []
@@ -872,6 +876,7 @@ class Analysis(object):
             fig_width= 12
             fig, axs = plt.subplots(N_trials, 1, figsize=(fig_width, (fig_width*(N_trials/2))/1.6180))
 
+            block_fit = []
             block_start_anti = []
             block_liste_v_anti = []
             block_latence = []
@@ -915,10 +920,11 @@ class Analysis(object):
 
                 axs[trial].cla() # pour remettre ax figure a zero
                 axs[trial].axis([StimulusOn_s-10, TargetOff_s+10, -40, 40])
+                axs[trial].xaxis.set_ticks(range(StimulusOf_s-199, TargetOff_s+10, 500))
 
                 axs[trial].plot(trackertime_s, gradient_deg_NAN, color='k', alpha=0.6)
-                axs[trial].plot(trackertime_s[:-250], result_deg.init_fit, 'r--', linewidth=2)
-                axs[trial].plot(trackertime_s[:-250], result_deg.best_fit, color='r', linewidth=2)
+                axs[trial].plot(trackertime_s[:-280], result_deg.init_fit, 'r--', linewidth=2)
+                axs[trial].plot(trackertime_s[:-280], result_deg.best_fit, color='r', linewidth=2)
                 axs[trial].plot(trackertime_s, np.ones(np.shape(trackertime_s)[0])*(bino*2-1)*(15), color='k', linewidth=0.2, alpha=0.2)
                 axs[trial].plot(trackertime_s, np.ones(np.shape(trackertime_s)[0])*(bino*2-1)*(10), color='k', linewidth=0.2, alpha=0.2)
                 axs[trial].axvspan(StimulusOn_s, StimulusOf_s, color='k', alpha=0.2)
@@ -935,7 +941,7 @@ class Analysis(object):
                 tau = result_deg.values['tau']
                 maxi = result_deg.values['maxi']
 
-                if np.isnan(gradient_deg_NAN[int(result_deg.values['latence'])]) and np.isnan(gradient_deg_NAN[int(result_deg.values['latence'])-30]) and np.isnan(gradient_deg_NAN[int(result_deg.values['latence'])-70]) ==True :
+                '''if np.isnan(gradient_deg_NAN[int(result_deg.values['latence'])]) and np.isnan(gradient_deg_NAN[int(result_deg.values['latence'])-30]) and np.isnan(gradient_deg_NAN[int(result_deg.values['latence'])-70]) ==True :
                     start_anti = np.nan
                     v_anti = np.nan
                     latence = np.nan
@@ -944,8 +950,9 @@ class Analysis(object):
                 else :
                     axs[trial].bar(latence, 80, bottom=-40, color='r', width=6, linewidth=0)
                     if trial==0 :
-                        axs[trial].text(latence+25, -35, "Latence"%(latence), color='r', fontsize=14)
+                        axs[trial].text(latence+25, -35, "Latence"%(latence), color='r', fontsize=14)'''
 
+                block_fit.append(result_deg.best_fit)
                 block_start_anti.append(start_anti)
                 block_liste_v_anti.append(v_anti)
                 block_latence.append(latence)
@@ -953,20 +960,26 @@ class Analysis(object):
                 block_maxi.append(maxi)
                 block_mean.append(np.nanmean(gradient_deg_NAN[debut-50:debut+50]))
 
-                #axs[trial].bar(latence, 80, bottom=-40, color='r', width=6, linewidth=0)
+                axs[trial].bar(latence, 80, bottom=-40, color='r', width=6, linewidth=0)
 
                 if trial==0 :
                     axs[trial].text(StimulusOn_s+(StimulusOf_s-StimulusOn_s)/2, 31, "FIXATION", color='k', fontsize=16, ha='center', va='bottom')
                     axs[trial].text(StimulusOf_s+(TargetOn_s-StimulusOf_s)/2, 31, "GAP", color='r', fontsize=16, ha='center', va='bottom')
                     axs[trial].text(TargetOn_s+(TargetOff_s-TargetOn_s)/2, 31, "POURSUITE", color='k', fontsize=16, ha='center', va='bottom')
-                    #axs[trial].text(latence+25, -35, "Latence"%(latence), color='r', fontsize=14)#,  weight='bold')
+                    axs[trial].text(latence+25, -35, "Latence"%(latence), color='r', fontsize=14)#,  weight='bold')
                 #axs[trial].text(StimulusOn+15, -2, "%s"%(result.fit_report()), color='k', fontsize=15)
                 axs[trial].text(StimulusOn_s+15, 18, "start_anti: %s \nv_anti: %s"%(start_anti, v_anti), color='k', fontsize=14, va='bottom')
                 axs[trial].text(StimulusOn_s+15, -18, "latence: %s \ntau: %s \nmaxi: %s"%(latence, tau, maxi), color='k', fontsize=14, va='top')
 
                 axs[trial].set_xlabel('Time (ms)', fontsize=9)
                 axs[trial].set_ylabel(trial+1, fontsize=9)
+                
+                axs[trial].xaxis.set_ticks_position('bottom')
+                axs[trial].yaxis.set_ticks_position('left')
+                
+                
 
+            liste_fit.append(block_fit)
             liste_start_anti.append(block_start_anti)
             liste_liste_v_anti.append(block_liste_v_anti)
             liste_latence.append(block_latence)
@@ -977,12 +990,12 @@ class Analysis(object):
             plt.tight_layout() # pour supprimer les marge trop grande
             plt.subplots_adjust(hspace=0) # pour enlever espace entre les figures
 
-            plt.savefig('figures/Fit_%s_%s.pdf'%(observer, block+1))
-
-        plt.close()
+            plt.savefig('figures/Fit_%s_%s.pdf'%(self.observer, block+1))
+            plt.close()
 
         param = {}
-        param['observer'] = observer
+        param['observer'] = self.observer
+        param['fit'] = liste_fit
         param['start_anti'] = liste_start_anti
         param['v_anti'] = liste_liste_v_anti
         param['latence'] = liste_latence
@@ -990,7 +1003,7 @@ class Analysis(object):
         param['maxi'] = liste_maxi
         param['moyenne'] = liste_mean
 
-        file = os.path.join('parametre', 'param_Fit_' + observer + '.pkl')
+        file = os.path.join('parametre', 'param_Fit_' + self.observer + '.pkl')
         with open(file, 'wb') as fichier:
             f = pickle.Pickler(fichier)
             f.dump(param)
@@ -1052,14 +1065,18 @@ class Analysis(object):
             return fig, axs, results
 
 
-    def plot_experiment(self, sujet=[0], mode=None, fig=None, axs=None, fig_width=15, t_titre=35, t_label=25, return_proba=None):
+    def plot_experiment(self, sujet=[0], num_block=None, mode=None, fig=None, axs=None, fig_width=15, t_titre=35, t_label=25, return_proba=None):
 
         import matplotlib.pyplot as plt
         N_trials = self.exp['N_trials']
         N_blocks = self.exp['N_blocks']
         p = self.exp['p']
         ec = 0.2
-
+        if num_block is None :
+            BLOCK = range(N_blocks)
+        else:
+            BLOCK = [num_block]
+        
         if fig is None:
             fig_width= fig_width
             if len(sujet)==1 :
@@ -1068,7 +1085,8 @@ class Analysis(object):
                 fig, axs = plt.subplots(len(sujet)+1, 1, figsize=(fig_width, ((len(sujet)+1)*fig_width/3)/(1.6180)))
 
 
-        for i_block in range(N_blocks):
+
+        for i_block in BLOCK:
             if len(sujet)==1 :
                 for i_layer, label in enumerate(['Target Direction', 'Probability', 'Switch']) :
                     axs[i_layer].step(range(N_trials), p[:, i_block, i_layer]+i_block+ec*i_block, lw=1, c='k', alpha=.3)
@@ -1106,7 +1124,7 @@ class Analysis(object):
             #-------------------------------------------------------------------------------------------------------------
 
             if mode == 'pari' :
-                for block in range(N_blocks):
+                for block in BLOCK:
                     if block == 0 :
                         axs[s+1].step(range(N_trials), block+results[:, block]+ec*block, lw=1, alpha=.9,
                                       color='darkred', label='Individual guess')
@@ -1116,7 +1134,7 @@ class Analysis(object):
 
             #------------------------------------------------
             elif mode == 'enregistrement' :
-                for block in range(N_blocks):
+                for block in BLOCK:
                     if block == 0 :
                         axs[s+1].step(range(N_trials), block+((np.array(v_anti[block])-np.nanmin(v_anti))/(np.nanmax(v_anti)-np.nanmin(v_anti)))+ec*block,
                                       color='k', lw=1, alpha=1, label='Eye movement')
@@ -1127,7 +1145,7 @@ class Analysis(object):
 
             #------------------------------------------------
             elif mode=='deux':
-                for block in range(N_blocks):
+                for block in BLOCK:
                     if block == 0 :
                         axs[s+1].step(range(N_trials), block+results[:, block]+ec*block, lw=1, alpha=.9,
                                       color='darkred', label='Individual guess')
@@ -1151,18 +1169,19 @@ class Analysis(object):
             axs[i_layer].bar(99, 3+ec*3, bottom=-ec/2, color='k', width=0, linewidth=2)
             axs[i_layer].bar(149, 3+ec*3, bottom=-ec/2, color='k', width=0, linewidth=2)
 
-            #------------------------------------------------
-            # affiche les numéro des block sur le côté gauche
-            #------------------------------------------------
-            ax_block = axs[i_layer].twinx()
-            if i_layer==0 :
-                ax_block.set_ylabel('Block', fontsize=t_label/1.5, rotation='horizontal', ha='left', va='bottom')
-                ax_block.yaxis.set_label_coords(1.01, 1.08)
+            if num_block is None :
+                #------------------------------------------------
+                # affiche les numéro des block sur le côté gauche
+                #------------------------------------------------
+                ax_block = axs[i_layer].twinx()
+                if i_layer==0 :
+                    ax_block.set_ylabel('Block', fontsize=t_label/1.5, rotation='horizontal', ha='left', va='bottom')
+                    ax_block.yaxis.set_label_coords(1.01, 1.08)
 
-            ax_block.set_ylim(-.05, N_blocks + .05)
-            ax_block.set_yticks(np.arange(N_blocks)+0.5)
-            ax_block.set_yticklabels(np.arange(N_blocks)+1, fontsize=t_label/1.5)
-            ax_block.yaxis.set_tick_params(width=0, pad=(t_label/1.5)+10)
+                ax_block.set_ylim(-.05, N_blocks + .05)
+                ax_block.set_yticks(np.arange(N_blocks)+0.5)
+                ax_block.set_yticklabels(np.arange(N_blocks)+1, fontsize=t_label/1.5)
+                ax_block.yaxis.set_tick_params(width=0, pad=(t_label/1.5)+10)
 
             #------------------------------------------------
             # cosmétique
@@ -1177,9 +1196,11 @@ class Analysis(object):
             else :
                 axs[i_layer].set_xticks([])
 
-            axs[i_layer].set_ylim(-(ec/2), N_blocks +ec*3-(ec/2))
+            axs[i_layer].set_ylim(-(ec/2), len(BLOCK) +ec*len(BLOCK)-(ec/2))
             
-            axs[i_layer].set_yticks([0, 1, 1+ec, 2+ec, 2+ec*2, 3+ec*2])
+            y_ticks=[0, 1, 1+ec, 2+ec, 2+ec*2, 3+ec*2]
+            
+            axs[i_layer].set_yticks(y_ticks[:len(BLOCK)*2])
             axs[i_layer].yaxis.set_label_coords(-0.05, 0.5)
             axs[i_layer].yaxis.set_tick_params(direction='out')
             axs[i_layer].yaxis.set_ticks_position('left')
@@ -1188,10 +1209,9 @@ class Analysis(object):
         # cosmétique
         #------------------------------------------------
         if len(sujet)==1 :
-            axs[0].set_yticklabels(['left','right','left','right','left','right'],fontsize=t_label/2)
-            axs[1].set_yticklabels(['0','1','0','1','0','1'],fontsize=t_label/2)
-            axs[2].set_yticklabels(['No','Yes','No','Yes','No','Yes'],fontsize=t_label/2)
-
+            axs[0].set_yticklabels(['left','right']*len(BLOCK),fontsize=t_label/2)
+            axs[1].set_yticklabels(['0','1']*len(BLOCK),fontsize=t_label/2)
+            axs[2].set_yticklabels(['No','Yes']*len(BLOCK),fontsize=t_label/2)
         else :
             axs[1].legend(fontsize=t_label/1.3, bbox_to_anchor=(0., 2.1, 1, 0.), loc=3, ncol=2, mode="expand", borderaxespad=0.)
  
