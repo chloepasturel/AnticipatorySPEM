@@ -54,6 +54,34 @@ In parallel, we are developing new automatic routines for the advanced analysis 
 % for units
 \usepackage{siunitx}%
 \newcommand{\ms}{\si{\milli\second}}%
+
+%% Symboles arrondis
+\newcommand{\Aa}{\mathcal{A}}
+\newcommand{\Bb}{\mathcal{B}}
+\newcommand{\Cc}{\mathcal{C}}
+\newcommand{\Dd}{\mathcal{D}}
+\newcommand{\Ee}{\mathcal{E}}
+\newcommand{\Ff}{\mathcal{F}}
+\newcommand{\Gg}{\mathcal{G}}
+\newcommand{\Hh}{\mathcal{H}}
+\newcommand{\Ii}{\mathcal{I}}
+\newcommand{\Jj}{\mathcal{J}}
+\newcommand{\Kk}{\mathcal{K}}
+\newcommand{\Ll}{\mathcal{L}}
+\newcommand{\Mm}{\mathcal{M}}
+\newcommand{\Nn}{\mathcal{N}}
+\newcommand{\Oo}{\mathcal{O}}
+\newcommand{\Pp}{\mathcal{P}}
+\newcommand{\Qq}{\mathcal{Q}}
+\newcommand{\Rr}{\mathcal{R}}
+\newcommand{\Ss}{\mathcal{S}}
+\newcommand{\Tt}{\mathcal{T}}
+\newcommand{\Uu}{\mathcal{U}}
+\newcommand{\Vv}{\mathcal{V}}
+\newcommand{\Ww}{\mathcal{W}}
+\newcommand{\Xx}{\mathcal{X}}
+\newcommand{\Yy}{\mathcal{Y}}
+\newcommand{\Zz}{\mathcal{Z}}
 %% ========  polices de caracteres =============
 \usepackage[T1]{fontenc}% 
 \usepackage{lmodern}%
@@ -109,12 +137,14 @@ pdfauthor={\AuthorA},%< \Email > \Address},%
 \Abstract
 \end{abstract}
 
-\section{Problematic}
+\section{Motivation}
 
 Humans are able to accurately track a moving object with a combination of saccades and smooth eye movements. These movements allow us to align and stabilize the object on the fovea, thus enabling high-resolution visual detection. When predictive information is available about target motion, anticipatory smooth pursuit eye movements (aSPEM) are efficiently generated before target appearance, which reduce the typical sensorimotor delay between target motion onset and foveation. It is generally assumed that the role of anticipatory eye movements is to limit the behavioral impairment due to eye-to-target position and velocity mismatch.
 
 By manipulating the probability for target motion direction we were able to bias the direction and mean velocity of aSPEM, as measured during a fixed duration gap before target ramp-motion onset. This suggests that probabilistic information may be used to inform the internal representation of motion prediction for the initiation of anticipatory movements~\parencite{Montagnini2010}.
 
+
+Throughout the first experimental condition we investigated the integration of environmental statistical regularities in a smooth tracking task with a family of direction-biases for the target motion. What we found was a global and robust effect of direction-bias on anticipatory smooth pursuit. These results are coherent with previous oculomotor findings by our and also other groups (Montagnini et al. 2010; Santos \& Kowler 2017). Typically, aSPEM is observed after a temporal cue and ahead of target motion onset (Kowler and Steinman, 1979a,b, 1984). Some now classical experiments have demonstrated the existence of prediction-based smooth pursuit during the transient disappearance of a moving target (Badler, 2006; Becker \& Fuchs, 1985). Overall, it is now clear that smooth pursuit behavior can be modulated even in the absence of online sensory stimulation. aSPEM were here the core of our research because we wanted to study the trial-by-trial evolution of expectancy-based oculomotor behavior, as well as how sensorimotor expectancy interacts with reward contingencies in shaping oculomotor behavior without direct sensory feedback. In a previous study, (Souto, Montagnini \& Masson, 2008b; Montagnini et al., 2010) we have analyzed how forthcoming motion properties, such as target speed or direction, can be predicted and anticipated with coherent orienting eye movements. We found a graded effect of both the speed and the direction-bias, with mean anticipatory eye velocity linearly related to the probability of motion’s speed or direction. Here, we replicated part of those results using a limited number of direction probability bias and strengthened them by generalizing them on seventeen participants. These results imply that the probability bias over a target’s direction is one additional factor beyond other physical and cognitive cues (Kowler et al, 2014; Santos \& Kowler 2017) that modulate the common predictive framework driving anticipatory behavior to optimize a rapid and precise foveation of the target on its most expected future path. 
 
 %-------------------------------------------------------------%
 %: fig:intro
@@ -146,17 +176,25 @@ However, such estimate may become particularly challenging in a dynamic context,
 
 \section{Material and Method}
 
-In order to answer these questions, we have set up an experiment comprising 3 blocks of 200 trials. For each trial, a target makes either to the left or to the right, this direction being drawn from a Bernoulli process. The probability of this process varied in a piecewise-constant (that is, a step function varying between~$0$ and~$1$), similarly to~\textcite{Meyniel13}. The occurence of these switches is itself drawn from a Bernoulli process of probability $p_{switch}=1/40$.
+\subsection{Generative model: the switching model}
 
+In order to answer these questions, we have set up an experiment comprising $3$ blocks of $200$ trials, see Figure~\ref{fig:protocole}-A\footnote{Each block is divided in 4 sub-blocks of $50$ trials as denoted by vertical black bars}. For each trial, a target makes either to the left or to the right, this direction being drawn from a Bernoulli process. The probability of this process varied in a piecewise-constant (that is, a step function varying between~$0$ and~$1$), similarly to~\textcite{Meyniel13}. The occurrence of these switches is itself drawn from a Bernoulli process of probability $p_{switch}=1/40$.
+
+\eql{\choice{
+x_0^t \eqdef o_t \propto \Bb(p^t) \\
+x_1^t \eqdef p_t = p_{t-1} \quad \text{if} \quad s_t=0 \quad \text{and else} \quad p_t \propto \Jj \\
+x_2^t \eqdef s_t \propto \Bb(\lambda) 
+}}
+
+where $\Jj = BB(\frac 1 2 , \frac 1 2 )$ is Jeffrey's prior
 %-------------------------------------------------------------%
 %: fig:protocole
 \begin{figure}%[b!]
 %\vspace{2mm}
 \begin{center}
-     \includegraphics[width=.49\linewidth]{materiel_bet}
-    \includegraphics[width=.49\linewidth]{materiel_recording}
-
-    \includegraphics[width=1\linewidth]{exp}
+\textbf{(A)}     \includegraphics[width=.9\linewidth]{exp}
+\textbf{(B)}     \includegraphics[width=.4\linewidth]{materiel_bet}
+\textbf{(C)}     \includegraphics[width=.4\linewidth]{materiel_recording}
 \end{center}
 \caption{\emph{Protocol and previous results} \textbf{(A)} 
 \textbf{(B)} 
@@ -215,6 +253,8 @@ In order to extract the relevant parameters of the oculomotor responses, we deve
 
 \section{Results: Bayesian change point model}
 
+% https://github.com/laurentperrinet/bayesianchangepoint
+
 \subsection{Bayesian change point model}
 
 We have designed an agent adapted the Bayesian Online Change-point Detection model~\parencite{AdamsMackay2007}. This model uses a latent variable r which represents the length of the current interval during which motion-direction probability ($\hat{P}$) has not changed. The agent infers at each trial the likelihood  of r and then deduces the optimal $\hat{P}$ (we used the expected value and the max as readouts) and the uncertainty associated to it. We simulated the model across our experimental sequences, as illustrated by the example for the third block.
@@ -243,12 +283,46 @@ We have designed an agent adapted the Bayesian Online Change-point Detection mod
 %-------------------------------------------------------------%
 
 
-\subsection{Bayesian change point}
+
+
+Computing the likelihood:
+The main difference between our algorithm and that of Wilson is the way that the likelihood is computed.
+
+\subsection{Bayesian change point algorithm}
+
+To summarize, the algorithm 
+
+\begin{enumerate}
+	\item     Initialize
+
+	\begin{itemize}
+		\item    $P(r_0)= S(r)$ or $P(r_0=0)=1$ and
+		\item    $\nu^{(0)}1 = \nu_{prior}$ and $\chi^{(0)}1 = \chi_{prior}$
+	\end{itemize}
+
+	\item    Observe New Datum $x_t$
+    \item    Evaluate Predictive Probability $\pi_{1:t} = P(x |\nu^{(r)}_t,\chi^{(r)}_t)$
+    \item    Calculate Growth Probabilities $P(r_t=r_{t-1}+1, x_{1:t}) = P(r_{t-1}, x_{1:t-1}) \pi^{(r)}_t (1-H(r^{(r)}_{t-1}))$
+    \item    Calculate Changepoint Probabilities $P(r_t=0, x_{1:t})= \sum_{r_{t-1}} P(r_{t-1}, x_{1:t-1}) \pi^{(r)}_t \cdot H(r^{(r)}_{t-1})$
+    \item    Calculate Evidence $P(x_{1:t}) = \sum_{r_{t-1}} P (r_t, x_{1:t})$
+    \item    Determine Run Length Distribution $P (r_t | x_{1:t}) = P (r_t, x_{1:t})/P (x_{1:t}) $
+    \item    Update Sufficient Statistics :
+	\begin{itemize}
+		\item    $\nu^{(0)}_{t+1} = \nu_{prior}$, $\chi^{(0)}_{t+1} = \chi_{prior}$
+		\item    $\nu^{(r+1)}_{t+1} = \nu^{(r)}_{t} +1$, $\chi^{(r+1)}_{t+1} = \chi^{(r)}_{t} + u(x_t)$
+	\end{itemize}
+
+    \item    Perform Prediction $P (x_{t+1} | x_{1:t}) = P (x_{t+1}|x_{1:t} , r_t) P (r_t|x_{1:t})$
+    \item    go to (2)
+\end{enumerate}
+
 
 where $\KL{\hat p}{p}$ is the Kullback-Leibler divergence between samples $\hat p$ and model $p$ under a Bernouilli distribution
 \begin{equation}
 \KL{\hat p}{p} = \hat{p} \log\pa{\frac{\hat p}{p}} + (1-\hat p) \log\pa{\frac{1-\hat p}{1-p}}.
 \end{equation}
+
+
 
 
 \section{Results}
@@ -310,6 +384,8 @@ We now compare the individual guesses during the bet experiment and the accelera
 \end{figure}
 %-------------------------------------------------------------%
 
+include the comparison with a control agent, the forgetful agent with time characteristics $\tau$
+
 \subsection{Analyzing inter-individual differences}
 
 By extracting the parameters for every subject we can expect to characterise inter individual differences. 
@@ -327,6 +403,8 @@ By extracting the parameters for every subject we can expect to characterise int
 \label{fig:results_psycho_inter}
 \end{figure}
 %-------------------------------------------------------------%
+
+There are a spectrum of individual choices between exploration and exploiting behaviors.
 
 
 
