@@ -1162,14 +1162,13 @@ class Analysis(object):
             #-------------------------------------------------------------------------------------------------------------
 
         for i_layer in range(len(axs)):
-            #------------------------------------------------
-            # Barre Pause
-            #------------------------------------------------
-            axs[i_layer].bar(49, 3+ec*3, bottom=-ec/2, color='k', width=0, linewidth=2)
-            axs[i_layer].bar(99, 3+ec*3, bottom=-ec/2, color='k', width=0, linewidth=2)
-            axs[i_layer].bar(149, 3+ec*3, bottom=-ec/2, color='k', width=0, linewidth=2)
-
             if num_block is None :
+                #------------------------------------------------
+                # Barre Pause
+                #------------------------------------------------
+                axs[i_layer].bar(49, 3+ec*3, bottom=-ec/2, color='k', width=0, linewidth=2)
+                axs[i_layer].bar(99, 3+ec*3, bottom=-ec/2, color='k', width=0, linewidth=2)
+                axs[i_layer].bar(149, 3+ec*3, bottom=-ec/2, color='k', width=0, linewidth=2)
                 #------------------------------------------------
                 # affiche les numéro des block sur le côté gauche
                 #------------------------------------------------
