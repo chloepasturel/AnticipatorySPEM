@@ -1065,13 +1065,15 @@ class Analysis(object):
             return fig, axs, results
 
 
-    def plot_experiment(self, sujet=[0], num_block=None, mode=None, fig=None, axs=None, fig_width=15, t_titre=35, t_label=25, return_proba=None):
+    def plot_experiment(self, sujet=[0], p=None, num_block=None, mode=None, fig=None, axs=None, fig_width=15, t_titre=35, t_label=25, return_proba=None):
 
         import matplotlib.pyplot as plt
         N_trials = self.exp['N_trials']
         N_blocks = self.exp['N_blocks']
-        p = self.exp['p']
+
         ec = 0.2
+        if p is None :
+            p = self.exp['p']
         if num_block is None :
             BLOCK = range(N_blocks)
         else:
