@@ -513,8 +513,9 @@ def suppression_saccades(self, data_x, saccades, trackertime, trackertime_0, Tar
 def Fit_exponentiel(gradient_deg_NAN, trackertime, trackertime_0, TargetOn, StimulusOf, stop_latence, bino, sup=True, exponentiel=exponentiel):
 
     from lmfit import  Model, Parameters
-
-    model = Model(exponentiel)#, nan_policy='propagate')
+    # import lmfit
+    # print(lmfit.__version__)
+    model = Model(exponentiel, nan_policy='propagate')
     params = Parameters()
 
     params.add('tau', value=15., min=13., max=80.)#, vary=False)
@@ -526,9 +527,9 @@ def Fit_exponentiel(gradient_deg_NAN, trackertime, trackertime_0, TargetOn, Stim
 
     #result_deg = model.fit(new_gradient_deg, params, x=new_time)
     if sup==True :
-        result_deg = model.fit(gradient_deg_NAN[:-280], params, x=trackertime[:-280], fit_kws={'nan_policy': 'propagate'})
+        result_deg = model.fit(gradient_deg_NAN[:-280], params, x=trackertime[:-280])#, fit_kws={'nan_policy': 'propagate'})
     else :
-        result_deg = model.fit(gradient_deg_NAN, params, x=trackertime, fit_kws={'nan_policy': 'propagate'})
+        result_deg = model.fit(gradient_deg_NAN, params, x=trackertime)#, fit_kws={'nan_policy': 'propagate'})
 
     return result_deg
 
