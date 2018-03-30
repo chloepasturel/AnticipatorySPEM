@@ -668,6 +668,54 @@ def fig_fit(self, ax, trial_data, data, bino, plot, t_titre=35, t_label=20, repo
     else :
         return ax, result_deg.fit_report()
 
+def fig_velocity(self, ax, trial_data, data, bino, t_titre=35, t_label=20) :
+    '''
+    plot == velocity, fonction
+
+    '''
+
+    data_x = data[trial_data]['x']
+    data_y = data[trial_data]['y']
+    trackertime = data[trial_data]['trackertime']
+
+    StimulusOn = data[trial_data]['events']['msg'][10][0]
+    StimulusOf = data[trial_data]['events']['msg'][14][0]
+    TargetOn = data[trial_data]['events']['msg'][15][0]
+    TargetOff = data[trial_data]['events']['msg'][16][0]
+    saccades = data[trial_data]['events']['Esac']
+    trackertime_0 = data[trial_data]['trackertime'][0]
+
+    gradient_deg_NAN, stop_latence = suppression_saccades(self, data_x, saccades, trackertime, trackertime_0, TargetOn)
+
+    start = TargetOn
+    StimulusOn_s = StimulusOn - start
+    StimulusOf_s = StimulusOf - start
+    TargetOn_s = TargetOn - start
+    TargetOff_s = TargetOff - start
+    trackertime_s = trackertime - start
+
+    ax.plot(trackertime_s, gradient_deg_NAN, color='k', alpha=0.4)
+    #ax.plot(trackertime_s, result_deg.best_fit, color='k', linewidth=2)
+
+    ax.axvspan(StimulusOn_s, StimulusOf_s, color='k', alpha=0.2)
+    ax.axvspan(StimulusOf_s, TargetOn_s, color='r', alpha=0.2)
+    ax.axvspan(TargetOn_s, TargetOff_s, color='k', alpha=0.15)
+
+    # COSMETIQUE
+    for s in range(len(saccades)) :
+        ax.axvspan(saccades[s][0]-start, saccades[s][1]-start, color='k', alpha=0.15)
+
+    #axs[x].axis([StimulusOn_s-10, TargetOff_s+10, -40, 40])
+    ax.axis([-750, 750, -39.5, 39.5])
+    ax.xaxis.set_ticks_position('bottom')
+    ax.xaxis.set_tick_params(labelsize=t_label/2)
+    ax.yaxis.set_ticks_position('left')
+    ax.yaxis.set_tick_params(labelsize=t_label/2)
+    ax.set_xlabel('Time (ms)', fontsize=t_label)
+
+    return ax
+
+
 
 
 class Analysis(object):
@@ -854,6 +902,48 @@ class Analysis(object):
         plt.close()
         return fig, axs
 
+    def plot_velocity(self, block=0, trials=0, report=None, fig_width=15, t_titre=35, t_label=20):
+        import matplotlib.pyplot as plt
+        from edfreader import read_edf
+
+        resultats = os.path.join('data', self.mode + '_' + self.observer + '_' + self.timeStr + '.asc')
+        data = read_edf(resultats, 'TRIALID')
+
+        N_trials = self.exp['N_trials']
+        N_blocks = self.exp['N_blocks']
+        p = self.exp['p']
+
+        if type(trials) is not list :
+            trials = [trials]
+
+        fig, axs = plt.subplots(len(trials), 1, figsize=(fig_width, (fig_width*(len(trials)/2)/1.6180)))
+
+        x = 0
+        for t in trials :
+
+            trial_data = t + N_trials*block
+            bino=p[t, block, 0]
+
+            if len(trials)==1:
+                ax = axs
+            else :
+                ax = axs[x]
+
+            ax = fig_velocity(self, ax, trial_data, data, bino)
+
+            if x == int((len(trials)-1)/2) :
+                ax.set_ylabel('Velocity (°/s)', fontsize=t_label)
+            if x!= (len(trials)-1) :
+                ax.set_xticklabels([])
+            if x==0 :
+                ax.set_title('Eye Movement', fontsize=t_titre, x=0.5, y=1.05)
+
+            x=x+1
+
+        plt.tight_layout() # pour supprimer les marge trop grande
+        plt.subplots_adjust(hspace=0) # pour enlever espace entre les figures
+
+        return fig, axs
 
     def Fit (self) :
 
@@ -1097,21 +1187,30 @@ class Analysis(object):
         for i_block in BLOCK:
             if len(sujet)==1 :
                 for i_layer, label in enumerate(['Target Direction', 'Probability', 'Switch']) :
-                    axs[i_layer].step(range(N_trials), p[:, i_block, i_layer]+i_block+ec*i_block, lw=1, c='k', alpha=.3)
+                    axs[i_layer].step(range(N_trials), p[:, i_block, i_layer]+i_block+ec*i_block, lw=1, c='r', alpha=.2)
                     axs[i_layer].fill_between(range(N_trials), i_block+np.zeros_like(p[:, i_block, i_layer])+ec*i_block, i_block+p[:, i_block, i_layer]+ec*i_block,
-                                              lw=.5, alpha=.3, facecolor='k', step='pre')
+                                              lw=.5, alpha=.2, facecolor='r', step='pre')
+                    axs[i_layer].fill_between(range(N_trials), i_block+np.ones_like(p[:, i_block, i_layer])+ec*i_block, i_block+p[:, i_block, i_layer]+ec*i_block,
+                                              lw=.5, alpha=.2, facecolor='k', step='pre')
+                    
                     axs[i_layer].set_ylabel(label, fontsize=t_label)
             else :
-                axs[0].step(range(N_trials), p[:, i_block, 0]+i_block+ec*i_block, lw=1, c='k', alpha=.3)
+                axs[0].step(range(N_trials), p[:, i_block, 0]+i_block+ec*i_block, lw=1, c='r', alpha=.2)
                 axs[0].fill_between(range(N_trials), i_block+np.zeros_like(p[:, i_block, 0])+ec*i_block,
                                           i_block+p[:, i_block, 0]+ec*i_block,
-                                          lw=.5, alpha=.3, facecolor='k', step='pre')
+                                          lw=.5, alpha=.2, facecolor='r', step='pre')
+                axs[0].fill_between(range(N_trials), i_block+np.ones_like(p[:, i_block, 0])+ec*i_block,
+                                          i_block+p[:, i_block, 0]+ec*i_block,
+                                          lw=.5, alpha=.2, facecolor='k', step='pre')
+                
+                
                 axs[0].set_ylabel('Target Direction', fontsize=t_label)
                 for s in range(len(sujet)) :
-                    axs[s+1].step(range(N_trials), p[:, i_block, 1]+i_block+ec*i_block, lw=1, c='k', alpha=.3)
+                    axs[s+1].step(range(N_trials), p[:, i_block, 1]+i_block+ec*i_block, lw=1, c='r', alpha=.2)
                     axs[s+1].fill_between(range(N_trials), i_block+np.zeros_like(p[:, i_block, 1])+ec*i_block, i_block+p[:, i_block, 1]+ec*i_block,
-                                              lw=.5, alpha=.3, facecolor='k', step='pre')
-
+                                              lw=.5, alpha=.2, facecolor='r', step='pre')
+                    axs[s+1].fill_between(range(N_trials), i_block+np.ones_like(p[:, i_block, 1])+ec*i_block, i_block+p[:, i_block, 1]+ec*i_block,
+                                              lw=.5, alpha=.2, facecolor='k', step='pre')
                     axs[s+1].set_yticklabels(['0','1','0','1','0','1'],fontsize=t_label/2)
                     axs[s+1].set_ylabel('Subject %s'%(sujet[s]), fontsize=t_label)
 
@@ -1684,7 +1783,117 @@ class Analysis(object):
 
         return fig, axs
 
+    def plot_KDE(self, mode, kde='kde', result='bet', tau=40., sujet=[6], fig_width=15, t_titre=35, t_label=25) :
 
+        import matplotlib.pyplot as plt
+        import matplotlib.gridspec as gridspec
+        import bayesianchangepoint as bcp
+        from scipy import stats
+
+        colors = ['black','dimgrey','grey','darkgrey','silver','rosybrown','lightcoral','indianred','firebrick','brown','darkred','red']
+        nb_sujet = len(self.PARI)
+        full = full_liste(self.PARI, self.ENREGISTREMENT, P_HAT=True)
+
+        fig, axs = plt.subplots(1, 1, figsize=(fig_width, fig_width/(1.6180)))
+
+        if mode=='expectation' :
+            p_hat = 'p_hat_e'
+            full_p_hat = full['p_hat_e']
+        elif mode=='max' :
+            p_hat = 'p_hat_m'
+            full_p_hat = full['p_hat_m']
+
+        #------------------------------------------------
+        # KDE
+        #------------------------------------------------
+        if result=='bet' :
+            x = full_p_hat.values.tolist()
+            y = full['results'].values.tolist()
+            values = np.vstack([x, y])
+            kernel = stats.gaussian_kde(values)
+            xmin, xmax = np.min(x), np.max(x)# -0.032, 1.032
+            ymin, ymax =  np.min(y), np.max(y)#-0.032, 1.032
+            xx, yy = np.mgrid[xmin:xmax:200j, ymin:ymax:200j]
+            positions = np.vstack([xx.ravel(), yy.ravel()])
+            f = np.reshape(kernel(positions).T, xx.shape)
+
+        elif result=='acceleration' :
+            # masque les essais qui où full_va = NAN
+            full_p_hat_nan = np.ma.masked_array(full_p_hat.values.tolist(), mask=np.isnan(full['va'].values.tolist())).compressed()
+            full_va_nan = np.ma.masked_array(full['va'].values.tolist(), mask=np.isnan(full['va'].values.tolist())).compressed()
+            x = full_p_hat_nan
+            y = full_va_nan
+            values = np.vstack([x, y])
+            kernel = stats.gaussian_kde(values)
+            xmin, xmax = np.min(x), np.max(x)#-0.032, 1.032
+            ymin, ymax = np.min(y), np.max(y)#-21.28, 21.28
+            xx, yy = np.mgrid[xmin:xmax:300j, ymin:ymax:300j]
+            positions = np.vstack([xx.ravel(), yy.ravel()])
+            f = np.reshape(kernel(positions).T, xx.shape)
+
+        if kde=='kde':
+            axs.contourf(xx, yy, f, cmap='Greys', N=25)
+        elif kde=='moyenne':
+            fmean = []
+            for x in range(len(f)):
+                fmean.append([])
+                for y in range(len(f[x])):
+                    fmean[x].append(f[x][y]/np.sum(f[x]))
+            axs.contourf(xx, yy, fmean, cmap='Greys')
+
+        #------------------------------------------------
+        # LINREGRESS
+        #------------------------------------------------
+        if result=='bet' :
+            # RESULTS
+            slope, intercept, r_, p_value, std_err = stats.linregress(full_p_hat.values.tolist(), full['results'].values.tolist())
+            x_test = np.linspace(np.min(full_p_hat.values.tolist()), np.max(full_p_hat.values.tolist()), 100)
+            fitLine = slope * x_test + intercept
+            axs.plot(x_test, fitLine, c='k', linewidth=2)
+            axs.text(0.75,-0.032+(1.032--0.032)/10, 'r = %0.3f'%(r_), fontsize=t_label/1.2)
+
+            hist, x_edges, y_edges = np.histogram2d(full_p_hat.values.tolist(),full['results'].values.tolist(),bins=20)
+            axs.text(0.75,-0.032+2*(1.032--0.032)/10, 'MI = %0.3f'%(mutual_information(hist)), fontsize=t_label/1.2)
+            #------------------------------------------------
+            # cosmétique
+            #------------------------------------------------
+            axs.axis([-0.032, 1.032, -0.032, 1.032])
+            axs.set_ylabel('Probability Bet', fontsize=t_label/1.2)
+            axs.set_title("Probability Bet", fontsize=t_titre/1.2, x=0.5, y=1.05)
+            axs.set_xlabel('$\hat{P}_{%s}$'%(mode), fontsize=t_label/1)
+
+
+        elif result=='acceleration' :
+            # VA
+            # masque les essais qui où full_va = NAN
+            full_p_hat_nan = np.ma.masked_array(full_p_hat.values.tolist(), mask=np.isnan(full['va'].values.tolist())).compressed()
+            full_va_nan = np.ma.masked_array(full['va'].values.tolist(), mask=np.isnan(full['va'].values.tolist())).compressed()
+
+            slope, intercept, r_value, p_value, std_err = stats.linregress(full_p_hat_nan, full_va_nan)
+            x_test = np.linspace(np.min(full_p_hat), np.max(full_p_hat), 100)
+            fitLine = slope * x_test + intercept
+            axs.plot(x_test, fitLine, c='k', linewidth=2)
+            axs.text(0.75,-21.28+(21.28--21.28)/10, 'r = %0.3f'%(r_value), fontsize=t_label/1.2)
+
+            hist, x_edges, y_edges = np.histogram2d(full_p_hat_nan,full_va_nan,bins=20)
+            axs.text(0.75,-21.28+2*(21.28--21.28)/10, 'MI = %0.3f'%(mutual_information(hist)), fontsize=t_label/1.2)
+
+            #------------------------------------------------
+            # cosmétique
+            #------------------------------------------------
+            axs.axis([-0.032, 1.032, -21.28, 21.28])
+            axs.set_ylabel('Acceleration of anticipation (°/s$^2$)', fontsize=t_label/1.2)
+            axs.set_title("Acceleration", fontsize=t_titre/1.2, x=0.5, y=1.05)
+            axs.set_xlabel('$\hat{P}_{%s}$'%(mode), fontsize=t_label/1)
+
+
+        axs.xaxis.set_ticks_position('bottom')
+        axs.yaxis.set_ticks_position('left')
+        axs.xaxis.set_tick_params(labelsize=t_label/1.8)
+        axs.yaxis.set_tick_params(labelsize=t_label/1.8)
+        #------------------------------------------------
+
+        return fig, axs
 
 if __name__ == '__main__':
 
