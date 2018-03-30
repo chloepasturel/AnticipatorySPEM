@@ -1186,22 +1186,30 @@ class Analysis(object):
         for i_block in BLOCK:
             if len(sujet)==1 :
                 for i_layer, label in enumerate(['Target Direction', 'Probability', 'Switch']) :
-                    axs[i_layer].step(range(N_trials), p[:, i_block, i_layer]+i_block+ec*i_block, lw=1, c='k', alpha=.3)
+                    axs[i_layer].step(range(N_trials), p[:, i_block, i_layer]+i_block+ec*i_block, lw=1, c='r', alpha=.2)
                     axs[i_layer].fill_between(range(N_trials), i_block+np.zeros_like(p[:, i_block, i_layer])+ec*i_block, i_block+p[:, i_block, i_layer]+ec*i_block,
-                                              lw=.5, alpha=.3, facecolor='k', step='pre')
+                                              lw=.5, alpha=.2, facecolor='r', step='pre')
+                    axs[i_layer].fill_between(range(N_trials), i_block+np.ones_like(p[:, i_block, i_layer])+ec*i_block, i_block+p[:, i_block, i_layer]+ec*i_block,
+                                              lw=.5, alpha=.2, facecolor='k', step='pre')
                     
                     axs[i_layer].set_ylabel(label, fontsize=t_label)
             else :
-                axs[0].step(range(N_trials), p[:, i_block, 0]+i_block+ec*i_block, lw=1, c='k', alpha=.3)
+                axs[0].step(range(N_trials), p[:, i_block, 0]+i_block+ec*i_block, lw=1, c='r', alpha=.2)
                 axs[0].fill_between(range(N_trials), i_block+np.zeros_like(p[:, i_block, 0])+ec*i_block,
                                           i_block+p[:, i_block, 0]+ec*i_block,
-                                          lw=.5, alpha=.3, facecolor='k', step='pre')
+                                          lw=.5, alpha=.2, facecolor='r', step='pre')
+                axs[0].fill_between(range(N_trials), i_block+np.ones_like(p[:, i_block, 0])+ec*i_block,
+                                          i_block+p[:, i_block, 0]+ec*i_block,
+                                          lw=.5, alpha=.2, facecolor='k', step='pre')
+                
+                
                 axs[0].set_ylabel('Target Direction', fontsize=t_label)
                 for s in range(len(sujet)) :
-                    axs[s+1].step(range(N_trials), p[:, i_block, 1]+i_block+ec*i_block, lw=1, c='k', alpha=.3)
+                    axs[s+1].step(range(N_trials), p[:, i_block, 1]+i_block+ec*i_block, lw=1, c='r', alpha=.2)
                     axs[s+1].fill_between(range(N_trials), i_block+np.zeros_like(p[:, i_block, 1])+ec*i_block, i_block+p[:, i_block, 1]+ec*i_block,
-                                              lw=.5, alpha=.3, facecolor='k', step='pre')
-
+                                              lw=.5, alpha=.2, facecolor='r', step='pre')
+                    axs[s+1].fill_between(range(N_trials), i_block+np.ones_like(p[:, i_block, 1])+ec*i_block, i_block+p[:, i_block, 1]+ec*i_block,
+                                              lw=.5, alpha=.2, facecolor='k', step='pre')
                     axs[s+1].set_yticklabels(['0','1','0','1','0','1'],fontsize=t_label/2)
                     axs[s+1].set_ylabel('Subject %s'%(sujet[s]), fontsize=t_label)
 
