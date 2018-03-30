@@ -1156,7 +1156,7 @@ class Analysis(object):
                     else :
                         axs[s+1].step(range(N_trials), block+results[:, block]+ec*block, lw=1, alpha=.9, color='darkred')
                         axs[s+1].step(range(N_trials), block+((np.array(v_anti[block])-np.nanmin(v_anti))/(np.nanmax(v_anti)-np.nanmin(v_anti)))+ec*block,color='k', lw=1, alpha=1)
-                axs[0].set_title('Eye movements recording results', fontsize=t_titre, x=0.5, y=y_t)
+                axs[0].set_title('Bet + Eye movements results', fontsize=t_titre, x=0.5, y=y_t)
 
             #------------------------------------------------
             elif mode is None and titre is not None :
@@ -1217,8 +1217,10 @@ class Analysis(object):
             axs[1].legend(fontsize=t_label/1.3, bbox_to_anchor=(0., 2.1, 1, 0.), loc=3, ncol=2, mode="expand", borderaxespad=0.)
 
         axs[-1].set_xlabel('Trials', fontsize=t_label)
-
-        fig.tight_layout()
+        try:
+            fig.tight_layout()
+        except:
+            print('tight_layout failed :-(')
         plt.subplots_adjust(hspace=0.05)
         #------------------------------------------------
 
