@@ -667,6 +667,54 @@ def fig_fit(self, ax, trial_data, data, bino, plot, t_titre=35, t_label=20, repo
     else :
         return ax, result_deg.fit_report()
 
+def fig_velocity(self, ax, trial_data, data, bino, t_titre=35, t_label=20) :
+    '''
+    plot == velocity, fonction
+
+    '''
+
+    data_x = data[trial_data]['x']
+    data_y = data[trial_data]['y']
+    trackertime = data[trial_data]['trackertime']
+
+    StimulusOn = data[trial_data]['events']['msg'][10][0]
+    StimulusOf = data[trial_data]['events']['msg'][14][0]
+    TargetOn = data[trial_data]['events']['msg'][15][0]
+    TargetOff = data[trial_data]['events']['msg'][16][0]
+    saccades = data[trial_data]['events']['Esac']
+    trackertime_0 = data[trial_data]['trackertime'][0]
+
+    gradient_deg_NAN, stop_latence = suppression_saccades(self, data_x, saccades, trackertime, trackertime_0, TargetOn)
+
+    start = TargetOn
+    StimulusOn_s = StimulusOn - start
+    StimulusOf_s = StimulusOf - start
+    TargetOn_s = TargetOn - start
+    TargetOff_s = TargetOff - start
+    trackertime_s = trackertime - start
+
+    ax.plot(trackertime_s, gradient_deg_NAN, color='k', alpha=0.4)
+    #ax.plot(trackertime_s, result_deg.best_fit, color='k', linewidth=2)
+
+    ax.axvspan(StimulusOn_s, StimulusOf_s, color='k', alpha=0.2)
+    ax.axvspan(StimulusOf_s, TargetOn_s, color='r', alpha=0.2)
+    ax.axvspan(TargetOn_s, TargetOff_s, color='k', alpha=0.15)
+
+    # COSMETIQUE
+    for s in range(len(saccades)) :
+        ax.axvspan(saccades[s][0]-start, saccades[s][1]-start, color='k', alpha=0.15)
+
+    #axs[x].axis([StimulusOn_s-10, TargetOff_s+10, -40, 40])
+    ax.axis([-750, 750, -39.5, 39.5])
+    ax.xaxis.set_ticks_position('bottom')
+    ax.xaxis.set_tick_params(labelsize=t_label/2)
+    ax.yaxis.set_ticks_position('left')
+    ax.yaxis.set_tick_params(labelsize=t_label/2)
+    ax.set_xlabel('Time (ms)', fontsize=t_label)
+
+    return ax
+
+
 
 
 class Analysis(object):
@@ -853,6 +901,48 @@ class Analysis(object):
         plt.close()
         return fig, axs
 
+    def plot_velocity(self, block=0, trials=0, report=None, fig_width=15, t_titre=35, t_label=20):
+        import matplotlib.pyplot as plt
+        from edfreader import read_edf
+
+        resultats = os.path.join('data', self.mode + '_' + self.observer + '_' + self.timeStr + '.asc')
+        data = read_edf(resultats, 'TRIALID')
+
+        N_trials = self.exp['N_trials']
+        N_blocks = self.exp['N_blocks']
+        p = self.exp['p']
+
+        if type(trials) is not list :
+            trials = [trials]
+
+        fig, axs = plt.subplots(len(trials), 1, figsize=(fig_width, (fig_width*(len(trials)/2)/1.6180)))
+
+        x = 0
+        for t in trials :
+
+            trial_data = t + N_trials*block
+            bino=p[t, block, 0]
+
+            if len(trials)==1:
+                ax = axs
+            else :
+                ax = axs[x]
+
+            ax = fig_velocity(self, ax, trial_data, data, bino)
+
+            if x == int((len(trials)-1)/2) :
+                ax.set_ylabel('Velocity (°/s)', fontsize=t_label)
+            if x!= (len(trials)-1) :
+                ax.set_xticklabels([])
+            if x==0 :
+                ax.set_title('Eye Movement', fontsize=t_titre, x=0.5, y=1.05)
+
+            x=x+1
+
+        plt.tight_layout() # pour supprimer les marge trop grande
+        plt.subplots_adjust(hspace=0) # pour enlever espace entre les figures
+
+        return fig, axs
 
     def Fit (self) :
 
