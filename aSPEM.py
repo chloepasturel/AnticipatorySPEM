@@ -1189,6 +1189,7 @@ class Analysis(object):
                     axs[i_layer].step(range(N_trials), p[:, i_block, i_layer]+i_block+ec*i_block, lw=1, c='k', alpha=.3)
                     axs[i_layer].fill_between(range(N_trials), i_block+np.zeros_like(p[:, i_block, i_layer])+ec*i_block, i_block+p[:, i_block, i_layer]+ec*i_block,
                                               lw=.5, alpha=.3, facecolor='k', step='pre')
+                    
                     axs[i_layer].set_ylabel(label, fontsize=t_label)
             else :
                 axs[0].step(range(N_trials), p[:, i_block, 0]+i_block+ec*i_block, lw=1, c='k', alpha=.3)
