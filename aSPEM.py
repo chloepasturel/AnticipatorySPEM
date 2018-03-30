@@ -1429,7 +1429,7 @@ class Analysis(object):
                     axs[num].yaxis.set_tick_params(labelsize=t_label/2)
 
                     if m == 'expectation' :
-                        axs[num].set_title('Bayesian change point : expectation $\sum_{r=0}^\infty r p(r)$', x=0.5, y=1.20, fontsize=t_titre)
+                        axs[num].set_title('Bayesian change point : expectation $\sum_{r=0}^\infty r \cdot p(r)$', x=0.5, y=1.20, fontsize=t_titre)
                     else :
                         axs[num].set_title('Bayesian change point : max(p(r))', x=0.5, y=1.05, fontsize=t_titre)
 
