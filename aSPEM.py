@@ -533,8 +533,10 @@ def Fit_exponentiel(gradient_deg_NAN, trackertime, trackertime_0, TargetOn, Stim
     return result_deg
 
 def fig_fit(self, ax, trial_data, data, bino, plot, t_titre=35, t_label=20, report=None) :
+    '''
+    plot == velocity, fonction
 
-    '''plot == velocity, fonction '''
+    '''
 
     data_x = data[trial_data]['x']
     data_y = data[trial_data]['y']
@@ -1044,6 +1046,7 @@ class Analysis(object):
             else :
                 ax, result = fig_fit(self, ax, trial_data, data, bino, plot=plot, report=report)
                 results.append(result)
+
             if x == int((len(trials)-1)/2) :
                 ax.set_ylabel('Velocity (°/s)', fontsize=t_label)
             if x!= (len(trials)-1) :
@@ -1051,6 +1054,8 @@ class Analysis(object):
             if x==0 :
                 if plot=='fonction':
                     ax.set_title('Fit Function', fontsize=t_titre, x=0.5, y=1.05)
+                if plot=='velocity':
+                    ax.set_title('Eye Movement', fontsize=t_titre, x=0.5, y=1.05)
                 else :
                     ax.set_title('Velocity Fit', fontsize=t_titre, x=0.5, y=1.05)
 
