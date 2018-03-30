@@ -1773,7 +1773,117 @@ class Analysis(object):
 
         return fig, axs
 
+    def plot_KDE(self, mode, kde='kde', result='bet', tau=40., sujet=[6], fig_width=15, t_titre=35, t_label=25) :
 
+        import matplotlib.pyplot as plt
+        import matplotlib.gridspec as gridspec
+        import bayesianchangepoint as bcp
+        from scipy import stats
+
+        colors = ['black','dimgrey','grey','darkgrey','silver','rosybrown','lightcoral','indianred','firebrick','brown','darkred','red']
+        nb_sujet = len(self.PARI)
+        full = full_liste(self.PARI, self.ENREGISTREMENT, P_HAT=True)
+
+        fig, axs = plt.subplots(1, 1, figsize=(fig_width, fig_width/(1.6180)))
+
+        if mode=='expectation' :
+            p_hat = 'p_hat_e'
+            full_p_hat = full['p_hat_e']
+        elif mode=='max' :
+            p_hat = 'p_hat_m'
+            full_p_hat = full['p_hat_m']
+
+        #------------------------------------------------
+        # KDE
+        #------------------------------------------------
+        if result=='bet' :
+            x = full_p_hat.values.tolist()
+            y = full['results'].values.tolist()
+            values = np.vstack([x, y])
+            kernel = stats.gaussian_kde(values)
+            xmin, xmax = np.min(x), np.max(x)# -0.032, 1.032
+            ymin, ymax =  np.min(y), np.max(y)#-0.032, 1.032
+            xx, yy = np.mgrid[xmin:xmax:200j, ymin:ymax:200j]
+            positions = np.vstack([xx.ravel(), yy.ravel()])
+            f = np.reshape(kernel(positions).T, xx.shape)
+
+        elif result=='acceleration' :
+            # masque les essais qui où full_va = NAN
+            full_p_hat_nan = np.ma.masked_array(full_p_hat.values.tolist(), mask=np.isnan(full['va'].values.tolist())).compressed()
+            full_va_nan = np.ma.masked_array(full['va'].values.tolist(), mask=np.isnan(full['va'].values.tolist())).compressed()
+            x = full_p_hat_nan
+            y = full_va_nan
+            values = np.vstack([x, y])
+            kernel = stats.gaussian_kde(values)
+            xmin, xmax = np.min(x), np.max(x)#-0.032, 1.032
+            ymin, ymax = np.min(y), np.max(y)#-21.28, 21.28
+            xx, yy = np.mgrid[xmin:xmax:300j, ymin:ymax:300j]
+            positions = np.vstack([xx.ravel(), yy.ravel()])
+            f = np.reshape(kernel(positions).T, xx.shape)
+
+        if kde=='kde':
+            axs.contourf(xx, yy, f, cmap='Greys', N=25)
+        elif kde=='moyenne':
+            fmean = []
+            for x in range(len(f)):
+                fmean.append([])
+                for y in range(len(f[x])):
+                    fmean[x].append(f[x][y]/np.sum(f[x]))
+            axs.contourf(xx, yy, fmean, cmap='Greys')
+
+        #------------------------------------------------
+        # LINREGRESS
+        #------------------------------------------------
+        if result=='bet' :
+            # RESULTS
+            slope, intercept, r_, p_value, std_err = stats.linregress(full_p_hat.values.tolist(), full['results'].values.tolist())
+            x_test = np.linspace(np.min(full_p_hat.values.tolist()), np.max(full_p_hat.values.tolist()), 100)
+            fitLine = slope * x_test + intercept
+            axs.plot(x_test, fitLine, c='k', linewidth=2)
+            axs.text(0.75,-0.032+(1.032--0.032)/10, 'r = %0.3f'%(r_), fontsize=t_label/1.2)
+
+            hist, x_edges, y_edges = np.histogram2d(full_p_hat.values.tolist(),full['results'].values.tolist(),bins=20)
+            axs.text(0.75,-0.032+2*(1.032--0.032)/10, 'MI = %0.3f'%(mutual_information(hist)), fontsize=t_label/1.2)
+            #------------------------------------------------
+            # cosmétique
+            #------------------------------------------------
+            axs.axis([-0.032, 1.032, -0.032, 1.032])
+            axs.set_ylabel('Probability Bet', fontsize=t_label/1.2)
+            axs.set_title("Probability Bet", fontsize=t_titre/1.2, x=0.5, y=1.05)
+            axs.set_xlabel('$\hat{P}_{%s}$'%(mode), fontsize=t_label/1)
+
+
+        elif result=='acceleration' :
+            # VA
+            # masque les essais qui où full_va = NAN
+            full_p_hat_nan = np.ma.masked_array(full_p_hat.values.tolist(), mask=np.isnan(full['va'].values.tolist())).compressed()
+            full_va_nan = np.ma.masked_array(full['va'].values.tolist(), mask=np.isnan(full['va'].values.tolist())).compressed()
+
+            slope, intercept, r_value, p_value, std_err = stats.linregress(full_p_hat_nan, full_va_nan)
+            x_test = np.linspace(np.min(full_p_hat), np.max(full_p_hat), 100)
+            fitLine = slope * x_test + intercept
+            axs.plot(x_test, fitLine, c='k', linewidth=2)
+            axs.text(0.75,-21.28+(21.28--21.28)/10, 'r = %0.3f'%(r_value), fontsize=t_label/1.2)
+
+            hist, x_edges, y_edges = np.histogram2d(full_p_hat_nan,full_va_nan,bins=20)
+            axs.text(0.75,-21.28+2*(21.28--21.28)/10, 'MI = %0.3f'%(mutual_information(hist)), fontsize=t_label/1.2)
+
+            #------------------------------------------------
+            # cosmétique
+            #------------------------------------------------
+            axs.axis([-0.032, 1.032, -21.28, 21.28])
+            axs.set_ylabel('Acceleration of anticipation (°/s$^2$)', fontsize=t_label/1.2)
+            axs.set_title("Acceleration", fontsize=t_titre/1.2, x=0.5, y=1.05)
+            axs.set_xlabel('$\hat{P}_{%s}$'%(mode), fontsize=t_label/1)
+
+
+        axs.xaxis.set_ticks_position('bottom')
+        axs.yaxis.set_ticks_position('left')
+        axs.xaxis.set_tick_params(labelsize=t_label/1.8)
+        axs.yaxis.set_tick_params(labelsize=t_label/1.8)
+        #------------------------------------------------
+
+        return fig, axs
 
 if __name__ == '__main__':
 
