@@ -1384,11 +1384,11 @@ class Analysis(object):
             hs = h*np.logspace(-1, 1, N_scan)
             modes = ['expectation', 'max']
             score = np.zeros((len(modes), N_scan, N_blocks))
-            for i_mode, m in enumerate(modes):
-                for i_block in range(N_blocks):
-                    o = p[:, i_block, 0]
-                    for i_scan, h_ in enumerate(hs):
-                        p_bar, r, beliefs = bcp.inference(o, h=h_, p0=.5)
+            for i_block in range(N_blocks):
+                o = p[:, i_block, 0]
+                for i_scan, h_ in enumerate(hs):
+                    p_bar, r, beliefs = bcp.inference(o, h=h_, p0=.5)
+                    for i_mode, m in enumerate(modes):
                         p_hat, r_hat = bcp.readout(p_bar, r, beliefs, mode=m)
                         score[i_mode, i_scan, i_block] = np.mean(np.log2(1.e-12+bcp.likelihood(o, p_hat, r_hat)))
             #---------------------------------------------------------------------------
@@ -1488,7 +1488,7 @@ class Analysis(object):
                     axs[4].set_xlim(0, max_run_length)
 
                     axs[4].set_xlabel('r$_{%s}$'%(trial), fontsize=t_label/1.5)
-                    axs[4].set_ylabel('p(r$_{%s}$)'%(trial), fontsize=t_label/1.5)
+                    axs[4].set_ylabel('p(r) at trial $%s$'%(trial), fontsize=t_label/1.5)
                     axs[4].set_title('Belief on r for trial %s'%(trial), x=0.5, y=1., fontsize=t_titre/1.2)
                     axs[4].xaxis.set_tick_params(labelsize=t_label/1.9)
                     axs[4].yaxis.set_tick_params(labelsize=t_label/1.9)
@@ -1528,9 +1528,9 @@ class Analysis(object):
                     axs[num].yaxis.set_tick_params(labelsize=t_label/2)
 
                     if m == 'expectation' :
-                        axs[num].set_title('Bayesian change point : expectation $\sum_{r=0}^\infty r \cdot p(r)$', x=0.5, y=1.20, fontsize=t_titre)
+                        axs[num].set_title('Bayesian change point : expectation $\sum_{r=0}^\infty r \cdot p(r) \cdot \hat{p}(r) $', x=0.5, y=1.20, fontsize=t_titre)
                     else :
-                        axs[num].set_title('Bayesian change point : max(p(r))', x=0.5, y=1.05, fontsize=t_titre)
+                        axs[num].set_title('Bayesian change point : $\hat{p} ( \mathrm{ArgMax}_r (p(r)) )$', x=0.5, y=1.05, fontsize=t_titre)
 
                 for i_layer in range(len(axs)) :
                     axs[i_layer].xaxis.set_ticks_position('bottom')
