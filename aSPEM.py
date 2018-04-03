@@ -405,7 +405,6 @@ def exponentiel (x, tau, maxi, start_anti, v_anti, latence, bino) :
     vitesse = []
 
     for t in range(len(time)):
-
         if start_anti >= latence :
             if time[t] < latence :
                 vitesse.append(0)
@@ -462,17 +461,17 @@ def full_liste(PARI, ENREGISTREMENT, P_HAT=None):
                 p_hat_block_e = []
                 p_hat_block_m = []
                 p_hat_block_f = []
-                
+
                 for s in range(len(liste)-1) :
                     p_bar, r, beliefs = bcp.inference(p[liste[s]:liste[s+1], block, 0], h=h, p0=.5)
                     p_hat_e, r_hat_e = bcp.readout(p_bar, r, beliefs, mode='expectation')
                     p_hat_m, r_hat_m = bcp.readout(p_bar, r, beliefs, mode='max')
                     p_hat_f, r_hat_f = bcp.readout(p_bar, r, beliefs, mode='fixed')
-                    
+
                     p_hat_block_e.extend(p_hat_e)
                     p_hat_block_m.extend(p_hat_m)
                     p_hat_block_f.extend(p_hat_f)
-                    
+
                 full['p_hat_e'][a:b] = p_hat_block_e
                 full['p_hat_m'][a:b] = p_hat_block_m
                 full['p_hat_f'][a:b] = p_hat_block_f
@@ -518,7 +517,7 @@ def Fit_exponentiel(gradient_deg_NAN, trackertime, trackertime_0, TargetOn, Stim
     from lmfit import  Model, Parameters
     # import lmfit
     # print(lmfit.__version__)
-    model = Model(exponentiel, nan_policy='propagate')
+    model = Model(exponentiel, nan_policy='omit')
     params = Parameters()
 
     params.add('tau', value=15., min=13., max=80.)#, vary=False)
@@ -1219,8 +1218,8 @@ class Analysis(object):
                     axs[0].fill_between(range(N_trials), i_block+np.ones_like(p[:, i_block, 0])+ec*i_block,
                                               i_block+p[:, i_block, 0]+ec*i_block,
                                               lw=.5, alpha=alpha[0][1], facecolor=color[0][1], step='pre')
-                    
-                    
+
+
                     axs[0].set_ylabel('Target Direction', fontsize=t_label)
                 for s in range(len(sujet)) :
                     if direction is True :
@@ -1241,7 +1240,7 @@ class Analysis(object):
                 a = s+1
             else :
                 a = s
-                
+
             if len(sujet)==1:
                 results = (self.exp['results']+1)/2 # results est sur [-1,1] on le ramene sur [0,1]
                 v_anti = self.param['v_anti']
