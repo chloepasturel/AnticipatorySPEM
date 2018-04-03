@@ -527,9 +527,9 @@ def Fit_exponentiel(gradient_deg_NAN, trackertime, trackertime_0, TargetOn, Stim
 
     #result_deg = model.fit(new_gradient_deg, params, x=new_time)
     if sup==True :
-        result_deg = model.fit(gradient_deg_NAN[:-280], params, x=trackertime[:-280], fit_kws={'nan_policy': 'omit'})
+        result_deg = model.fit(gradient_deg_NAN[:-280], params, x=trackertime[:-280])#, fit_kws={'nan_policy': 'omit'})
     else :
-        result_deg = model.fit(gradient_deg_NAN, params, x=trackertime, fit_kws={'nan_policy': 'omit'})
+        result_deg = model.fit(gradient_deg_NAN, params, x=trackertime)#, fit_kws={'nan_policy': 'omit'})
 #        result_deg = model.fit(gradient_deg_NAN[:-280], params, x=trackertime[:-280])#, fit_kws={'nan_policy': 'propagate'})
 #    else :
 #        result_deg = model.fit(gradient_deg_NAN, params, x=trackertime)#, fit_kws={'nan_policy': 'propagate'})
@@ -1191,7 +1191,7 @@ class Analysis(object):
         color = [['k', 'k'], ['r', 'r'], ['k','w']]
         alpha = [[.35,.15],[.35,.15],[1,0]]
         lw = 1.3
-        
+
         for i_block in BLOCK:
             if len(sujet)==1 :
                 for i_layer, label in enumerate(['Target Direction', 'Probability', 'Switch']) :
@@ -1200,7 +1200,7 @@ class Analysis(object):
                                               lw=.5, alpha=alpha[i_layer][0], facecolor=color[i_layer][0], step='pre')
                     axs[i_layer].fill_between(range(N_trials), i_block+np.ones_like(p[:, i_block, i_layer])+ec*i_block, i_block+p[:, i_block, i_layer]+ec*i_block,
                                               lw=.5, alpha=alpha[i_layer][1], facecolor=color[i_layer][1], step='pre')
-                    
+
                     axs[i_layer].set_ylabel(label, fontsize=t_label)
             else :
                 axs[0].step(range(N_trials), p[:, i_block, 0]+i_block+ec*i_block, lw=1, c=color[0][0], alpha=alpha[0][0])
@@ -1210,8 +1210,8 @@ class Analysis(object):
                 axs[0].fill_between(range(N_trials), i_block+np.ones_like(p[:, i_block, 0])+ec*i_block,
                                           i_block+p[:, i_block, 0]+ec*i_block,
                                           lw=.5, alpha=alpha[0][1], facecolor=color[0][1], step='pre')
-                
-                
+
+
                 axs[0].set_ylabel('Target Direction', fontsize=t_label)
                 for s in range(len(sujet)) :
                     axs[s+1].step(range(N_trials), p[:, i_block, 1]+i_block+ec*i_block, lw=1, c=color[1][0], alpha=alpha[1][0])
