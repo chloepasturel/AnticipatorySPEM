@@ -430,7 +430,7 @@ def full_liste(PARI, ENREGISTREMENT, P_HAT=None):
 
     if P_HAT is not None :
         import bayesianchangepoint as bcp
-        full = pd.DataFrame(index=np.arange(len(PARI)*600),columns=('sujet', 'proba','bino','results','va','p_hat_e','p_hat_m'))
+        full = pd.DataFrame(index=np.arange(len(PARI)*600),columns=('sujet', 'proba','bino','results','va','p_hat_e','p_hat_m', 'p_hat_f'))
     else :
         full = pd.DataFrame(index=np.arange(len(PARI)*600),columns=('sujet', 'proba','bino','results','va'))
 
@@ -461,18 +461,21 @@ def full_liste(PARI, ENREGISTREMENT, P_HAT=None):
                 liste = [0,50,100,150,200]
                 p_hat_block_e = []
                 p_hat_block_m = []
-
+                p_hat_block_f = []
+                
                 for s in range(len(liste)-1) :
                     p_bar, r, beliefs = bcp.inference(p[liste[s]:liste[s+1], block, 0], h=h, p0=.5)
                     p_hat_e, r_hat_e = bcp.readout(p_bar, r, beliefs, mode='expectation')
                     p_hat_m, r_hat_m = bcp.readout(p_bar, r, beliefs, mode='max')
-
+                    p_hat_f, r_hat_f = bcp.readout(p_bar, r, beliefs, mode='fixed')
+                    
                     p_hat_block_e.extend(p_hat_e)
                     p_hat_block_m.extend(p_hat_m)
-
+                    p_hat_block_f.extend(p_hat_f)
+                    
                 full['p_hat_e'][a:b] = p_hat_block_e
                 full['p_hat_m'][a:b] = p_hat_block_m
-
+                full['p_hat_f'][a:b] = p_hat_block_f
     return full
 
 def mutual_information(hgram):
@@ -1867,6 +1870,12 @@ class Analysis(object):
         elif mode=='max' :
             p_hat = 'p_hat_m'
             full_p_hat = full['p_hat_m']
+        elif mode=='fixed' :
+            p_hat = 'p_hat_f'
+            full_p_hat = full['p_hat_f']
+        elif mode=='reel' :
+            p_hat = 'proba'
+            full_p_hat = full['proba']
 
         if plot=='scatter' :
         #------------------------------------------------
@@ -1972,9 +1981,6 @@ class Analysis(object):
 
         return fig, axs
 
-
-
-        return fig, axs
 if __name__ == '__main__':
 
     try:
