@@ -526,9 +526,9 @@ def Fit_exponentiel(gradient_deg_NAN, trackertime, trackertime_0, TargetOn, Stim
 
     #result_deg = model.fit(new_gradient_deg, params, x=new_time)
     if sup==True :
-        result_deg = model.fit(gradient_deg_NAN[:-280], params, x=trackertime[:-280], fit_kws={'nan_policy': 'propagate'})
+        result_deg = model.fit(gradient_deg_NAN[:-280], params, x=trackertime[:-280], fit_kws={'nan_policy': 'omit'})
     else :
-        result_deg = model.fit(gradient_deg_NAN, params, x=trackertime, fit_kws={'nan_policy': 'propagate'})
+        result_deg = model.fit(gradient_deg_NAN, params, x=trackertime, fit_kws={'nan_policy': 'omit'})
 
     return result_deg
 
@@ -1181,34 +1181,40 @@ class Analysis(object):
             else :
                 fig, axs = plt.subplots(len(sujet)+1, 1, figsize=(fig_width, ((len(sujet)+1)*fig_width/3)/(1.6180)))
 
-        color = [['r', 'b'], ['orange', 'g'], ['k','w']]
+        #color = [['r', 'b'], ['orange', 'g'], ['k','w']]
+        #alpha = [[.2,.2],[.2,.2],[.2,.2]]
+        #lw=1
+        color = [['k', 'k'], ['r', 'r'], ['k','w']]
+        alpha = [[.35,.15],[.35,.15],[1,0]]
+        lw = 1.3
+        
         for i_block in BLOCK:
             if len(sujet)==1 :
                 for i_layer, label in enumerate(['Target Direction', 'Probability', 'Switch']) :
-                    axs[i_layer].step(range(N_trials), p[:, i_block, i_layer]+i_block+ec*i_block, lw=1, c=color[i_layer][0], alpha=.2)
+                    axs[i_layer].step(range(N_trials), p[:, i_block, i_layer]+i_block+ec*i_block, lw=1, c=color[i_layer][0], alpha=alpha[i_layer][0])
                     axs[i_layer].fill_between(range(N_trials), i_block+np.zeros_like(p[:, i_block, i_layer])+ec*i_block, i_block+p[:, i_block, i_layer]+ec*i_block,
-                                              lw=.5, alpha=.2, facecolor=color[i_layer][0], step='pre')
+                                              lw=.5, alpha=alpha[i_layer][0], facecolor=color[i_layer][0], step='pre')
                     axs[i_layer].fill_between(range(N_trials), i_block+np.ones_like(p[:, i_block, i_layer])+ec*i_block, i_block+p[:, i_block, i_layer]+ec*i_block,
-                                              lw=.5, alpha=.2, facecolor=color[i_layer][1], step='pre')
+                                              lw=.5, alpha=alpha[i_layer][1], facecolor=color[i_layer][1], step='pre')
                     
                     axs[i_layer].set_ylabel(label, fontsize=t_label)
             else :
-                axs[0].step(range(N_trials), p[:, i_block, 0]+i_block+ec*i_block, lw=1, c=color[0][0], alpha=.2)
+                axs[0].step(range(N_trials), p[:, i_block, 0]+i_block+ec*i_block, lw=1, c=color[0][0], alpha=alpha[0][0])
                 axs[0].fill_between(range(N_trials), i_block+np.zeros_like(p[:, i_block, 0])+ec*i_block,
                                           i_block+p[:, i_block, 0]+ec*i_block,
-                                          lw=.5, alpha=.2, facecolor=color[0][0], step='pre')
+                                          lw=.5, alpha=alpha[0][0], facecolor=color[0][0], step='pre')
                 axs[0].fill_between(range(N_trials), i_block+np.ones_like(p[:, i_block, 0])+ec*i_block,
                                           i_block+p[:, i_block, 0]+ec*i_block,
-                                          lw=.5, alpha=.2, facecolor=color[0][1], step='pre')
+                                          lw=.5, alpha=alpha[0][1], facecolor=color[0][1], step='pre')
                 
                 
                 axs[0].set_ylabel('Target Direction', fontsize=t_label)
                 for s in range(len(sujet)) :
-                    axs[s+1].step(range(N_trials), p[:, i_block, 1]+i_block+ec*i_block, lw=1, c=color[1][0], alpha=.2)
+                    axs[s+1].step(range(N_trials), p[:, i_block, 1]+i_block+ec*i_block, lw=1, c=color[1][0], alpha=alpha[1][0])
                     axs[s+1].fill_between(range(N_trials), i_block+np.zeros_like(p[:, i_block, 1])+ec*i_block, i_block+p[:, i_block, 1]+ec*i_block,
-                                              lw=.5, alpha=.2, facecolor=color[1][0], step='pre')
+                                              lw=.5, alpha=alpha[1][0], facecolor=color[1][0], step='pre')
                     axs[s+1].fill_between(range(N_trials), i_block+np.ones_like(p[:, i_block, 1])+ec*i_block, i_block+p[:, i_block, 1]+ec*i_block,
-                                              lw=.5, alpha=.2, facecolor=color[1][1], step='pre')
+                                              lw=.5, alpha=alpha[1][1], facecolor=color[1][1], step='pre')
                     axs[s+1].set_yticklabels(['0','1','0','1','0','1'],fontsize=t_label/2)
                     axs[s+1].set_ylabel('Subject %s'%(sujet[s]), fontsize=t_label)
 
@@ -1231,10 +1237,10 @@ class Analysis(object):
             if mode == 'pari' :
                 for block in BLOCK:
                     if block == 0 :
-                        axs[s+1].step(range(N_trials), block+results[:, block]+ec*block, lw=1, alpha=.9,
+                        axs[s+1].step(range(N_trials), block+results[:, block]+ec*block, lw=lw, alpha=1,
                                       color='darkred', label='Individual guess')
                     else :
-                        axs[s+1].step(range(N_trials), block+results[:, block]+ec*block, alpha=.9, color='darkred')
+                        axs[s+1].step(range(N_trials), block+results[:, block]+ec*block, lw=lw, alpha=1, color='darkred')
                 axs[0].set_title('Bet results', fontsize=t_titre, x=0.5, y=y_t)
 
             #------------------------------------------------
@@ -1242,23 +1248,23 @@ class Analysis(object):
                 for block in BLOCK:
                     if block == 0 :
                         axs[s+1].step(range(N_trials), block+((np.array(v_anti[block])-np.nanmin(v_anti))/(np.nanmax(v_anti)-np.nanmin(v_anti)))+ec*block,
-                                      color='k', lw=1, alpha=1, label='Eye movement')
+                                      color='k', lw=lw, alpha=1, label='Eye movement')
                     else :
                         axs[s+1].step(range(N_trials), block+((np.array(v_anti[block])-np.nanmin(v_anti))/(np.nanmax(v_anti)-np.nanmin(v_anti)))+ec*block,
-                                      color='k', lw=1, alpha=1)
+                                      color='k', lw=lw, alpha=1)
                 axs[0].set_title('Eye movements recording results', fontsize=t_titre, x=0.5, y=y_t)
 
             #------------------------------------------------
             elif mode=='deux':
                 for block in BLOCK:
                     if block == 0 :
-                        axs[s+1].step(range(N_trials), block+results[:, block]+ec*block, lw=1, alpha=.9,
+                        axs[s+1].step(range(N_trials), block+results[:, block]+ec*block, lw=lw, alpha=1,
                                       color='darkred', label='Individual guess')
                         axs[s+1].step(range(N_trials), block+((np.array(v_anti[block])-np.nanmin(v_anti))/(np.nanmax(v_anti)-np.nanmin(v_anti)))+ec*block,
-                                      color='k', lw=1, alpha=1, label='Eye movement')
+                                      color='k', lw=lw, alpha=1, label='Eye movement')
                     else :
-                        axs[s+1].step(range(N_trials), block+results[:, block]+ec*block, lw=1, alpha=.9, color='darkred')
-                        axs[s+1].step(range(N_trials), block+((np.array(v_anti[block])-np.nanmin(v_anti))/(np.nanmax(v_anti)-np.nanmin(v_anti)))+ec*block,color='k', lw=1, alpha=1)
+                        axs[s+1].step(range(N_trials), block+results[:, block]+ec*block, lw=lw, alpha=1, color='darkred')
+                        axs[s+1].step(range(N_trials), block+((np.array(v_anti[block])-np.nanmin(v_anti))/(np.nanmax(v_anti)-np.nanmin(v_anti)))+ec*block,color='k', lw=lw, alpha=1)
                 axs[0].set_title('Bet + Eye movements results', fontsize=t_titre, x=0.5, y=y_t)
 
             #------------------------------------------------
@@ -1317,6 +1323,7 @@ class Analysis(object):
             axs[1].set_yticklabels(['0','1']*len(BLOCK),fontsize=t_label/2)
             axs[2].set_yticklabels(['No','Yes']*len(BLOCK),fontsize=t_label/2)
         else :
+            axs[0].set_yticklabels(['left','right']*len(BLOCK),fontsize=t_label/2)
             axs[1].legend(fontsize=t_label/1.3, bbox_to_anchor=(0., 2.1, 1, 0.), loc=3, ncol=2, mode="expand", borderaxespad=0.)
 
         axs[-1].set_xlabel('Trials', fontsize=t_label)
