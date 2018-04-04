@@ -462,17 +462,17 @@ def full_liste(PARI, ENREGISTREMENT, P_HAT=None):
                 p_hat_block_e = []
                 p_hat_block_m = []
                 p_hat_block_f = []
-                
+
                 for s in range(len(liste)-1) :
                     p_bar, r, beliefs = bcp.inference(p[liste[s]:liste[s+1], block, 0], h=h, p0=.5)
                     p_hat_e, r_hat_e = bcp.readout(p_bar, r, beliefs, mode='expectation')
                     p_hat_m, r_hat_m = bcp.readout(p_bar, r, beliefs, mode='max')
                     p_hat_f, r_hat_f = bcp.readout(p_bar, r, beliefs, mode='fixed')
-                    
+
                     p_hat_block_e.extend(p_hat_e)
                     p_hat_block_m.extend(p_hat_m)
                     p_hat_block_f.extend(p_hat_f)
-                    
+
                 full['p_hat_e'][a:b] = p_hat_block_e
                 full['p_hat_m'][a:b] = p_hat_block_m
                 full['p_hat_f'][a:b] = p_hat_block_f
@@ -758,7 +758,7 @@ def regress(ax, p, data, y1, y2, t_label) :
 
     hist, x_edges, y_edges = np.histogram2d(p, data ,bins=20)
     ax.text(0.75,y1+2*(y2-y1)/10, 'MI = %0.3f'%(mutual_information(hist)), fontsize=t_label/1.2)
-    
+
     return ax
 
 
@@ -846,16 +846,16 @@ def scatter_KDE(self, ax, mode_bcp, plot, mode_kde, result, t_titre, t_label) :
 
 
 def results_sujet(self, ax, sujet, s, mode_bcp, tau, t_label):
-    
+
     import bayesianchangepoint as bcp
     from scipy import stats
-    
+
     color = [['k', 'k'], ['r', 'r'], ['k','w']]
     alpha = [[.35,.15],[.35,.15],[1,0]]
     lw = 1.3
     ec = 0.2 # pour l'écart entre les différents blocks
-    
-    
+
+
     print('Subject', sujet[s], '=', self.PARI[sujet[s]]['observer'])
     N_trials = self.PARI[sujet[s]]['N_trials']
     N_blocks = self.PARI[sujet[s]]['N_blocks']
@@ -901,12 +901,6 @@ def results_sujet(self, ax, sujet, s, mode_bcp, tau, t_label):
             ax.step(range(N_trials), block+((np.array(v_anti[block])-np.nanmin(v_anti))/(np.nanmax(v_anti)-np.nanmin(v_anti)))+ec*block,
                         color='k', lw=1.2)
 
-    #------------------------------------------------
-    # Barre Pause
-    #------------------------------------------------
-    ax.bar(49, 3+ec*3, bottom=-ec/2, color='k', width=0, linewidth=2)
-    ax.bar(99, 3+ec*3, bottom=-ec/2, color='k', width=0, linewidth=2)
-    ax.bar(149, 3+ec*3, bottom=-ec/2, color='k', width=0, linewidth=2)
 
     #------------------------------------------------
     # affiche les numéro des block sur le côté gauche
@@ -926,7 +920,17 @@ def results_sujet(self, ax, sujet, s, mode_bcp, tau, t_label):
     ax.yaxis.set_label_coords(-0.02, 0.5)
     ax.set_ylabel('Subject %s'%(sujet[s]), fontsize=t_label)
     ax.set_ylim(-(ec/2), N_blocks +ec*3-(ec/2))
+    ax.set_xlim(0, N_trials)
     #------------------------------------------------
+
+    #------------------------------------------------
+    # Barre Pause
+    #------------------------------------------------
+    ax.bar(50, 3+ec*3, bottom=-ec/2, color='k', width=0.1, linewidth=2)
+    ax.bar(100, 3+ec*3, bottom=-ec/2, color='k', width=0.1, linewidth=2)
+    ax.bar(150, 3+ec*3, bottom=-ec/2, color='k', width=0.1, linewidth=2)
+    #ax.bar(49, 3+ec*3, bottom=-ec/2, color='k', width=0.1, linewidth=2)
+
     return ax
 
 class Analysis(object):
@@ -1424,8 +1428,8 @@ class Analysis(object):
                     axs[0].fill_between(range(N_trials), i_block+np.ones_like(p[:, i_block, 0])+ec*i_block,
                                               i_block+p[:, i_block, 0]+ec*i_block,
                                               lw=.5, alpha=alpha[0][1], facecolor=color[0][1], step='pre')
-                    
-                    
+
+
                     axs[0].set_ylabel('Target Direction', fontsize=t_label)
                 for s in range(len(sujet)) :
                     if direction is True :
@@ -1446,7 +1450,7 @@ class Analysis(object):
                 a = s+1
             else :
                 a = s
-                
+
             if len(sujet)==1:
                 results = (self.exp['results']+1)/2 # results est sur [-1,1] on le ramene sur [0,1]
                 v_anti = self.param['v_anti']
@@ -1814,20 +1818,20 @@ class Analysis(object):
         elif plot == 'sujet' :
             print('sujet')
             fig, axs = plt.subplots(len(sujet), 1, figsize=(fig_width, fig_width/(1.6180)))
-            fig.subplots_adjust(left = 0, bottom = (len(sujet))*2/3, right = 1, top =len(sujet))
-            plt.subplots_adjust(hspace=0.05)
+            # fig.subplots_adjust(left = 0, bottom = (len(sujet))*2/3, right = 1, top =len(sujet))
+            # plt.subplots_adjust(hspace=0.05)
 
         elif plot == 'scatterKDE' :
             a = 0
             b = 1
             print('scatterKDE')
-            fig, axs = plt.subplots(1, 2, figsize=(fig_width, fig_width/(1.6180)))
-            fig.subplots_adjust(left = 0, bottom = 1/2, right = 1, top =1)
-            fig.subplots_adjust(wspace=0.2)
-            plt.suptitle('Results bayesian change point %s'%(mode_bcp), fontsize=t_titre, x=0.5, y=1.3)
+            fig, axs = plt.subplots(1, 2, figsize=(fig_width, fig_width/2.))
+            # fig.subplots_adjust(left = 0, bottom = 1/2, right = 1, top =1)
+            # fig.subplots_adjust(wspace=0.2)
+            # plt.suptitle('Results bayesian change point %s'%(mode_bcp), fontsize=t_titre, x=0.5, y=1.3)
 
         if plot in ['Full', 'sujet'] :
-            axs[0].set_title('Results bayesian change point %s'%(mode_bcp), fontsize=t_titre, x=0.5, y=1.3)
+            # axs[0].set_title('Results bayesian change point %s'%(mode_bcp), fontsize=t_titre, x=0.5, y=1.3)
             for s in range(len(sujet)) :
                 axs[s] = results_sujet(self, axs[s], sujet, s, mode_bcp, tau, t_label)
 
@@ -1854,10 +1858,11 @@ class Analysis(object):
                 axs[i_layer].set_xticks([])
             elif i_layer == len(sujet)-1 :
                 axs[i_layer].set_xlabel('Trials', fontsize=t_label)
-                axs[i_layer].set_xticks([-1, 49, 99,149])
+                axs[i_layer].set_xticks([-1, 49, 99, 149])
                 axs[i_layer].set_xticklabels([0, 50, 100, 150], ha='left',fontsize=t_label/1.8)
 
-        axs[0].legend(fontsize=t_label/1.2, bbox_to_anchor=(0., 1.05, 1, 0.), loc=4, ncol=3,
+        if not plot in ['scatterKDE'] :
+            axs[0].legend(fontsize=t_label/1.2, bbox_to_anchor=(0., 1.05, 1, 0.), loc=4, ncol=3,
                   mode="expand", borderaxespad=0.)
 
         #------------------------------------------------
