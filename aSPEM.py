@@ -926,10 +926,10 @@ def results_sujet(self, ax, sujet, s, mode_bcp, tau, t_label):
     #------------------------------------------------
     # Barre Pause
     #------------------------------------------------
-    ax.bar(50, 3+ec*3, bottom=-ec/2, color='k', width=0.1, linewidth=2)
-    ax.bar(100, 3+ec*3, bottom=-ec/2, color='k', width=0.1, linewidth=2)
-    ax.bar(150, 3+ec*3, bottom=-ec/2, color='k', width=0.1, linewidth=2)
-    #ax.bar(49, 3+ec*3, bottom=-ec/2, color='k', width=0.1, linewidth=2)
+    ax.bar(50, 3+ec*3, bottom=-ec/2, color='k', width=.2, linewidth=0)
+    ax.bar(100, 3+ec*3, bottom=-ec/2, color='k', width=.2, linewidth=0)
+    ax.bar(150, 3+ec*3, bottom=-ec/2, color='k', width=.2, linewidth=0)
+    #ax.bar(49, 3+ec*3, bottom=-ec/2, color='k', width=.2, linewidth=0)
 
     return ax
 
@@ -1508,9 +1508,9 @@ class Analysis(object):
                 #------------------------------------------------
                 # Barre Pause
                 #------------------------------------------------
-                axs[i_layer].bar(49, 3+ec*3, bottom=-ec/2, color='k', width=0, linewidth=2)
-                axs[i_layer].bar(99, 3+ec*3, bottom=-ec/2, color='k', width=0, linewidth=2)
-                axs[i_layer].bar(149, 3+ec*3, bottom=-ec/2, color='k', width=0, linewidth=2)
+                axs[i_layer].bar(49, 3+ec*3, bottom=-ec/2, color='k', width=.2, linewidth=0)
+                axs[i_layer].bar(99, 3+ec*3, bottom=-ec/2, color='k', width=.2, linewidth=0)
+                axs[i_layer].bar(149, 3+ec*3, bottom=-ec/2, color='k', width=.2, linewidth=0)
                 #------------------------------------------------
                 # affiche les numéro des block sur le côté gauche
                 #------------------------------------------------
@@ -1679,9 +1679,9 @@ class Analysis(object):
                         axs[num+1].plot(np.arange(liste[a], liste[a+1]), r_hat, lw=1.5, alpha=.9, c='r')
 
                     for a in range(A):
-                        axs[a].bar(50, 140 + 2*(.05*140), bottom=-.05*140, color='k', width=0, linewidth=2)
-                        axs[a].bar(100, 140 + 2*(.05*140), bottom=-.05*140, color='k', width=0, linewidth=2)
-                        axs[a].bar(150, 140 + 2*(.05*140), bottom=-.05*140, color='k', width=0, linewidth=2)
+                        axs[a].bar(50, 140 + 2*(.05*140), bottom=-.05*140, color='k', width=.2, linewidth=0)
+                        axs[a].bar(100, 140 + 2*(.05*140), bottom=-.05*140, color='k', width=.2, linewidth=0)
+                        axs[a].bar(150, 140 + 2*(.05*140), bottom=-.05*140, color='k', width=.2, linewidth=0)
 
                 else :
                     p_bar, r, beliefs = bcp.inference(o, h=h, p0=.5)
@@ -1737,12 +1737,13 @@ class Analysis(object):
                 # cosmétique
                 #---------------------------------------------------------------------------
                 for i_layer, label in zip(range(2), ['$\hat{P}$ +/- CI', 'belief on r=p(r)']):
-                    axs[i_layer+num].set_xlim(0, N_trials)
+                    axs[i_layer+num].set_xlim(-1, N_trials)
                     axs[i_layer+num].axis('tight')
                     axs[i_layer+num].set_ylabel(label, fontsize=t_label/1.5)
                     axs[i_layer+num].xaxis.set_ticks_position('bottom')
                     axs[i_layer+num].yaxis.set_ticks_position('left')
 
+                axs[num].set_xlim(-1, N_trials)
                 axs[num].set_ylim(-.05, 1 + .05)
                 axs[num].set_yticks(np.arange(0, 1 + .05, 1/2))
                 axs[num].set_xticks([])
@@ -1760,7 +1761,7 @@ class Analysis(object):
                     axs[2].legend(frameon=False, loc="lower left")
 
                 if plot=='detail':
-                    axs[num+1].bar(trial-1, 140 + (.05*140)+.05*140, bottom=-.05*140, color='firebrick', width=0.5, linewidth=0, alpha=1)
+                    axs[num+1].bar(trial-1, 140 + (.05*140)+.05*140, bottom=-.05*140, color='firebrick', width=.5, linewidth=0, alpha=1)
                     axs[num+1].yaxis.set_tick_params(labelsize=t_label/2)
                     axs[num+1].set_xlabel('Trials', fontsize=t_label);
 
