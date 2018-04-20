@@ -524,7 +524,7 @@ def Fit_exponentiel(gradient_deg_NAN, trackertime, trackertime_0, TargetOn, Stim
     params.add('tau', value=15., min=13., max=80.)#, vary=False)
     params.add('maxi', value=15., min=1., max=40.)#, vary=False)
     params.add('latence', value=TargetOn-trackertime_0+100, min=TargetOn-trackertime_0+75, max=stop_latence[0])
-    params.add('start_anti', value=TargetOn-trackertime_0-100, min=StimulusOf-trackertime_0, max=TargetOn-trackertime_0+75)
+    params.add('start_anti', value=TargetOn-trackertime_0-100, min=StimulusOf-trackertime_0-200, max=TargetOn-trackertime_0+75)
     params.add('v_anti', value=(bino*2-1)*0, min=-40., max=40.)
     params.add('bino', value=bino, min=0, max=1, vary=False)
 
