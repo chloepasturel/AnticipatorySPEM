@@ -389,40 +389,6 @@ class aSPEM(object):
 ######################### ANALYSIS ##########################################
 #############################################################################
 
-def exponentiel (x, tau, maxi, start_anti, v_anti, latence, bino) :
-
-    '''
-    tau -- courbe
-    maxi -- maximum
-    latence -- tps où commence le mvt
-    bino -- binomial
-    start_anti = debut de l'anticipation
-    v_anti =  vitesse de l'anticipation
-    '''
-
-    v_anti = v_anti/1000 # pour passer de sec à ms
-    time = np.arange(len(x))
-    vitesse = []
-
-    for t in range(len(time)):
-
-        if start_anti >= latence :
-            if time[t] < latence :
-                vitesse.append(0)
-            else :
-                vitesse.append((bino*2-1)*maxi*(1-np.exp(-1/tau*(time[t]-latence))))
-        else :
-            if time[t] < start_anti :
-                vitesse.append(0)
-            else :
-                if time[t] < latence :
-                    #vitesse.append((bino*2-1)*(time[t]-start_anti)*v_anti)
-                    vitesse.append((time[t]-start_anti)*v_anti)
-                    x = (time[t]-start_anti)*v_anti
-                else :
-                    vitesse.append((bino*2-1)*maxi*(1-np.exp(-1/tau*(time[t]-latence)))+x)
-    return vitesse
-
 def full_liste(PARI, ENREGISTREMENT, P_HAT=None):
 
     import pandas as pd
@@ -490,233 +456,7 @@ def mutual_information(hgram):
     nzs = pxy > 0 # Only non-zero pxy values contribute to the sum
     return np.sum(pxy[nzs] * np.log(pxy[nzs] / px_py[nzs]))
 
-def suppression_saccades(self, data_x, saccades, trackertime, trackertime_0, TargetOn) :
 
-    gradient_x = np.gradient(data_x)
-    gradient_deg = gradient_x * 1/self.exp['px_per_deg'] * 1000 # gradient en deg/sec
-    gradient_deg_NAN = gradient_deg
-
-    for s in range(len(saccades)) :
-        if saccades[s][1]-trackertime_0+15 <= (len(trackertime)) :
-            for x_data in np.arange((saccades[s][0]-trackertime_0-5), (saccades[s][1]-trackertime_0+15)) :
-                gradient_deg_NAN[x_data] = np.nan
-        else :
-            for x_data in np.arange((saccades[s][0]-trackertime_0-5), (len(trackertime))) :
-                gradient_deg_NAN[x_data] = np.nan
-
-    stop_latence = []
-    for s in range(len(saccades)) :
-        if (saccades[s][0]-trackertime_0) >= (TargetOn-trackertime_0+100) :
-            stop_latence.append((saccades[s][0]-trackertime_0))
-    if stop_latence==[] :
-        stop_latence.append(len(trackertime))
-
-    return gradient_deg_NAN, stop_latence
-
-def Fit_exponentiel(gradient_deg_NAN, trackertime, trackertime_0, TargetOn, StimulusOf, stop_latence, bino, sup=True, exponentiel=exponentiel):
-
-    from lmfit import  Model, Parameters
-    #import lmfit
-    #print(lmfit.__version__)
-    model = Model(exponentiel)#, nan_policy='propagate')# a tester pour lmfit 0.9.9
-    params = Parameters()
-
-    params.add('tau', value=15., min=13., max=80.)#, vary=False)
-    params.add('maxi', value=15., min=1., max=40.)#, vary=False)
-    params.add('latence', value=TargetOn-trackertime_0+100, min=TargetOn-trackertime_0+75, max=stop_latence[0])
-    params.add('start_anti', value=TargetOn-trackertime_0-100, min=StimulusOf-trackertime_0-200, max=TargetOn-trackertime_0+75)
-    params.add('v_anti', value=(bino*2-1)*0, min=-40., max=40.)
-    params.add('bino', value=bino, min=0, max=1, vary=False)
-
-    #result_deg = model.fit(new_gradient_deg, params, x=new_time)
-    if sup==True :
-        result_deg = model.fit(gradient_deg_NAN[:-280], params, x=trackertime[:-280], fit_kws={'nan_policy': 'omit'}) #, fit_kws={'nan_policy': 'propagate'}) #lmfit 0.9.9
-    else :
-        result_deg = model.fit(gradient_deg_NAN, params, x=trackertime, fit_kws={'nan_policy': 'omit'}) #, fit_kws={'nan_policy': 'propagate'}) #lmfit 0.9.9
-
-    return result_deg
-
-def fig_fit(self, ax, trial_data, data, bino, plot, t_titre=35, t_label=20, report=None) :
-    '''
-    plot == velocity, fonction
-
-    '''
-
-    data_x = data[trial_data]['x']
-    data_y = data[trial_data]['y']
-    trackertime = data[trial_data]['trackertime']
-
-    StimulusOn = data[trial_data]['events']['msg'][10][0]
-    StimulusOf = data[trial_data]['events']['msg'][14][0]
-    TargetOn = data[trial_data]['events']['msg'][15][0]
-    TargetOff = data[trial_data]['events']['msg'][16][0]
-    saccades = data[trial_data]['events']['Esac']
-    trackertime_0 = data[trial_data]['trackertime'][0]
-
-    gradient_deg_NAN, stop_latence = suppression_saccades(self, data_x, saccades, trackertime, trackertime_0, TargetOn)
-
-    start = TargetOn
-    StimulusOn_s = StimulusOn - start
-    StimulusOf_s = StimulusOf - start
-    TargetOn_s = TargetOn - start
-    TargetOff_s = TargetOff - start
-    trackertime_s = trackertime - start
-
-    # FIT
-    result_deg = Fit_exponentiel(gradient_deg_NAN, trackertime, trackertime_0, TargetOn, StimulusOf, stop_latence, bino, sup=False)
-
-    if plot == 'velocity' :
-
-        ax.plot(trackertime_s, gradient_deg_NAN, color='k', alpha=0.4)
-        #ax.plot(trackertime_s, result_deg.best_fit, color='k', linewidth=2)
-
-        debut  = TargetOn - trackertime_0 # TargetOn - temps_0
-        start_anti = result_deg.values['start_anti']
-        v_anti = result_deg.values['v_anti']
-        latence = result_deg.values['latence']
-        tau = result_deg.values['tau']
-        maxi = result_deg.values['maxi']
-        result_fit = result_deg.best_fit
-
-    if plot == 'fonction' :
-
-        start_anti = TargetOn-trackertime_0-100
-        latence = TargetOn-trackertime_0+100
-        result_fit = result_deg.init_fit
-
-    # COSMETIQUE
-    ax.plot(trackertime_s[:int(start_anti)], result_fit[:int(start_anti)], 'k', linewidth=2)
-    ax.plot(trackertime_s[int(latence)+250:], result_fit[int(latence)+250:], 'k', linewidth=2)
-
-    ax.axvspan(StimulusOn_s, StimulusOf_s, color='k', alpha=0.2)
-    ax.axvspan(StimulusOf_s, TargetOn_s, color='r', alpha=0.2)
-    ax.axvspan(TargetOn_s, TargetOff_s, color='k', alpha=0.15)
-
-    # V_a ------------------------------------------------------------------------
-    ax.plot(trackertime_s[int(start_anti):int(latence)], result_fit[int(start_anti):int(latence)], c='r', linewidth=2)
-    ax.annotate('', xy=(trackertime_s[int(latence)], result_fit[int(latence)]-3), xycoords='data', fontsize=t_label/1.5,
-                xytext=(trackertime_s[int(start_anti)], result_fit[int(start_anti)]-3), textcoords='data', arrowprops=dict(arrowstyle="->", color='r'))
-    # Start_a --------------------------------------------------------------------
-    ax.bar(trackertime_s[int(start_anti)], 80, bottom=-40, color='k', width=4, linewidth=0, alpha=0.7)
-    # latence --------------------------------------------------------------------
-    ax.bar(trackertime_s[int(latence)], 80, bottom=-40, color='firebrick', width=4, linewidth=0, alpha=1)
-    # tau ------------------------------------------------------------------------
-    ax.plot(trackertime_s[int(latence):int(latence)+250], result_fit[int(latence):int(latence)+250], c='darkred', linewidth=2)
-    # Max ------------------------------------------------------------------------
-    ax.plot(trackertime_s[int(latence):], np.ones(len(trackertime_s[int(latence):]))*result_fit[int(latence)], '--k', linewidth=1, alpha=0.5)
-    ax.plot(trackertime_s[int(latence):], np.ones(len(trackertime_s[int(latence):]))*result_fit[int(latence)+250], '--k', linewidth=1, alpha=0.5)
-
-
-    if plot == 'velocity' :
-
-        # COSMETIQUE
-        for s in range(len(saccades)) :
-            ax.axvspan(saccades[s][0]-start, saccades[s][1]-start, color='k', alpha=0.15)
-
-        # V_a ------------------------------------------------------------------------
-        ax.text((trackertime_s[int(start_anti)]+trackertime_s[int(latence)])/2, result_fit[int(start_anti)]-15,
-                r"A$_a$ = %0.2f °/s$^2$"%(v_anti), color='r', fontsize=t_label/1.5, ha='center')
-        # Start_a --------------------------------------------------------------------
-        ax.text(trackertime_s[int(start_anti)]-25, -35, "Start anticipation = %0.2f ms"%(start_anti-debut),
-                color='k', alpha=0.7, fontsize=t_label/1.5, ha='right')
-        # latence --------------------------------------------------------------------
-        ax.text(trackertime_s[int(latence)]+25, -35, "Latency = %0.2f ms"%(latence-debut),
-                color='firebrick', fontsize=t_label/1.5, va='center')
-        # tau ------------------------------------------------------------------------
-        ax.text(trackertime_s[int(latence)]+70+t_label, (result_fit[int(latence)]),
-                r"= %0.2f"%(tau), color='darkred',va='bottom', fontsize=t_label/1.5)
-        ax.annotate(r'$\tau$', xy=(trackertime_s[int(latence)]+50, result_fit[int(latence)+50]), xycoords='data', fontsize=t_label/1., color='darkred', va='bottom',
-                    xytext=(trackertime_s[int(latence)]+70, result_fit[int(latence)]), textcoords='data', arrowprops=dict(arrowstyle="->", color='darkred'))
-        # Max ------------------------------------------------------------------------
-        ax.text(TargetOn_s+450+25, (result_fit[int(latence)]+result_fit[int(latence)+250])/2,
-                "Max = %0.2f °/s"%(-maxi), color='k', va='center', fontsize=t_label/1.5)
-        ax.annotate('', xy=(TargetOn_s+450, result_fit[int(latence)]), xycoords='data', fontsize=t_label/1.5,
-                    xytext=(TargetOn_s+450, result_fit[int(latence)+250]), textcoords='data', arrowprops=dict(arrowstyle="<->"))
-
-
-    if plot == 'fonction' :
-
-        # COSMETIQUE
-        ax.text(StimulusOf_s+(TargetOn_s-StimulusOf_s)/2, 31, "GAP", color='k', fontsize=t_label, ha='center', va='bottom')
-        ax.text((StimulusOf_s-750)/2, 31, "FIXATION", color='k', fontsize=t_label, ha='center', va='bottom')
-        ax.text((750-TargetOn_s)/2, 31, "PURSUIT", color='k', fontsize=t_label, ha='center', va='bottom')
-        ax.text(TargetOn_s, 15, "Anticipation", color='r', fontsize=t_label/1.5, ha='center')
-
-        # V_a ------------------------------------------------------------------------
-        ax.text(TargetOn_s-50, -5, r"A$_a$", color='r', fontsize=t_label/1.5, ha='center', va='top')
-        # Start_a --------------------------------------------------------------------
-        ax.text(TargetOn_s-100-25, -35, "Start anticipation", color='k', fontsize=t_label/1.5, alpha=0.7, ha='right')
-        # latence --------------------------------------------------------------------
-        ax.text(TargetOn_s+99+25, -35, "Latency", color='firebrick', fontsize=t_label/1.5)
-        # tau ------------------------------------------------------------------------
-        ax.annotate(r'$\tau$', xy=(TargetOn_s+140, result_fit[TargetOn-trackertime_0+140]), xycoords='data', fontsize=t_label/1., color='darkred', va='bottom',
-                xytext=(TargetOn_s+170, result_fit[TargetOn-trackertime_0]), textcoords='data', arrowprops=dict(arrowstyle="->", color='darkred'))
-        # Max ------------------------------------------------------------------------
-        ax.text(TargetOn_s+400+25, ((result_fit[TargetOn-trackertime_0+100]+result_fit[TargetOn-trackertime_0+250])/2),
-               'Max', color='k', fontsize=t_label/1.5, va='center')
-        ax.annotate('', xy=(TargetOn_s+400, result_fit[TargetOn-trackertime_0+100]), xycoords='data', fontsize=t_label/1.5,
-                xytext=(TargetOn_s+400, result_fit[TargetOn-trackertime_0+250]), textcoords='data', arrowprops=dict(arrowstyle="<->"))
-
-
-    #axs[x].axis([StimulusOn_s-10, TargetOff_s+10, -40, 40])
-    ax.axis([-750, 750, -39.5, 39.5])
-    ax.xaxis.set_ticks_position('bottom')
-    ax.xaxis.set_tick_params(labelsize=t_label/2)
-    ax.yaxis.set_ticks_position('left')
-    ax.yaxis.set_tick_params(labelsize=t_label/2)
-    ax.set_xlabel('Time (ms)', fontsize=t_label)
-
-    if report is None :
-        return ax
-    else :
-        return ax, result_deg.fit_report()
-
-def fig_velocity(self, ax, trial_data, data, bino, t_titre=35, t_label=20) :
-    '''
-    plot == velocity, fonction
-
-    '''
-
-    data_x = data[trial_data]['x']
-    data_y = data[trial_data]['y']
-    trackertime = data[trial_data]['trackertime']
-
-    StimulusOn = data[trial_data]['events']['msg'][10][0]
-    StimulusOf = data[trial_data]['events']['msg'][14][0]
-    TargetOn = data[trial_data]['events']['msg'][15][0]
-    TargetOff = data[trial_data]['events']['msg'][16][0]
-    saccades = data[trial_data]['events']['Esac']
-    trackertime_0 = data[trial_data]['trackertime'][0]
-
-    gradient_deg_NAN, stop_latence = suppression_saccades(self, data_x, saccades, trackertime, trackertime_0, TargetOn)
-
-    start = TargetOn
-    StimulusOn_s = StimulusOn - start
-    StimulusOf_s = StimulusOf - start
-    TargetOn_s = TargetOn - start
-    TargetOff_s = TargetOff - start
-    trackertime_s = trackertime - start
-
-    ax.plot(trackertime_s, gradient_deg_NAN, color='k', alpha=0.4)
-    #ax.plot(trackertime_s, result_deg.best_fit, color='k', linewidth=2)
-
-    ax.axvspan(StimulusOn_s, StimulusOf_s, color='k', alpha=0.2)
-    ax.axvspan(StimulusOf_s, TargetOn_s, color='r', alpha=0.2)
-    ax.axvspan(TargetOn_s, TargetOff_s, color='k', alpha=0.15)
-
-    # COSMETIQUE
-    for s in range(len(saccades)) :
-        ax.axvspan(saccades[s][0]-start, saccades[s][1]-start, color='k', alpha=0.15)
-
-    #axs[x].axis([StimulusOn_s-10, TargetOff_s+10, -40, 40])
-    ax.axis([-750, 750, -39.5, 39.5])
-    ax.xaxis.set_ticks_position('bottom')
-    ax.xaxis.set_tick_params(labelsize=t_label/2)
-    ax.yaxis.set_ticks_position('left')
-    ax.yaxis.set_tick_params(labelsize=t_label/2)
-    ax.set_xlabel('Time (ms)', fontsize=t_label)
-
-    return ax
 
 def scatter(self, ax, full, p_hat, colors, nb_sujet, result):
     #------------------------------------------------
@@ -933,6 +673,8 @@ def results_sujet(self, ax, sujet, s, mode_bcp, tau, t_label):
 
     return ax
 
+
+
 class Analysis(object):
     """ docstring for the aSPEM class. """
 
@@ -1009,11 +751,11 @@ class Analysis(object):
                     self.param = self.ENREGISTREMENT[x]
 
 
-    def plot_enregistrement(self, mode=None, fig=None, axs=None, fig_width=5) :
+    def plot_position(self, fig=None, axs=None, fig_width=10, t_label=20, file_fig=None) :
 
-        import matplotlib.pyplot as plt
         # from pygazeanalyser.edfreader import read_edf
         from edfreader import read_edf
+        from ANEMO import ANEMO
 
         resultats = os.path.join(self.exp['datadir'], self.mode + '_' + self.observer + '_' + self.timeStr + '.asc')
         data = read_edf(resultats, 'TRIALID')
@@ -1026,292 +768,49 @@ class Analysis(object):
         RashBass = self.exp['RashBass']
         stim_tau = self.exp['stim_tau']
         p = self.exp['p']
+        bino = p[:,:,0]
 
-        for block in range(N_blocks) :
+        if file_fig is None :
+            file_fig = 'figures/enregistrement_%s'%(self.observer)
 
-            if fig is None:
-                fig_width= fig_width
-                fig, axs = plt.subplots(N_trials, 1, figsize=(fig_width, (fig_width*(N_trials/2))/1.6180))
+        ANEMO.plot_position(data, N_trials, N_blocks, bino, V_X, RashBass, stim_tau, screen_width_px, screen_height_px, fig, axs, fig_width, t_label,file_fig)
 
-            for trial in range(N_trials) :
 
-                #if trial <= 2 :
-                trial_data = trial + N_trials*block
-
-                data_x = data[trial_data]['x']
-                data_y = data[trial_data]['y']
-                trackertime = data[trial_data]['trackertime']
-
-                TRIALID = data[trial_data]['events']['msg'][0][0]
-                StimulusOn = data[trial_data]['events']['msg'][10][0]
-                StimulusOf = data[trial_data]['events']['msg'][14][0]
-                TargetOn = data[trial_data]['events']['msg'][15][0]
-                TargetOff = data[trial_data]['events']['msg'][16][0]
-                fixations = data[trial_data]['events']['Efix']
-                saccades = data[trial_data]['events']['Esac']
-
-                start = TargetOn
-
-                TRIALID = TRIALID - start
-                StimulusOn = StimulusOn - start
-                StimulusOf = StimulusOf - start
-                TargetOn = TargetOn - start
-                TargetOff = TargetOff - start
-                trackertime = trackertime - start
-
-                #------------------------------------------------
-                # TARGET
-                #------------------------------------------------
-                dir_bool = p[trial, block, 0]*2 - 1
-                tps_mvt = TargetOff-TargetOn
-                Target_trial = []
-                x = screen_width_px/2
-
-                d = 100
-                for t in range(len(trackertime)):
-                    if t < (TargetOn-trackertime[0]) :
-                        x = screen_width_px/2
-                    elif t == (TargetOn-trackertime[0]) :
-                        # la cible à t=0 recule de sa vitesse * latence=RashBass (ici mis en ms)
-                        x = x -(dir_bool * ((V_X/1000)*RashBass))
-                    elif (t > (TargetOn-trackertime[0]) and t <= ((TargetOn-trackertime[0])+stim_tau*1000)) :
-                        x = x + (dir_bool*(V_X/1000))
-                    else :
-                        x = x
-                    Target_trial.append(x)
-                #------------------------------------------------
-
-                axs[trial].cla() # pour remettre ax figure a zero
-                axs[trial].axis([StimulusOf-10, TargetOff+10, 0, 1280])
-
-                axs[trial].plot(trackertime, np.ones(len(trackertime))*(screen_height_px/2), color='grey', linewidth=1.5)
-                axs[trial].plot(trackertime, data_y, color='c', linewidth=1.5)
-
-                axs[trial].plot(trackertime, Target_trial, color='k', linewidth=1.5)
-                axs[trial].plot(trackertime, data_x, color='r', linewidth=1.5)
-
-                #axs[trial].bar(TRIALID, 1280, color='g', width=5, linewidth=0)
-                #axs[trial].bar(StimulusOn, 1280, color='r', width=5, linewidth=0)
-                axs[trial].bar(StimulusOf, 1280, color='r', width=5, linewidth=0)
-                axs[trial].bar(TargetOn, 1280, color='k', width=5, linewidth=0)
-                axs[trial].bar(TargetOff, 1280, color='k', width=5, linewidth=0)
-
-                axs[trial].set_xlabel('Time (ms)', fontsize=9)
-                axs[trial].xaxis.set_ticks(range(StimulusOf+1, TargetOff, 100))
-                axs[trial].xaxis.set_ticklabels(range(StimulusOf+1, TargetOff, 100), fontsize=8)
-                axs[trial].set_ylabel(trial+1, fontsize=9)
-                axs[trial].yaxis.set_ticks(range(0, 1280, 600))
-                axs[trial].yaxis.set_ticklabels(range(0, 1280, 600), fontsize=8)
-                axs[trial].xaxis.set_ticks_position('bottom')
-                axs[trial].yaxis.set_ticks_position('left')
-
-                for f in range(len(fixations)) :
-                    axs[trial]. axvspan(fixations[f][0]-start, fixations[f][1]-start, color='r', alpha=0.1)
-                for s in range(len(saccades)) :
-                    axs[trial]. axvspan(saccades[s][0]-start, saccades[s][1]-start, color='k', alpha=0.2)
-
-            plt.tight_layout() # pour supprimer les marge trop grande
-            plt.subplots_adjust(hspace=0) # pour enlever espace entre les figures
-
-            plt.savefig('figures/enregistrement_%s_%s.pdf'%(self.observer, block+1))
-        plt.close()
-        return fig, axs
-
-    def plot_velocity(self, block=0, trials=0, report=None, fig_width=15, t_titre=35, t_label=20):
-        import matplotlib.pyplot as plt
+    def plot_velocity(self, block=0, trials=0, fig_width=15, t_titre=35, t_label=20):
         from edfreader import read_edf
+        from ANEMO import ANEMO
 
         resultats = os.path.join('data', self.mode + '_' + self.observer + '_' + self.timeStr + '.asc')
         data = read_edf(resultats, 'TRIALID')
 
-        N_trials = self.exp['N_trials']
-        N_blocks = self.exp['N_blocks']
-        p = self.exp['p']
-
-        if type(trials) is not list :
-            trials = [trials]
-
-        fig, axs = plt.subplots(len(trials), 1, figsize=(fig_width, (fig_width*(len(trials)/2)/1.6180)))
-
-        x = 0
-        for t in trials :
-
-            trial_data = t + N_trials*block
-            bino=p[t, block, 0]
-
-            if len(trials)==1:
-                ax = axs
-            else :
-                ax = axs[x]
-
-            ax = fig_velocity(self, ax, trial_data, data, bino)
-
-            if x == int((len(trials)-1)/2) :
-                ax.set_ylabel('Velocity (°/s)', fontsize=t_label)
-            if x!= (len(trials)-1) :
-                ax.set_xticklabels([])
-            if x==0 :
-                ax.set_title('Eye Movement', fontsize=t_titre, x=0.5, y=1.05)
-
-            x=x+1
-
-        plt.tight_layout() # pour supprimer les marge trop grande
-        plt.subplots_adjust(hspace=0) # pour enlever espace entre les figures
+        fig, axs = ANEMO.plot_velocity(data, trials, block,  self.exp['N_trials'], self.exp['px_per_deg'], fig_width, t_titre, t_label)
 
         return fig, axs
 
-    def Fit (self) :
+    def Fit (self, plot=None, fig_width=12, file_save=None, t_label=20, t_text=14, file_fig=None) :
 
         import matplotlib.pyplot as plt
         from edfreader import read_edf
+        from ANEMO import ANEMO
 
         resultats = os.path.join('data', self.mode + '_' + self.observer + '_' + self.timeStr + '.asc')
         data = read_edf(resultats, 'TRIALID')
-
+        
         N_trials = self.exp['N_trials']
         N_blocks = self.exp['N_blocks']
         p = self.exp['p']
+        px_per_deg = self.exp['px_per_deg']
 
-        liste_fit = []
-        liste_start_anti = []
-        liste_liste_v_anti = []
-        liste_latence = []
-        liste_tau = []
-        liste_maxi = []
-        liste_mean = []
+        if file_fig is None :
+            file_fig='figures/Fit_%s'%(self.observer)
 
-        for block in range(N_blocks) :
-            fig_width= 12
-            fig, axs = plt.subplots(N_trials, 1, figsize=(fig_width, (fig_width*(N_trials/2))/1.6180))
+        param = ANEMO.Fit (data, N_trials, N_blocks, p[:,:,0], px_per_deg, self.observer, plot, fig_width, t_label, t_text, file_fig)
 
-            block_fit = []
-            block_start_anti = []
-            block_liste_v_anti = []
-            block_latence = []
-            block_tau = []
-            block_maxi = []
-            block_mean = []
+        if file_save is None :
+            file = os.path.join('parametre', 'param_Fit_' + self.observer + '.pkl')
+        else :
+            file = file_save
 
-            for trial in range(N_trials) :
-
-                print('block, trial = ', block, trial)
-
-                trial_data = trial + N_trials*block
-                data_x = data[trial_data]['x']
-                data_y = data[trial_data]['y']
-                trackertime = data[trial_data]['trackertime']
-
-                StimulusOn = data[trial_data]['events']['msg'][10][0]
-                StimulusOf = data[trial_data]['events']['msg'][14][0]
-                TargetOn = data[trial_data]['events']['msg'][15][0]
-                TargetOff = data[trial_data]['events']['msg'][16][0]
-                saccades = data[trial_data]['events']['Esac']
-                bino=p[trial, block, 0]
-
-                trackertime_0 = data[trial_data]['trackertime'][0]
-
-                gradient_deg_NAN, stop_latence = suppression_saccades(self, data_x, saccades, trackertime, trackertime_0, TargetOn)
-
-                start = TargetOn
-
-                StimulusOn_s = StimulusOn - start
-                StimulusOf_s = StimulusOf - start
-                TargetOn_s = TargetOn - start
-                TargetOff_s = TargetOff - start
-                trackertime_s = trackertime - start
-
-                ##################################################
-                # FIT
-                ##################################################
-                result_deg = Fit_exponentiel(gradient_deg_NAN, trackertime, trackertime_0, TargetOn, StimulusOf, stop_latence, bino)
-                ##################################################
-
-                axs[trial].cla() # pour remettre ax figure a zero
-                axs[trial].axis([StimulusOn_s-10, TargetOff_s+10, -40, 40])
-                axs[trial].xaxis.set_ticks(range(StimulusOf_s-199, TargetOff_s+10, 500))
-
-                axs[trial].plot(trackertime_s, gradient_deg_NAN, color='k', alpha=0.6)
-                axs[trial].plot(trackertime_s[:-280], result_deg.init_fit, 'r--', linewidth=2)
-                axs[trial].plot(trackertime_s[:-280], result_deg.best_fit, color='r', linewidth=2)
-                axs[trial].plot(trackertime_s, np.ones(np.shape(trackertime_s)[0])*(bino*2-1)*(15), color='k', linewidth=0.2, alpha=0.2)
-                axs[trial].plot(trackertime_s, np.ones(np.shape(trackertime_s)[0])*(bino*2-1)*(10), color='k', linewidth=0.2, alpha=0.2)
-                axs[trial].axvspan(StimulusOn_s, StimulusOf_s, color='k', alpha=0.2)
-                axs[trial].axvspan(StimulusOf_s, TargetOn_s, color='r', alpha=0.2)
-                axs[trial].axvspan(TargetOn_s, TargetOff_s, color='k', alpha=0.15)
-                for s in range(len(saccades)) :
-                    axs[trial].axvspan(saccades[s][0]-start, saccades[s][1]-start, color='k', alpha=0.2)
-
-                debut  = TargetOn - trackertime_0 # TargetOn - temps_0
-
-                start_anti = result_deg.values['start_anti']-debut
-                v_anti = result_deg.values['v_anti']
-                latence = result_deg.values['latence']-debut
-                tau = result_deg.values['tau']
-                maxi = result_deg.values['maxi']
-
-                '''if np.isnan(gradient_deg_NAN[int(result_deg.values['latence'])]) and np.isnan(gradient_deg_NAN[int(result_deg.values['latence'])-30]) and np.isnan(gradient_deg_NAN[int(result_deg.values['latence'])-70]) ==True :
-                    start_anti = np.nan
-                    v_anti = np.nan
-                    latence = np.nan
-                    tau = np.nan
-                    maxi = np.nan
-                else :
-                    axs[trial].bar(latence, 80, bottom=-40, color='r', width=6, linewidth=0)
-                    if trial==0 :
-                        axs[trial].text(latence+25, -35, "Latence"%(latence), color='r', fontsize=14)'''
-
-                block_fit.append(result_deg.best_fit)
-                block_start_anti.append(start_anti)
-                block_liste_v_anti.append(v_anti)
-                block_latence.append(latence)
-                block_tau.append(tau)
-                block_maxi.append(maxi)
-                block_mean.append(np.nanmean(gradient_deg_NAN[debut-50:debut+50]))
-
-                axs[trial].bar(latence, 80, bottom=-40, color='r', width=6, linewidth=0)
-
-                if trial==0 :
-                    axs[trial].text(StimulusOn_s+(StimulusOf_s-StimulusOn_s)/2, 31, "FIXATION", color='k', fontsize=16, ha='center', va='bottom')
-                    axs[trial].text(StimulusOf_s+(TargetOn_s-StimulusOf_s)/2, 31, "GAP", color='r', fontsize=16, ha='center', va='bottom')
-                    axs[trial].text(TargetOn_s+(TargetOff_s-TargetOn_s)/2, 31, "POURSUITE", color='k', fontsize=16, ha='center', va='bottom')
-                    axs[trial].text(latence+25, -35, "Latence"%(latence), color='r', fontsize=14)#,  weight='bold')
-                #axs[trial].text(StimulusOn+15, -2, "%s"%(result.fit_report()), color='k', fontsize=15)
-                axs[trial].text(StimulusOn_s+15, 18, "start_anti: %s \nv_anti: %s"%(start_anti, v_anti), color='k', fontsize=14, va='bottom')
-                axs[trial].text(StimulusOn_s+15, -18, "latence: %s \ntau: %s \nmaxi: %s"%(latence, tau, maxi), color='k', fontsize=14, va='top')
-
-                axs[trial].set_xlabel('Time (ms)', fontsize=9)
-                axs[trial].set_ylabel(trial+1, fontsize=9)
-
-                axs[trial].xaxis.set_ticks_position('bottom')
-                axs[trial].yaxis.set_ticks_position('left')
-
-
-
-            liste_fit.append(block_fit)
-            liste_start_anti.append(block_start_anti)
-            liste_liste_v_anti.append(block_liste_v_anti)
-            liste_latence.append(block_latence)
-            liste_tau.append(block_tau)
-            liste_maxi.append(block_maxi)
-            liste_mean.append(block_mean)
-
-            plt.tight_layout() # pour supprimer les marge trop grande
-            plt.subplots_adjust(hspace=0) # pour enlever espace entre les figures
-
-            plt.savefig('figures/Fit_%s_%s.pdf'%(self.observer, block+1))
-            plt.close()
-
-        param = {}
-        param['observer'] = self.observer
-        param['fit'] = liste_fit
-        param['start_anti'] = liste_start_anti
-        param['v_anti'] = liste_liste_v_anti
-        param['latence'] = liste_latence
-        param['tau'] = liste_tau
-        param['maxi'] = liste_maxi
-        param['moyenne'] = liste_mean
-
-        file = os.path.join('parametre', 'param_Fit_' + self.observer + '.pkl')
         with open(file, 'wb') as fichier:
             f = pickle.Pickler(fichier)
             f.dump(param)
@@ -1320,59 +819,22 @@ class Analysis(object):
 
     def plot_Fit(self, plot='fonction', block=0, trials=0, report=None, fig_width=15, t_titre=35, t_label=20):
 
-        import matplotlib.pyplot as plt
         from edfreader import read_edf
+        from ANEMO import ANEMO
 
         resultats = os.path.join('data', self.mode + '_' + self.observer + '_' + self.timeStr + '.asc')
         data = read_edf(resultats, 'TRIALID')
 
         N_trials = self.exp['N_trials']
-        N_blocks = self.exp['N_blocks']
         p = self.exp['p']
-
-        if type(trials) is not list :
-            trials = [trials]
-
-        fig, axs = plt.subplots(len(trials), 1, figsize=(fig_width, (fig_width*(len(trials)/2)/1.6180)))
-
-        results = []
-        x = 0
-        for t in trials :
-
-            trial_data = t + N_trials*block
-            bino=p[t, block, 0]
-
-            if len(trials)==1:
-                ax = axs
-            else :
-                ax = axs[x]
-
-            if report is None :
-                ax = fig_fit(self, ax, trial_data, data, bino, plot=plot)
-            else :
-                ax, result = fig_fit(self, ax, trial_data, data, bino, plot=plot, report=report)
-                results.append(result)
-
-            if x == int((len(trials)-1)/2) :
-                ax.set_ylabel('Velocity (°/s)', fontsize=t_label)
-            if x!= (len(trials)-1) :
-                ax.set_xticklabels([])
-            if x==0 :
-                if plot=='fonction':
-                    ax.set_title('Fit Function', fontsize=t_titre, x=0.5, y=1.05)
-                if plot=='velocity':
-                    ax.set_title('Eye Movement', fontsize=t_titre, x=0.5, y=1.05)
-                else :
-                    ax.set_title('Velocity Fit', fontsize=t_titre, x=0.5, y=1.05)
-
-            x=x+1
-
-        plt.tight_layout() # pour supprimer les marge trop grande
-        plt.subplots_adjust(hspace=0) # pour enlever espace entre les figures
+        px_per_deg = self.exp['px_per_deg']
+        bino = p[:,:,0]
 
         if report is None :
+            fig, axs = ANEMO.plot_Fit(data, bino, trials, block, N_trials, px_per_deg, plot, fig_width, t_titre, t_label, report)
             return fig, axs
         else :
+            fig, axs, results = ANEMO.plot_Fit(data, bino, trials, block, N_trials, px_per_deg, plot, fig_width, t_titre, t_label, report)
             return fig, axs, results
 
 
@@ -1878,6 +1340,7 @@ class Analysis(object):
         axs = scatter_KDE(self, axs, mode_bcp, plot, mode_kde, result, t_titre, t_label)
 
         return fig, axs
+
 
 
 
