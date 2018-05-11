@@ -425,7 +425,7 @@ class aSPEM(object):
     def plot_enregistrement(self, mode=None, fig=None, axs=None, fig_width=5) :
         import matplotlib.pyplot as plt
         # from pygazeanalyser.edfreader import read_edf
-        from edfreader import read_edf
+        from ANEMO import read_edf
 
         resultats = os.path.join(self.exp['datadir'], self.mode + '_' + self.observer + '_' + self.timeStr + '.asc')
         data = read_edf(resultats, 'TRIALID')

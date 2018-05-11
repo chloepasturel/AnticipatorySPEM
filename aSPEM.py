@@ -1013,7 +1013,7 @@ class Analysis(object):
 
         import matplotlib.pyplot as plt
         # from pygazeanalyser.edfreader import read_edf
-        from edfreader import read_edf
+        from ANEMO import read_edf
 
         resultats = os.path.join(self.exp['datadir'], self.mode + '_' + self.observer + '_' + self.timeStr + '.asc')
         data = read_edf(resultats, 'TRIALID')
@@ -1119,7 +1119,7 @@ class Analysis(object):
 
     def plot_velocity(self, block=0, trials=0, report=None, fig_width=15, t_titre=35, t_label=20):
         import matplotlib.pyplot as plt
-        from edfreader import read_edf
+        from ANEMO import read_edf
 
         resultats = os.path.join('data', self.mode + '_' + self.observer + '_' + self.timeStr + '.asc')
         data = read_edf(resultats, 'TRIALID')
@@ -1163,7 +1163,7 @@ class Analysis(object):
     def Fit (self) :
 
         import matplotlib.pyplot as plt
-        from edfreader import read_edf
+        from ANEMO import read_edf
 
         resultats = os.path.join('data', self.mode + '_' + self.observer + '_' + self.timeStr + '.asc')
         data = read_edf(resultats, 'TRIALID')
@@ -1321,7 +1321,7 @@ class Analysis(object):
     def plot_Fit(self, plot='fonction', block=0, trials=0, report=None, fig_width=15, t_titre=35, t_label=20):
 
         import matplotlib.pyplot as plt
-        from edfreader import read_edf
+        from ANEMO import read_edf
 
         resultats = os.path.join('data', self.mode + '_' + self.observer + '_' + self.timeStr + '.asc')
         data = read_edf(resultats, 'TRIALID')
