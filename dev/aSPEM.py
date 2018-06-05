@@ -1013,7 +1013,7 @@ class Analysis(object):
 
         import matplotlib.pyplot as plt
         # from pygazeanalyser.edfreader import read_edf
-        from edfreader import read_edf
+        from ANEMO import read_edf
 
         resultats = os.path.join(self.exp['datadir'], self.mode + '_' + self.observer + '_' + self.timeStr + '.asc')
         data = read_edf(resultats, 'TRIALID')

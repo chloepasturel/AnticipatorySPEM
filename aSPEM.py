@@ -754,8 +754,12 @@ class Analysis(object):
     def plot_position(self, fig=None, axs=None, fig_width=10, t_label=20, file_fig=None) :
 
         # from pygazeanalyser.edfreader import read_edf
+<<<<<<< HEAD
+        from ANEMO import read_edf
+=======
         from edfreader import read_edf
         from ANEMO import ANEMO
+>>>>>>> 9ffb2c9a11b449edb0e0784b799afc591f45b87d
 
         resultats = os.path.join(self.exp['datadir'], self.mode + '_' + self.observer + '_' + self.timeStr + '.asc')
         data = read_edf(resultats, 'TRIALID')
@@ -776,9 +780,27 @@ class Analysis(object):
         ANEMO.plot_position(data, N_trials, N_blocks, bino, V_X, RashBass, stim_tau, screen_width_px, screen_height_px, fig, axs, fig_width, t_label,file_fig)
 
 
+<<<<<<< HEAD
+                for f in range(len(fixations)) :
+                    axs[trial]. axvspan(fixations[f][0]-start, fixations[f][1]-start, color='r', alpha=0.1)
+                for s in range(len(saccades)) :
+                    axs[trial]. axvspan(saccades[s][0]-start, saccades[s][1]-start, color='k', alpha=0.2)
+
+            plt.tight_layout() # pour supprimer les marge trop grande
+            plt.subplots_adjust(hspace=0) # pour enlever espace entre les figures
+
+            plt.savefig('figures/enregistrement_%s_%s.pdf'%(self.observer, block+1))
+        plt.close()
+        return fig, axs
+
+    def plot_velocity(self, block=0, trials=0, report=None, fig_width=15, t_titre=35, t_label=20):
+        import matplotlib.pyplot as plt
+        from ANEMO import read_edf
+=======
     def plot_velocity(self, block=0, trials=0, fig_width=15, t_titre=35, t_label=20):
         from edfreader import read_edf
         from ANEMO import ANEMO
+>>>>>>> 9ffb2c9a11b449edb0e0784b799afc591f45b87d
 
         resultats = os.path.join('data', self.mode + '_' + self.observer + '_' + self.timeStr + '.asc')
         data = read_edf(resultats, 'TRIALID')
@@ -790,8 +812,12 @@ class Analysis(object):
     def Fit (self, plot=None, fig_width=12, file_save=None, t_label=20, t_text=14, file_fig=None) :
 
         import matplotlib.pyplot as plt
+<<<<<<< HEAD
+        from ANEMO import read_edf
+=======
         from edfreader import read_edf
         from ANEMO import ANEMO
+>>>>>>> 9ffb2c9a11b449edb0e0784b799afc591f45b87d
 
         resultats = os.path.join('data', self.mode + '_' + self.observer + '_' + self.timeStr + '.asc')
         data = read_edf(resultats, 'TRIALID')
@@ -819,8 +845,13 @@ class Analysis(object):
 
     def plot_Fit(self, plot='fonction', block=0, trials=0, report=None, fig_width=15, t_titre=35, t_label=20):
 
+<<<<<<< HEAD
+        import matplotlib.pyplot as plt
+        from ANEMO import read_edf
+=======
         from edfreader import read_edf
         from ANEMO import ANEMO
+>>>>>>> 9ffb2c9a11b449edb0e0784b799afc591f45b87d
 
         resultats = os.path.join('data', self.mode + '_' + self.observer + '_' + self.timeStr + '.asc')
         data = read_edf(resultats, 'TRIALID')
