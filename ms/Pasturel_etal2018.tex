@@ -4,8 +4,6 @@
 %!BIB TS-program = bibtex
 % -*- coding: UTF-8; -*-
 % vim: set fenc=utf-8
-%TODO include changing point theory and bibliography
-% TODO : check http://www.princeton.edu/~rcw2/papers/WilsonEtAl_PLOSCompBiol2013.pdf and bernouilli case + evaluation
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \newcommand{\AuthorA}{Chlo\'e Pasturel}
 \newcommand{\AuthorB}{Anna Montagnini}%
@@ -19,7 +17,7 @@ Humans adapt to the volatility of visual motion properties, and know about it
 %Anticipating a volatile probabilistic bias in visual motion direction
 %Humans adapt to the volatility of visual motion properties :  eye movements and explicit guesses
 }
-\newcommand{\Acknowledgments}{ANR grant <<Reinforcement and Eye Movements>> \textbf{ANR-13-APPR-0008-02} - code and material @ \url{\Website/Publications/Pasturel_etal2018}. TODO: RIck + Karl + JB + Laurent Madelain }
+\newcommand{\Acknowledgments}{PACE-ITN - code and material @ \url{\Website/Publications/Pasturel_etal2018}. TODO: RIck + Karl + JB + Laurent Madelain }
 \newcommand{\Abstract}{
 The brain has to constantly adapt to changes in the environment, for instance when a contextual probabilistic variable switched its state.
 For an agent interacting with such an environment, it is important to respond to such switches with the shortest delay.
@@ -147,31 +145,38 @@ pdfauthor={\AuthorA},%< \Email > \Address},%
 \begin{abstract}
 \Abstract
 \end{abstract}
-
+%: %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Motivation}
-
-
-\subsection{Past history of sensory event integration}
-
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Volatility of sensory contingencies and the adaptation of cognitive systems}
+%: general volatility
  We live in a fundamentally volatile world - Think for instance to the evolution  of prices on the stock market: Any Socio-economic contextual index may make the price evolve up or down, slowly or more Rapidly 
+
  
  essential to infer near future state in a dynamic environment - or at least to get an idea for the future context / link to reinforcement learning
+define our time scale: adaptive response (several minutes) - stimulus history and psychophysics
  
- See Matthys and Meyniel
+%: Past history of sensory event integration
+Stimulus history of events influences how current stimuli are perceived and acted upon, mostly by using adaptability features to environment contingencies. One of the adaptation process' main purpose is to reduce the sensitivity to stimuli recently presented and thus re-calibrate perceptual experience~\citep{Clifford2007, Webster2011, Kohn2007}. This process is highly dynamic especially in complex environments where new contingencies can arise at every moment. In the case of visual motions, the process of visual adaptation in mostly defined by repeated exposures of stimuli and after-effects related to those~\citep{Thompson2009}. Thus, it is interesting to note that a large variety of dynamic of an environment has a direct dependency with previous experience. The coding of a visual event then, relies in the integration of the recent past but also to catch sudden changes in the spatial context that would go against an~\textit{a priori} belief. We can illustrate this statement with several examples:  
 
-Mammassian and the use of visual confidence  (see Ann rev of Vision 2016)
-
-%Stimulus history of events influences how current stimuli are perceived and acted upon, mostly by using adaptability features to environment contingencies. One of the adaptation process' main purpose is to reduce the sensitivity to stimuli recently presented and thus re-calibrate perceptual experience~\citep{Clifford2007, Webster2011, Kohn2007}. This process is highly dynamic especially in complex environments where new contingencies can arise at every moment. In the case of visual motions, the process of visual adaptation in mostly defined by repeated exposures of stimuli and after-effects related to those~\citep{Thompson2009}. Thus, it is interesting to note that a large variety of dynamic of an environment has a direct dependency with previous experience. The coding of a visual event then, relies in the integration of the recent past but also to catch sudden changes in the spatial context that would go against an~\textit{a priori} belief. We can illustrate this statement with several examples:  
-%
-%\begin{enumerate}
-%\item Motion Aftereffect: Prolonged exposure to a stimulus moving in one direction result in a motion aftereffect and the presentation of a stationary stimulus is perceived to move in the opposite direction of the adapting stimulus~\citep{Anstis1998, Mather2011}. The motion aftereffect usually builds up over time~\citep{Hershenson1993}, sometimes after relatively short exposures~\citep{Kanai2005, Pavan2010} and can last for period of ten seconds~\citep{Anstis1998}. Interestingly, it can be integrated in memory over relatively long-period without further stimulations~\citep{Verstraten1994, Wiesenfelder1992}.
-%\item Priming: In the case of priming, repeated stimulations creates a facilitation in perception~\citep{Kristjnsson2010WherePM, Maljkovic1994, Tulving1990}. Indeed, after exposure to a similar stimulus, priming leads to faster responses in perceptual detection or identification of probes. It also occurs specifically for visual motion stimuli~\citep{Anstis1987, Campana2002, Pinkus1997}. Interestingly, observation of priming effects have been observed for anticipatory smooth eye movements (aSPEM). 
-%\end{enumerate}
+\begin{enumerate}
+\item Motion Aftereffect: Prolonged exposure to a stimulus moving in one direction result in a motion aftereffect and the presentation of a stationary stimulus is perceived to move in the opposite direction of the adapting stimulus~\citep{Anstis1998, Mather2011}. The motion aftereffect usually builds up over time~\citep{Hershenson1993}, sometimes after relatively short exposures~\citep{Kanai2005, Pavan2010} and can last for period of ten seconds~\citep{Anstis1998}. Interestingly, it can be integrated in memory over relatively long-period without further stimulations~\citep{Verstraten1994, Wiesenfelder1992}.
+\item Priming: In the case of priming, repeated stimulations creates a facilitation in perception~\citep{Kristjnsson2010WherePM, Maljkovic1994, Tulving1990}. Indeed, after exposure to a similar stimulus, priming leads to faster responses in perceptual detection or identification of probes. It also occurs specifically for visual motion stimuli~\citep{Anstis1987, Campana2002, Pinkus1997}. Interestingly, observation of priming effects have been observed for anticipatory smooth eye movements (aSPEM). 
+\end{enumerate}
 
 
+%: role of predictive processing in shaping this adaptive response
+See Matthys and Meyniel
+Chopin and Mamassian
+Mamassian and the use of visual confidence  (see Ann rev of Vision 2016)
 
 
-\subsection{Anticipatory SPEM}
+
+
+
+\subsection{Anticipatory SPEM (aSPEM)}
 %: adaptation to volatility is seen as an anticipation in SPEM - principle and function (talk about santos & kowler and others)
 Humans are able to accurately track a moving object with a combination of saccades and smooth eye movements. These movements allow us to align and stabilize the object on the fovea, thus enabling high-resolution visual detection. When predictive information is available about target motion, anticipatory smooth pursuit eye movements (aSPEM) are efficiently generated before target appearance, which reduce the typical sensorimotor delay between target motion onset and foveation. It is generally assumed that the role of anticipatory eye movements is to limit the behavioral impairment due to eye-to-target position and velocity mismatch.
 
@@ -275,6 +280,7 @@ However, such estimate may become particularly challenging in a dynamic context,
 
 %: outline
 
+%: %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Material and Method}
 
 \subsection{Forgetful-agent model (Leaky integrator)}
@@ -437,10 +443,12 @@ In order to extract the relevant parameters of the oculomotor responses, we deve
 %\end{figure}
 %%-------------------------------------------------------------%
 %
-
+%: %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Results: Bayesian change point model}
 
 % These python scripts are available at \url{https://github.com/laurentperrinet/bayesianchangepoint}.
+%TODO include changing point theory and bibliography
+% TODO : check http://www.princeton.edu/~rcw2/papers/WilsonEtAl_PLOSCompBiol2013.pdf and bernouilli case + evaluation
 
 
 \subsection{Bayesian change point model}
@@ -617,6 +625,7 @@ This is in contrast with a fixed length model, for which
 
 as a summary, for any given sequnce, we get an estimate of the probability given by the ideal observer. we will now see how we can apply that to our experiemntal protocol.
 
+%: %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \section{Results: psychophysics}
 
@@ -806,6 +815,7 @@ By extracting the parameters for every subject we can expect to characterise int
 There are a spectrum of individual choices between exploration and exploiting behaviors.
 
 
+%: %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \section{Discussion}
 
@@ -842,6 +852,7 @@ perspectives:
 - the brain is weakly Bayesian (it does not care about equations but more about sugar)
 
 
+%: %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \section{Conclusions}
 
