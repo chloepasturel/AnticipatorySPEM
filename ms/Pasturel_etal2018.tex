@@ -19,7 +19,7 @@ Humans adapt to the volatility of visual motion properties, and know about it
 %Anticipating a volatile probabilistic bias in visual motion direction
 %Humans adapt to the volatility of visual motion properties :  eye movements and explicit guesses
 }
-\newcommand{\Acknowledgments}{ANR grant <<Reinforcement and Eye Movements>> \textbf{ANR-13-APPR-0008-02} - code and material @ \url{\Website/Publications/Pasturel_etal2018} }
+\newcommand{\Acknowledgments}{ANR grant <<Reinforcement and Eye Movements>> \textbf{ANR-13-APPR-0008-02} - code and material @ \url{\Website/Publications/Pasturel_etal2018}. TODO: RIck + Karl + JB + Laurent Madelain }
 \newcommand{\Abstract}{
 The brain has to constantly adapt to changes in the environment, for instance when a contextual probabilistic variable switched its state.
 For an agent interacting with such an environment, it is important to respond to such switches with the shortest delay.
@@ -150,11 +150,15 @@ pdfauthor={\AuthorA},%< \Email > \Address},%
 
 \section{Motivation}
 
- * Let's me first describe the motivation of this work...
-
- * We live in a fundamentally volatile world - Think for instance to the evolution  of prices on the stock market: Any Socio-economic contextual index may make the price evolve up or down, slowly or more Rapidly
 
 \subsection{Past history of sensory event integration}
+
+ We live in a fundamentally volatile world - Think for instance to the evolution  of prices on the stock market: Any Socio-economic contextual index may make the price evolve up or down, slowly or more Rapidly 
+ 
+ essential to infer near future state in a dynamic environment - or at least to get an idea for the future context / link to reinforcement learning
+ 
+ See Matthys and Meyniel
+
 
 %Stimulus history of events influences how current stimuli are perceived and acted upon, mostly by using adaptability features to environment contingencies. One of the adaptation process' main purpose is to reduce the sensitivity to stimuli recently presented and thus re-calibrate perceptual experience~\citep{Clifford2007, Webster2011, Kohn2007}. This process is highly dynamic especially in complex environments where new contingencies can arise at every moment. In the case of visual motions, the process of visual adaptation in mostly defined by repeated exposures of stimuli and after-effects related to those~\citep{Thompson2009}. Thus, it is interesting to note that a large variety of dynamic of an environment has a direct dependency with previous experience. The coding of a visual event then, relies in the integration of the recent past but also to catch sudden changes in the spatial context that would go against an~\textit{a priori} belief. We can illustrate this statement with several examples:  
 %
@@ -167,19 +171,34 @@ pdfauthor={\AuthorA},%< \Email > \Address},%
 
 
 \subsection{Anticipatory SPEM}
-
+%: adaptation to volatility is seen as an anticipation in SPEM - principle and function (talk about santos & kowler and others)
 Humans are able to accurately track a moving object with a combination of saccades and smooth eye movements. These movements allow us to align and stabilize the object on the fovea, thus enabling high-resolution visual detection. When predictive information is available about target motion, anticipatory smooth pursuit eye movements (aSPEM) are efficiently generated before target appearance, which reduce the typical sensorimotor delay between target motion onset and foveation. It is generally assumed that the role of anticipatory eye movements is to limit the behavioral impairment due to eye-to-target position and velocity mismatch.
 
-%
+%: how we do it
 %Repeated presentation of stimulus can lead the oculomotor system to initiate aSPEM ahead of the stimulus appearance~\citep{Westheimer1954, KOWLER1979619, KOWLER1979633}. It has been observed that aSPEM increase in velocity when the target repeatedly moves in the same direction~\citep{Kowler1984, Kowler1989, Heinen2005}. Thus,~\citet{Maus2015} have recently shown that both perceptual adaptation and priming of aSPEM could occur simultaneously. They found a robust repulsive adaptation effect with perceptual judgements being biased faster after seeing stimuli that were slower and~\textit{vice-versa}. This study clearly shows the integration of past event and their usefulness in actual eliciting of movements. Indeed, both priming and adaptation can hypothetically share a common internal representation of stimulus speed that has been build upon the mean velocity of last encountered speeds. Then the comparison of the internal representation of speed with the current stimulus velocity could explain repulsive aftereffects and at the same time, be used to elicit aSPEM of appropriate velocity for next stimulus occurrences.~\citet{Maus2015} main conclusion was that perceptual adaptation and oculomotor priming both have a weight in building an~\textit{a priori} knowledge that will be used to generate aSPEM. Still, they integrated past history over different times scales (see fig~\ref{fig:Maus2015.png}) with the priming effects being maximized for short stimulus histories (around 2 trials) and adaptation for longer stimulus history, around 15 trials. Such history length can still be considered short history namely in the case of several hundreds blocks of trials like we did in our first study.
 
-
+%: in summary we get a linear relationship
 By manipulating the probability for target motion direction we were able to bias the direction and mean velocity of aSPEM, as measured during a fixed duration gap before target ramp-motion onset. This suggests that probabilistic information may be used to inform the internal representation of motion prediction for the initiation of anticipatory movements~\parencite{Montagnini2010}. However, such estimate may become particularly challenging in a dynamic context, where the probabilistic contingencies vary in time in an unpredictable way. In addition, whether and how the information processing underlying the buildup of aSPEM is linked to an explicit estimate of probabilities is unknown. We developed a new paired-task paradigm in order to address these two questions. In a first session, participants observe a target moving horizontally with constant speed from the center either to the right or left across trials. The probability of either motion direction changes randomly in time. Participants are asked to estimate "how much they are confident that the target will move to the right or left in the next trial" and to adjust the cursor's position on the screen accordingly. In a second session the participants eye movements are recorded during the observation of the same sequence of random-direction trials.
-In parallel, we are developing new automatic routines for the advanced analysis of oculomotor traces. In order to extract the relevant parameters of the oculomotor responses (latency, gain, initial acceleration, catch-up saccades), we developed new tools based on best-fitting procedure of predefined patterns (i.e. the typical smooth pursuit velocity profile).
 
 
 \subsection{Target of this paper}
-%
+%: limits of the previous method
+Fixed block. does this generalize to arbitrtary sequences? What is the dynamic of this adaptation?
+
+
+%: design of the binary switching generative model
+%\subsection{Generative model: the switching model}
+Hierarchical model of 3 layers
+
+In order to answer these questions, we have set up an experiment comprising $3$ blocks of $200$ trials, see Figure~\ref{fig:protocole}-A\footnote{Each block is divided in 4 sub-blocks of $50$ trials as denoted by vertical black bars}. For each trial, a target makes either to the left or to the right, this direction being drawn from a Bernoulli process. The probability of this process varied in a piecewise-constant (that is, a step function varying between~$0$ and~$1$), similarly to~\textcite{Meyniel13}. The occurrence of these switches is itself drawn from a Bernoulli process of probability $p_{switch}=1/40$.
+
+\eql{\choice{
+x_0^t \eqdef o_t \propto \Bb(p^t) \\
+x_1^t \eqdef p_t = p_{t-1} \quad \text{if} \quad s_t=0 \quad \text{and else} \quad p_t \propto \Jj \\
+x_2^t \eqdef s_t \propto \Bb(\lambda) 
+}}
+
+where $\Jj = BB(\frac 1 2 , \frac 1 2 )$ is Jeffrey's prior. There is alwayus a switch at t=zero.
 
 
 % * This was shown to happen in the more  experimental setting While recording smooth pursuit eye movements : Anna Montagnini has previously shown that if you use a probabilistic bias in the direction of the movement of the target, the the eye will (uncousciously) anticipate in the direction of this bias.
@@ -208,6 +227,7 @@ In parallel, we are developing new automatic routines for the advanced analysis 
 
 Throughout the first experimental condition we investigated the integration of environmental statistical regularities in a smooth tracking task with a family of direction-biases for the target motion. What we found was a global and robust effect of direction-bias on anticipatory smooth pursuit. These results are coherent with previous oculomotor findings by our and also other groups (Montagnini et al. 2010; Santos \& Kowler 2017). Typically, aSPEM is observed after a temporal cue and ahead of target motion onset (Kowler and Steinman, 1979a,b, 1984). Some now classical experiments have demonstrated the existence of prediction-based smooth pursuit during the transient disappearance of a moving target (Badler, 2006; Becker \& Fuchs, 1985). Overall, it is now clear that smooth pursuit behavior can be modulated even in the absence of online sensory stimulation. aSPEM were here the core of our research because we wanted to study the trial-by-trial evolution of expectancy-based oculomotor behavior, as well as how sensorimotor expectancy interacts with reward contingencies in shaping oculomotor behavior without direct sensory feedback. In a previous study, (Souto, Montagnini \& Masson, 2008b; Montagnini et al., 2010) we have analyzed how forthcoming motion properties, such as target speed or direction, can be predicted and anticipated with coherent orienting eye movements. We found a graded effect of both the speed and the direction-bias, with mean anticipatory eye velocity linearly related to the probability of motion's speed or direction. Here, we replicated part of those results using a limited number of direction probability bias and strengthened them by generalizing them on seventeen participants. These results imply that the probability bias over a target's direction is one additional factor beyond other physical and cognitive cues (Kowler et al, 2014; Santos \& Kowler 2017) that modulate the common predictive framework driving anticipatory behavior to optimize a rapid and precise foveation of the target on its most expected future path. 
 
+% TODO: merge this figure in a introduction figure
 %-------------------------------------------------------------%
 %: fig:intro
 \begin{figure}%[b!]
@@ -232,14 +252,30 @@ Throughout the first experimental condition we investigated the integration of e
 \label{fig:intro}
 \end{figure}
 %-------------------------------------------------------------%
+%%-------------------------------------------------------------%
+%%: fig:protocole
+%\begin{figure}%[b!]
+%%\vspace{2mm}
+%\begin{center}
+%\textbf{(A)}     \includegraphics[width=.9\linewidth]{exp}
+%\textbf{(B)}     \includegraphics[width=.4\linewidth]{materiel_bet}
+%\textbf{(C)}     \includegraphics[width=.4\linewidth]{materiel_recording}
+%\end{center}
+%\caption{\emph{Protocol and previous results} \textbf{(A)} 
+%\textbf{(B)} 
+%\textbf{(C)}  }
+%\label{fig:protocole}
+%\end{figure}
+%%-------------------------------------------------------------%
 
 
 However, such estimate may become particularly challenging in a dynamic context, where the probabilistic contingencies vary in time in an unpredictable way. In addition, whether and how the information processing underlying the buildup of aSPEM is linked to an explicit estimate of probabilities is unknown.
 
+%: outline
 
-\subsection{Material and Method}
+\section{Material and Method}
 
-\section{Forgetful-agent model (Leaky integrator)}
+\subsection{Forgetful-agent model (Leaky integrator)}
 %
 % Following the~\citet{Maus2015} analysis, we performed a first study~page~\pageref{chap:4} in which we wanted to test a more realistic model of how trial-history shapes motion expectation in a direction-biased experiment.  According to~\citet{Anderson2006}, the temporal evolution for the expectation of a given event can be modeled making a simple assumption: the update of the estimated probability for an event is based on the discount of the previous estimated probability by a factor$~\lambda$, relative to new information. The value of$~\lambda$ presumably represents a compromise between responding rapidly to genuine changes in the environment and not prematurely discarding information still of value for slowly changing contexts. We extended~\citet{Anderson2006}'s approach to our analysis of anticipatory smooth pursuit across different contexts corresponding to the experimental blocks with different global probability-bias. We designed a forgetful agent estimating the target motion direction-bias according to the following iterative equation, where the estimated probability of a target moving rightwards is obtained from (1) the previous bias inference, (2) the imposed target directions and (3) a memory decay in the weighting of information. This model can be explained with the following equation:
 %
@@ -299,37 +335,14 @@ However, such estimate may become particularly challenging in a dynamic context,
 % To conclude on this section, the "forgetful agent" computed an exponentially-weighted moving average and estimated the probability of a stimulus going to the right given the previous instances of rightward stimulus and a progressive discount of past information. When we looked at the relation between aSPEM velocities and the direction-bias estimated by our model, we found higher Pearson's R for short-term memory ($\approx$ 5 to 10 trial history lengths) rather than long-term memory. However, a first critic could be that our proposed model may be too rigid and does not sufficiently imply the concepts of volatility~\citep{Behrens2007} or Bayesian uncertainty~\citep{Vilares2011}. It seems plausible that the memory (history length) the brain uses for inference is varying and that this variation could be related to the volatility inferred from information in the past. For instance, our model could not be applied to $p = 100\%$ rightward direction blocks because of a pretty quick saturation toward an estimation of probability equal to 1 even though experimental aSPEM datas shows a weak but existing proportion of aSPEM to the left direction. To address this hypothesis, our next model work will be inspired by a Bayesian Change-point detection model~\citep{Adams2007}, which mimics an ideal agent inferring both the likelihood of a specific event's occurrence with the volatility of the environment (e.g the duration since a change in bias).
 %
 
-\subsection{Generative model: the switching model}
-
-In order to answer these questions, we have set up an experiment comprising $3$ blocks of $200$ trials, see Figure~\ref{fig:protocole}-A\footnote{Each block is divided in 4 sub-blocks of $50$ trials as denoted by vertical black bars}. For each trial, a target makes either to the left or to the right, this direction being drawn from a Bernoulli process. The probability of this process varied in a piecewise-constant (that is, a step function varying between~$0$ and~$1$), similarly to~\textcite{Meyniel13}. The occurrence of these switches is itself drawn from a Bernoulli process of probability $p_{switch}=1/40$.
-
-\eql{\choice{
-x_0^t \eqdef o_t \propto \Bb(p^t) \\
-x_1^t \eqdef p_t = p_{t-1} \quad \text{if} \quad s_t=0 \quad \text{and else} \quad p_t \propto \Jj \\
-x_2^t \eqdef s_t \propto \Bb(\lambda) 
-}}
-
-where $\Jj = BB(\frac 1 2 , \frac 1 2 )$ is Jeffrey's prior
-%-------------------------------------------------------------%
-%: fig:protocole
-\begin{figure}%[b!]
-%\vspace{2mm}
-\begin{center}
-\textbf{(A)}     \includegraphics[width=.9\linewidth]{exp}
-\textbf{(B)}     \includegraphics[width=.4\linewidth]{materiel_bet}
-\textbf{(C)}     \includegraphics[width=.4\linewidth]{materiel_recording}
-\end{center}
-\caption{\emph{Protocol and previous results} \textbf{(A)} 
-\textbf{(B)} 
-\textbf{(C)}  }
-\label{fig:protocole}
-\end{figure}
-%-------------------------------------------------------------%
-
+\subsection{Psychophysics}
 
 
 % TODO replace this with the actual protocol using psychopy
 \textbf{Stimuli were generated using PsychoPy 1.85.4 on a Mac running OS 10.6.8 (A VERIFIER) and displayed on a 20" Viewsonic p227f monitor (A VERIFIER) with resolution $1280\times 1024$ at 100~\si{\Hz} (60 ?). Psychophysics routines were written using PsychoPy 1.85.4 controlled the stimulus display. Observers sat 57~\si{\cm} from the screen in a dark room. Twelve observers (29 years old +/- 5.15) with normal or corrected-to-normal vision took part in these experiments. They gave their informed consent and the experiments received ethical approval from the Aix-Marseille Ethics Committee in accordance with the declaration of Helsinki.}
+
+
+3 blocks of 200 trial - with 4 sub-blocks of 50 trials
 
 
  * the whole experiment was coded by Chloé using :
@@ -394,6 +407,8 @@ Then, we recorded their eye movements as they were tracking the target's motion.
 
 % TODO replace this with the actual protocoml using psychopy
 %Stimuli were generated using Matlab 7.10.0 on a Mac running OS 10.6.8 and displayed on a 20" Viewsonic p227f monitor with resolution $1024\times 768$ at 100~\si{\Hz}. Psychophysics routines were written using Matlab and Psychtoolbox 3.0.9 controlled the stimulus display. Observers sat 57~\si{\cm} from the screen in a dark room. Six male observers with normal or corrected-to-normal vision took part in these experiments. They gave their informed consent and the experiments received ethical approval from the Aix-Marseille Ethics Committee in accordance with the declaration of Helsinki.
+
+In parallel, we are developing new automatic routines for the advanced analysis of oculomotor traces. In order to extract the relevant parameters of the oculomotor responses (latency, gain, initial acceleration, catch-up saccades), we developed new tools based on best-fitting procedure of predefined patterns (i.e. the typical smooth pursuit velocity profile).
 
 These python scripts are available at \url{https://github.com/invibe/ANEMO}.
 
@@ -516,7 +531,7 @@ Fig~\ref{fig:BCP_figA}~\textbf{A} shows one instance of a sequence of simulated 
 % We adapted this model to the data our first study,~page~\pageref{chap:4}, by taking the alternating output of leftward/rightward trials as the sequence of observations that will be under the analysis of the model. This model uses a latent variable r which represents the length of the current interval during which motion$-$direction probability~($\hat{p}$)~has not changed. The agent infers at each trial the likelihood of r and then deduces the optimal~$\hat{p}$~(we used the expected value and the max as readouts) and the uncertainty associated to it. Finally, the whole algorithm simplifies to the following iterations:
 
 Following the principle of Active Inference,
-To summarize, the algorithm 
+To summarize, the algorithm % uncover progressively
 
 \begin{enumerate}
 	\item     Initialize
@@ -566,10 +581,10 @@ Contrary to the forgetful-agent model where~$\tau$ was a fixed parameter, the BC
 
 
 
-\subsection{Computing the likelihood}
+%\subsection{Computing the likelihood}
 The main difference between our algorithm and that of Wilson is the way that the likelihood is computed.
 
-
+\subsection{Quantitative analysis of the Bayesian change point algorithm}
 Let's now see the application of our model to a simple synthetic example before applying it to the experimental protocol that we used in our two experiments
 
 
@@ -599,6 +614,7 @@ as a summary, for any given sequnce, we get an estimate of the probability given
 
 \section{Results: psychophysics}
 
+We expect it to be harder than the previous protocol  in fixed-length blocks
 
 \subsection{Eye movements recording and the Bet}
 %Example of results obtained during the recording overlaid with the results of the bet experiment :
@@ -794,6 +810,9 @@ There are a spectrum of individual choices between exploration and exploiting be
 %\end{enumerate}
 %
 
+%: theory / computationnally-driven experiments 
+% it's amain novelty
+genrative models for changing environments allows to know the ground truth compared to natural stimulation (see Rust eand Movshon)%
 Let's remember our hierarchical generative model.
 
 At any given trial, we wish to construct an algorithm which
@@ -810,8 +829,9 @@ in our case, we will assume that the bayesian model knows about the structure of
 
 
 perspectives:
-- interindividual differences
 - RL
+- interindividual differences : markers for the berhaviour traces - traces of the network implementation
+- the brain is weakly Bayesian (it does not care about equations but more about sugar)
 
 
 
