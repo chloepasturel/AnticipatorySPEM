@@ -14,6 +14,7 @@
 \newcommand{\Website}{http://invibe.net/LaurentPerrinet}%
 \newcommand{\Email}{Laurent.Perrinet@univ-amu.fr}%
 \newcommand{\Title}{
+%Principles and psychophysics of Active Inference in anticipating a dynamic probabilistic bias
 Humans adapt to the volatility of visual motion properties, and know about it
 %Anticipating a volatile probabilistic bias in visual motion direction
 %Humans adapt to the volatility of visual motion properties :  eye movements and explicit guesses
@@ -149,7 +150,9 @@ pdfauthor={\AuthorA},%< \Email > \Address},%
 
 \section{Motivation}
 
+ * Let's me first describe the motivation of this work...
 
+ * We live in a fundamentally volatile world - Think for instance to the evolution  of prices on the stock market: Any Socio-economic contextual index may make the price evolve up or down, slowly or more Rapidly
 
 \subsection{Past history of sensory event integration}
 
@@ -177,6 +180,15 @@ In parallel, we are developing new automatic routines for the advanced analysis 
 
 \subsection{Target of this paper}
 %
+
+
+% * This was shown to happen in the more  experimental setting While recording smooth pursuit eye movements : Anna Montagnini has previously shown that if you use a probabilistic bias in the direction of the movement of the target, the the eye will (uncousciously) anticipate in the direction of this bias.
+%
+% * this protocol used a random length fixation period then a pause of fixed duration, and then a traget moving at 15 deg / s
+%
+% * the value p gives the probability of going to the right : at .5 it is unbisaed, and at .75 for instance it goes 75% to the right and 25% to the left
+% 
+% 
 %Perceptual learning mainly produces improvements in discrimination with long-term training on a perceptual judgement~\citep{Lu2009}. On the other hand, adaptation is typically characterized as an imminent loss in sensitivity to a stimulus's exposure. Recent examples of positive biases in perceptual discrimination are numerous and shows that the visual system tends to favor stimulus' temporal and spatial stability~\citep{Burr2014, Fischer2014, Liberman2014}. For instance, facilitatory effects such as priming enhance the stimulus identification of repeated motion~\citep{Verstraten1994, Tiest2009}. Additionally, those integration mechanisms tend to share the same neural substrates~\citep{Campana2002, Campana2006, Campana2013}. The ability to detect sequential regularities then appears as a fundamental ability for the adaptive behavior of species. On various experiments, learning of local sequence have been observed even on randomized events or with restrained contingencies~\citep{Squires1976, Strauss2015}. Namely in two-alternative forced-choices studies that have revealed "sequential effects", i.e. fluctuations in performance induced by the local regularities in the sequence of events. A same response presented several times could indeed lead to faster and more accurate responses and, on the other hand, lead to impairment in the behavior when a presented stimulus was going against the expected belief~\citep{Hyman1953, Yu2009}. Other studies also report that when participants are asked to to produce random sequences and to rate the randomness of those, they show an underestimation of the likelihood of alternations~\citep{Sun2015, Kareev1995}. One remaining question though, is to select a model approach to those phenomenon and how sequential effects are integrated. Nowadays, the Bayesian inference is an effective approach to deal with this question.
 %
 %A key principle in the Bayesian inference approach is the hypothesis that information is processed by the brain by computing probabilities~\citep{Deneve1999, Diaconescu2014}. Then this probabilistic computations follows a Bayes's rule and infer the hidden regularities of received inputs~\citep{Deneve1999, Hoyer2003, Ma2014}. Afterward, the brain combines the likelihood of observations given putative regularities and the prior likelihood of these regularities~\citep{Janes2014}. A final principle is the predictive and iterative nature of bayesian models. Once the hidden regularities of the inputs are referred, they are used by the brain to anticipate the likelihood of future observations. Thus, the comparisons between expectations and actual data produces a constant update the estimates of the model under a mechanism that is labelled as the~\textit{active inference}~\citep{Friston2003, Friston2010}. In a study,~\citet{Meyniel2016} simulated a model over five different set of datas previously published~\citep{Squires1976, Huettel2002, Kolossa2013, Cho2002, Falk1997}. Their main conclusion was that only a learning of local transition probabilities was compatible with the large repertoire of experimental effects reported here and could be summarized in six assumptions:
@@ -213,6 +225,7 @@ Throughout the first experimental condition we investigated the integration of e
 %\begin{center}
 %\includegraphics[width=0.9\linewidth]{image_anna_2}
 %\end{center}
+%Montagnini A, Souto D, and Masson GS (2010) <a href="http://jov.arvojournals.org/article.aspx?articleid=2138664">J Vis (VSS Abstracts) 10(7):554</a>,<BR> Montagnini A, Perrinet L, and Masson GS (2015) <a href="https://arxiv.org/abs/1611.07831">BICV book chapter</a>
 \caption{\emph{aSPEM} \textbf{(A)} 
 \textbf{(B)} 
 \textbf{(C)}  }
@@ -319,12 +332,31 @@ where $\Jj = BB(\frac 1 2 , \frac 1 2 )$ is Jeffrey's prior
 \textbf{Stimuli were generated using PsychoPy 1.85.4 on a Mac running OS 10.6.8 (A VERIFIER) and displayed on a 20" Viewsonic p227f monitor (A VERIFIER) with resolution $1280\times 1024$ at 100~\si{\Hz} (60 ?). Psychophysics routines were written using PsychoPy 1.85.4 controlled the stimulus display. Observers sat 57~\si{\cm} from the screen in a dark room. Twelve observers (29 years old +/- 5.15) with normal or corrected-to-normal vision took part in these experiments. They gave their informed consent and the experiments received ethical approval from the Aix-Marseille Ethics Committee in accordance with the declaration of Helsinki.}
 
 
+ * the whole experiment was coded by Chloé using :
+ - python for the generative model,
+ - the psychopy library for the stimulus display + connection to the eyelink 1000 that we used to record EMs
+ - numpy, pandas and pylab for the data analysis
+
+  * all this code is available : for running the experiments, re-analyzing the data and doing all plots are on github
+
+These python scripts are available at \url{https://github.com/chloepasturel/AnticipatorySPEM}.
+
 
 We asked subjects to perform two tasks on different days :
 %\begin{itemize}\setlength{\itemsep}{0ex}
 %\item a <<Bet>>
 %\item a <<recording>>
 %\end{itemize}
+
+In summary, the design of our experimental setting is therefore very similar to the previous experiment but with a more general construct:
+
+- using the same 3-layered generative model, we generated sequences of directions
+
+- and generated 3 blocks of 200 trials
+
+- with an average block length of 40 trials
+
+We anticipated that such an  experiment for which we simply recordedd the eye movements should be more difficult for observers compared to the classical experiments with longer (400 trials), fixed blocks and...
 
 \subsection{The Bet}
 In this first part, the subjects must simply answer before each trial at the question \textit{ ``How sure are you that the target will go left or right''}. This was performed by adjusting a cursor on the screen using the mouse (see Figure).
@@ -333,6 +365,14 @@ In this first part, the subjects must simply answer before each trial at the que
 
 
 %\textbf{Lors de cette tâche les mouvement oculaire sont enregistré à 100 Hz via Eyelink 100. Le module Python Pylink (SR research) 0.1.0 nous a permis de faire le lien entre Eyelink et nos routines python. Les sujets ont la tête fixe, et on leur demande de ne pas cligner des yeux lorsque le stimuli aparait. Chaque essais commence par la présentation d’un point de fixation blanc de 10px de large au centre de l’écran pendant une durée variable de 400 à 800 ms. Si le signal enregistré n'est pas présent dans une fenêtre de $120\times 120$ px autour du point de fixation ou si il n’est pas stable (clignement, mauvais enregistrement…), la durée de fixation recommence. À la fin de cette durée de fixation il y a un GAP de 300ms, le point de fixation disparait laissant juste un écran gris. Puis une cible en mouvement de 15°/s apparaissait de sorte que 100ms après sont apparition il soit au centre de l’écran, afin d’évité la première saccade. La cible est un cercle blanc mesurant 10px de large et 2px de lineWidth (REDONDANT).}
+
+
+This is why we added a supplementary experiment for each observer but on a different day for which we asked at every trial to give a subjective, conscious evaluation of the direction of the next trial + a confidence about this inference. Once this information given by the subject, we were showing the actual outcome.
+
+Interestingly, we used exactly the same sequence, allowing to make a direc comparison of the results of both experiments
+
+We called this experiment the bet experiment.
+
 
 \textbf{Tous les 50 essais le 'score' du sujet sur les 50 derniers essais est affiché au centre de l'écran, le sujet doit appuyer sur la barre espace du clavier pour continuer (doit dire a l'expérimentateur quand il veux continué, on ne pouvais pas brancher une souris et un clavier en même temps). Ce score est égal à $\sum_{x=0}^{50} \frac{Bet_{x} \times dir_x}{50} \times 100$. Où $Bet_x$ est le parie du sujet à chaque début d'essaie comprie entre -1 pour la gauche et 1 pour la droite, $dir_x$ est la direction de la cible pour chaque essai, -1 pour la gauche et 1 pour la droite.}
 
@@ -389,6 +429,30 @@ In order to extract the relevant parameters of the oculomotor responses, we deve
 
 We have designed an agent adapted the Bayesian Online Change-point Detection model~\parencite{AdamsMackay2007}. This model uses a latent variable r which represents the length of the current interval during which motion-direction probability ($\hat{P}$) has not changed. The agent infers at each trial the likelihood  of r and then deduces the optimal $\hat{P}$ (we used the expected value and the max as readouts) and the uncertainty associated to it. We simulated the model across our experimental sequences, as illustrated by the example for the third block.
 
+
+* an implementation of
+[Adams &amp; MacKay 2007 "Bayesian Online Changepoint Detection"](http://arxiv.org/abs/0710.3742)
+in Python.
+
+````
+@TECHREPORT{ adams-mackay-2007,
+AUTHOR = "Ryan Prescott Adams and David J.C. MacKay",
+TITLE  = "Bayesian Online Changepoint Detection",
+INSTITUTION = "University of Cambridge",
+ADDRESS = "Cambridge, UK",
+YEAR = "2007",
+NOTE = "arXiv:0710.3742v1 [stat.ML]",
+URL = "http://arxiv.org/abs/0710.3742"
+}
+````
+
+* adapted from https://github.com/JackKelly/bayesianchangepoint by Jack Kelly (2013) for a binomial input.
+
+* This code is based on the  [MATLAB implementation](http://www.inference.phy.cam.ac.uk/rpa23/changepoint.php) provided by Ryan Adam. Was available at http://hips.seas.harvard.edu/content/bayesian-online-changepoint-detection
+
+ * full code @ https://github.com/laurentperrinet/bayesianchangepoint
+
+
 %-------------------------------------------------------------%
 %: fig:results_bcp
 \begin{figure}%[b!]
@@ -405,7 +469,16 @@ We have designed an agent adapted the Bayesian Online Change-point Detection mod
 %\begin{center} 
 %    \includegraphics[width=1\linewidth]{bayesianchangepoint_m}
 %\end{center}
-\caption{\emph{Bayesian change point model}~\textbf{A} shows hypothetic datas that works as a binomial choice, either 0 (leftward) or 1 (rightward). In particular, the probability switched at trials 6 and 10.~\textbf{B} shows the graph (treillis) on which the message indicates that mass probability is being passed. Black lines denotes "upwards", that is, for which there is a progression of the run length at the next step. The red line stands for the possibility that a switch happened, and then falls back to zero. The black curve stands for the run length of simulated datas in~\textbf{A} in function of time (r$_t$). We can see that the run length drops back to zero when change occurs at trials 6 and 10. \textbf{(C)}  }
+\caption{\emph{Bayesian change point model}~\textbf{A} shows hypothetic datas that works as a binomial choice, either 0 (leftward) or 1 (rightward). In particular, the probability switched at trials 6 and 10.~\textbf{B} shows the graph (treillis) on which the message indicates that mass probability is being passed. Black lines denotes "upwards", that is, for which there is a progression of the run length at the next step. The red line stands for the possibility that a switch happened, and then falls back to zero. The black curve stands for the run length of simulated datas in~\textbf{A} in function of time (r$_t$). We can see that the run length drops back to zero when change occurs at trials 6 and 10. \textbf{(C)}  
+
+
+* in this graph information will be represented at different nodes. each node represent a belief which takes the form of a probability distribution over the set of parameters that we wish to describe.
+* it can be the mean and variance of a gaussain, but in general it will be 2 parameters. in our case, we wish to estimate p (between zero and one) - it is characterized by the beta distribution (mathematically it is the conjugate of the bernouilli distribution)
+* (mathematically, we will use th family of exponenetial distributions:, gaussians, binomials) among which the beta distribution belongs
+First, we initialize the first node to prior values
+* at trial zero, there is no information, so we intiialize to the prior values
+
+}
 \label{fig:results_bcp}
 \end{figure}
 %-------------------------------------------------------------%
@@ -442,6 +515,7 @@ Fig~\ref{fig:BCP_figA}~\textbf{A} shows one instance of a sequence of simulated 
 %
 % We adapted this model to the data our first study,~page~\pageref{chap:4}, by taking the alternating output of leftward/rightward trials as the sequence of observations that will be under the analysis of the model. This model uses a latent variable r which represents the length of the current interval during which motion$-$direction probability~($\hat{p}$)~has not changed. The agent infers at each trial the likelihood of r and then deduces the optimal~$\hat{p}$~(we used the expected value and the max as readouts) and the uncertainty associated to it. Finally, the whole algorithm simplifies to the following iterations:
 
+Following the principle of Active Inference,
 To summarize, the algorithm 
 
 \begin{enumerate}
@@ -495,11 +569,52 @@ Contrary to the forgetful-agent model where~$\tau$ was a fixed parameter, the BC
 \subsection{Computing the likelihood}
 The main difference between our algorithm and that of Wilson is the way that the likelihood is computed.
 
-\section{Results}
+
+Let's now see the application of our model to a simple synthetic example before applying it to the experimental protocol that we used in our two experiments
+
+
+- we show two panels, one below which displays the value of the belief for the different run-length, and one above where we will show the resaulting prediction of the next outcome.
+we obtain for any given sequence different values at the given trial in the form of columns for any possible run-length: the belief,
+and the sufficient statistics for the beta distirbution which allow to provide with an estimate of the current probability
+
+- first, we show the value of probability, low probabilities are blueish while high probabilities. at every trial, the agent evluates the value for the different possible run lengths, generating a column. by showing all columns we generate this image which shows the evaluation along the sequence of trials.
+
+- second we show above the sequence of observations that were shown to the agent in a light black line. the read line gives an evaluation of the most probable a posteriori probability as the probability to hte run-length the maximum a posteriori belief on the differettn beliefs about run-lengths. using the estimate of the precision at this
+
+We remark two main observations:
+
+- first, beliefs grow at the beginning along a linear ridge, as we begin our model by assuming there was a switch at time 0. Then we observe that at a switch (hidden to the model), the model
+such that belief is more stronlgly diffused until the probability
+
+-second, we may use this information to read-out the information the most probable probability and the confidence interval as shown by the red dashed lines (.05, and .95)
+
+
+This is in contrast with a fixed length model, for which
+- the delay will always be similar
+- there is no dynamic upDATE OF THE INFERRD probability
+
+
+as a summary, for any given sequnce, we get an estimate of the probability given by the ideal observer. we will now see how we can apply that to our experiemntal protocol.
+
+
+\section{Results: psychophysics}
 
 
 \subsection{Eye movements recording and the Bet}
 %Example of results obtained during the recording overlaid with the results of the bet experiment :
+
+First, we overlay the results of the bet result for one of the 12 subjects
+
+We rescaled th value given by the observer so that it fits to 0 (sure it goes left) to 1 (sure it goes right)
+
+We observe a pretty good fit of this trace as a function of trial number
+
+
+In particular, we see 2 main effects:
+- results are more variable when the bias is around .5 than when it is high (close to zero or one)
+- switches were detected quite rapidly but with a certain delay of a few trials. Indeed, note that this plot shows the entire sequence but that observers had only access to some internal representation of the memory of the previous observations. When faced with some new observations, the observer has to constantly adapt his response to either exploit this information by considering that this observation belongs to the same sub-block or to explore a novel hypothesis. This compromise is one of the crucial component that we wish to explore.
+
+Let's now have a look at EMs...
 
 Example of results obtained during the bet and the recording :
 
@@ -519,11 +634,60 @@ Let's plot the value of the bet (probability bet)  and the acceleration of antic
 %    \includegraphics[width=1\linewidth]{P_real}
 %\end{center}
 
+
+ Let's use our model on the different sequences that were generated in our experiments in the different blocks.
+
+we the same arrangement of panels, we show below the dynamical evolution of beliefs and above the resulting readout from the model
+
+we see that as in the synthetic example above, there is a correct detection of switch after a short delay of a few trials
+
+in particular, from this correct detection, the value of the inferred probability approaches the true one as the number of observations increase in one subblock.
+
+again, we see that a fixed length model gives a similar output but with the two disadvantages described above
+
+Let's now see how this applies to our experimental results by comparing human observers to our bayesian agent.
+
 Which give a strong and positive Pearson coefficient.
+
+
+
+Among our 12 subjects, we show four representative examples. we will use the same figure as in the section with raw results
+
+but we superposed to our 2 variables, the value of the readout inferred probability along with the confidence interval.
+
+compared to the raw results which were using the true (hidden) probability, it seems qualitatively that it follows well the traces observed experimenetally
+- first, both have similar delays in ddetercting a switch, reflecting the diuffusion of probability
+- second, precisions seems to increase in bigger sub-blocks as a function of the inferred run-length
+
+as a result, the inferred probability as a function of time constitutes a useful regressor
+
 
 \subsection{Relating the Bet to the Recording}
 
 We now compare the value of bet during the bet experiment with the acceleration of anticipation during the recording :
+
+
+
+I show here a typical velocity traces for one subject / 2 trials
+
+- x-axis is time in milliseconds aligned on target onset, and we show respectively from left to right the fixation in gray, the GAP in pink (300ms) and the run in light gray.
+
+- y-axis is the velocity as computed as the gradient of position. Remark that the eyelink provides with the periods of saccades or blinks that we removed from the signal. it is quite noisy and to complement existing signal processing methods, Chloe implemented a robust
+
+- fitting method which allows to extract some key components of the velocity traces: maximum speed, latency, temporal inertia ($\tau$) and most interestingly acceleration before motion onset. We cross-validated that this method was givinfg similar results to other classical methods but in a more robust fashion/
+
+While being sensible to recording errors, this allows us to extract the anticipatory component of SPEMs and..
+
+
+ * I show here the overlay of this variable on the plot of probability biases
+
+ * these accelarations values were here scaled according to their extremal values.
+
+ * there seems to be a trend with the polarity of the acceleration being negative for p values below .5 and positive for values above .5
+
+... to make this clearer, and because we used the same sequence, we can overlay the results of both experiments in one plot:
+
+which qualitatively confirms such an intuition...
 
 %\begin{center} 
 %    \includegraphics[width=1\linewidth]{p_parie--v_a}
@@ -547,6 +711,20 @@ We now compare the value of bet during the bet experiment with the acceleration 
  Finally we wanted to look at the fit between aSPEM velocities and the probability $\hat{p}$ computed by the BCP algorithm at the moment of the eye movements for participants that undergo the experimental conditions of baseline, braker and booster. As we can see on fig~\ref{fig:final_reg.png}, the probability $\hat{p}$ computed by the BCP algorithm has a positive linear relationship with the aSPEM velocity. Interestingly, we can note that after computed $\hat{p}$ of around $\hat{p} > .727$, velocities in the braker condition tend to have a negative influence on the slope of the linear regression. On the booster condition we observe a higher correlation coefficient than in the baseline which is coherent with the results of study 1~(page~(\pageref{chap:4})).
 
 
+ * quantitatively, one can now plot the results for all subjects
+
+ * the x-axis corresponds to the probability that was coded at the second layer and which is unknown to the observer
+ * the y -axis shows either the bet or the
+ * dots represent single responses - the saturation giving the identity of the observer
+
+ we notice a quite nice linear correlation (black line) for both experiments; of the order of that found in the classical experiment with fixed blocks and a vartiety of bias values. This is surprising as the blocks are of random length, observer can still adapt to such a volatile environment.
+
+Another visualization, the scatter plot of acceleration  as a function of probability bet shows also that there is a correlation between both  variables.
+
+This allows to make a first point: it is possible to use more genreal models such as hierarchical generative models.
+
+However, while this results seem encouraging, a more finer analysis may be necessary.
+
 \subsection{Comparing the Bayesian change point model with humans}
 
 We now compare the individual guesses during the bet experiment and the acceleration of anticipation during the eye movement recordings with the model simulations :
@@ -569,6 +747,19 @@ We now compare the individual guesses during the bet experiment and the accelera
 %-------------------------------------------------------------%
 
 include the comparison with a control agent, the forgetful agent with time characteristics $\tau$
+
+
+we therefore used a kernel density estimation which clearly show the relationship between the agent probability and that reported by human observers
+- on the right, we
+
+to summarize, we have shown that
+- there is a correlation in the anticiapatory response of eye movements in a volatile environment that is captured if we know the true probability
+- that a fixed length models captures some of this correlation, but that
+- our online bayesian changep[oint model better captures this correlation and that this may hint at the neural mechanisms used to anticipate in a dynamic environment
+
+the brain is not strongly a bayesian machine, but weakly
+
+
 
 \subsection{Analyzing inter-individual differences}
 
@@ -594,6 +785,7 @@ There are a spectrum of individual choices between exploration and exploiting be
 
 \section{Discussion}
 
+
 %The oculomotor system has to constantly update its knowledge about the environment. An ordeal is then to adapt to changes with the shortest delays. Early studies have proposed that stimuli provides information to modulate reaction times within sequences~\citep{Hyman1953, Tune1964, Schvaneveldt}. This theoretical approach is coherent with the notion of local transition probabilities that quantifies at which extent an observation deviates from the preceding ones~\citep{Meyniel2016}. The way expectations act on cognitive processes has been investigated by a wide range of domains such as predictive coding~\citep{Wolpert2000, Wacongne2012}, active inference~\citep{Friston2010}, motor control~\citep{Sutton1998, Behrens2007} and reinforcement learning~\citep{Nassar2012}. Non-stationary observations can also explain why both local and global effects emerge and why local effects persist in the long run even within purely random sequences~\citep{Cho2002, Yu2009}. This constant update of a general belief on the world can be a consequence of the constant attempt to learn the non-stationary structure of the environment that can change at unpredictable times~\citep{Yu2009}. Many studies have actually already pointed the brain's ability to apprehend non-stationary states in environments~\citep{Ossmy2013, Meyniel2015}. As explained by~\citet{Meyniel2016}, the belief upon an environment can be divided in two different ways:
 %
 %\begin{enumerate}[label=\Alph*)]
@@ -601,7 +793,27 @@ There are a spectrum of individual choices between exploration and exploiting be
 %\item A leaky integrator factor imbedded in the model~\citep{Anderson2006, Yu2009, Ossmy2013, Wang2002}
 %\end{enumerate}
 %
+
+Let's remember our hierarchical generative model.
+
+At any given trial, we wish to construct an algorithm which
+
+We will introduce a fundamental component of Bayesian models : a latent variable
+
+this new variable will be used to test different hypothesis which will be evaluated to predict future states. it is called latent because it aims at representing a variable that is latent (or hidden) to the observer
+
+in our case, we will assume that the bayesian model knows about the structure of the generative model and we will set it to the current run-length $r$, that is, at any given trial, the hypothesis that the past r observations belong to the same block. of course a wrong choice of a latent variables (let's say the temperture in the experimental room) may give unexpected results, even is the bayesian model is "optimal" - an essential point to understand in bayesian inference
+
+
+
 % Still, only Bayesian models recover an explicit probabilistic representation of change in likelihood. Recent experimental studies suggest, indeed, that the brain is able of estimating a hierarchical model of the environment and that humans can explicitly report sudden changes in sequences~\citep{Meyniel2015, Gallistel2014}. Ultimately, we passed over one of leaky integrator models' main default, having a too fixed and rigid memory parameter. In our work the memory parameter is constantly inferred by the BCP algorithm over the observation of the number of trials where this inference stayed reliable and then globally represented probabilistic representation of changes in likelihood and actualization of~\textit{a priori} knowledge.
+
+
+perspectives:
+- interindividual differences
+- RL
+
+
 
 \section{Conclusions}
 
