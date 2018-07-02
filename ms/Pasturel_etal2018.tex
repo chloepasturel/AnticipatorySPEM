@@ -159,6 +159,7 @@ pdfauthor={\AuthorA},%< \Email > \Address},%
  
  See Matthys and Meyniel
 
+Mammassian and the use of visual confidence  (see Ann rev of Vision 2016)
 
 %Stimulus history of events influences how current stimuli are perceived and acted upon, mostly by using adaptability features to environment contingencies. One of the adaptation process' main purpose is to reduce the sensitivity to stimuli recently presented and thus re-calibrate perceptual experience~\citep{Clifford2007, Webster2011, Kohn2007}. This process is highly dynamic especially in complex environments where new contingencies can arise at every moment. In the case of visual motions, the process of visual adaptation in mostly defined by repeated exposures of stimuli and after-effects related to those~\citep{Thompson2009}. Thus, it is interesting to note that a large variety of dynamic of an environment has a direct dependency with previous experience. The coding of a visual event then, relies in the integration of the recent past but also to catch sudden changes in the spatial context that would go against an~\textit{a priori} belief. We can illustrate this statement with several examples:  
 %
@@ -276,6 +277,7 @@ However, such estimate may become particularly challenging in a dynamic context,
 \section{Material and Method}
 
 \subsection{Forgetful-agent model (Leaky integrator)}
+% it's a particular case of the solution to the generative model assumaing a fixed -block length
 %
 % Following the~\citet{Maus2015} analysis, we performed a first study~page~\pageref{chap:4} in which we wanted to test a more realistic model of how trial-history shapes motion expectation in a direction-biased experiment.  According to~\citet{Anderson2006}, the temporal evolution for the expectation of a given event can be modeled making a simple assumption: the update of the estimated probability for an event is based on the discount of the previous estimated probability by a factor$~\lambda$, relative to new information. The value of$~\lambda$ presumably represents a compromise between responding rapidly to genuine changes in the environment and not prematurely discarding information still of value for slowly changing contexts. We extended~\citet{Anderson2006}'s approach to our analysis of anticipatory smooth pursuit across different contexts corresponding to the experimental blocks with different global probability-bias. We designed a forgetful agent estimating the target motion direction-bias according to the following iterative equation, where the estimated probability of a target moving rightwards is obtained from (1) the previous bias inference, (2) the imposed target directions and (3) a memory decay in the weighting of information. This model can be explained with the following equation:
 %
@@ -583,6 +585,8 @@ Contrary to the forgetful-agent model where~$\tau$ was a fixed parameter, the BC
 
 %\subsection{Computing the likelihood}
 The main difference between our algorithm and that of Wilson is the way that the likelihood is computed.
+
+See also Radillo / Brady 2017 - Rats and dyncmac envt - allows to extend to the continuous case
 
 \subsection{Quantitative analysis of the Bayesian change point algorithm}
 Let's now see the application of our model to a simple synthetic example before applying it to the experimental protocol that we used in our two experiments
