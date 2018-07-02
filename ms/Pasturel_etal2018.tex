@@ -4,7 +4,8 @@
 %!BIB TS-program = bibtex
 % -*- coding: UTF-8; -*-
 % vim: set fenc=utf-8
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%: METADATA
+%: %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \newcommand{\AuthorA}{Chlo\'e Pasturel}
 \newcommand{\AuthorB}{Anna Montagnini}%
 \newcommand{\AuthorC}{Laurent U.~Perrinet}%
@@ -141,7 +142,7 @@ pdfauthor={\AuthorA},%< \Email > \Address},%
 \begin{document}%
 \maketitle%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Abstract
+%: Abstract
 \begin{abstract}
 \Abstract
 \end{abstract}
@@ -151,6 +152,7 @@ pdfauthor={\AuthorA},%< \Email > \Address},%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Volatility of sensory contingencies and the adaptation of cognitive systems}
+% --------------------------------------------------------------------------------------
 %: general volatility
  We live in a fundamentally volatile world - Think for instance to the evolution  of prices on the stock market: Any Socio-economic contextual index may make the price evolve up or down, slowly or more Rapidly 
 
@@ -158,64 +160,21 @@ pdfauthor={\AuthorA},%< \Email > \Address},%
  essential to infer near future state in a dynamic environment - or at least to get an idea for the future context / link to reinforcement learning
 define our time scale: adaptive response (several minutes) - stimulus history and psychophysics
  
+% 
+%Perceptual learning mainly produces improvements in discrimination with long-term training on a perceptual judgement~\citep{Lu2009}. On the other hand, adaptation is typically characterized as an imminent loss in sensitivity to a stimulus's exposure. Recent examples of positive biases in perceptual discrimination are numerous and shows that the visual system tends to favor stimulus' temporal and spatial stability~\citep{Burr2014, Fischer2014, Liberman2014}. For instance, facilitatory effects such as priming enhance the stimulus identification of repeated motion~\citep{Verstraten1994, Tiest2009}. Additionally, those integration mechanisms tend to share the same neural substrates~\citep{Campana2002, Campana2006, Campana2013}. The ability to detect sequential regularities then appears as a fundamental ability for the adaptive behavior of species. On various experiments, learning of local sequence have been observed even on randomized events or with restrained contingencies~\citep{Squires1976, Strauss2015}. Namely in two-alternative forced-choices studies that have revealed "sequential effects", i.e. fluctuations in performance induced by the local regularities in the sequence of events. A same response presented several times could indeed lead to faster and more accurate responses and, on the other hand, lead to impairment in the behavior when a presented stimulus was going against the expected belief~\citep{Hyman1953, Yu2009}. Other studies also report that when participants are asked to to produce random sequences and to rate the randomness of those, they show an underestimation of the likelihood of alternations~\citep{Sun2015, Kareev1995}. One remaining question though, is to select a model approach to those phenomenon and how sequential effects are integrated. Nowadays, the Bayesian inference is an effective approach to deal with this question.
+%
+ 
+ 
 %: Past history of sensory event integration
-Stimulus history of events influences how current stimuli are perceived and acted upon, mostly by using adaptability features to environment contingencies. One of the adaptation process' main purpose is to reduce the sensitivity to stimuli recently presented and thus re-calibrate perceptual experience~\citep{Clifford2007, Webster2011, Kohn2007}. This process is highly dynamic especially in complex environments where new contingencies can arise at every moment. In the case of visual motions, the process of visual adaptation in mostly defined by repeated exposures of stimuli and after-effects related to those~\citep{Thompson2009}. Thus, it is interesting to note that a large variety of dynamic of an environment has a direct dependency with previous experience. The coding of a visual event then, relies in the integration of the recent past but also to catch sudden changes in the spatial context that would go against an~\textit{a priori} belief. We can illustrate this statement with several examples:  
-
-\begin{enumerate}
-\item Motion Aftereffect: Prolonged exposure to a stimulus moving in one direction result in a motion aftereffect and the presentation of a stationary stimulus is perceived to move in the opposite direction of the adapting stimulus~\citep{Anstis1998, Mather2011}. The motion aftereffect usually builds up over time~\citep{Hershenson1993}, sometimes after relatively short exposures~\citep{Kanai2005, Pavan2010} and can last for period of ten seconds~\citep{Anstis1998}. Interestingly, it can be integrated in memory over relatively long-period without further stimulations~\citep{Verstraten1994, Wiesenfelder1992}.
-\item Priming: In the case of priming, repeated stimulations creates a facilitation in perception~\citep{Kristjnsson2010WherePM, Maljkovic1994, Tulving1990}. Indeed, after exposure to a similar stimulus, priming leads to faster responses in perceptual detection or identification of probes. It also occurs specifically for visual motion stimuli~\citep{Anstis1987, Campana2002, Pinkus1997}. Interestingly, observation of priming effects have been observed for anticipatory smooth eye movements (aSPEM). 
-\end{enumerate}
-
+Stimulus history of events influences how current stimuli are perceived and acted upon, mostly by using adaptability features to environment contingencies. One of the adaptation process' main purpose is to reduce the sensitivity to stimuli recently presented and thus re-calibrate perceptual experience~\citep{Clifford2007, Webster2011, Kohn2007}. This process is highly dynamic especially in complex environments where new contingencies can arise at every moment. In the case of visual motions, the process of visual adaptation in mostly defined by repeated exposures of stimuli and after-effects related to those statistical regularities~\citep{Thompson2009}. Thus, it is interesting to note that a large variety of dynamic of an environment has a direct dependency with previous experience. The coding of a visual event then, relies in the integration of the recent past but also to catch sudden changes in the spatial context that would go against an~\textit{a priori} belief. We can illustrate this statement with several examples, such as 1/ Motion Aftereffect: Prolonged exposure to a stimulus moving in one direction result in a motion aftereffect and the presentation of a stationary stimulus is perceived to move in the opposite direction of the adapting stimulus~\citep{Anstis1998, Mather2011}. The motion aftereffect usually builds up over time~\citep{Hershenson1993}, sometimes after relatively short exposures~\citep{Kanai2005, Pavan2010} and can last for period of ten seconds~\citep{Anstis1998}. Interestingly, it can be integrated in memory over relatively long-period without further stimulations~\citep{Verstraten1994, Wiesenfelder1992}; 2/ Priming: In the case of priming, repeated stimulations creates a facilitation in perception~\citep{Kristjnsson2010WherePM, Maljkovic1994, Tulving1990}. Indeed, after exposure to a similar stimulus, priming leads to faster responses in perceptual detection or identification of probes. It also occurs specifically for visual motion stimuli~\citep{Anstis1987, Campana2002, Pinkus1997}. Interestingly, observation of priming effects have been observed for anticipatory smooth eye movements (aSPEM). 
+% TODO add saccadic adaptation
 
 %: role of predictive processing in shaping this adaptive response
 See Matthys and Meyniel
 Chopin and Mamassian
 Mamassian and the use of visual confidence  (see Ann rev of Vision 2016)
 
-
-
-
-
-\subsection{Anticipatory SPEM (aSPEM)}
-%: adaptation to volatility is seen as an anticipation in SPEM - principle and function (talk about santos & kowler and others)
-Humans are able to accurately track a moving object with a combination of saccades and smooth eye movements. These movements allow us to align and stabilize the object on the fovea, thus enabling high-resolution visual detection. When predictive information is available about target motion, anticipatory smooth pursuit eye movements (aSPEM) are efficiently generated before target appearance, which reduce the typical sensorimotor delay between target motion onset and foveation. It is generally assumed that the role of anticipatory eye movements is to limit the behavioral impairment due to eye-to-target position and velocity mismatch.
-
-%: how we do it
-%Repeated presentation of stimulus can lead the oculomotor system to initiate aSPEM ahead of the stimulus appearance~\citep{Westheimer1954, KOWLER1979619, KOWLER1979633}. It has been observed that aSPEM increase in velocity when the target repeatedly moves in the same direction~\citep{Kowler1984, Kowler1989, Heinen2005}. Thus,~\citet{Maus2015} have recently shown that both perceptual adaptation and priming of aSPEM could occur simultaneously. They found a robust repulsive adaptation effect with perceptual judgements being biased faster after seeing stimuli that were slower and~\textit{vice-versa}. This study clearly shows the integration of past event and their usefulness in actual eliciting of movements. Indeed, both priming and adaptation can hypothetically share a common internal representation of stimulus speed that has been build upon the mean velocity of last encountered speeds. Then the comparison of the internal representation of speed with the current stimulus velocity could explain repulsive aftereffects and at the same time, be used to elicit aSPEM of appropriate velocity for next stimulus occurrences.~\citet{Maus2015} main conclusion was that perceptual adaptation and oculomotor priming both have a weight in building an~\textit{a priori} knowledge that will be used to generate aSPEM. Still, they integrated past history over different times scales (see fig~\ref{fig:Maus2015.png}) with the priming effects being maximized for short stimulus histories (around 2 trials) and adaptation for longer stimulus history, around 15 trials. Such history length can still be considered short history namely in the case of several hundreds blocks of trials like we did in our first study.
-
-%: in summary we get a linear relationship
-By manipulating the probability for target motion direction we were able to bias the direction and mean velocity of aSPEM, as measured during a fixed duration gap before target ramp-motion onset. This suggests that probabilistic information may be used to inform the internal representation of motion prediction for the initiation of anticipatory movements~\parencite{Montagnini2010}. However, such estimate may become particularly challenging in a dynamic context, where the probabilistic contingencies vary in time in an unpredictable way. In addition, whether and how the information processing underlying the buildup of aSPEM is linked to an explicit estimate of probabilities is unknown. We developed a new paired-task paradigm in order to address these two questions. In a first session, participants observe a target moving horizontally with constant speed from the center either to the right or left across trials. The probability of either motion direction changes randomly in time. Participants are asked to estimate "how much they are confident that the target will move to the right or left in the next trial" and to adjust the cursor's position on the screen accordingly. In a second session the participants eye movements are recorded during the observation of the same sequence of random-direction trials.
-
-
-\subsection{Target of this paper}
-%: limits of the previous method
-Fixed block. does this generalize to arbitrtary sequences? What is the dynamic of this adaptation?
-
-
-%: design of the binary switching generative model
-%\subsection{Generative model: the switching model}
-Hierarchical model of 3 layers
-
-In order to answer these questions, we have set up an experiment comprising $3$ blocks of $200$ trials, see Figure~\ref{fig:protocole}-A\footnote{Each block is divided in 4 sub-blocks of $50$ trials as denoted by vertical black bars}. For each trial, a target makes either to the left or to the right, this direction being drawn from a Bernoulli process. The probability of this process varied in a piecewise-constant (that is, a step function varying between~$0$ and~$1$), similarly to~\textcite{Meyniel13}. The occurrence of these switches is itself drawn from a Bernoulli process of probability $p_{switch}=1/40$.
-
-\eql{\choice{
-x_0^t \eqdef o_t \propto \Bb(p^t) \\
-x_1^t \eqdef p_t = p_{t-1} \quad \text{if} \quad s_t=0 \quad \text{and else} \quad p_t \propto \Jj \\
-x_2^t \eqdef s_t \propto \Bb(\lambda) 
-}}
-
-where $\Jj = BB(\frac 1 2 , \frac 1 2 )$ is Jeffrey's prior. There is alwayus a switch at t=zero.
-
-
-% * This was shown to happen in the more  experimental setting While recording smooth pursuit eye movements : Anna Montagnini has previously shown that if you use a probabilistic bias in the direction of the movement of the target, the the eye will (uncousciously) anticipate in the direction of this bias.
-%
-% * this protocol used a random length fixation period then a pause of fixed duration, and then a traget moving at 15 deg / s
-%
-% * the value p gives the probability of going to the right : at .5 it is unbisaed, and at .75 for instance it goes 75% to the right and 25% to the left
-% 
-% 
-%Perceptual learning mainly produces improvements in discrimination with long-term training on a perceptual judgement~\citep{Lu2009}. On the other hand, adaptation is typically characterized as an imminent loss in sensitivity to a stimulus's exposure. Recent examples of positive biases in perceptual discrimination are numerous and shows that the visual system tends to favor stimulus' temporal and spatial stability~\citep{Burr2014, Fischer2014, Liberman2014}. For instance, facilitatory effects such as priming enhance the stimulus identification of repeated motion~\citep{Verstraten1994, Tiest2009}. Additionally, those integration mechanisms tend to share the same neural substrates~\citep{Campana2002, Campana2006, Campana2013}. The ability to detect sequential regularities then appears as a fundamental ability for the adaptive behavior of species. On various experiments, learning of local sequence have been observed even on randomized events or with restrained contingencies~\citep{Squires1976, Strauss2015}. Namely in two-alternative forced-choices studies that have revealed "sequential effects", i.e. fluctuations in performance induced by the local regularities in the sequence of events. A same response presented several times could indeed lead to faster and more accurate responses and, on the other hand, lead to impairment in the behavior when a presented stimulus was going against the expected belief~\citep{Hyman1953, Yu2009}. Other studies also report that when participants are asked to to produce random sequences and to rate the randomness of those, they show an underestimation of the likelihood of alternations~\citep{Sun2015, Kareev1995}. One remaining question though, is to select a model approach to those phenomenon and how sequential effects are integrated. Nowadays, the Bayesian inference is an effective approach to deal with this question.
-%
+Necessity of using a generative model
 %A key principle in the Bayesian inference approach is the hypothesis that information is processed by the brain by computing probabilities~\citep{Deneve1999, Diaconescu2014}. Then this probabilistic computations follows a Bayes's rule and infer the hidden regularities of received inputs~\citep{Deneve1999, Hoyer2003, Ma2014}. Afterward, the brain combines the likelihood of observations given putative regularities and the prior likelihood of these regularities~\citep{Janes2014}. A final principle is the predictive and iterative nature of bayesian models. Once the hidden regularities of the inputs are referred, they are used by the brain to anticipate the likelihood of future observations. Thus, the comparisons between expectations and actual data produces a constant update the estimates of the model under a mechanism that is labelled as the~\textit{active inference}~\citep{Friston2003, Friston2010}. In a study,~\citet{Meyniel2016} simulated a model over five different set of datas previously published~\citep{Squires1976, Huettel2002, Kolossa2013, Cho2002, Falk1997}. Their main conclusion was that only a learning of local transition probabilities was compatible with the large repertoire of experimental effects reported here and could be summarized in six assumptions:
 %
 %\begin{enumerate}
@@ -229,6 +188,51 @@ where $\Jj = BB(\frac 1 2 , \frac 1 2 )$ is Jeffrey's prior. There is alwayus a 
 %
 %Work of~\citet{Meyniel2016} concluded that transitions probabilities constitute a core building block of sequence knowledge in the brain, which then applies to a variety of sensory modalities and experimental situations. It also suggests that, during sequences of learning, the system considers a space of hypothesis that is more general than previously though. Sequential effects in binary sequences are better explained by a learning of transition probabilities than of the absolute item frequencies or the frequencies of their alternations. A main point was that all of those models have the same numbers of free parameters, so that the local transition probability model is more general without being more complex or less constrained. The critical difference lies in the content of what is learned (item frequencies versus transition probabilities). More generally, Bayesian models may consider a vast hypothesis space~\citep{Kemp2008} and then attempt to capture human behavior. To do so, a very few or even zero adjustable parameters may be necessary.
 %
+
+
+% --------------------------------------------------------------------------------------
+\subsection{Anticipatory SPEM (aSPEM)}
+% --------------------------------------------------------------------------------------
+%: adaptation to volatility is seen as an anticipation in SPEM - principle and function (talk about santos & kowler and others)
+Humans are able to accurately track a moving object with a combination of saccades and smooth eye movements. These movements allow us to align and stabilize the object on the fovea, thus enabling high-resolution visual detection. When predictive information is available about target motion, anticipatory smooth pursuit eye movements (aSPEM) are efficiently generated before target appearance, which reduce the typical sensorimotor delay between target motion onset and foveation. It is generally assumed that the role of anticipatory eye movements is to limit the behavioral impairment due to eye-to-target position and velocity mismatch.
+
+%: how we do it
+%Repeated presentation of stimulus can lead the oculomotor system to initiate aSPEM ahead of the stimulus appearance~\citep{Westheimer1954, KOWLER1979619, KOWLER1979633}. It has been observed that aSPEM increase in velocity when the target repeatedly moves in the same direction~\citep{Kowler1984, Kowler1989, Heinen2005}. Thus,~\citet{Maus2015} have recently shown that both perceptual adaptation and priming of aSPEM could occur simultaneously. They found a robust repulsive adaptation effect with perceptual judgements being biased faster after seeing stimuli that were slower and~\textit{vice-versa}. This study clearly shows the integration of past event and their usefulness in actual eliciting of movements. Indeed, both priming and adaptation can hypothetically share a common internal representation of stimulus speed that has been build upon the mean velocity of last encountered speeds. Then the comparison of the internal representation of speed with the current stimulus velocity could explain repulsive aftereffects and at the same time, be used to elicit aSPEM of appropriate velocity for next stimulus occurrences.~\citet{Maus2015} main conclusion was that perceptual adaptation and oculomotor priming both have a weight in building an~\textit{a priori} knowledge that will be used to generate aSPEM. Still, they integrated past history over different times scales (see fig~\ref{fig:Maus2015.png}) with the priming effects being maximized for short stimulus histories (around 2 trials) and adaptation for longer stimulus history, around 15 trials. Such history length can still be considered short history namely in the case of several hundreds blocks of trials like we did in our first study.
+
+%: in summary we get a linear relationship
+By manipulating the probability for target motion direction we were able to bias the direction and mean velocity of aSPEM, as measured during a fixed duration gap before target ramp-motion onset. This suggests that probabilistic information may be used to inform the internal representation of motion prediction for the initiation of anticipatory movements~\parencite{Montagnini2010}. However, such estimate may become particularly challenging in a dynamic context, where the probabilistic contingencies vary in time in an unpredictable way. In addition, whether and how the information processing underlying the buildup of aSPEM is linked to an explicit estimate of probabilities is unknown. We developed a new paired-task paradigm in order to address these two questions. In a first session, participants observe a target moving horizontally with constant speed from the center either to the right or left across trials. The probability of either motion direction changes randomly in time. Participants are asked to estimate "how much they are confident that the target will move to the right or left in the next trial" and to adjust the cursor's position on the screen accordingly. In a second session the participants eye movements are recorded during the observation of the same sequence of random-direction trials.
+
+
+% --------------------------------------------------------------------------------------
+\subsection{Target of this paper}
+% --------------------------------------------------------------------------------------
+%: limits of the previous method
+Fixed block. does this generalize to arbitrtary sequences? What is the dynamic of this adaptation?
+Models which only mimick the behaviour (Souto for saccadic adaptation) without explaining it but see Meyniel
+The HGF of Matthys is 1/ great 2/ way too complicated for the type of behaviours we want to explain
+
+%: design of the binary switching generative model
+%\subsection{Generative model: the switching model}
+Hierarchical model of 3 layers: "hardest model" all information is controlled - no artefact possible
+
+In order to answer these questions, we have set up an experiment comprising $3$ blocks of $200$ trials, see Figure~\ref{fig:results_raw}-A\footnote{Each block is divided in 4 sub-blocks of $50$ trials as denoted by vertical black bars}. For each trial, a target makes either to the left or to the right, this direction being drawn from a Bernoulli process. The probability of this process varied in a piecewise-constant (that is, a step function varying between~$0$ and~$1$), similarly to~\textcite{Meyniel13}. The occurrence of these switches is itself drawn from a Bernoulli process of probability $p_{switch}=1/40$.
+
+\eql{\choice{
+x_0^t \eqdef o_t \propto \Bb(p^t) \\
+x_1^t \eqdef p_t = p_{t-1} \quad \text{if} \quad s_t=0 \quad \text{and else} \quad p_t \propto \Jj \\
+x_2^t \eqdef s_t \propto \Bb(\lambda) 
+}}
+
+where $\Jj = BB(\frac 1 2 , \frac 1 2 )$ is Jeffrey's prior. There is alwayus a switch at t=zero.
+allows to generate blocks
+
+% * This was shown to happen in the more  experimental setting While recording smooth pursuit eye movements : Anna Montagnini has previously shown that if you use a probabilistic bias in the direction of the movement of the target, the the eye will (uncousciously) anticipate in the direction of this bias.
+%
+% * this protocol used a random length fixation period then a pause of fixed duration, and then a traget moving at 15 deg / s
+%
+% * the value p gives the probability of going to the right : at .5 it is unbisaed, and at .75 for instance it goes 75% to the right and 25% to the left
+% 
+
 
 
 Throughout the first experimental condition we investigated the integration of environmental statistical regularities in a smooth tracking task with a family of direction-biases for the target motion. What we found was a global and robust effect of direction-bias on anticipatory smooth pursuit. These results are coherent with previous oculomotor findings by our and also other groups (Montagnini et al. 2010; Santos \& Kowler 2017). Typically, aSPEM is observed after a temporal cue and ahead of target motion onset (Kowler and Steinman, 1979a,b, 1984). Some now classical experiments have demonstrated the existence of prediction-based smooth pursuit during the transient disappearance of a moving target (Badler, 2006; Becker \& Fuchs, 1985). Overall, it is now clear that smooth pursuit behavior can be modulated even in the absence of online sensory stimulation. aSPEM were here the core of our research because we wanted to study the trial-by-trial evolution of expectancy-based oculomotor behavior, as well as how sensorimotor expectancy interacts with reward contingencies in shaping oculomotor behavior without direct sensory feedback. In a previous study, (Souto, Montagnini \& Masson, 2008b; Montagnini et al., 2010) we have analyzed how forthcoming motion properties, such as target speed or direction, can be predicted and anticipated with coherent orienting eye movements. We found a graded effect of both the speed and the direction-bias, with mean anticipatory eye velocity linearly related to the probability of motion's speed or direction. Here, we replicated part of those results using a limited number of direction probability bias and strengthened them by generalizing them on seventeen participants. These results imply that the probability bias over a target's direction is one additional factor beyond other physical and cognitive cues (Kowler et al, 2014; Santos \& Kowler 2017) that modulate the common predictive framework driving anticipatory behavior to optimize a rapid and precise foveation of the target on its most expected future path. 
@@ -427,7 +431,28 @@ These python scripts are available at \url{https://github.com/invibe/ANEMO}.
 In order to extract the relevant parameters of the oculomotor responses, we developed new tools based on a best-fitting procedure of predefined patterns and in particular the typical smooth pursuit velocity profile that was recorded for the aSPEM (Top row). This was applied to each trial individually, and we show below some prototypical example of respectively a neutral, anticipatory positive and anticipatory negative aSPEMs examples (respectively second to bottom rows). 
 
 
-%
+%-------------------------------------------------------------%
+%:  FIGURE 2 fig:results_raw
+%: TODO présente le prtocole avec les résultats bruts pour un sujet caractéristique 
+\begin{figure}%[b!]
+%\vspace{2mm}
+
+\begin{center} 
+    \includegraphics[width=1\linewidth]{bayesianchangepoint}
+\end{center}
+
+%\begin{center} 
+%    \includegraphics[width=1\linewidth]{bayesianchangepoint_e}
+%\end{center}
+
+%\begin{center} 
+%    \includegraphics[width=1\linewidth]{bayesianchangepoint_m}
+%\end{center}
+\caption{\emph{Raw Psychophysical results}~\textbf{A} ~\textbf{B} 
+}
+\label{fig:results_raw}
+\end{figure}
+%-------------------------------------------------------------%
 %%-------------------------------------------------------------%
 %%: fig:eye_fits
 %\begin{figure}%[b!]
@@ -480,7 +505,7 @@ URL = "http://arxiv.org/abs/0710.3742"
 
 
 %-------------------------------------------------------------%
-%:  FIGURE 2 fig:results_bcp
+%:  FIGURE 3 fig:results_bcp
 %: TODO présente le principe de l'algorithme, le résultat sur une séquence et une aanlyse quantitative qui permettra de l'utiliser pour les expériences psycho
 \begin{figure}%[b!]
 %\vspace{2mm}
@@ -595,10 +620,13 @@ Contrary to the forgetful-agent model where~$\tau$ was a fixed parameter, the BC
 
 %\subsection{Computing the likelihood}
 The main difference between our algorithm and that of Wilson is the way that the likelihood is computed.
+%different read-outs : see 2018-02-12 journal club bayesian changepoint chloe.pdf p.33
 
 See also Radillo / Brady 2017 - Rats and dyncmac envt - allows to extend to the continuous case
 
 \subsection{Quantitative analysis of the Bayesian change point algorithm}
+
+%different read-outs : see 2018-02-12 journal club bayesian changepoint chloe.pdf p.42
 Let's now see the application of our model to a simple synthetic example before applying it to the experimental protocol that we used in our two experiments
 
 
@@ -623,7 +651,7 @@ This is in contrast with a fixed length model, for which
 - there is no dynamic upDATE OF THE INFERRD probability
 
 
-as a summary, for any given sequnce, we get an estimate of the probability given by the ideal observer. we will now see how we can apply that to our experiemntal protocol.
+as a summary, for any given sequence, we get an estimate of the probability given by the ideal observer. we will now see how we can apply that to our experimental protocol.
 
 %: %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -762,7 +790,7 @@ We now compare the individual guesses during the bet experiment and the accelera
 
 
 %-------------------------------------------------------------%
-%: FIGURE 3  fig:results_psycho
+%: FIGURE 4  fig:results_psycho
 % TODO présente les résultats osycho : 1/ un sujet caractéristique 2/ 
 \begin{figure}%[b!]
 %\vspace{2mm}
@@ -798,7 +826,7 @@ the brain is not strongly a bayesian machine, but weakly
 By extracting the parameters for every subject we can expect to characterise inter individual differences. 
 
 %-------------------------------------------------------------%
-%: FIGURE 3  fig:results_psycho_inter
+%: FIGURE 5  fig:results_psycho_inter
 % TODO présente une meta analyse qui montre une correlation par sujet (scatter plot) entre h_a et h_bet (see 2017-11-16 chloe figures.pdf ) y-a-til un continuum entre explorateurs et conservatezurs?, voir de montrer une causalité entre les 2 expériences - on pourrait superposer aussi les résultats si on avait utilisé un fixed-length ?
 \begin{figure}%[b!]
 %\begin{center} 
@@ -829,7 +857,7 @@ There are a spectrum of individual choices between exploration and exploiting be
 %
 
 %: theory / computationnally-driven experiments 
-% it's amain novelty
+% it's a main novelty
 genrative models for changing environments allows to know the ground truth compared to natural stimulation (see Rust eand Movshon)%
 Let's remember our hierarchical generative model.
 
@@ -841,13 +869,15 @@ this new variable will be used to test different hypothesis which will be evalua
 
 in our case, we will assume that the bayesian model knows about the structure of the generative model and we will set it to the current run-length $r$, that is, at any given trial, the hypothesis that the past r observations belong to the same block. of course a wrong choice of a latent variables (let's say the temperture in the experimental room) may give unexpected results, even is the bayesian model is "optimal" - an essential point to understand in bayesian inference
 
+extension to multi-nomioal( daniele + fred danion)
+
 
 
 % Still, only Bayesian models recover an explicit probabilistic representation of change in likelihood. Recent experimental studies suggest, indeed, that the brain is able of estimating a hierarchical model of the environment and that humans can explicitly report sudden changes in sequences~\citep{Meyniel2015, Gallistel2014}. Ultimately, we passed over one of leaky integrator models' main default, having a too fixed and rigid memory parameter. In our work the memory parameter is constantly inferred by the BCP algorithm over the observation of the number of trials where this inference stayed reliable and then globally represented probabilistic representation of changes in likelihood and actualization of~\textit{a priori} knowledge.
 
 
 perspectives:
-- RL
+- RL : use hindsight example of localization for saccades
 - interindividual differences : markers for the berhaviour traces - traces of the network implementation
 - the brain is weakly Bayesian (it does not care about equations but more about sugar)
 
