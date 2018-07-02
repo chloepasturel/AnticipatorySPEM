@@ -315,7 +315,7 @@ where $\Jj = BB(\frac 1 2 , \frac 1 2 )$ is Jeffrey's prior
 
 
 
-% TODO replace this with the actual protocoml using psychopy
+% TODO replace this with the actual protocol using psychopy
 \textbf{Stimuli were generated using PsychoPy 1.85.4 on a Mac running OS 10.6.8 (A VERIFIER) and displayed on a 20" Viewsonic p227f monitor (A VERIFIER) with resolution $1280\times 1024$ at 100~\si{\Hz} (60 ?). Psychophysics routines were written using PsychoPy 1.85.4 controlled the stimulus display. Observers sat 57~\si{\cm} from the screen in a dark room. Twelve observers (29 years old +/- 5.15) with normal or corrected-to-normal vision took part in these experiments. They gave their informed consent and the experiments received ethical approval from the Aix-Marseille Ethics Committee in accordance with the declaration of Helsinki.}
 
 
@@ -355,32 +355,35 @@ Then, we recorded their eye movements as they were tracking the target's motion.
 % TODO replace this with the actual protocoml using psychopy
 %Stimuli were generated using Matlab 7.10.0 on a Mac running OS 10.6.8 and displayed on a 20" Viewsonic p227f monitor with resolution $1024\times 768$ at 100~\si{\Hz}. Psychophysics routines were written using Matlab and Psychtoolbox 3.0.9 controlled the stimulus display. Observers sat 57~\si{\cm} from the screen in a dark room. Six male observers with normal or corrected-to-normal vision took part in these experiments. They gave their informed consent and the experiments received ethical approval from the Aix-Marseille Ethics Committee in accordance with the declaration of Helsinki.
 
-
+These python scripts are available at \url{https://github.com/invibe/ANEMO}.
 
 
 \subsection{Eye movements analysis}
 
-In order to extract the relevant parameters of the oculomotor responses, we developed new tools based on a best-fitting procedure of predefined patterns and in particular the typical smooth pursuit velocity profile that was recorded for the aSPEM (Top row). This was applied to each trial individually, and we show below some prototypical example of respectively a neutral, anticipatory positive and anticipatory negative aSPEMs examples (respectively second to bottom rows) :
+In order to extract the relevant parameters of the oculomotor responses, we developed new tools based on a best-fitting procedure of predefined patterns and in particular the typical smooth pursuit velocity profile that was recorded for the aSPEM (Top row). This was applied to each trial individually, and we show below some prototypical example of respectively a neutral, anticipatory positive and anticipatory negative aSPEMs examples (respectively second to bottom rows). 
 
-%-------------------------------------------------------------%
-%: fig:eye_fits
-\begin{figure}%[b!]
-%\vspace{2mm}
-\begin{center} 
-    \includegraphics[width=1\linewidth]{Fonction_Fit}
-    \includegraphics[width=1\linewidth]{Fit_vitesse}
-\end{center}
-\caption{\emph{Eye movements analysis} \textbf{(A)} 
-\textbf{(B)} 
-\textbf{(C)}  }
-\label{fig:eye_fits}
-\end{figure}
-%-------------------------------------------------------------%
 
+%
+%%-------------------------------------------------------------%
+%%: fig:eye_fits
+%\begin{figure}%[b!]
+%%\vspace{2mm}
+%\begin{center} 
+%    \includegraphics[width=1\linewidth]{Fonction_Fit}
+%    \includegraphics[width=1\linewidth]{Fit_vitesse}
+%\end{center}
+%\caption{\emph{Eye movements analysis} \textbf{(A)} 
+%\textbf{(B)} 
+%\textbf{(C)}  }
+%\label{fig:eye_fits}
+%\end{figure}
+%%-------------------------------------------------------------%
+%
 
 \section{Results: Bayesian change point model}
 
-% https://github.com/laurentperrinet/bayesianchangepoint
+% These python scripts are available at \url{https://github.com/laurentperrinet/bayesianchangepoint}.
+
 
 \subsection{Bayesian change point model}
 
