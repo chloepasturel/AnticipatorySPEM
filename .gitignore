@@ -19,3 +19,4 @@ PyGazeAnalyser
 .ipynb_checkpoints
 lastFrameIntervals.log
 .DS_Store
+*.synctex(busy)
