@@ -174,20 +174,59 @@ pdfauthor={\AuthorA},%< \Email > \Address},%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Volatility of sensory contingencies and the adaptation of cognitive systems}
 % --------------------------------------------------------------------------------------
+% some parts of this subsection remotely originate from JB's thesis...
 %: general volatility and perceptual learning
- We live in a fundamentally volatile world for which our cognitive system has to constantly adapt. - Think for instance to 
+We live in a fundamentally volatile world for which our cognitive system has to constantly adapt. - Think for instance to 
  * the evolution  of prices on the stock market: Any Socio-economic contextual index may make the price evolve up or down, slowly or more Rapidly    
  * ecological change 
  * the side (left or right of the field) in which the ball is on a soccer field
 As such, it is essential to infer near future state in a dynamic environment - or at least to get an idea for the future context / link to reinforcement learning. 
+variability of environmental contingencies
 define our time scale: adaptive response (several minutes) - stimulus history and psychophysics
- 
 Perceptual learning mainly produces improvements in discrimination with long-term training on a perceptual judgement~\citep{Lu2009}. Recent examples of positive biases in perceptual discrimination are numerous and shows that the visual system tends to favor stimulus' temporal and spatial stability: For instance, facilitatory effects such as priming enhance the stimulus identification of repeated motion~\citep{Verstraten1994, Tiest2009}. 
+In psychophysics, such effects have been put in evidence 
+by analyzing the history in a sequence of experimental trials.
  
 %: Past history of sensory event integration
-Stimulus history of events influences how current stimuli are perceived and acted upon, mostly by using adaptability features to environment contingencies. One of the adaptation process' main purpose is to reduce the sensitivity to stimuli recently presented and thus re-calibrate perceptual experience~\citep{Clifford2007, Webster2011, Kohn2007}. This process is highly dynamic especially in complex environments where new contingencies can arise at every moment. In the case of visual motions, the process of visual adaptation in mostly defined by repeated exposures of stimuli and after-effects related to those statistical regularities~\citep{Thompson2009}. Thus, it is interesting to note that a large variety of dynamic of an environment has a direct dependency with previous experience. The coding of a visual event then, relies in the integration of the recent past but also to catch sudden changes in the spatial context that would go against an~\textit{a priori} belief. We can illustrate this statement with several examples, such as 1/ Motion Aftereffect: Prolonged exposure to a stimulus moving in one direction result in a motion aftereffect and the presentation of a stationary stimulus is perceived to move in the opposite direction of the adapting stimulus~\citep{Anstis1998, Mather2011}. The motion aftereffect usually builds up over time~\citep{Hershenson1993}, sometimes after relatively short exposures~\citep{Kanai2005, Pavan2010} and can last for period of ten seconds~\citep{Anstis1998}. Interestingly, it can be integrated in memory over relatively long-period without further stimulations~\citep{Verstraten1994, Wiesenfelder1992}; 2/ Priming: In the case of priming, repeated stimulations creates a facilitation in perception~\citep{Kristjnsson2010WherePM, Maljkovic1994, Tulving1990}. Indeed, after exposure to a similar stimulus, priming leads to faster responses in perceptual detection or identification of probes. It also occurs specifically for visual motion stimuli~\citep{Anstis1987, Campana2002, Pinkus1997}. The ability to detect sequential regularities then appears as a fundamental ability for the adaptive behavior of species. On various experiments, learning of local sequence have been observed even on randomized events or with restrained contingencies~\citep{Squires1976, Strauss2015}. Namely in two-alternative forced-choices studies that have revealed "sequential effects", i.e. fluctuations in performance induced by the local regularities in the sequence of events. A same response presented several times could indeed lead to faster and more accurate responses and, on the other hand, lead to impairment in the behavior when a presented stimulus was going against the expected belief~\citep{Hyman1953, Yu2009}. Other studies also report that when participants are asked to to produce random sequences and to rate the randomness of those, they show an underestimation of the likelihood of alternations~\citep{Sun2015, Kareev1995}. One remaining question though, is to select a model approach to those phenomenon and how sequential effects are integrated. Nowadays, the Bayesian inference is an effective approach to deal with this question.
+Stimulus history of events influences 
+how current stimuli are perceived and acted upon, 
+mostly by using cognitively adaptive mechanisms. 
+One of their main purpose is to reduce 
+the sensitivity to recently presented stimuli and 
+thus to re-calibrate perceptual experience~\citep{Clifford2007, Webster2011, Kohn2007}. 
+This process is highly dynamic 
+especially in complex environments 
+where new contingencies can arise at every moment. 
+In the case of visual motions, 
+the process of visual adaptation in mostly defined 
+by repeated exposures of stimuli and 
+after-effects related to those statistical regularities~\citep{Thompson2009}. 
+%An example, is Motion Aftereffect: 
+%Prolonged exposure to a stimulus moving in one direction results 
+%in a motion aftereffect: a stationary stimulus is perceived to move 
+%in the opposite direction as the adapting stimulus~\citep{Anstis1998, Mather2011}. 
+%The motion aftereffect usually builds up over time~\citep{Hershenson1993}, 
+%sometimes after relatively short exposures~\citep{Kanai2005, Pavan2010} 
+%and can last for period of ten seconds~\citep{Anstis1998}. 
+An example, is Priming: Repeated stimulations 
+creates a facilitation in perception~\citep{Kristjnsson2010WherePM, Maljkovic1994, Tulving1990}. 
+Indeed, after exposure to a similar stimulus, 
+priming leads to faster responses in perceptual detection or identification of probes. 
+It also occurs specifically for visual motion stimuli~\citep{Anstis1987, Campana2002, Pinkus1997}. 
+The ability to detect sequential regularities 
+thus appears as a fundamental ability 
+for the adaptive behavior of species. 
+A same response presented several times could indeed 
+lead to faster and more accurate responses and, 
+on the other hand, lead to impairment in the behavior 
+when a presented stimulus was going 
+against the expected belief~\citep{Hyman1953, Yu2009}. 
+One remaining question though, is to select a model approach to those phenomenon 
+and how sequential effects are integrated. 
+Nowadays, the Bayesian inference is an effective approach to deal with this question.
 
 %: role of predictive processing in shaping this adaptive response
+Indeed, Bayesian inference allows to propose and quantitatively assess hypothesis about probabilistic processing of available information.
 A key principle in the Bayesian inference approach is the hypothesis that information is processed by the brain by computing probabilities~\citep{Deneve1999, Diaconescu2014}. Then this probabilistic computations follows a Bayes's rule and infer the hidden regularities of received inputs~\citep{Deneve1999, Hoyer2003, Ma2014}. Afterward, the brain combines the likelihood of observations given putative regularities and the prior likelihood of these regularities~\citep{Janes2014}. A final principle is the predictive and iterative nature of bayesian models. Once the hidden regularities of the inputs are referred, they are used by the brain to anticipate the likelihood of future observations. Thus, the comparisons between expectations and actual data produces a constant update the estimates of the model under a mechanism that is labelled as the~\textit{active inference}~\citep{Friston2003, Friston2010}. In a recent study,~\citet{Meyniel2016} simulated a model over five different set of datas previously published~\citep{Squires1976, Huettel2002, Kolossa2013, Cho2002, Falk1997}. Their main conclusion was that only a learning of local transition probabilities was compatible with the large repertoire of experimental effects reported here and could be summarized in six assumptions:
 
 \begin{enumerate}
@@ -202,8 +241,7 @@ A key principle in the Bayesian inference approach is the hypothesis that inform
 Work of~\citet{Meyniel2016} concluded that transitions probabilities constitute a core building block of sequence knowledge in the brain, which then applies to a variety of sensory modalities and experimental situations. It also suggests that, during sequences of learning, the system considers a space of hypothesis that is more general than previously though. Sequential effects in binary sequences are better explained by a learning of transition probabilities than of the absolute item frequencies or the frequencies of their alternations. A main point was that all of those models have the same numbers of free parameters, so that the local transition probability model is more general without being more complex or less constrained. The critical difference lies in the content of what is learned (item frequencies versus transition probabilities). More generally, Bayesian models may consider a vast hypothesis space~\citep{Kemp2008} and then attempt to capture human behavior. To do so, a very few or even zero adjustable parameters may be necessary.
 %Chopin and Mamassian
 %Mamassian and the use of visual confidence  (see Ann rev of Vision 2016)
-Interestingly, observation of priming effects, and therefore the study of inferential mechanisms in the brain,  have been observed for anticipatory smooth eye movements (aSPEM). 
-
+Interestingly, observation of priming effects, and therefore the study of inferential mechanisms in the brain,  have been observed for anticipatory smooth eye movements (aSPEM). %
 % --------------------------------------------------------------------------------------
 \subsection{Anticipatory SPEM (aSPEM)}
 % --------------------------------------------------------------------------------------
@@ -903,6 +941,22 @@ These python scripts are available at \url{https://github.com/invibe/ANEMO}.
 
 In order to extract the relevant parameters of the oculomotor responses, we developed new tools based on a best-fitting procedure of predefined patterns and in particular the typical smooth pursuit velocity profile that was recorded for the aSPEM (Top row). This was applied to each trial individually, and we show below some prototypical example of respectively a neutral, anticipatory positive and anticipatory negative aSPEMs examples (respectively second to bottom rows). 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%: %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Appendices}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Appendix 1: }
+\label{app1}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Appendix 2: }
+\label{app2}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Appendix 3: }
+\label{app3}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 {\tiny
 \printbibliography
