@@ -154,7 +154,10 @@ pdfauthor={\AuthorA},%< \Email > \Address},%
 \subsection{Volatility of sensory contingencies and the adaptation of cognitive systems}
 % --------------------------------------------------------------------------------------
 %: general volatility
- We live in a fundamentally volatile world - Think for instance to the evolution  of prices on the stock market: Any Socio-economic contextual index may make the price evolve up or down, slowly or more Rapidly 
+ We live in a fundamentally volatile world - Think for instance to 
+ * the evolution  of prices on the stock market: Any Socio-economic contextual index may make the price evolve up or down, slowly or more Rapidly    
+ * ecological change 
+ * the side (left or right of the field) in which the ball is on a soccer field
 
  
  essential to infer near future state in a dynamic environment - or at least to get an idea for the future context / link to reinforcement learning
@@ -213,7 +216,7 @@ The HGF of Matthys is 1/ great 2/ way too complicated for the type of behaviours
 
 %: design of the binary switching generative model
 %\subsection{Generative model: the switching model}
-Hierarchical model of 3 layers: "hardest model" all information is controlled - no artefact possible
+Hierarchical model of 3 layers: "hardest model" all information is controlled - no artefact possible by using the gernrative model
 
 In order to answer these questions, we have set up an experiment comprising $3$ blocks of $200$ trials, see Figure~\ref{fig:results_raw}-A\footnote{Each block is divided in 4 sub-blocks of $50$ trials as denoted by vertical black bars}. For each trial, a target makes either to the left or to the right, this direction being drawn from a Bernoulli process. The probability of this process varied in a piecewise-constant (that is, a step function varying between~$0$ and~$1$), similarly to~\textcite{Meyniel13}. The occurrence of these switches is itself drawn from a Bernoulli process of probability $p_{switch}=1/40$.
 
@@ -223,7 +226,7 @@ x_1^t \eqdef p_t = p_{t-1} \quad \text{if} \quad s_t=0 \quad \text{and else} \qu
 x_2^t \eqdef s_t \propto \Bb(\lambda) 
 }}
 
-where $\Jj = BB(\frac 1 2 , \frac 1 2 )$ is Jeffrey's prior. There is alwayus a switch at t=zero.
+where $\Jj = BB(\frac 1 2 , \frac 1 2 )$ is Jeffrey's prior (TODO: put in appendix). There is always a switch at t=zero.
 allows to generate blocks
 
 % * This was shown to happen in the more  experimental setting While recording smooth pursuit eye movements : Anna Montagnini has previously shown that if you use a probabilistic bias in the direction of the movement of the target, the the eye will (uncousciously) anticipate in the direction of this bias.
@@ -236,11 +239,11 @@ allows to generate blocks
 
 
 Throughout the first experimental condition we investigated the integration of environmental statistical regularities in a smooth tracking task with a family of direction-biases for the target motion. What we found was a global and robust effect of direction-bias on anticipatory smooth pursuit. These results are coherent with previous oculomotor findings by our and also other groups (Montagnini et al. 2010; Santos \& Kowler 2017). Typically, aSPEM is observed after a temporal cue and ahead of target motion onset (Kowler and Steinman, 1979a,b, 1984). Some now classical experiments have demonstrated the existence of prediction-based smooth pursuit during the transient disappearance of a moving target (Badler, 2006; Becker \& Fuchs, 1985). Overall, it is now clear that smooth pursuit behavior can be modulated even in the absence of online sensory stimulation. aSPEM were here the core of our research because we wanted to study the trial-by-trial evolution of expectancy-based oculomotor behavior, as well as how sensorimotor expectancy interacts with reward contingencies in shaping oculomotor behavior without direct sensory feedback. In a previous study, (Souto, Montagnini \& Masson, 2008b; Montagnini et al., 2010) we have analyzed how forthcoming motion properties, such as target speed or direction, can be predicted and anticipated with coherent orienting eye movements. We found a graded effect of both the speed and the direction-bias, with mean anticipatory eye velocity linearly related to the probability of motion's speed or direction. Here, we replicated part of those results using a limited number of direction probability bias and strengthened them by generalizing them on seventeen participants. These results imply that the probability bias over a target's direction is one additional factor beyond other physical and cognitive cues (Kowler et al, 2014; Santos \& Kowler 2017) that modulate the common predictive framework driving anticipatory behavior to optimize a rapid and precise foveation of the target on its most expected future path. 
+%Montagnini A, Souto D, and Masson GS (2010) <a href="http://jov.arvojournals.org/article.aspx?articleid=2138664">J Vis (VSS Abstracts) 10(7):554</a>,<BR> Montagnini A, Perrinet L, and Masson GS (2015) <a href="https://arxiv.org/abs/1611.07831">BICV book chapter</a>
 
-% TODO: merge this figure in a introduction figure
+
 %-------------------------------------------------------------%
 %: FIGURE 1 fig:intro
-%: TODO présente sur 3 colonnes: 1/  le protocole 2/ les résultats sur du fixed block length 3 / la généralisqation qu'on veut faire ici : random-length + bet
 \begin{figure}%[b!]
 %\begin{center}
 %\includegraphics[width=1\linewidth]{anna_methode}
@@ -256,33 +259,27 @@ Throughout the first experimental condition we investigated the integration of e
 %\begin{center}
 %\includegraphics[width=0.9\linewidth]{image_anna_2}
 %\end{center}
-%Montagnini A, Souto D, and Masson GS (2010) <a href="http://jov.arvojournals.org/article.aspx?articleid=2138664">J Vis (VSS Abstracts) 10(7):554</a>,<BR> Montagnini A, Perrinet L, and Masson GS (2015) <a href="https://arxiv.org/abs/1611.07831">BICV book chapter</a>
-\caption{\emph{aSPEM} \textbf{(A)} 
-\textbf{(B)} 
-\textbf{(C)}  }
+\caption{\emph{Anticipatory SPEM (aSPEM): psychophysics and results} %
+%: TODO présente sur 3 colonnes: 1/  le protocole 2/ les résultats sur du fixed block length 3 / la généralisqation qu'on veut faire ici : random-length + bet
+% cf 0_protocole.ipynb
+% cf https://github.com/chloepasturel/AnticipatorySPEM/issues/19
+\textbf{(A)} Human observers were presented $200$ trials which consists of sequentially: a fixation dot (random duration), a blank screen (fixed duration of XXX ms) and a moving dot (XXX 20 deg/s) which the observers were instructed to follow. The direction of the dot was drawn pseudo-randomly
+\textbf{(B)} Average velocity traces of eyes. One can distinguish two phases: a visually driven component (after a latency of...) and also an anticipatory part where for ...
+\textbf{(C)} In this paper, we extended the experiment by asking to the observer on a subsequent day, but with the same sequence to rate the level of confidence for their estimate of the direction of the dot before each trial.
+ }
 \label{fig:intro}
 \end{figure}
 %-------------------------------------------------------------%
-%%-------------------------------------------------------------%
-%%: fig:protocole
-%\begin{figure}%[b!]
-%%\vspace{2mm}
-%\begin{center}
-%\textbf{(A)}     \includegraphics[width=.9\linewidth]{exp}
-%\textbf{(B)}     \includegraphics[width=.4\linewidth]{materiel_bet}
-%\textbf{(C)}     \includegraphics[width=.4\linewidth]{materiel_recording}
-%\end{center}
-%\caption{\emph{Protocol and previous results} \textbf{(A)} 
-%\textbf{(B)} 
-%\textbf{(C)}  }
-%\label{fig:protocole}
-%\end{figure}
-%%-------------------------------------------------------------%
 
 
 However, such estimate may become particularly challenging in a dynamic context, where the probabilistic contingencies vary in time in an unpredictable way. In addition, whether and how the information processing underlying the buildup of aSPEM is linked to an explicit estimate of probabilities is unknown.
 
 %: outline
+
+extension of BCP to binomial data + python implementation 
+psychophysics on eye movements (reflex / cognitive) => generalization of previous results
+analysis of inter-individual changes
+
 
 %: %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Material and Method}
@@ -351,7 +348,10 @@ However, such estimate may become particularly challenging in a dynamic context,
 \subsection{Psychophysics}
 
 
+
 % TODO replace this with the actual protocol using psychopy
+
+%cf. https://github.com/chloepasturel/AnticipatorySPEM/issues/19
 \textbf{Stimuli were generated using PsychoPy 1.85.4 on a Mac running OS 10.6.8 (A VERIFIER) and displayed on a 20" Viewsonic p227f monitor (A VERIFIER) with resolution $1280\times 1024$ at 100~\si{\Hz} (60 ?). Psychophysics routines were written using PsychoPy 1.85.4 controlled the stimulus display. Observers sat 57~\si{\cm} from the screen in a dark room. Twelve observers (29 years old +/- 5.15) with normal or corrected-to-normal vision took part in these experiments. They gave their informed consent and the experiments received ethical approval from the Aix-Marseille Ethics Committee in accordance with the declaration of Helsinki.}
 
 
@@ -395,7 +395,7 @@ In this first part, the subjects must simply answer before each trial at the que
 
 This is why we added a supplementary experiment for each observer but on a different day for which we asked at every trial to give a subjective, conscious evaluation of the direction of the next trial + a confidence about this inference. Once this information given by the subject, we were showing the actual outcome.
 
-Interestingly, we used exactly the same sequence, allowing to make a direc comparison of the results of both experiments
+Interestingly, we used exactly the same sequence, allowing to make a direct comparison of the results of both experiments
 
 We called this experiment the bet experiment.
 
@@ -433,22 +433,18 @@ In order to extract the relevant parameters of the oculomotor responses, we deve
 
 %-------------------------------------------------------------%
 %:  FIGURE 2 fig:results_raw
-%: TODO présente le prtocole avec les résultats bruts pour un sujet caractéristique 
 \begin{figure}%[b!]
 %\vspace{2mm}
-
 \begin{center} 
     \includegraphics[width=1\linewidth]{bayesianchangepoint}
 \end{center}
-
-%\begin{center} 
-%    \includegraphics[width=1\linewidth]{bayesianchangepoint_e}
-%\end{center}
-
-%\begin{center} 
-%    \includegraphics[width=1\linewidth]{bayesianchangepoint_m}
-%\end{center}
-\caption{\emph{Raw Psychophysical results}~\textbf{A} ~\textbf{B} 
+%: TODO présente le prtocole avec les résultats bruts pour un sujet caractéristique 
+\caption{\emph{The binomial switching model and raw Psychophysical results}%
+% cf 1_generative-model.ipynb
+~\textbf{A} This diagram represents the stochastic model chosen to generate the sequence of directions %
+% cf 3_Results_2.ipynb
+~\textbf{B} Raw results for one characteristic observer. In this plot we superpose the sequence of event (red or blue dots for respectively left or right directions), the (hidden) evolution of the value of $p$ (horizontal black lines) and the underlying times for switches (vertical black lines). Note that we introduced pauses every 50 trials to prevent from fatigue. Using a pseudo-random number generator with the same seed, we could present the exact same sequence to all subjects. %
+We have superposed the trace of 1/ the aSPEM strength as measured by the horizontal displacement at the onset of the visually-driven SPEM, 2/ the response to the bet experiment and 3/ the result of the BCP model. 
 }
 \label{fig:results_raw}
 \end{figure}
@@ -505,42 +501,35 @@ URL = "http://arxiv.org/abs/0710.3742"
 
 
 %-------------------------------------------------------------%
-%:  FIGURE 3 fig:results_bcp
+%:  FIGURE 3 fig:bayesianchangepoint									
 %: TODO présente le principe de l'algorithme, le résultat sur une séquence et une aanlyse quantitative qui permettra de l'utiliser pour les expériences psycho
 \begin{figure}%[b!]
-%\vspace{2mm}
-
 \begin{center} 
+% cf 3_Results_2.ipynb
     \includegraphics[width=1\linewidth]{bayesianchangepoint}
 \end{center}
-
-%\begin{center} 
-%    \includegraphics[width=1\linewidth]{bayesianchangepoint_e}
-%\end{center}
-
-%\begin{center} 
-%    \includegraphics[width=1\linewidth]{bayesianchangepoint_m}
-%\end{center}
 \caption{\emph{Bayesian change point model}~\textbf{A} shows hypothetic datas that works as a binomial choice, either 0 (leftward) or 1 (rightward). In particular, the probability switched at trials 6 and 10.~\textbf{B} shows the graph (treillis) on which the message indicates that mass probability is being passed. Black lines denotes "upwards", that is, for which there is a progression of the run length at the next step. The red line stands for the possibility that a switch happened, and then falls back to zero. The black curve stands for the run length of simulated datas in~\textbf{A} in function of time (r$_t$). We can see that the run length drops back to zero when change occurs at trials 6 and 10. \textbf{(C)}  
 
 
 * in this graph information will be represented at different nodes. each node represent a belief which takes the form of a probability distribution over the set of parameters that we wish to describe.
-* it can be the mean and variance of a gaussain, but in general it will be 2 parameters. in our case, we wish to estimate p (between zero and one) - it is characterized by the beta distribution (mathematically it is the conjugate of the bernouilli distribution)
+* it can be the mean and variance of a Gaussian, but in general it will be 2 parameters. in our case, we wish to estimate p (between zero and one) - it is characterized by the beta distribution (mathematically it is the conjugate of the bernouilli distribution)
 * (mathematically, we will use th family of exponenetial distributions:, gaussians, binomials) among which the beta distribution belongs
 First, we initialize the first node to prior values
 * at trial zero, there is no information, so we intiialize to the prior values
 % use p log p + (1-p) log (1-p ) as in logistic regression?
 }
-\label{fig:results_bcp}
+\label{fig:bayesianchangepoint}
 \end{figure}
 %-------------------------------------------------------------%
 
 
 Fig~\ref{fig:BCP_figA}~\textbf{A} shows one instance of a sequence of simulated datas of leftward and rightward trials with a probability $p$ of being rightward with possible variations through times. It also shows the predicted probability $\hat{p}$ by using the BCP algorithm. Fig~\ref{fig:BCP_figB} illustrates the belief r on the predicted probability $\hat{p}$ at a given trial. On Fig~\ref{fig:BCP_figC} and Fig~\ref{fig:BCP_figD}, we can see the belief on the run length estimation. 
  
- 
+Note, the fixed-length is imply implemented by a (broken) line with fixed run-length $r_t=\tau$) - this allows for a simple comparison 
 
 \subsection{Bayesian change point algorithm}
+
+%cf p33 de 2018-02-12 journal club bayesian changepoint chloe.pdf 
 
 % Fig~\ref{fig:BCP_figA}~\textbf{A} shows one instance of a sequence of simulated datas of leftward and rightward trials with a probability $p$ of being rightward with possible variations through times. It also shows the predicted probability $\hat{p}$ by using the BCP algorithm. Fig~\ref{fig:BCP_figB} illustrates the belief r on the predicted probability $\hat{p}$ at a given trial. On Fig~\ref{fig:BCP_figC} and Fig~\ref{fig:BCP_figD}, we can see the belief on the run length estimation. 
 % 
@@ -794,14 +783,15 @@ We now compare the individual guesses during the bet experiment and the accelera
 % TODO présente les résultats osycho : 1/ un sujet caractéristique 2/ 
 \begin{figure}%[b!]
 %\vspace{2mm}
-
+% cf 3_Results_2.ipynb
 \begin{center} 
     \includegraphics[width=1\linewidth]{results_bayesianchangepoint_e}
     \includegraphics[width=1\linewidth]{results_bayesianchangepoint_m}
 \end{center}
-\caption{\emph{Bayesian change point model} \textbf{(A)} 
-\textbf{(B)} 
-\textbf{(C)}  }
+\caption{\emph{Psychophysical results over all participants} 
+Kernel Density Estimation (KDE) of the relationship between $p$ (abscissa) and \textbf{(A)} VEM and \textbf{(B)} the value of bet (in ordinates). In \textbf{(A)}, we have overlaid is a regression line which shows a high correlation factor (R=XXX) which is superior to that found with the fixed-length design (see Appendix ...) but also with other models described in the text (fixed-length estimatyor, maximum BCP - see Appendix ... ). In \textbf{(B)}, we have fitted the data with a logistic regression showing a negligeable intercept (no bias) linked to the symmetry of the problem, but a consistent slope showing an aversion to risk (cf Kanehman).
+%\textbf{(C)}  
+}
 \label{fig:results_psycho}
 \end{figure}
 %-------------------------------------------------------------%
@@ -877,7 +867,7 @@ extension to multi-nomioal( daniele + fred danion)
 
 
 perspectives:
-- RL : use hindsight example of localization for saccades
+- RL : use hindsight example of localization for saccades: get the changepoints then improve estimate of reward allows to optimize the association between the set of measures and their utility (compared to Q-learning where it is a fixed length)
 - interindividual differences : markers for the berhaviour traces - traces of the network implementation
 - the brain is weakly Bayesian (it does not care about equations but more about sugar)
 
