@@ -100,7 +100,7 @@ Such results provide evidence that human observers may efficiently represent an 
 %============ graphics ===================
 \usepackage[pdftex]{graphicx}% 
 \DeclareGraphicsExtensions{.pdf,.png,.jpg}%
-\graphicspath{{./figures/}}%
+\graphicspath{{../figures/}, {./figures/}}% TODO remove {./figures/},  at the end
 %\usepackage[numbers,comma,sort&compress,round]{natbib} %
 \usepackage[%style=nature,
 maxcitenames=2,
@@ -122,6 +122,7 @@ backend=bibtex,
 %\newcommand{\citet}[1]{(\textcite{#1})}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% OPTIONAL MACRO FILES
+\usepackage{tikz}
 %\usepackage{tikz,tkz-euclide} \usetkzobj{all} % loading all objects
 %\usetikzlibrary{positioning} \usetikzlibrary{calc}
 %\usepackage{sfmath}
@@ -245,20 +246,16 @@ Throughout the first experimental condition we investigated the integration of e
 %-------------------------------------------------------------%
 %: FIGURE 1 fig:intro
 \begin{figure}%[b!]
-%\begin{center}
-%\includegraphics[width=1\linewidth]{anna_methode}
-%\end{center}
-\begin{tabular}{cc} 
-    \includegraphics[width=.49\linewidth]{image_anna_1} & 	\includegraphics[width=.49\linewidth]{image_anna_2}
-\end{tabular}
-%\vspace{0.5cm}
-%\begin{center}
-%\includegraphics[width=0.9\linewidth]{image_anna_1}
-%\end{center}
-%\vspace{0.5cm}
-%\begin{center}
-%\includegraphics[width=0.9\linewidth]{image_anna_2}
-%\end{center}
+\centering{
+\begin{tikzpicture}%[thick,scale=1, every node/.style={scale=1} ]
+\node [anchor=north west]  (img2) at (0.000\linewidth,.618\linewidth){\includegraphics[width=0.333\linewidth]{protocol_recording}};
+\node [anchor=north west]  (img2) at (0.333\linewidth,.618\linewidth){\includegraphics[width=0.333\linewidth]{image_anna_1}};
+\node [anchor=north west]  (img2) at (0.666\linewidth,.618\linewidth){\includegraphics[width=0.25\linewidth]{protocol_bet}};
+\draw [anchor=north west] (0.000\linewidth, .618\linewidth) node {$\mathsf{(A)}$};
+\draw [anchor=north west] (0.333\linewidth, .618\linewidth) node {$\mathsf{(B)}$};
+\draw [anchor=north west] (0.666\linewidth, .618\linewidth) node {$\mathsf{(C)}$};
+\end{tikzpicture}
+}
 \caption{\emph{Anticipatory SPEM (aSPEM): psychophysics and results} %
 %: TODO présente sur 3 colonnes: 1/  le protocole 2/ les résultats sur du fixed block length 3 / la généralisqation qu'on veut faire ici : random-length + bet
 % cf 0_protocole.ipynb
