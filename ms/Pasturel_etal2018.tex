@@ -206,23 +206,24 @@ Infer near future state in a dynamic environment ---
 or at least to form beliefs as precise as possible
 about a future environmental context ---
 are ubiquituous to cognitive systems
-such that one can act upon them at the present time.
+such that one can act upon them at the present time~\citep{ref}..
 In the long term, such capacity is essential to the adaptation
 of the behavior through reinforcement learning~\citep{ref}.
-In psychophysics, that is, in controlled experimental settings,
+In visual psychophysics, that is,
+in controlled experimental settings challenging visual perception,
 such adaptive processes have been mostly put in evidence
 by analyzing the history in a sequence of experimental trials,
 such that one could put them in evidence
 at the time scale of one to several minutes.
 
-%: Past history of sensory event integration
-Indeed, stimulus history of events influences
+%: Past history of sensory event integration in vision
+Indeed, stimulus history of visual events influences
 how current stimuli are perceived and acted upon.
 One putative purpose is to reduce
 the sensitivity to recurrently presented stimuli and
 thus to re-calibrate perceptual experience~\citep{Clifford2007, Webster2011, Kohn2007}.
 Recent examples of positive biases in perceptual discrimination are
-numerous and shows that the visual system tends
+numerous and show that the visual system tends
 to favor stimulus' temporal and spatial stability:
 For instance, facilitatory effects such as priming
 enhance the stimulus identification of repeated motion~\citep{Verstraten1994, Tiest2009}.
@@ -254,7 +255,11 @@ where new contingencies can arise at every moment.
 % The motion aftereffect usually builds up over time~\citep{Hershenson1993},
 % sometimes after relatively short exposures~\citep{Kanai2005, Pavan2010}
 % and can last for period of ten seconds~\citep{Anstis1998}.
-One remaining question though, is to select
+One remaining question though, is to understand why
+this adaptation occur in cognitive systems and
+in particular why they may deviate
+in some pathological disorders such as schizophrenia~\citep{Adams2010}.
+There is therefore a necessity to select
 a modeling approach to best understand the function of such phenomena
 and in particular how such sequential effects are integrated.
 At present, Bayesian inference is an effective methodology
@@ -263,7 +268,7 @@ to deal with this question.
 %: Bayesian methods & role of predictive processing for this adaptive response
 In all generality, Bayesian methods allow to propose and quantitatively assess
 a range of hypothesis about the processing
-of available information by observers~\citep{Deneve1999, Diaconescu2014}.
+of available information by observers~\citep{Deneve1999, Diaconescu2014, Deaunizau}.
 A key principle in the Bayesian inference approach is
 that each stated hypothesis is quantitatively formalized
 such that measurements and outcomes may be linked by
@@ -274,7 +279,7 @@ and some relevant latent variables
 which may be represented as probabilities.
 Then, using the rules of probability calculus
 one can progressively update beliefs about the latent variables,
-such that one can finllay infer the hidden structure of received inputs~\citep{Hoyer2003, Ma2014}.
+such that one can finally infer the hidden structure of received inputs~\citep{Hoyer2003, Ma2014}.
 For instance, using Bayes's rule one can combine
 the likelihood of observations given the generative model and
 the prior of these latent variables~\citep{Janes2014}.
@@ -288,39 +293,33 @@ the prior over of future beliefs on latent variables~\citep{Montagnini2007}
 Thus, the comparisons between expectations and actual data produces
 a constant update the estimates of the model under a mechanism
 that is labelled as the~\textit{active inference}~\citep{Friston2003, Friston2010}.
+Such methodology thus allows to infer present latent variables
+but also to understand longer time effects such as adaptation and learning
+through varitional inference over
+the parameters of the probabilistic model~\citep{ref}.
 In a recent study,~\citet{Meyniel2016} simulated
 a model over five different set of datas
 previously published~\citep{Squires1976, Huettel2002, Kolossa2013, Cho2002, Falk1997}.
 Their main conclusion was that
-only a learning of local transition probabilities
-was compatible with the large repertoire
-of experimental effects reported here and
-could be summarized in six assumptions:
+a learning of local transition probabilities
+was sufficient to explain the large repertoire
+of experimental effects reported in these studies.
 They concluded that transitions probabilities constitute
 a core building block of sequence knowledge in the brain,
 which then applies to a variety of sensory modalities and
 experimental situations.
-It also suggests that, during sequences of learning,
-the system considers a space of hypothesis
-that is more general than previously thought.
-Sequential effects in binary sequences are better explained
+As such sequential effects in binary sequences are better explained
 by a learning of transition probabilities
 than of the absolute item frequencies or the frequencies of their alternations.
-A main point was that all of those models
- have the same numbers of free parameters,
- so that the local transition probability model
- is more general without being more complex or less constrained.
- The critical difference lies in the content
- of what is learned (item frequencies versus transition probabilities).
- More generally, Bayesian models may consider
- a vast hypothesis space~\citep{Kemp2008} and
- then attempt to capture human behavior.
- To do so, a very few or even zero adjustable parameters may be necessary.
-%Chopin and Mamassian
-%Mamassian and the use of visual confidence  (see Ann rev of Vision 2016)
-Interestingly, observation of priming effects,
-and therefore the study of inferential mechanisms in the brain,
-have been observed for anticipatory smooth eye movements (aSPEM). %
+The critical difference lies in the content
+of what is learned (item frequencies versus transition probabilities).
+More generally, Bayesian models may consider
+a vast hypothesis space~\citep{Kemp2008} and
+then attempt to capture human behavior.
+%Chopin and %Mamassian and the use of visual confidence  (see Ann rev of Vision 2016)
+Interestingly, the observation of priming effects
+have been observed for anticipatory smooth eye movements (aSPEM)
+and therefore allow for the such predictive processes. %
 % --------------------------------------------------------------------------------------
 \subsection{Anticipatory SPEM (aSPEM)}
 % --------------------------------------------------------------------------------------
