@@ -121,6 +121,12 @@ human cognitive abilities in uncertain and dynamic environments.
 \usepackage[pdftex]{graphicx}%
 \DeclareGraphicsExtensions{.pdf,.png,.jpg}%
 \graphicspath{{../figures/}, {./figures/}}% TODO remove {./figures/},  at the end
+
+
+
+%============ bibliography ===================
+%Montagnini A, Souto D, and Masson GS (2010) <a href="http://jov.arvojournals.org/article.aspx?articleid=2138664">J Vis (VSS Abstracts) 10(7):554</a>,<BR> Montagnini A, Perrinet L, and Masson GS (2015) <a href="https://arxiv.org/abs/1611.07831">BICV book chapter</a>
+
 %\usepackage[numbers,comma,sort&compress,round]{natbib} %
 \usepackage[%style=nature,
 maxcitenames=2,
@@ -361,7 +367,7 @@ When introducing a bias in the direction,
 one observes that the velocity of the eye progressively ramps
 in the direction of the bias and before any visually-guided componentnt:
 This phase is the Anticipatory SPEM (aSPEM).
-As reported previously~\parencite{Montagnini2010, SantosKowler2017},
+As reported previously~\citep{Montagnini2010, SantosKowler2017},
 the slope of this ramp correlates with the strenth of the bias.
 This is shown in the inset showing the average gain in velocity ($\pm$ SEM)
 before any visuall driven information (here, at $t=50 \ms$).
@@ -381,14 +387,89 @@ Due to the random nature of the sequence no observer noticed that the same pseud
 %-------------------------------------------------------------%
 %: adaptation to volatility in EMs : seen as an anticipation in SPEM - principle and function (talk about santos & kowler and others)
 % % TODO add saccadic adaptation
-Humans are able to accurately track a moving object with a combination of saccades and smooth eye movements. These movements allow us to align and stabilize the object on the fovea, thus enabling high-resolution visual detection. When predictive information is available about target motion, anticipatory smooth pursuit eye movements (aSPEM) are efficiently generated before target appearance, which reduce the typical sensorimotor delay between target motion onset and foveation. It is generally assumed that the role of anticipatory eye movements is to limit the behavioral impairment due to eye-to-target position and velocity mismatch.
+Humans are able to accurately track a moving object
+with a combination of saccades and
+Smooth Pursuit Eye Movements (SPEM)~\citep{ref}.
+These movements allow us to align and
+stabilize the object on the fovea,
+thus enabling high-resolution visual detection.
+This process is retarded by different factors such as axonal transduction, neural processing and the inertia of the oculomotor system~\citep{Krauzlis}.
+When predictive information is available about target motion,
+anticipatory smooth pursuit eye movements (aSPEM) are
+efficiently generated before target appearance,
+which reduce the typical sensorimotor delay
+between target motion onset and foveation~\citep{PerrinetAdamasFriston2014}.
+It is generally assumed that the role of anticipatory eye movements is
+to limit the behavioral impairment due
+to eye-to-target position and velocity mismatch and
+of the variability introduced by neural noise~\citep{WolpertXXX}.
 
 %: how we do it
-%Repeated presentation of stimulus can lead the oculomotor system to initiate aSPEM ahead of the stimulus appearance~\citep{Westheimer1954, KOWLER1979619, KOWLER1979633}. It has been observed that aSPEM increase in velocity when the target repeatedly moves in the same direction~\citep{Kowler1984, Kowler1989, Heinen2005}. Thus,~\citet{Maus2015} have recently shown that both perceptual adaptation and priming of aSPEM could occur simultaneously. They found a robust repulsive adaptation effect with perceptual judgements being biased faster after seeing stimuli that were slower and~\textit{vice-versa}. This study clearly shows the integration of past event and their usefulness in actual eliciting of movements. Indeed, both priming and adaptation can hypothetically share a common internal representation of stimulus speed that has been build upon the mean velocity of last encountered speeds. Then the comparison of the internal representation of speed with the current stimulus velocity could explain repulsive aftereffects and at the same time, be used to elicit aSPEM of appropriate velocity for next stimulus occurrences.~\citet{Maus2015} main conclusion was that perceptual adaptation and oculomotor priming both have a weight in building an~\textit{a priori} knowledge that will be used to generate aSPEM. Still, they integrated past history over different times scales (see fig~\ref{fig:Maus2015.png}) with the priming effects being maximized for short stimulus histories (around 2 trials) and adaptation for longer stimulus history, around 15 trials. Such history length can still be considered short history namely in the case of several hundreds blocks of trials like we did in our first study.
+Repeated presentation of stimulus can lead the oculomotor system
+to initiate aSPEM ahead of the stimulus appearance~\citep{Westheimer1954, KOWLER1979619, KOWLER1979633}.
+It has been observed that aSPEM increase in velocity
+when the target repeatedly moves in the same direction~\citep{Kowler1984, Kowler1989, Heinen2005}.
+Thus,~\citet{Maus2015} have recently shown that
+both perceptual adaptation and priming of aSPEM could occur simultaneously.
+They found a robust repulsive adaptation effect
+with perceptual judgements being biased faster
+after seeing stimuli that were slower and~\textit{vice-versa}.
+This study clearly shows the integration of past event and
+their usefulness in actual eliciting of movements.
+Indeed, both priming and adaptation can hypothetically share
+a common internal representation of stimulus speed
+that has been build upon the mean velocity of last encountered speeds.
+Then the comparison of the internal representation of speed
+with the current stimulus velocity could explain repulsive aftereffects and
+at the same time, be used to elicit aSPEM
+of appropriate velocity for next stimulus occurrences.
+~\citet{Maus2015} main conclusion was that
+perceptual adaptation and oculomotor priming
+both have a weight in building an~\textit{a priori} knowledge
+that will be used to generate aSPEM.
+Still, they integrated past history over different times scales
+with the priming effects being maximized
+for short stimulus histories (around 2 trials) and
+adaptation for longer stimulus history, around 15 trials.
+Such history length can still be considered
+short history namely in the case of several hundreds blocks
+of trials like we did in our first study.
 
 %: in summary we get a linear relationship
-By manipulating the probability for target motion direction we were able to bias the direction and mean velocity of aSPEM, as measured during a fixed duration gap before target ramp-motion onset. This suggests that probabilistic information may be used to inform the internal representation of motion prediction for the initiation of anticipatory movements~\parencite{Montagnini2010}. However, such estimate may become particularly challenging in a dynamic context, where the probabilistic contingencies vary in time in an unpredictable way. In addition, whether and how the information processing underlying the buildup of aSPEM is linked to an explicit estimate of probabilities is unknown. We developed a new paired-task paradigm in order to address these two questions. In a first session, participants observe a target moving horizontally with constant speed from the center either to the right or left across trials. The probability of either motion direction changes randomly in time. Participants are asked to estimate "how much they are confident that the target will move to the right or left in the next trial" and to adjust the cursor's position on the screen accordingly. In a second session the participants eye movements are recorded during the observation of the same sequence of random-direction trials.
-
+Throughout the first experimental condition,
+we investigated the integration of environmental statistical regularities
+in a smooth tracking task with
+a family of direction-biases for the target motion.
+What we found was a global and robust effect of direction-bias
+on anticipatory smooth pursuit.
+These results are coherent with previous oculomotor findings
+by our and also other groups~\citep{Montagnini2010, SantosKowler2017}.
+Typically, aSPEM is observed after a temporal cue and
+ahead of target motion onset (Kowler and Steinman, 1979a,b, 1984).
+Some now classical experiments have demonstrated the existence of prediction-based smooth pursuit during
+the transient disappearance of a moving ~\citep{Badler2006,BeckerFuchs, 1985}.
+Overall, it is now clear that smooth pursuit behavior
+can be modulated even in the absence of online sensory stimulation.
+aSPEM were here the core of our research because
+we wanted to study the trial-by-trial evolution
+of expectancy-based oculomotor behavior,
+as well as how sensorimotor expectancy interacts
+with reward contingencies in shaping oculomotor behavior without direct sensory feedback.
+In a previous study,~\citep{SoutoMontagniniMasson2008, Montagnini2010},
+we have analyzed how forthcoming motion properties,
+such as target speed or direction, can be
+predicted and anticipated with coherent orienting eye movements.
+We found a graded effect of both the speed and the direction-bias,
+with mean anticipatory eye velocity
+linearly related to the probability of motion's speed or direction.
+Here, we replicated part of those results
+using a limited number of direction probability bias and
+strengthened them by generalizing them on seventeen participants.
+These results imply that the probability bias over a target's direction is
+one additional factor beyond other physical and cognitive cues~\citep{Kowler2014, SantosKowler2017},
+that modulate the common predictive framework
+driving anticipatory behavior to optimize a rapid and
+precise foveation of the target on its most expected future path.
 
 % --------------------------------------------------------------------------------------
 \subsection{Target of this paper}
@@ -397,6 +478,22 @@ By manipulating the probability for target motion direction we were able to bias
 Fixed block. does this generalize to arbitrtary sequences? What is the dynamic of this adaptation?
 Models which only mimick the behaviour (Souto for saccadic adaptation) without explaining it but see Meyniel
 The HGF of Matthys is 1/ great 2/ way too complicated for the type of behaviours we want to explain
+By manipulating the probability for target motion direction,
+we were able to bias the direction and mean velocity of aSPEM,
+as measured during a fixed duration gap
+before target ramp-motion onset~\seeFig{intro}.
+This suggests that probabilistic information may be used
+to inform the internal representation of motion prediction
+for the initiation of anticipatory movements~\parencite{Montagnini2010}.
+However, such estimate may become particularly
+challenging in a dynamic context,
+where the probabilistic contingencies vary in time in an unpredictable way.
+In addition, whether and how the information processing underlying
+the buildup of aSPEM is linked to
+an explicit estimate of probabilities is unknown.
+We developed a new paired-task paradigm in order to address these two questions.
+In a first session, participants observe a target moving horizontally with constant speed from the center either to the right or left across trials. The probability of either motion direction changes randomly in time. Participants are asked to estimate "how much they are confident that the target will move to the right or left in the next trial" and to adjust the cursor's position on the screen accordingly~(\seeFig{intro}-C). In a second session the participants eye movements are recorded during the observation of the same sequence of random-direction trials~(\seeFig{intro}-A). % TODO : c'est pas dans l'autre sens?
+
 
 %: design of the binary switching generative model
 %\subsection{Generative model: the switching model}
@@ -421,13 +518,6 @@ allows to generate blocks
 %
 
 
-
-Throughout the first experimental condition we investigated the integration of environmental statistical regularities in a smooth tracking task with a family of direction-biases for the target motion. What we found was a global and robust effect of direction-bias on anticipatory smooth pursuit. These results are coherent with previous oculomotor findings by our and also other groups (Montagnini et al. 2010; Santos \& Kowler 2017). Typically, aSPEM is observed after a temporal cue and ahead of target motion onset (Kowler and Steinman, 1979a,b, 1984). Some now classical experiments have demonstrated the existence of prediction-based smooth pursuit during the transient disappearance of a moving target (Badler, 2006; Becker \& Fuchs, 1985). Overall, it is now clear that smooth pursuit behavior can be modulated even in the absence of online sensory stimulation. aSPEM were here the core of our research because we wanted to study the trial-by-trial evolution of expectancy-based oculomotor behavior, as well as how sensorimotor expectancy interacts with reward contingencies in shaping oculomotor behavior without direct sensory feedback. In a previous study, (Souto, Montagnini \& Masson, 2008b; Montagnini et al., 2010) we have analyzed how forthcoming motion properties, such as target speed or direction, can be predicted and anticipated with coherent orienting eye movements. We found a graded effect of both the speed and the direction-bias, with mean anticipatory eye velocity linearly related to the probability of motion's speed or direction. Here, we replicated part of those results using a limited number of direction probability bias and strengthened them by generalizing them on seventeen participants. These results imply that the probability bias over a target's direction is one additional factor beyond other physical and cognitive cues (Kowler et al, 2014; Santos \& Kowler 2017) that modulate the common predictive framework driving anticipatory behavior to optimize a rapid and precise foveation of the target on its most expected future path.
-%Montagnini A, Souto D, and Masson GS (2010) <a href="http://jov.arvojournals.org/article.aspx?articleid=2138664">J Vis (VSS Abstracts) 10(7):554</a>,<BR> Montagnini A, Perrinet L, and Masson GS (2015) <a href="https://arxiv.org/abs/1611.07831">BICV book chapter</a>
-
-
-
-However, such estimate may become particularly challenging in a dynamic context, where the probabilistic contingencies vary in time in an unpredictable way. In addition, whether and how the information processing underlying the buildup of aSPEM is linked to an explicit estimate of probabilities is unknown.
 
 %: outline
 
