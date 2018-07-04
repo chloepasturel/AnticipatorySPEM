@@ -340,11 +340,41 @@ and therefore allow for the such predictive processes. %
 \end{tikzpicture}
 }
 \caption{\emph{Anticipatory SPEM (aSPEM): psychophysics and results} %
-%: TODO présente sur 3 colonnes: 1/  le protocole 2/ les résultats sur du fixed block length 3 / la généralisqation qu'on veut faire ici : random-length + bet
-% cf https://github.com/chloepasturel/AnticipatorySPEM/issues/19
-\textbf{(A)} Human observers were presented $200$ trials which consists of sequentially: a fixation dot (random duration), a blank screen (fixed duration of XXX ms) and a moving dot (XXX 20 deg/s) which the observers were instructed to follow. The direction of the dot was drawn pseudo-randomly
-\textbf{(B)} Average velocity traces of eyes. One can distinguish two phases: a visually driven component (after a latency of...) and also an anticipatory part where for ...
-\textbf{(C)} In this paper, we extended the experiment by asking to the observer on a subsequent day, but with the same sequence to rate the level of confidence for their estimate of the direction of the dot before each trial.
+\textbf{(A)} Human observers were presented $600$ trials
+which each consists of sequentially:
+a fixation dot (of random duration between $400$ and $600$ \ms),
+a blank screen (of fixed duration of  $XXX$ \ms) and
+a moving dot (at $15$ deg/s) which the observers were instructed to follow. The direction of the dot was drawn pseudo-randomly using a probabilistic bias $p$ which defines the parametr of the binomial distribution
+($0\leq p\leq 1 $ and the direction is unbiased for $p=0.5$,
+always left for $p=0$ and always right if $p=1$).
+In a first experiment, we replicated the experiment of~\parencite{Montagnini2010} and
+tested sequentially for $5$ different values of $p$: $.5$, $.25$, $.75$, $.9$ and $1.$ in fixed blocks of $120$ trials each.
+\textbf{(B)}
+Velocity traces of eyes movements averaged for each bias condition
+over conditions and observers.
+These traces are aligned to the onset of the moving dot.
+Saccades were removed using a thresholding method~(\SeeApp{em}) and
+error bars show one standard deviation over all samples.
+In the unbiased condition, one can distinguish a visually driven component (after a latency of $\approx 80 \ms$),
+which corresponds to Smooth Pursuit Eye Movements (SPEM).
+When introducing a bias in the direction,
+one observes that the velocity of the eye progressively ramps
+in the direction of the bias and before any visually-guided componentnt:
+This phase is the Anticipatory SPEM (aSPEM).
+As reported previously~\parencite{Montagnini2010, SantosKowler2017},
+the slope of this ramp correlates with the strenth of the bias.
+This is shown in the inset showing the average gain in velocity ($\pm$ SEM)
+before any visuall driven information (here, at $t=50 \ms$).
+\textbf{(C)} In this paper, we extended the experiment in two aspects.
+First, we generalized the generation of random sequences
+by using random-length blocks to avoid potential inter-blocks confounds (\seeFig{results_psycho}).
+Second, to asses this adaptive mechanism at the conscious level,
+we asked each observer to perform the same experiment on a subsequent day,
+but with different instructions.
+Indeed, we simply asked to rate the level of confidence for their estimate of the direction of the dot before each trial.
+This was performed by moving a mouse cursor on a rating scale beween "sure left", to "unsure" and finally "sure right".
+Eye movements were not recorded.
+Due to the random nature of the sequence no observer noticed that the same pseudo-random sequence was used in the experiment.
  }
 \label{fig:intro}
 \end{figure}
