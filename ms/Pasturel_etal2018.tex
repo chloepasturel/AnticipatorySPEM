@@ -538,27 +538,70 @@ The goal of this study is to generalize the adaptative process
 obesrved in aSPEM to more ecological settings but
 also to broaden its scope by showing that such uncouscious process
 also occurs at the conscious level.
-By manipulating the probability for target motion direction,
+Indeed, by manipulating the probability for target motion direction,
 we were able to bias the direction and mean velocity of aSPEM,
 as measured during a fixed duration gap
-before target ramp-motion onset~\seeFig{intro}.
+before target ramp-motion onset~(\seeFig{intro}-A \& B).
 This suggests that probabilistic information may be used
 to inform the internal representation of motion prediction
 for the initiation of anticipatory movements~\citep{Montagnini2010}.
 First, one possible confound in the previous study was
-to use blocks of conditions on $p$ with fixed lengths.
-However, such estimate may become particularly
+to use a sequence of blocks of conditions on $p$ with fixed lengths.
+Indeed, observers could potentially pick up
+the information on this fixed length
+In particular, we observed that following the switch from
+one condition to the next,
+the strength of aSPEM changed gradually,
+consistently with other adaptation paradigms~\citep{SoutoXXSacadicAdaptation}
+As a consequence, such estimate may become particularly
 challenging in a dynamic context,
 where the probabilistic contingencies vary in time in an unpredictable way.
 In addition, whether and how the information processing underlying
-the buildup of aSPEM is linked to
+the buildup of aSPEM and its dynamics is linked to
 an explicit estimate of probabilities is unknown.
-We developed a new paired-task paradigm in order
-to address these two questions.
-
+To alleviate this problem, we developed a new paradigm
+in order to address this question
+by explicitly modeling a dynamic process with a given volatility.
 
 %: design of the binary switching generative model
 %\subsection{Generative model: the switching model}
+%-------------------------------------------------------------%
+%:  FIGURE 2 fig:results_psycho
+\begin{figure}%[b!]
+	\centering{
+	\begin{tikzpicture}%[thick,scale=1, every node/.style={scale=1} ]
+		% cf 1_generative-model.ipynb
+		\node [anchor=north west]  (img1) at (0.000\linewidth,.618\linewidth){\includegraphics[width=0.2\linewidth]{bayesianchangepoint};
+	% cf 3_Results_2.ipynb ??
+	\node [anchor=north west]  (img2) at (0.200\linewidth,.618\linewidth){\includegraphics[width=0.8\linewidth]{bayesianchangepoint}};
+	% cf 0_protocole.ipynb
+	\draw [anchor=north west] (0.000\linewidth, .618\linewidth) node {$\mathsf{(A)}$};
+	\draw [anchor=north west] (0.200\linewidth, .618\linewidth) node {$\mathsf{(B)}$};
+	\end{tikzpicture}
+	}	% cf 2_Methodes.ipynb ??
+	% ou cf 3_Results_2.ipynb
+
+\caption{\emph{The binomial switching model and raw Psychophysical results}%
+~\textbf{A} This diagram represents the stochastic model chosen
+to generate the sequence of directions %
+~\textbf{B} Raw results for one characteristic observer.
+In this plot we superpose the sequence of event
+(red or blue dots for respectively left or right directions),
+the (hidden) evolution of the value of $p$ (horizontal black lines)
+and the underlying times for switches (vertical black lines).
+Note that we introduced pauses every 50 trials to prevent from fatigue.
+Using a pseudo-random number generator with the same seed,
+we could present the exact same sequence to all subjects. %
+We have superposed the trace of
+1/ the aSPEM strength as measured by the horizontal displacement
+at the onset of the visually-driven SPEM (red line),
+2/ the response to the bet experiment (red line) and
+3/ the result of the BCP model (green line)
+along with the confidence interval for this estimate (green shaded area).
+}
+\label{fig:results_psycho}
+\end{figure}
+%-------------------------------------------------------------%
 Fixed block. does this generalize to arbitrtary sequences?
 What is the dynamic of this adaptation?
 Models which only mimick the behaviour (Souto for saccadic adaptation)
@@ -601,43 +644,6 @@ analysis of inter-individual changes
 
 conclusion discussion
 
-%-------------------------------------------------------------%
-%:  FIGURE 2 fig:results_psycho
-\begin{figure}%[b!]
-	\centering{
-	\begin{tikzpicture}%[thick,scale=1, every node/.style={scale=1} ]
-		% cf 1_generative-model.ipynb
-		\node [anchor=north west]  (img1) at (0.000\linewidth,.618\linewidth){\includegraphics[width=0.2\linewidth]{bayesianchangepoint};
-	% cf 3_Results_2.ipynb ??
-	\node [anchor=north west]  (img2) at (0.200\linewidth,.618\linewidth){\includegraphics[width=0.8\linewidth]{bayesianchangepoint}};
-	% cf 0_protocole.ipynb
-	\draw [anchor=north west] (0.000\linewidth, .618\linewidth) node {$\mathsf{(A)}$};
-	\draw [anchor=north west] (0.200\linewidth, .618\linewidth) node {$\mathsf{(B)}$};
-	\end{tikzpicture}
-	}	% cf 2_Methodes.ipynb ??
-	% ou cf 3_Results_2.ipynb
-
-\caption{\emph{The binomial switching model and raw Psychophysical results}%
-~\textbf{A} This diagram represents the stochastic model chosen
-to generate the sequence of directions %
-~\textbf{B} Raw results for one characteristic observer.
-In this plot we superpose the sequence of event
-(red or blue dots for respectively left or right directions),
-the (hidden) evolution of the value of $p$ (horizontal black lines)
-and the underlying times for switches (vertical black lines).
-Note that we introduced pauses every 50 trials to prevent from fatigue.
-Using a pseudo-random number generator with the same seed,
-we could present the exact same sequence to all subjects. %
-We have superposed the trace of
-1/ the aSPEM strength as measured by the horizontal displacement
-at the onset of the visually-driven SPEM (red line),
-2/ the response to the bet experiment (red line) and
-3/ the result of the BCP model (green line)
-along with the confidence interval for this estimate (green shaded area).
-}
-\label{fig:results_psycho}
-\end{figure}
-%-------------------------------------------------------------%
 %
 %: %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Results: Bayesian change point model}
