@@ -192,7 +192,7 @@ backend=bibtex,
 ]{biblatex}%
 \addbibresource{Pasturel_etal2018.bib}%
 \newcommand{\citep}[1]{(\cite{#1})}
-%\newcommand{\citet}[1]{(\textcite{#1})}
+%\newcommand{\citet}[1]{(\citet{#1})}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% OPTIONAL MACRO FILES
 \usepackage{tikz}
@@ -552,7 +552,8 @@ the information on this fixed length
 In particular, we observed that following the switch from
 one condition to the next,
 the strength of aSPEM changed gradually,
-consistently with other adaptation paradigms~\citep{SoutoXXSacadicAdaptation}
+consistently with other adaptation paradigms~\citep{SoutoXXSacadicAdaptation},
+but for which the adaptation mechanism was only fitted.
 As a consequence, such estimate may become particularly
 challenging in a dynamic context,
 where the probabilistic contingencies vary in time in an unpredictable way.
@@ -563,7 +564,6 @@ To alleviate this problem, we developed a new paradigm
 in order to address this question
 by explicitly modeling a dynamic process with a given volatility.
 
-%: design of the binary switching generative model
 %\subsection{Generative model: the switching model}
 %-------------------------------------------------------------%
 %:  FIGURE 2 fig:results_psycho
@@ -582,14 +582,20 @@ by explicitly modeling a dynamic process with a given volatility.
 	% ou cf 3_Results_2.ipynb
 
 \caption{\emph{The binomial switching model and raw Psychophysical results}%
-~\textbf{A} This diagram represents the stochastic model chosen
-to generate the sequence of directions %
+~\textbf{A}
+This diagram represents the stochastic model chosen
+to generate the sequence of directions.
+It is represented as a graphical model representing
+the three levels of the stochastic model.
+
+ %
 ~\textbf{B} Raw results for one characteristic observer.
 In this plot we superpose the sequence of event
 (red or blue dots for respectively left or right directions),
 the (hidden) evolution of the value of $p$ (horizontal black lines)
 and the underlying times for switches (vertical black lines).
-Note that we introduced pauses every 50 trials to prevent from fatigue.
+Note that we introduced pauses every  $50$ trials to prevent from fatigue.
+% Each block is divided in 4 sub-blocks of $50$ trials as denoted by vertical black bars
 Using a pseudo-random number generator with the same seed,
 we could present the exact same sequence to all subjects. %
 We have superposed the trace of
@@ -602,31 +608,61 @@ along with the confidence interval for this estimate (green shaded area).
 \label{fig:results_psycho}
 \end{figure}
 %-------------------------------------------------------------%
-Fixed block. does this generalize to arbitrtary sequences?
-What is the dynamic of this adaptation?
-Models which only mimick the behaviour (Souto for saccadic adaptation)
-without explaining it but see Meyniel
-The HGF of Matthys is 1/ great 2/ way too complicated for
-the type of behaviours we want to explain
-Hierarchical model of 3 layers: "hardest model" all information is controlled - no artefact possible by using the gernrative model
-
-In order to answer these questions, we have set up an experiment comprising $3$ blocks of $200$ trials, see Figure~\ref{fig:results_psycho}-A\footnote{Each block is divided in 4 sub-blocks of $50$ trials as denoted by vertical black bars}. For each trial, a target makes either to the left or to the right, this direction being drawn from a Bernoulli process. The probability of this process varied in a piecewise-constant (that is, a step function varying between~$0$ and~$1$), similarly to~\textcite{Meyniel13}. The occurrence of these switches is itself drawn from a Bernoulli process of probability $p_{switch}=1/40$.
-
+%: design of the binary switching generative model
+Indeed, to assess the dynamics of the adaptive processes
+which compensate for the variability of sensory,
+one may introduce a parametric mechanism controlling for its volatility.
+By definition, volatility measures the temporal variability
+of the sufficient parameters of a random variable.
+In the HGF model~\citep{Matthys2011} for instance,
+volatility is modelled as the non-linear transformation
+of a random walk (modelled itself by a Brownian motion).
+This models allows to generate a sequence of binary choices
+where the variability fluctuates along a given trajectory.
+Such a forward probabilistic model is invertible
+using some simplifying assumptions and allows
+to extract an inferrence of the agent's belief about volatility~\citep{Voessel??}.
+Herein, we will use a simpler model where
+The probability of this process varied in a piecewise-constant
+(that is, a step function varying between~$0$ and~$1$),
+similarly to~\citet{Meyniel13}.
+For each trial, a target makes either to the left or to the right,
+and we denote this pariable as $x_0^t$ at trial $t$.
+This direction being drawn from a Bernoulli process $\Bb$
+with a parameter that we define as $p=x_1^t$.
+The novelty is that this variable is chosen
+at random from a prior distribution $\Pp$ at the moment of a switch.
+The occurrence of these switches is itself drawn from a Bernoulli process
+of probability $1/\lambda$.
+Mathematically, this is easily described
+by a graphical model~(\seeFig{results_psycho}-A) and
+the following definition:
 \eql{\choice{
 x_0^t \eqdef o_t \propto \Bb(p^t) \\
 x_1^t \eqdef p_t = p_{t-1} \quad \text{if} \quad s_t=0 \quad \text{and else} \quad p_t \propto \Jj \\
-x_2^t \eqdef s_t \propto \Bb(\lambda)
-}}
-
-where $\Jj = BB(\frac 1 2 , \frac 1 2 )$ is Jeffrey's prior (TODO: put in appendix). There is always a switch at t=zero.
-allows to generate blocks
+x_2^t \eqdef s_t \propto \Bb(1/\lambda)
+}\label{eq:sgm}}.
+Note that the prior distribution $\Pp$ can be for instance
+the uniform distributions on $\[O, 1\]$ or
+Jeffrey's prior~\seeApp{bcp}(TODO: put in appendix).
+There is always a switch at $t=0$ and for each pause.
+In conclusion, the experimental setup of the first session
+is similar to that presented in~\seeFig{intro}-A, except for
+this new generative model for the pseudo-random sequence of binary events
+~\seeFig{results_psycho}-B.
 
 
 %: outline
-
-
-extension of BCP to binomial data + python implementation
-psychophysics on eye movements (reflex / cognitive) => generalization of previous results
+This paper is organized in five parts.
+After this introduction, the next section will present
+an inversion of the forward probabilistic model defined in~\seeEq{sgm}.
+There is yet no such algorithm to our knowledge and
+we will here provide with a solution
+by extending previous results from~\citet{AdamsMackay2007}
+to the case of binomial data.
+We will also provide with a computational implementation
+and a quantitative evaluation of this algorithm.
+Then, we will present psychophysics on eye movements (reflex / cognitive) => generalization of previous results
 
 
 In a first session, participants observe a target moving horizontally
@@ -639,12 +675,15 @@ the target will move to the right or left in the next trial" and
 to adjust the cursor's position on the screen accordingly~(\seeFig{intro}-C).
 In a second session, the participants eye movements are recorded during
 the observation of the same sequence of random-direction trials~(\seeFig{intro}-A). % TODO : c'est pas dans l'autre sens?
-
-analysis of inter-individual changes
-
-conclusion discussion
-
-%
+In the fourth part, we will analyse the inferrence of the volatility
+for each individual participant.
+This will allow the analysis of inter-individual changes for each session
+and in particular in one could predict one's prior volatility,
+that is, a measure of the dynamic compromise between exploration and exploitation
+accross the two diferrent sessions testing predictive adaptive processes
+at the uncouscious and conscious levels.
+Finally, we will summarize and conclude this study and
+offer some perspectives for future work.
 %: %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Results: Bayesian change point model}
 
