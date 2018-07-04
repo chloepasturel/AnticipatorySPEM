@@ -774,7 +774,8 @@ class Analysis(object):
         if file_fig is None :
             file_fig = 'figures/enregistrement_%s'%(self.observer)
 
-        ANEMO.plot_position(data, N_trials, N_blocks, bino, V_X, RashBass, stim_tau, screen_width_px, screen_height_px, fig, axs, fig_width, t_label,file_fig)
+        ANEMO.plot_position(data=data, N_trials=N_trials, N_blocks=N_blocks, bino=bino, V_X=V_X, RashBass=RashBass, stim_tau=stim_tau,
+                            screen_width_px=screen_width_px, screen_height_px=screen_height_px, fig=fig, axs=axs, fig_width=fig_width, t_label=t_label, file_fig=file_fig)
 
         #        for f in range(len(fixations)) :
         #            axs[trial]. axvspan(fixations[f][0]-start, fixations[f][1]-start, color='r', alpha=0.1)
@@ -796,7 +797,8 @@ class Analysis(object):
         resultats = os.path.join('data', self.mode + '_' + self.observer + '_' + self.timeStr + '.asc')
         data = read_edf(resultats, 'TRIALID')
 
-        fig, axs = ANEMO.plot_velocity(data, trials, block,  self.exp['N_trials'], self.exp['px_per_deg'], fig_width, t_titre, t_label)
+        fig, axs = ANEMO.plot_velocity(data=data, trials=trials, block=block, N_trials=self.exp['N_trials'], px_per_deg=self.exp['px_per_deg'],
+                                       fig_width=fig_width, t_titre=t_titre, t_label=t_label)
 
         return fig, axs
 
@@ -817,11 +819,9 @@ class Analysis(object):
         if file_fig is None :
             file_fig='figures/Fit_%s'%(self.observer)
 
-
-            
-
-
-        param = ANEMO.Fit (data, N_trials, N_blocks, p[:,:,0], px_per_deg, list_events, sup, time_sup, self.observer, plot, fig_width, t_label, t_text, file_fig, param_fit, stop_recherche_misac, step_fit)
+        param = ANEMO.Fit (data=data, N_trials=N_trials, N_blocks=N_blocks, binomial=p[:,:,0], px_per_deg=px_per_deg, list_events=list_events,
+                           sup=sup, time_sup=time_sup, observer=self.observer, plot=plot, fig_width=fig_width, t_label=t_label, t_text=t_text,
+                           file_fig=file_fig, param_fit=param_fit, stop_recherche_misac=stop_recherche_misac, step_fit=step_fit)
 
         if file_save is None :
             file = os.path.join('parametre', 'param_Fit_' + self.observer + '.pkl')
@@ -850,10 +850,12 @@ class Analysis(object):
         bino = p[:,:,0]
 
         if report is None :
-            fig, axs = ANEMO.plot_Fit(data, bino, trials, block, N_trials, px_per_deg, plot, fig_width, t_titre, t_label, report)
+            fig, axs = ANEMO.plot_Fit(data=data, bino=bino, trials=trials, block=block, N_trials=N_trials, px_per_deg=px_per_deg,
+                                      plot=plot, fig_width=fig_width, t_titre=t_titre, t_label=t_label, report=report)
             return fig, axs
         else :
-            fig, axs, results = ANEMO.plot_Fit(data, bino, trials, block, N_trials, px_per_deg, plot, fig_width, t_titre, t_label, report)
+            fig, axs, results = ANEMO.plot_Fit(data=data, bino=bino, trials=trials, block=block, N_trials=N_trials, px_per_deg=px_per_deg,
+                                               plot=plot, fig_width=fig_width, t_titre=t_titre, t_label=t_label, report=report)
             return fig, axs, results
 
 
