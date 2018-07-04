@@ -382,11 +382,11 @@ and therefore allow for the such predictive processes. %
 \centering{
 \begin{tikzpicture}%[thick,scale=1, every node/.style={scale=1} ]
 % cf 0_protocole.ipynb
-\node [anchor=north west]  (img1) at (0.000\linewidth,.618\linewidth){\includegraphics[width=0.333\linewidth]{protocol_recording}};
+\node [anchor=north west]  (img2) at (0.000\linewidth,.618\linewidth){\includegraphics[width=0.333\linewidth]{protocol_recording}};
 % cf 3_Results_2.ipynb ??
 \node [anchor=north west]  (img2) at (0.333\linewidth,.618\linewidth){\includegraphics[width=0.333\linewidth]{image_anna_1}};
 % cf 0_protocole.ipynb
-\node [anchor=north west]  (img3) at (0.666\linewidth,.618\linewidth){\includegraphics[width=0.25\linewidth]{protocol_bet_simple}};
+\node [anchor=north west]  (img2) at (0.666\linewidth,.618\linewidth){\includegraphics[width=0.25\linewidth]{protocol_bet_simple}};
 \draw [anchor=north west] (0.000\linewidth, .618\linewidth) node {$\mathsf{(A)}$};
 \draw [anchor=north west] (0.333\linewidth, .618\linewidth) node {$\mathsf{(B)}$};
 \draw [anchor=north west] (0.666\linewidth, .618\linewidth) node {$\mathsf{(C)}$};
@@ -397,10 +397,14 @@ and therefore allow for the such predictive processes. %
 which each consists of sequentially:
 a fixation dot (of random duration between $400$ and $600$ \ms),
 a blank screen (of fixed duration of  $XXX$ \ms) and
-a moving dot (at $15$ deg/s) which the observers were instructed to follow. The direction of the dot was drawn pseudo-randomly using a probabilistic bias $p$ which defines the parametr of the binomial distribution
+a moving dot (at $15$ deg/s) which the observers were instructed to follow.
+The direction of the dot was drawn pseudo-randomly
+using a probabilistic bias $p$ which defines the parameter
+of the binomial distribution
 ($0\leq p\leq 1 $ and the direction is unbiased for $p=0.5$,
 always left for $p=0$ and always right if $p=1$).
-In a first experiment, we replicated the experiment of~\parencite{Montagnini2010} and
+In a first experiment,
+we replicated the experiment of~\citep{Montagnini2010} and
 tested sequentially for $5$ different values of $p$: $.5$, $.25$, $.75$, $.9$ and $1.$ in fixed blocks of $120$ trials each.
 \textbf{(B)}
 Velocity traces of eyes movements averaged for each bias condition
@@ -408,7 +412,8 @@ over conditions and observers.
 These traces are aligned to the onset of the moving dot.
 Saccades were removed using a thresholding method~(\SeeApp{em}) and
 error bars show one standard deviation over all samples.
-In the unbiased condition, one can distinguish a visually driven component (after a latency of $\approx 80 \ms$),
+In the unbiased condition, one can distinguish
+a visually driven component (after a latency of $\approx 80 \ms$),
 which corresponds to Smooth Pursuit Eye Movements (SPEM).
 When introducing a bias in the direction,
 one observes that the velocity of the eye progressively ramps
@@ -420,14 +425,18 @@ This is shown in the inset showing the average gain in velocity ($\pm$ SEM)
 before any visuall driven information (here, at $t=50 \ms$).
 \textbf{(C)} In this paper, we extended the experiment in two aspects.
 First, we generalized the generation of random sequences
-by using random-length blocks to avoid potential inter-blocks confounds (\seeFig{results_psycho}).
+by using random-length blocks
+to avoid potential inter-blocks confounds (\seeFig{results_psycho}).
 Second, to asses this adaptive mechanism at the conscious level,
 we asked each observer to perform the same experiment on a subsequent day,
 but with different instructions.
-Indeed, we simply asked to rate the level of confidence for their estimate of the direction of the dot before each trial.
-This was performed by moving a mouse cursor on a rating scale beween "sure left", to "unsure" and finally "sure right".
+Indeed, we simply asked to rate the level of confidence
+for their estimate of the direction of the dot before each trial.
+This was performed by moving a mouse cursor on a rating scale
+beween "sure left", to "unsure" and finally "sure right".
 Eye movements were not recorded.
-Due to the random nature of the sequence no observer noticed that the same pseudo-random sequence was used in the experiment.
+Due to the random nature of the sequence no observer noticed
+that the same pseudo-random sequence was used in the experiment.
  }
 \label{fig:intro}
 \end{figure}
@@ -440,22 +449,23 @@ Smooth Pursuit Eye Movements (SPEM)~\citep{ref}.
 These movements allow us to align and
 stabilize the object on the fovea,
 thus enabling high-resolution visual detection.
-This process is retarded by different factors such as axonal transduction, neural processing and the inertia of the oculomotor system~\citep{Krauzlis}.
-Repeated presentation of stimulus can lead the oculomotor system
-to initiate aSPEM ahead of the stimulus appearance~\citep{Westheimer1954, KOWLER1979619, KOWLER1979633}.
-It has been observed that aSPEM increase in velocity
-when the target repeatedly moves in the same direction~\citep{Kowler1984, Kowler1989, Heinen2005}.
-As such, when predictive information is available about target motion,
+This process is retarded by different factors such as axonal transduction,
+neural processing and the inertia of the oculomotor system~\citep{Krauzlis}.
+When predictive information is available about target motion,
 anticipatory smooth pursuit eye movements (aSPEM) are
-efficiently generated before target appearance.
-This reduces the typical sensorimotor delay
+efficiently generated before target appearance,
+which reduce the typical sensorimotor delay
 between target motion onset and foveation~\citep{PerrinetAdamasFriston2014}.
 It is generally assumed that the role of anticipatory eye movements is
 to limit the behavioral impairment due
 to eye-to-target position and velocity mismatch and
 of the variability introduced by neural noise~\citep{WolpertXXX}.
 
-%: adaptation in EMs
+%: how we do it
+Repeated presentation of stimulus can lead the oculomotor system
+to initiate aSPEM ahead of the stimulus appearance~\citep{Westheimer1954, KOWLER1979619, KOWLER1979633}.
+It has been observed that aSPEM increase in velocity
+when the target repeatedly moves in the same direction~\citep{Kowler1984, Kowler1989, Heinen2005}.
 Thus,~\citet{Maus2015} have recently shown that
 both perceptual adaptation and priming of aSPEM could occur simultaneously.
 They found a robust repulsive adaptation effect
@@ -466,13 +476,13 @@ their usefulness in actual eliciting of movements.
 Indeed, both priming and adaptation can hypothetically share
 a common internal representation of stimulus speed
 that has been build upon the mean velocity of last encountered speeds.
-Then, the comparison of the internal representation of speed
+Then the comparison of the internal representation of speed
 with the current stimulus velocity could explain repulsive aftereffects and
 at the same time, be used to elicit aSPEM
 of appropriate velocity for next stimulus occurrences.
-The main conclusion of~\citet{Maus2015}  was that
+~\citet{Maus2015} main conclusion was that
 perceptual adaptation and oculomotor priming
-both have a influence in building an~\textit{a priori} knowledge
+both have a weight in building an~\textit{a priori} knowledge
 that will be used to generate aSPEM.
 Still, they integrated past history over different times scales
 with the priming effects being maximized
@@ -482,41 +492,38 @@ Such history length can still be considered
 short history namely in the case of several hundreds blocks
 of trials like we did in our first study.
 
-%: aSPEM and how we do it
+%: in summary we get a linear relationship
 Throughout the first experimental condition,
 we investigated the integration of environmental statistical regularities
 in a smooth tracking task with
-a family of direction-biases for the target motion~(\seeFig{intro}-A).
-In a first session, participants observe a target moving horizontally
-with constant speed from the center
-either to the right or left across trials.
-The participants eye movements are recorded during
-the observation of the sequence of pseudo-random direction trials~(\seeFig{intro}-A). % TODO : c'est pas dans l'autre sens?
+a family of direction-biases for the target motion.
 What we found was a global and robust effect of direction-bias
-on anticipatory smooth pursuit~(\seeFig{intro}-B).
+on anticipatory smooth pursuit.
 These results are coherent with previous oculomotor findings
 by our and also other groups~\citep{Montagnini2010, SantosKowler2017}.
 Typically, aSPEM is observed after a temporal cue and
-ahead of target motion onset~\citep{KowlerSteinman1979a,KowlerSteinman1979b, KowlerSteinman1984}.
-Some now classical experiments have demonstrated the existence of prediction-based smooth pursuit during
-the transient disappearance of a moving dot~\citep{Badler2006,BeckerFuchs1985}.
+ahead of target motion onset (Kowler and Steinman, 1979a,b, 1984).
+Some now classical experiments have demonstrated the existence
+of prediction-based smooth pursuit during
+the transient disappearance of a moving ~\citep{Badler2006,BeckerFuchs, 1985}.
 Overall, it is now clear that smooth pursuit behavior
 can be modulated even in the absence of online sensory stimulation.
 aSPEM were here the core of our research because
 we wanted to study the trial-by-trial evolution
 of expectancy-based oculomotor behavior,
 as well as how sensorimotor expectancy interacts
-with reward contingencies in shaping oculomotor behavior without direct sensory feedback.
+with reward contingencies in shaping oculomotor behavior
+without direct sensory feedback.
 In a previous study,~\citep{SoutoMontagniniMasson2008, Montagnini2010},
 we have analyzed how forthcoming motion properties,
 such as target speed or direction, can be
 predicted and anticipated with coherent orienting eye movements.
 We found a graded effect of both the speed and the direction-bias,
 with mean anticipatory eye velocity
-linearly related to the probability of motion's speed or direction~(\seeFig{intro}-B, inset).
+linearly related to the probability of motion's speed or direction.
 Here, we replicated part of those results
 using a limited number of direction probability bias and
-strengthened them by generalizing them on XXX participants.
+strengthened them by generalizing them on seventeen participants.
 These results imply that the probability bias over a target's direction is
 one additional factor beyond other physical and cognitive cues~\citep{Kowler2014, SantosKowler2017},
 that modulate the common predictive framework
@@ -524,31 +531,40 @@ driving anticipatory behavior to optimize a rapid and
 precise foveation of the target on its most expected future path.
 
 % --------------------------------------------------------------------------------------
-\subsection{Target of this paper}
+\subsection{Outline}
 % --------------------------------------------------------------------------------------
 %: limits of the previous method
-Fixed block. does this generalize to arbitrtary sequences? What is the dynamic of this adaptation?
-Models which only mimick the behaviour (Souto for saccadic adaptation) without explaining it but see Meyniel
-The HGF of Matthys is 1/ great 2/ way too complicated for the type of behaviours we want to explain
+The goal of this study is to generalize the adaptative process
+obesrved in aSPEM to more ecological settings but
+also to broaden its scope by showing that such uncouscious process
+also occurs at the conscious level.
 By manipulating the probability for target motion direction,
 we were able to bias the direction and mean velocity of aSPEM,
 as measured during a fixed duration gap
 before target ramp-motion onset~\seeFig{intro}.
 This suggests that probabilistic information may be used
 to inform the internal representation of motion prediction
-for the initiation of anticipatory movements~\parencite{Montagnini2010}.
+for the initiation of anticipatory movements~\citep{Montagnini2010}.
+First, one possible confound in the previous study was
+to use blocks of conditions on $p$ with fixed lengths.
 However, such estimate may become particularly
 challenging in a dynamic context,
 where the probabilistic contingencies vary in time in an unpredictable way.
 In addition, whether and how the information processing underlying
 the buildup of aSPEM is linked to
 an explicit estimate of probabilities is unknown.
-We developed a new paired-task paradigm in order to address these two questions.
-In a first session, participants observe a target moving horizontally with constant speed from the center either to the right or left across trials. The probability of either motion direction changes randomly in time. Participants are asked to estimate "how much they are confident that the target will move to the right or left in the next trial" and to adjust the cursor's position on the screen accordingly~(\seeFig{intro}-C). In a second session the participants eye movements are recorded during the observation of the same sequence of random-direction trials~(\seeFig{intro}-A). % TODO : c'est pas dans l'autre sens?
+We developed a new paired-task paradigm in order
+to address these two questions.
 
 
 %: design of the binary switching generative model
 %\subsection{Generative model: the switching model}
+Fixed block. does this generalize to arbitrtary sequences?
+What is the dynamic of this adaptation?
+Models which only mimick the behaviour (Souto for saccadic adaptation)
+without explaining it but see Meyniel
+The HGF of Matthys is 1/ great 2/ way too complicated for
+the type of behaviours we want to explain
 Hierarchical model of 3 layers: "hardest model" all information is controlled - no artefact possible by using the gernrative model
 
 In order to answer these questions, we have set up an experiment comprising $3$ blocks of $200$ trials, see Figure~\ref{fig:results_psycho}-A\footnote{Each block is divided in 4 sub-blocks of $50$ trials as denoted by vertical black bars}. For each trial, a target makes either to the left or to the right, this direction being drawn from a Bernoulli process. The probability of this process varied in a piecewise-constant (that is, a step function varying between~$0$ and~$1$), similarly to~\textcite{Meyniel13}. The occurrence of these switches is itself drawn from a Bernoulli process of probability $p_{switch}=1/40$.
@@ -562,37 +578,62 @@ x_2^t \eqdef s_t \propto \Bb(\lambda)
 where $\Jj = BB(\frac 1 2 , \frac 1 2 )$ is Jeffrey's prior (TODO: put in appendix). There is always a switch at t=zero.
 allows to generate blocks
 
-% * This was shown to happen in the more  experimental setting While recording smooth pursuit eye movements : Anna Montagnini has previously shown that if you use a probabilistic bias in the direction of the movement of the target, the the eye will (uncousciously) anticipate in the direction of this bias.
-%
-% * this protocol used a random length fixation period then a pause of fixed duration, and then a traget moving at 15 deg / s
-%
-% * the value p gives the probability of going to the right : at .5 it is unbisaed, and at .75 for instance it goes 75% to the right and 25% to the left
-%
-
-
 
 %: outline
 
+
 extension of BCP to binomial data + python implementation
 psychophysics on eye movements (reflex / cognitive) => generalization of previous results
+
+
+In a first session, participants observe a target moving horizontally
+with constant speed from the center
+either to the right or left across trials.
+The probability of either motion direction changes randomly in time.
+Participants are asked to estimate
+"how much they are confident that
+the target will move to the right or left in the next trial" and
+to adjust the cursor's position on the screen accordingly~(\seeFig{intro}-C).
+In a second session, the participants eye movements are recorded during
+the observation of the same sequence of random-direction trials~(\seeFig{intro}-A). % TODO : c'est pas dans l'autre sens?
+
 analysis of inter-individual changes
 
-
+conclusion discussion
 
 %-------------------------------------------------------------%
 %:  FIGURE 2 fig:results_psycho
 \begin{figure}%[b!]
-%\vspace{2mm}
-\begin{center}
-    \includegraphics[width=1\linewidth]{bayesianchangepoint}
-\end{center}
-%: TODO présente le prtocole avec les résultats bruts pour un sujet caractéristique
+	\centering{
+	\begin{tikzpicture}%[thick,scale=1, every node/.style={scale=1} ]
+		% cf 1_generative-model.ipynb
+		\node [anchor=north west]  (img1) at (0.000\linewidth,.618\linewidth){\includegraphics[width=0.2\linewidth]{bayesianchangepoint};
+	% cf 3_Results_2.ipynb ??
+	\node [anchor=north west]  (img2) at (0.200\linewidth,.618\linewidth){\includegraphics[width=0.8\linewidth]{bayesianchangepoint}};
+	% cf 0_protocole.ipynb
+	\draw [anchor=north west] (0.000\linewidth, .618\linewidth) node {$\mathsf{(A)}$};
+	\draw [anchor=north west] (0.200\linewidth, .618\linewidth) node {$\mathsf{(B)}$};
+	\end{tikzpicture}
+	}	% cf 2_Methodes.ipynb ??
+	% ou cf 3_Results_2.ipynb
+
 \caption{\emph{The binomial switching model and raw Psychophysical results}%
-% cf 1_generative-model.ipynb
-~\textbf{A} This diagram represents the stochastic model chosen to generate the sequence of directions %
-% cf 3_Results_2.ipynb
-~\textbf{B} Raw results for one characteristic observer. In this plot we superpose the sequence of event (red or blue dots for respectively left or right directions), the (hidden) evolution of the value of $p$ (horizontal black lines) and the underlying times for switches (vertical black lines). Note that we introduced pauses every 50 trials to prevent from fatigue. Using a pseudo-random number generator with the same seed, we could present the exact same sequence to all subjects. %
-We have superposed the trace of 1/ the aSPEM strength as measured by the horizontal displacement at the onset of the visually-driven SPEM, 2/ the response to the bet experiment and 3/ the result of the BCP model.
+~\textbf{A} This diagram represents the stochastic model chosen
+to generate the sequence of directions %
+~\textbf{B} Raw results for one characteristic observer.
+In this plot we superpose the sequence of event
+(red or blue dots for respectively left or right directions),
+the (hidden) evolution of the value of $p$ (horizontal black lines)
+and the underlying times for switches (vertical black lines).
+Note that we introduced pauses every 50 trials to prevent from fatigue.
+Using a pseudo-random number generator with the same seed,
+we could present the exact same sequence to all subjects. %
+We have superposed the trace of
+1/ the aSPEM strength as measured by the horizontal displacement
+at the onset of the visually-driven SPEM (red line),
+2/ the response to the bet experiment (red line) and
+3/ the result of the BCP model (green line)
+along with the confidence interval for this estimate (green shaded area).
 }
 \label{fig:results_psycho}
 \end{figure}
@@ -677,7 +718,7 @@ Necessity of using a generative model
 
 \subsection{Bayesian change point model}
 
-We have designed an agent adapted the Bayesian Online Change-point Detection model~\parencite{AdamsMackay2007}. This model uses a latent variable r which represents the length of the current interval during which motion-direction probability ($\hat{P}$) has not changed. The agent infers at each trial the likelihood  of r and then deduces the optimal $\hat{P}$ (we used the expected value and the max as readouts) and the uncertainty associated to it. We simulated the model across our experimental sequences, as illustrated by the example for the third block.
+We have designed an agent adapted the Bayesian Online Change-point Detection model~\citep{AdamsMackay2007}. This model uses a latent variable r which represents the length of the current interval during which motion-direction probability ($\hat{P}$) has not changed. The agent infers at each trial the likelihood  of r and then deduces the optimal $\hat{P}$ (we used the expected value and the max as readouts) and the uncertainty associated to it. We simulated the model across our experimental sequences, as illustrated by the example for the third block.
 
 
 %* an implementation of
