@@ -128,6 +128,7 @@ human cognitive abilities in uncertain and dynamic environments.
 % --------------------------------------------------------------------------
 % --------------------------------------------------------------------------
 \begin{filecontents}{Pasturel_etal2018.bib}
+
 @article{Meyniel13,
 abstract = {
 No pain, no gain: cost-benefit trade-off has been formalized in classical decision theory to account for how we choose whether to engage effort. However, how the brain decides when to have breaks in the course of effort production remains poorly understood. We propose that decisions to cease and resume work are triggered by a cost evidence accumulation signal reaching upper and lower bounds, respectively. We developed a task in which participants are free to exert a physical effort knowing that their payoff would be proportional to their effort duration. Functional {\{}MRI{\}} and magnetoencephalography recordings conjointly revealed that the theoretical cost evidence accumulation signal was expressed in proprioceptive regions (bilateral posterior insula). Furthermore, the slopes and bounds of the accumulation process were adapted to the difficulty of the task and the money at stake. Cost evidence accumulation might therefore provide a dynamical mechanistic account of how the human brain maximizes benefits while preventing exhaustion.
@@ -173,7 +174,7 @@ adsurl = {http://adsabs.harvard.edu/abs/2007arXiv0710.3742P},
 adsnote = {Provided by the SAO/NASA Astrophysics Data System}
 }
 }
-
+\end{filecontents}
 %\usepackage[numbers,comma,sort&compress,round]{natbib} %
 \usepackage[%style=nature,
 maxcitenames=2,
@@ -191,14 +192,17 @@ backend=bibtex,
 %articletitle=false
 ]{biblatex}%
 \addbibresource{Pasturel_etal2018.bib}%
-\newcommand{\citep}[1]{(\cite{#1})}
-%\newcommand{\citet}[1]{(\citet{#1})}
+\newcommand{\citep}[1]{\parencite{#1}}
+\newcommand{\citet}[1]{\textcite{#1}}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% OPTIONAL MACRO FILES
 \usepackage{tikz}
 %\usepackage{tikz,tkz-euclide} \usetkzobj{all} % loading all objects
 %\usetikzlibrary{positioning} \usetikzlibrary{calc}
 %\usepackage{sfmath}
+\newcommand{\seeFig}[1]{see Figure~\ref{fig:#1}}
+\newcommand{\seeEq}[1]{see Equation~\ref{eq:#1}}
+\newcommand{\seeApp}[1]{see Appendix~\ref{app:#1}}
 %============ hyperref ===================
 \usepackage[unicode,linkcolor=red,citecolor=red,filecolor=black,urlcolor=red,pdfborder={0 0 0}]{hyperref}%
 \hypersetup{%
@@ -410,7 +414,7 @@ tested sequentially for $5$ different values of $p$: $.5$, $.25$, $.75$, $.9$ an
 Velocity traces of eyes movements averaged for each bias condition
 over conditions and observers.
 These traces are aligned to the onset of the moving dot.
-Saccades were removed using a thresholding method~(\SeeApp{em}) and
+Saccades were removed using a thresholding method~(\seeApp{em}) and
 error bars show one standard deviation over all samples.
 In the unbiased condition, one can distinguish
 a visually driven component (after a latency of $\approx 80 \ms$),
@@ -568,28 +572,27 @@ by explicitly modeling a dynamic process with a given volatility.
 %-------------------------------------------------------------%
 %:  FIGURE 2 fig:results_psycho
 \begin{figure}%[b!]
-	\centering{
-	\begin{tikzpicture}%[thick,scale=1, every node/.style={scale=1} ]
-		% cf 1_generative-model.ipynb
-		\node [anchor=north west]  (img1) at (0.000\linewidth,.618\linewidth){\includegraphics[width=0.2\linewidth]{bayesianchangepoint};
+\centering{
+\begin{tikzpicture}%[thick,scale=1, every node/.style={scale=1} ]
+	% cf 1_generative-model.ipynb
+	\node [anchor=north west]  (img1) at (0.000\linewidth,.618\linewidth){\includegraphics[width=0.2\linewidth]{bayesianchangepoint}};
 	% cf 3_Results_2.ipynb ??
 	\node [anchor=north west]  (img2) at (0.200\linewidth,.618\linewidth){\includegraphics[width=0.8\linewidth]{bayesianchangepoint}};
 	% cf 0_protocole.ipynb
 	\draw [anchor=north west] (0.000\linewidth, .618\linewidth) node {$\mathsf{(A)}$};
 	\draw [anchor=north west] (0.200\linewidth, .618\linewidth) node {$\mathsf{(B)}$};
-	\end{tikzpicture}
-	}	% cf 2_Methodes.ipynb ??
-	% ou cf 3_Results_2.ipynb
-
-\caption{\emph{The binomial switching model and raw Psychophysical results}%
+\end{tikzpicture}
+}	% cf 2_Methodes.ipynb ??
+% ou cf 3_Results_2.ipynb
+\caption{%
+\emph{The binomial switching model and raw Psychophysical results}%
 ~\textbf{A}
 This diagram represents the stochastic model chosen
 to generate the sequence of directions.
 It is represented as a graphical model representing
-the three levels of the stochastic model.
-
- %
-~\textbf{B} Raw results for one characteristic observer.
+the three levels of the stochastic model. %
+~\textbf{B} 
+Raw results for one characteristic observer.
 In this plot we superpose the sequence of event
 (red or blue dots for respectively left or right directions),
 the (hidden) evolution of the value of $p$ (horizontal black lines)
@@ -643,7 +646,7 @@ x_1^t \eqdef p_t = p_{t-1} \quad \text{if} \quad s_t=0 \quad \text{and else} \qu
 x_2^t \eqdef s_t \propto \Bb(1/\lambda)
 }\label{eq:sgm}}.
 Note that the prior distribution $\Pp$ can be for instance
-the uniform distributions on $\[O, 1\]$ or
+the uniform distributions on $ [ O, 1 ] $ or
 Jeffrey's prior~\seeApp{bcp}(TODO: put in appendix).
 There is always a switch at $t=0$ and for each pause.
 In conclusion, the experimental setup of the first session
@@ -794,14 +797,13 @@ We have designed an agent adapted the Bayesian Online Change-point Detection mod
 % cf 3_Results_2.ipynb
     \includegraphics[width=1\linewidth]{bayesianchangepoint}
 \end{center}
-\caption{\emph{Bayesian change point model}~\textbf{A} shows hypothetic datas that works as a binomial choice, either 0 (leftward) or 1 (rightward). In particular, the probability switched at trials 6 and 10.~\textbf{B} shows the graph (treillis) on which the message indicates that mass probability is being passed. Black lines denotes "upwards", that is, for which there is a progression of the run length at the next step. The red line stands for the possibility that a switch happened, and then falls back to zero. The black curve stands for the run length of simulated datas in~\textbf{A} in function of time (r$_t$). We can see that the run length drops back to zero when change occurs at trials 6 and 10. \textbf{(C)}
-
-
-* in this graph information will be represented at different nodes. each node represent a belief which takes the form of a probability distribution over the set of parameters that we wish to describe.
-* it can be the mean and variance of a Gaussian, but in general it will be 2 parameters. in our case, we wish to estimate p (between zero and one) - it is characterized by the beta distribution (mathematically it is the conjugate of the bernouilli distribution)
-* (mathematically, we will use th family of exponenetial distributions:, gaussians, binomials) among which the beta distribution belongs
-First, we initialize the first node to prior values
-* at trial zero, there is no information, so we intiialize to the prior values
+\caption{\emph{Bayesian change point model}~\textbf{A} shows hypothetic datas that works as a binomial choice, either 0 (leftward) or 1 (rightward). In particular, the probability switched at trials 6 and 10.~\textbf{B} shows the graph (treillis) on which the message indicates that mass probability is being passed. Black lines denotes "upwards", that is, for which there is a progression of the run length at the next step. The red line stands for the possibility that a switch happened, and then falls back to zero. The black curve stands for the run length of simulated datas in~\textbf{A} in function of time (r$_t$). We can see that the run length drops back to zero when change occurs at trials 6 and 10. 
+%\textbf{(C)}
+%* in this graph information will be represented at different nodes. each node represent a belief which takes the form of a probability distribution over the set of parameters that we wish to describe.
+%* it can be the mean and variance of a Gaussian, but in general it will be 2 parameters. in our case, we wish to estimate p (between zero and one) - it is characterized by the beta distribution (mathematically it is the conjugate of the bernouilli distribution)
+%* (mathematically, we will use th family of exponenetial distributions:, gaussians, binomials) among which the beta distribution belongs
+%First, we initialize the first node to prior values
+%* at trial zero, there is no information, so we intiialize to the prior values
 % use p log p + (1-p) log (1-p ) as in logistic regression?
 }
 \label{fig:bayesianchangepoint}
@@ -1284,7 +1286,7 @@ In order to extract the relevant parameters of the oculomotor responses, we deve
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Appendix 2: Mathematical proof}
 \label{app:bcp}
-on $\[O, 1\]$ or is Jeffrey's prior  $\Jj = BB(\frac 1 2 , \frac 1 2 )$~\seeApp{bcp}(TODO: put in appendix). There is always a switch at t=zero.
+%on $\[O, 1\]$ or is Jeffrey's prior  $\Jj = BB(\frac 1 2 , \frac 1 2 )$~\seeApp{bcp}(TODO: put in appendix). There is always a switch at t=zero.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
