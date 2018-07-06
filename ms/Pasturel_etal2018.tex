@@ -568,9 +568,9 @@ To alleviate this problem, we developed a new paradigm
 in order to address this question
 by explicitly modeling a dynamic process with a given volatility.
 
-%\subsection{Generative model: the switching model}
+%\subsection{Generative model: the binomial switching model}
 %-------------------------------------------------------------%
-%:  FIGURE 2 fig:results_psycho
+%:  FIGURE 2 fig:results_raw
 \begin{figure}%[b!]
 \centering{
 \begin{tikzpicture}%[thick,scale=1, every node/.style={scale=1} ]
@@ -594,8 +594,8 @@ the three levels of the stochastic model. %
 ~\textbf{B}
 Raw results for one characteristic observer.
 In this plot we superpose the sequence of event
-(red or blue dots for respectively left or right directions),
-the (hidden) evolution of the value of $p$ (horizontal black lines)
+(red or black dots for respectively left or right directions),
+the (hidden) evolution of the value of $p$ (horizontal black segments)
 and the underlying times for switches (vertical black lines).
 Note that we introduced pauses every  $50$ trials to prevent from fatigue.
 % Each block is divided in 4 sub-blocks of $50$ trials as denoted by vertical black bars
@@ -608,10 +608,10 @@ at the onset of the visually-driven SPEM (red line),
 3/ the result of the BCP model (green line)
 along with the confidence interval for this estimate (green shaded area).
 }
-\label{fig:results_psycho}
+\label{fig:results_raw}
 \end{figure}
 %-------------------------------------------------------------%
-%: design of the binary switching generative model
+%: design of the binomial switching generative model
 Indeed, to assess the dynamics of the adaptive processes
 which compensate for the variability of sensory,
 one may introduce a parametric mechanism controlling for its volatility.
@@ -949,24 +949,31 @@ as a summary, for any given sequence,
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Eye movements recordings}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%: raw results show a qualitative trend that each trajectory follows the other
-Let's now have a look at EMs...
-
-Among our 12 subjects, we show one representative example,
-chosen with the median fit in the quantitative analysis.
-
-but we superposed to our 2 variables,
-the value of the readout inferred probability along
-with the confidence interval.
-
-comparing to raw eye movement results
-it seems qualitatively that it follows well
- the traces observed experimenetally
-- first, both have similar delays in detecting a switch,
-reflecting the diffusion of probability
-- second, precisions seems to increase in bigger sub-blocks
- as a function of the inferred run-length
-
+%: raw results show a qualitative trend
+We applied the binomial switching model in a first session
+to generate the (pseudo-) random sequence of
+the dot's directions,
+while we recordeed the particpants' eye movements.
+Among our $12$ subjects, we show one representative example in~\seeFig{results_raw}
+This representative participant was chosen as that
+with the median fit in the quantitative analysis that will follow.
+In particular we superposed over the actual sequence of binary choices
+(leftward or rightward - respectively red or black dots)
+the true value of the true (hidden) value
+of the binomial process (horizontal black segments).
+More interestingly, we also superposed
+the observed value of the strength of aSPEM
+(the total velocity VEM, red line)
+the value of the readout inferred probability
+(as a green line, along with its confidence interval in a shaded area).
+Comparing the raw eye movement results with the latter,
+it seems qualitatively that both traces evolve with a good fit.
+First, both have similar delays in detecting a switch,
+reflecting the time taken to integrate enough information
+to switch to a novel probability bias value in the binomial process.
+Second, the precision (that is, the inverse of the variancve)
+of the inferred probability $\hat{p}$ seems to increase
+in bigger sub-blocks as information is integrated over more trials.
 
 as a result, the inferred probability as a function of time constitutes
 a useful regressor
@@ -987,10 +994,17 @@ by comparing human observers to our bayesian agent.
 \begin{figure}%[b!]
 % cf 3_Results_2.ipynb
 \begin{center}
-    \includegraphics[width=1\linewidth]{results_bayesianchangepoint_e}
-    \includegraphics[width=1\linewidth]{results_bayesianchangepoint_m}
+    \includegraphics[width=1\linewidth]{results_KDE_VEM_vs_p_hat}
+    \includegraphics[width=1\linewidth]{results_KDE_bet_vs_p_hat}
 \end{center}
 \caption{\emph{Psychophysical results over all participants}
+Each trial in our experimental results in an estimate of
+the strength of aSPEM (as measured by VEM)
+and a rating scale value.
+Relating those values with the corresponding inferred value $\hat{p}$
+of the probability bias,
+this constitutes a scatter of values.
+We display these relationships using a
 Kernel Density Estimation (KDE) of the relationship between $p$ (abscissa)
 and \textbf{(A)} VEM and \textbf{(B)} the value of bet (in ordinates).
 In \textbf{(A)}, we have overlaid is a regression line which shows
