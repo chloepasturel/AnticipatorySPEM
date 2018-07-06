@@ -203,6 +203,7 @@ backend=bibtex,
 \newcommand{\seeFig}[1]{see Figure~\ref{fig:#1}}
 \newcommand{\seeEq}[1]{see Equation~\ref{eq:#1}}
 \newcommand{\seeApp}[1]{see Appendix~\ref{app:#1}}
+\newcommand{\seeSec}[1]{see Section~\ref{sec:#1}}
 %============ hyperref ===================
 \usepackage[unicode,linkcolor=red,citecolor=red,filecolor=black,urlcolor=red,pdfborder={0 0 0}]{hyperref}%
 \hypersetup{%
@@ -605,8 +606,8 @@ We have superposed the trace of
 1/ the aSPEM strength as measured by the horizontal displacement
 at the onset of the visually-driven SPEM (red line),
 2/ the response to the bet experiment (red line) and
-3/ the result of the BCP model (green line)
-along with the confidence interval for this estimate (green shaded area).
+3/ the result of the BCP model (blue line)
+along with the confidence interval for this estimate (blue shaded area).
 }
 \label{fig:results_raw}
 \end{figure}
@@ -950,44 +951,41 @@ as a summary, for any given sequence,
 \subsection{Eye movements recordings}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %: raw results show a qualitative trend
-We applied the binomial switching model in a first session
-to generate the (pseudo-) random sequence of
+We applied the binomial switching model
+to generate the (pseudo-)random sequence of
 the dot's directions,
-while we recordeed the particpants' eye movements.
-Among our $12$ subjects, we show one representative example in~\seeFig{results_raw}
+and in a first session, we recorded the participants' eye movements.
+Among our $12$ subjects,
+we show one representative example in~\seeFig{results_raw}
 This representative participant was chosen as that
-with the median fit in the quantitative analysis that will follow.
-In particular we superposed over the actual sequence of binary choices
+with the median fit in the quantitative analysis
+that will follow (\seeSec{inter}).
+In particular, we superposed over the actual sequence of binary choices
 (leftward or rightward - respectively red or black dots)
 the true value of the true (hidden) value
 of the binomial process (horizontal black segments).
+In general, results are more variable when the bias is weak ($p\approx .5$)
+than when it is strong (close to zero or one),
+consitent with the dependence of the variance of the binomial process
+as a function of the probabilistic bias ($p$).
+Let's now see how this applies to our experimental results
+by comparing human observers to our bayesian agent.
 More interestingly, we also superposed
 the observed value of the strength of aSPEM
 (the total velocity VEM, red line)
 the value of the readout inferred probability
-(as a green line, along with its confidence interval in a shaded area).
+(as a blue line, along with its confidence interval in a shaded area).
 Comparing the raw eye movement results with the latter,
 it seems qualitatively that both traces evolve with a good fit.
 First, both have similar delays in detecting a switch,
-reflecting the time taken to integrate enough information
+reflecting the time (of the order a few trials) taken to integrate enough information
 to switch to a novel probability bias value in the binomial process.
 Second, the precision (that is, the inverse of the variancve)
 of the inferred probability $\hat{p}$ seems to increase
 in bigger sub-blocks as information is integrated over more trials.
-
-as a result, the inferred probability as a function of time constitutes
-a useful regressor
-
-
-Let's use our model on the different sequences that were generated
-in our experiments in the different blocks.
-
-we the same arrangement of panels, we show below the dynamical
-evolution of beliefs and above the resulting readout from the model
-
-Let's now see how this applies to our experimental results
-by comparing human observers to our bayesian agent.
-
+As a result, the inferred probability as a function of time
+seems qualitatively to constitute a useful regressor
+with the strength of aSPEM.
 
 %-------------------------------------------------------------%
 %: FIGURE 4  fig:results_psycho \seeFig{results_psycho}
@@ -1021,21 +1019,35 @@ of the problem, but a consistent slope showing an aversion to risk
 \label{fig:results_psycho}
 \end{figure}
 %%-------------------------------------------------------------%
-%: quantitive analysis \seeFig{results_psycho}-A
-In particular, we see 2 main effects:
-- results are more variable when the bias is around .5 than
-when it is high (close to zero or one)
-- switches were detected quite rapidly but with a certain delay
-of a few trials. Indeed, note that this plot shows the entire
-sequence but that observers had only access
-to some internal representation of the memory of the previous observations.
+%: quantitive analysis
+Quantitatively, we wanted to look at the quality of fit
+between aSPEM velocities and
+the probability $\hat{p}$ computed by the BCP algorithm.
+In~\seeFig{results_psycho}-A, we have plotted for all subjects
+the strength  of aSPEM as a function of the inferred probability
+that was coded at the second layer and which is unknown to the observer
+% TODO: First, the trend that we put in evidence is
+the identity of the observer
+We notice a linear correlation ; of the order of that found in
+the classical experiment with fixed blocks~\seeFig{intro}-B.
+This is surprising as the blocks are of random length,
+but participants can still adapt to such a volatile environment.
+As we can see in~\seeFig{results_psycho}-A,
+the probability $\hat{p}$ computed by the BCP algorithm
+has a positive linear relationship with the aSPEM velocity.
+Interestingly, we can note that after computed $\hat{p}$
+of around $\hat{p} > .727$, velocities in the braker condition tend
+to have a negative influence on the slope of the linear regression.
+ On the booster condition we observe a higher correlation coefficient
+ than in the baseline which is coherent with the results of study
+ 1~(page~(\pageref{chap:4})).
 When faced with some new observations,
- the observer has to constantly adapt his response
- to either exploit this information by considering that
- this observation belongs to the same sub-block or to explore
- a novel hypothesis.
-  This compromise is one of the crucial component that we wish to explore.
-  Which give a strong and positive Pearson coefficient.
+the observer has to constantly adapt his response
+to either exploit this information by considering that
+this observation belongs to the same sub-block or to explore
+a novel hypothesis.
+This compromise is one of the crucial component that we wish to explore.
+Which give a strong and positive Pearson coefficient.
 
 
 
@@ -1047,29 +1059,6 @@ When faced with some new observations,
 %: quantitativer analysis \seeFig{results_psycho}-B
 We now compare the value of bet during the bet experiment
 with the acceleration of anticipation during the recording :
-
-
-
-I show here a typical velocity traces for one subject / 2 trials
-
-- x-axis is time in milliseconds aligned on target onset,
-and we show respectively from left to right the fixation in gray,
-the GAP in pink (300ms) and the run in light gray.
-
-- y-axis is the velocity as computed as the gradient of position.
-Remark that the eyelink provides with the periods of saccades or
- blinks that we removed from the signal. it is quite noisy and
- to complement existing signal processing methods,
- Chloe implemented a robust
-
-- fitting method which allows to extract some key components of
-the velocity traces: maximum speed, latency, temporal inertia ($\tau$)
- and most interestingly acceleration before motion onset.
- We cross-validated that this method was givinfg similar results
-  to other classical methods but in a more robust fashion/
-
-While being sensible to recording errors, this allows us to extract the
- anticipatory component of SPEMs and..
 
 
  * I show here the overlay of this variable on the plot of
@@ -1101,39 +1090,18 @@ which qualitatively confirms such an intuition...
 %\includegraphics[width=1\textwidth]{data_fit_S18.pdf}
 %\phantomcaption{\label{fig:data_fit_S18.pdf}}
 %\end{subfigure}
-%\caption[Todo]{Fit between the probability predicted by the BCP algorithm (in red with error bars) $\hat{p}$ (for the sequences of events (rightward and leftward trials) that we used for our different experimental blocks) and the experimental datas obtained by participant 18.~\textbf{NB:} To observe the fit in an appropriate range between 0 and 1, the data for participant 18 was normalized and re-centered with the following transformation method:$\widetilde{aSPEM} = \frac{aSPEM_t-Min(aSPEM)}{Max_(aSPEM)-Min(aSPEM)}$.
+\caption[Todo]{Fit between the probability predicted by the BCP algorithm
+(in red with error bars) $\hat{p}$
+(for the sequences of events (rightward and leftward trials)
+that we used for our different experimental blocks) and
+the experimental datas obtained by participant 18.~\textbf{NB:}
+To observe the fit in an appropriate range between 0 and 1,
+the data for participant 18 was normalized and
+re-centered with the following transformation method:
+$\widetilde{aSPEM} = \frac{aSPEM_t-Min(aSPEM)}{Max_(aSPEM)-Min(aSPEM)}$.
 %\label{fig:data_fit_S18.pdf}}
 %\end{figure}
 
- Finally we wanted to look at the fit between aSPEM velocities and
- the probability $\hat{p}$ computed by the BCP algorithm at
- the moment of the eye movements for participants that undergo
- the experimental conditions of baseline, braker and booster.
- As we can see on fig~\ref{fig:final_reg.png},
- the probability $\hat{p}$ computed by the BCP algorithm
- has a positive linear relationship with the aSPEM velocity.
- Interestingly, we can note that after computed $\hat{p}$
- of around $\hat{p} > .727$, velocities in the braker condition tend
- to have a negative influence on the slope of the linear regression.
-  On the booster condition we observe a higher correlation coefficient
-  than in the baseline which is coherent with the results of study
-  1~(page~(\pageref{chap:4})).
-
-
- * quantitatively, one can now plot the results for all subjects
-
- * the x-axis corresponds to the probability that was coded
- at the second layer and which is unknown to the observer
- * the y -axis shows either the bet or the
- * dots represent single responses - the saturation giving
- the identity of the observer
-
- we notice a quite nice linear correlation (black line)
-for both experiments; of the order of that found in
-the classical experiment with fixed blocks and
-a vartiety of bias values. This is surprising
-as the blocks are of random length,
-observer can still adapt to such a volatile environment.
 
 Another visualization,
 the scatter plot of acceleration
@@ -1155,7 +1123,8 @@ Let's plot the acceleration of anticipation (slope of aSPEM
 as a function of the real probability at every given trial :
 
 Let's plot the value of the bet (probability bet)
-and the acceleration of anticipation (slope of aSPEM) as a function of the real probability at every given trial :
+and the acceleration of anticipation (slope of aSPEM)
+as a function of the real probability at every given trial :
 
 
 Example of results obtained during the recording overlaid
@@ -1180,11 +1149,7 @@ include the comparison with a control agent, the forgetful agent
 with time characteristics $\tau$
 
 
-we therefore used a kernel density estimation which clearly show
-the relationship between the agent probability and that reported
-by human observers
-- on the right, we
-
+%
 to summarize, we have shown that
 - there is a correlation in the anticiapatory response of eye movements
 in a volatile environment that is captured if we know the true probability
@@ -1198,6 +1163,9 @@ the brain is not strongly a bayesian machine, but weakly
 
 
 \subsection{Analyzing inter-individual differences}
+\label{sec:inter}
+
+representative example in~\seeFig{results_raw}
 
 By extracting the parameters for every subject
 we can expect to characterise inter individual differences.
@@ -1375,6 +1343,32 @@ In order to extract the relevant parameters of the oculomotor responses, we deve
 \subsection{Appendix 1: Analysis of eye movements}
 \label{app:em}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+
+I show here a typical velocity traces for one subject / 2 trials
+
+- x-axis is time in milliseconds aligned on target onset,
+and we show respectively from left to right the fixation in gray,
+the GAP in pink (300ms) and the run in light gray.
+
+- y-axis is the velocity as computed as the gradient of position.
+Remark that the eyelink provides with the periods of saccades or
+ blinks that we removed from the signal. it is quite noisy and
+ to complement existing signal processing methods,
+ Chloe implemented a robust
+
+- fitting method which allows to extract some key components of
+the velocity traces: maximum speed, latency, temporal inertia ($\tau$)
+ and most interestingly acceleration before motion onset.
+ We cross-validated that this method was givinfg similar results
+  to other classical methods but in a more robust fashion/
+
+While being sensible to recording errors, this allows us to extract the
+ anticipatory component of SPEMs and..
+
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Appendix 2: Mathematical proof}
 \label{app:bcp}
