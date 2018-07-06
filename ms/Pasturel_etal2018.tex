@@ -901,6 +901,16 @@ The main difference between our algorithm and that of Wilson is the way that the
 See also Radillo / Brady 2017 - Rats and dyncmac envt - allows to extend to the continuous case
 
 \subsection{Quantitative analysis of the Bayesian change point algorithm}
+we see that as in the synthetic example above,
+there is a correct detection of switch after a short delay of a few trials
+
+in particular, from this correct detection,
+the value of the inferred probability approaches
+the true one as the number of observations increase in one subblock.
+
+again, we see that a fixed length model gives a similar output
+but with the two disadvantages described above
+
 
 %different read-outs : see 2018-02-12 journal club bayesian changepoint chloe.pdf p.42
 Let's now see the application of our model to a simple synthetic example before applying it to the experimental protocol that we used in our two experiments
@@ -927,99 +937,138 @@ This is in contrast with a fixed length model, for which
 - there is no dynamic upDATE OF THE INFERRD probability
 
 
-as a summary, for any given sequence, we get an estimate of the probability given by the ideal observer. we will now see how we can apply that to our experimental protocol.
+as a summary, for any given sequence,
+ we get an estimate of the probability given by the ideal observer.
+ we will now see how we can apply that to our experimental protocol.
+ We expect it to be harder than the previous protocol
+ in fixed-length blocks
 
 %: %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Results: psychophysics}
-
-We expect it to be harder than the previous protocol  in fixed-length blocks
-
-\subsection{Eye movements recording and the Bet}
-%Example of results obtained during the recording overlaid with the results of the bet experiment :
-
-First, we overlay the results of the bet result for one of the 12 subjects
-
-We rescaled th value given by the observer so that it fits to 0 (sure it goes left) to 1 (sure it goes right)
-
-We observe a pretty good fit of this trace as a function of trial number
-
-
-In particular, we see 2 main effects:
-- results are more variable when the bias is around .5 than when it is high (close to zero or one)
-- switches were detected quite rapidly but with a certain delay of a few trials. Indeed, note that this plot shows the entire sequence but that observers had only access to some internal representation of the memory of the previous observations. When faced with some new observations, the observer has to constantly adapt his response to either exploit this information by considering that this observation belongs to the same sub-block or to explore a novel hypothesis. This compromise is one of the crucial component that we wish to explore.
-
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Eye movements recordings}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%: raw results show a qualitative trend that each trajectory follows the other
 Let's now have a look at EMs...
 
-Example of results obtained during the bet and the recording :
+Among our 12 subjects, we show one representative example,
+chosen with the median fit in the quantitative analysis.
 
-%\begin{center}
-%    \includegraphics[width=1\linewidth]{results_enregistrement}
-%\end{center}
+but we superposed to our 2 variables,
+the value of the readout inferred probability along
+with the confidence interval.
 
-%Let's plot the acceleration of anticipation (slope of aSPEM) as a function of the real probability at every given trial :
-
-%\begin{center}
-%    \includegraphics[width=1\linewidth]{p_real--v_a}
-%\end{center}
-
-Let's plot the value of the bet (probability bet)  and the acceleration of anticipation (slope of aSPEM) as a function of the real probability at every given trial :
-%
-%\begin{center}
-%    \includegraphics[width=1\linewidth]{P_real}
-%\end{center}
+comparing to raw eye movement results
+it seems qualitatively that it follows well
+ the traces observed experimenetally
+- first, both have similar delays in detecting a switch,
+reflecting the diffusion of probability
+- second, precisions seems to increase in bigger sub-blocks
+ as a function of the inferred run-length
 
 
- Let's use our model on the different sequences that were generated in our experiments in the different blocks.
-
-we the same arrangement of panels, we show below the dynamical evolution of beliefs and above the resulting readout from the model
-
-we see that as in the synthetic example above, there is a correct detection of switch after a short delay of a few trials
-
-in particular, from this correct detection, the value of the inferred probability approaches the true one as the number of observations increase in one subblock.
-
-again, we see that a fixed length model gives a similar output but with the two disadvantages described above
-
-Let's now see how this applies to our experimental results by comparing human observers to our bayesian agent.
-
-Which give a strong and positive Pearson coefficient.
+as a result, the inferred probability as a function of time constitutes
+a useful regressor
 
 
+Let's use our model on the different sequences that were generated
+in our experiments in the different blocks.
 
-Among our 12 subjects, we show four representative examples. we will use the same figure as in the section with raw results
+we the same arrangement of panels, we show below the dynamical
+evolution of beliefs and above the resulting readout from the model
 
-but we superposed to our 2 variables, the value of the readout inferred probability along with the confidence interval.
-
-compared to the raw results which were using the true (hidden) probability, it seems qualitatively that it follows well the traces observed experimenetally
-- first, both have similar delays in ddetercting a switch, reflecting the diuffusion of probability
-- second, precisions seems to increase in bigger sub-blocks as a function of the inferred run-length
-
-as a result, the inferred probability as a function of time constitutes a useful regressor
+Let's now see how this applies to our experimental results
+by comparing human observers to our bayesian agent.
 
 
-\subsection{Relating the Bet to the Recording}
+%-------------------------------------------------------------%
+%: FIGURE 4  fig:results_psycho \seeFig{results_psycho}
+\begin{figure}%[b!]
+% cf 3_Results_2.ipynb
+\begin{center}
+    \includegraphics[width=1\linewidth]{results_bayesianchangepoint_e}
+    \includegraphics[width=1\linewidth]{results_bayesianchangepoint_m}
+\end{center}
+\caption{\emph{Psychophysical results over all participants}
+Kernel Density Estimation (KDE) of the relationship between $p$ (abscissa)
+and \textbf{(A)} VEM and \textbf{(B)} the value of bet (in ordinates).
+In \textbf{(A)}, we have overlaid is a regression line which shows
+a high correlation factor ($R=XXX$) which is superior to that found
+with the fixed-length design (see Appendix ...)
+but also with other models described in the text
+(fixed-length estimator, maximum BCP - see Appendix ... ).
+In \textbf{(B)}, we have fitted the data with a logistic regression
+showing a negligeable intercept (no bias) linked to the symmetry
+of the problem, but a consistent slope showing an aversion to risk
+(cf Kanehman).
+%\textbf{(C)}
+}
+\label{fig:results_psycho}
+\end{figure}
+%%-------------------------------------------------------------%
+%: quantitive analysis \seeFig{results_psycho}-A
+In particular, we see 2 main effects:
+- results are more variable when the bias is around .5 than
+when it is high (close to zero or one)
+- switches were detected quite rapidly but with a certain delay
+of a few trials. Indeed, note that this plot shows the entire
+sequence but that observers had only access
+to some internal representation of the memory of the previous observations.
+When faced with some new observations,
+ the observer has to constantly adapt his response
+ to either exploit this information by considering that
+ this observation belongs to the same sub-block or to explore
+ a novel hypothesis.
+  This compromise is one of the crucial component that we wish to explore.
+  Which give a strong and positive Pearson coefficient.
 
-We now compare the value of bet during the bet experiment with the acceleration of anticipation during the recording :
+
+
+
+
+
+
+\subsection{Rating scale recordings}
+%: quantitativer analysis \seeFig{results_psycho}-B
+We now compare the value of bet during the bet experiment
+with the acceleration of anticipation during the recording :
 
 
 
 I show here a typical velocity traces for one subject / 2 trials
 
-- x-axis is time in milliseconds aligned on target onset, and we show respectively from left to right the fixation in gray, the GAP in pink (300ms) and the run in light gray.
+- x-axis is time in milliseconds aligned on target onset,
+and we show respectively from left to right the fixation in gray,
+the GAP in pink (300ms) and the run in light gray.
 
-- y-axis is the velocity as computed as the gradient of position. Remark that the eyelink provides with the periods of saccades or blinks that we removed from the signal. it is quite noisy and to complement existing signal processing methods, Chloe implemented a robust
+- y-axis is the velocity as computed as the gradient of position.
+Remark that the eyelink provides with the periods of saccades or
+ blinks that we removed from the signal. it is quite noisy and
+ to complement existing signal processing methods,
+ Chloe implemented a robust
 
-- fitting method which allows to extract some key components of the velocity traces: maximum speed, latency, temporal inertia ($\tau$) and most interestingly acceleration before motion onset. We cross-validated that this method was givinfg similar results to other classical methods but in a more robust fashion/
+- fitting method which allows to extract some key components of
+the velocity traces: maximum speed, latency, temporal inertia ($\tau$)
+ and most interestingly acceleration before motion onset.
+ We cross-validated that this method was givinfg similar results
+  to other classical methods but in a more robust fashion/
 
-While being sensible to recording errors, this allows us to extract the anticipatory component of SPEMs and..
+While being sensible to recording errors, this allows us to extract the
+ anticipatory component of SPEMs and..
 
 
- * I show here the overlay of this variable on the plot of probability biases
+ * I show here the overlay of this variable on the plot of
+  probability biases
 
- * these accelarations values were here scaled according to their extremal values.
+ * these accelarations values were here scaled according
+ to their extremal values.
 
- * there seems to be a trend with the polarity of the acceleration being negative for p values below .5 and positive for values above .5
+ * there seems to be a trend with the polarity of the acceleration
+ being negative for p values below .5 and positive for values above .5
 
-... to make this clearer, and because we used the same sequence, we can overlay the results of both experiments in one plot:
+... to make this clearer, and because we used the same sequence,
+we can overlay the results of both experiments in one plot:
 
 which qualitatively confirms such an intuition...
 
@@ -1042,70 +1091,93 @@ which qualitatively confirms such an intuition...
 %\label{fig:data_fit_S18.pdf}}
 %\end{figure}
 
- Finally we wanted to look at the fit between aSPEM velocities and the probability $\hat{p}$ computed by the BCP algorithm at the moment of the eye movements for participants that undergo the experimental conditions of baseline, braker and booster. As we can see on fig~\ref{fig:final_reg.png}, the probability $\hat{p}$ computed by the BCP algorithm has a positive linear relationship with the aSPEM velocity. Interestingly, we can note that after computed $\hat{p}$ of around $\hat{p} > .727$, velocities in the braker condition tend to have a negative influence on the slope of the linear regression. On the booster condition we observe a higher correlation coefficient than in the baseline which is coherent with the results of study 1~(page~(\pageref{chap:4})).
+ Finally we wanted to look at the fit between aSPEM velocities and
+ the probability $\hat{p}$ computed by the BCP algorithm at
+ the moment of the eye movements for participants that undergo
+ the experimental conditions of baseline, braker and booster.
+ As we can see on fig~\ref{fig:final_reg.png},
+ the probability $\hat{p}$ computed by the BCP algorithm
+ has a positive linear relationship with the aSPEM velocity.
+ Interestingly, we can note that after computed $\hat{p}$
+ of around $\hat{p} > .727$, velocities in the braker condition tend
+ to have a negative influence on the slope of the linear regression.
+  On the booster condition we observe a higher correlation coefficient
+  than in the baseline which is coherent with the results of study
+  1~(page~(\pageref{chap:4})).
 
 
  * quantitatively, one can now plot the results for all subjects
 
- * the x-axis corresponds to the probability that was coded at the second layer and which is unknown to the observer
+ * the x-axis corresponds to the probability that was coded
+ at the second layer and which is unknown to the observer
  * the y -axis shows either the bet or the
- * dots represent single responses - the saturation giving the identity of the observer
+ * dots represent single responses - the saturation giving
+ the identity of the observer
 
- we notice a quite nice linear correlation (black line) for both experiments; of the order of that found in the classical experiment with fixed blocks and a vartiety of bias values. This is surprising as the blocks are of random length, observer can still adapt to such a volatile environment.
+ we notice a quite nice linear correlation (black line)
+for both experiments; of the order of that found in
+the classical experiment with fixed blocks and
+a vartiety of bias values. This is surprising
+as the blocks are of random length,
+observer can still adapt to such a volatile environment.
 
-Another visualization, the scatter plot of acceleration  as a function of probability bet shows also that there is a correlation between both  variables.
+Another visualization,
+the scatter plot of acceleration
+as a function of probability bet shows also
+that there is a correlation between both  variables.
 
-This allows to make a first point: it is possible to use more genreal models such as hierarchical generative models.
+This allows to make a first point:
+it is possible to use more genreal models
+such as hierarchical generative models.
 
-However, while this results seem encouraging, a more finer analysis may be necessary.
+However, while this results seem encouraging,
+a more finer analysis may be necessary.
 
 \subsection{Comparing the Bayesian change point model with humans}
 
-We now compare the individual guesses during the bet experiment and the acceleration of anticipation during the eye movement recordings with the model simulations :
+Example of results obtained during the bet and the recording :
+
+Let's plot the acceleration of anticipation (slope of aSPEM
+as a function of the real probability at every given trial :
+
+Let's plot the value of the bet (probability bet)
+and the acceleration of anticipation (slope of aSPEM) as a function of the real probability at every given trial :
 
 
-%-------------------------------------------------------------%
-%: FIGURE 4  fig:results_psycho
-% TODO présente les résultats osycho : 1/ un sujet caractéristique 2/
-\begin{figure}%[b!]
-%\vspace{2mm}
-% cf 3_Results_2.ipynb
-\begin{center}
-    \includegraphics[width=1\linewidth]{results_bayesianchangepoint_e}
-    \includegraphics[width=1\linewidth]{results_bayesianchangepoint_m}
-\end{center}
-\caption{\emph{Psychophysical results over all participants}
-Kernel Density Estimation (KDE) of the relationship between $p$ (abscissa) and \textbf{(A)} VEM and \textbf{(B)} the value of bet (in ordinates). In \textbf{(A)}, we have overlaid is a regression line which shows a high correlation factor (R=XXX) which is superior to that found with the fixed-length design (see Appendix ...) but also with other models described in the text (fixed-length estimatyor, maximum BCP - see Appendix ... ). In \textbf{(B)}, we have fitted the data with a logistic regression showing a negligeable intercept (no bias) linked to the symmetry of the problem, but a consistent slope showing an aversion to risk (cf Kanehman).
-%\textbf{(C)}
-}
-\label{fig:results_psycho}
-\end{figure}
-%%-------------------------------------------------------------%
-%%: fig:eye_fits
-%\begin{figure}%[b!]
-%%\vspace{2mm}
-%\begin{center}
-%    \includegraphics[width=1\linewidth]{Fonction_Fit}
-%    \includegraphics[width=1\linewidth]{Fit_vitesse}
-%\end{center}
-%\caption{\emph{Eye movements analysis} \textbf{(A)}
-%\textbf{(B)}
-%\textbf{(C)}  }
-%\label{fig:eye_fits}
-%\end{figure}
-%%-------------------------------------------------------------%
-%-------------------------------------------------------------%
+Example of results obtained during the recording overlaid
+with the results of the bet experiment :
 
-include the comparison with a control agent, the forgetful agent with time characteristics $\tau$
+First, we overlay the results of the bet result for one of the
+ 12 subjects
+
+We rescaled th value given by the observer so that it fits to 0
+(sure it goes left) to 1 (sure it goes right)
+
+We observe a pretty good fit of this trace as a function
+of trial number
+
+We now compare the individual guesses during the bet experiment and
+the acceleration of anticipation during the eye movement recordings
+with the model simulations :
 
 
-we therefore used a kernel density estimation which clearly show the relationship between the agent probability and that reported by human observers
+
+include the comparison with a control agent, the forgetful agent
+with time characteristics $\tau$
+
+
+we therefore used a kernel density estimation which clearly show
+the relationship between the agent probability and that reported
+by human observers
 - on the right, we
 
 to summarize, we have shown that
-- there is a correlation in the anticiapatory response of eye movements in a volatile environment that is captured if we know the true probability
+- there is a correlation in the anticiapatory response of eye movements
+in a volatile environment that is captured if we know the true probability
 - that a fixed length models captures some of this correlation, but that
-- our online bayesian changep[oint model better captures this correlation and that this may hint at the neural mechanisms used to anticipate in a dynamic environment
+- our online bayesian changep[oint model better captures this correlation
+and that this may hint at the neural mechanisms used to anticipate
+in a dynamic environment
 
 the brain is not strongly a bayesian machine, but weakly
 
@@ -1113,24 +1185,25 @@ the brain is not strongly a bayesian machine, but weakly
 
 \subsection{Analyzing inter-individual differences}
 
-By extracting the parameters for every subject we can expect to characterise inter individual differences.
+By extracting the parameters for every subject
+we can expect to characterise inter individual differences.
 
 %-------------------------------------------------------------%
-%: FIGURE 5  fig:results_psycho_inter
+%: FIGURE 5  fig:results_inter \seeFig{results_inter}
 % TODO présente une meta analyse qui montre une correlation par sujet (scatter plot) entre h_a et h_bet (see 2017-11-16 chloe figures.pdf ) y-a-til un continuum entre explorateurs et conservatezurs?, voir de montrer une causalité entre les 2 expériences - on pourrait superposer aussi les résultats si on avait utilisé un fixed-length ?
 \begin{figure}%[b!]
-%\begin{center}
-%    \includegraphics[width=1\linewidth]{results_bayesianchangepoint_e}
-%    \includegraphics[width=1\linewidth]{results_bayesianchangepoint_m}
-%\end{center}
+\begin{center}
+    \includegraphics[width=1\linewidth]{results_bayesianchangepoint_e}
+\end{center}
 \caption{\emph{Analyzing inter-individual differences} \textbf{(A)}
 \textbf{(B)}
 \textbf{(C)}  }
-\label{fig:results_psycho_inter}
+\label{fig:results_inter}
 \end{figure}
 %-------------------------------------------------------------%
 
-There are a spectrum of individual choices between exploration and exploiting behaviors.
+There are a spectrum of individual choices
+between exploration and exploiting behaviors.
 
 
 %: %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
