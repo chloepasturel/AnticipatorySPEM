@@ -1045,6 +1045,9 @@ that was coded at the second layer and which is unknown to the observer.
 As we can see in~\seeFig{results_psycho}-A,
 the probability $\hat{p}$ computed by the BCP algorithm
 has a positive linear relationship with the aSPEM velocity.
+Note that since the BCP is a probabilistic model,
+we can also compute the Mutual Information and
+compare that value with that obtained by other models~\seeApp{bcp}.
 The corresponding Pearson correlatio coefficient
 is slightly higer than that found in
 the classical experiment with fixed blocks~\seeFig{intro}-B.
@@ -1072,20 +1075,28 @@ to the second session with rating scales.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %: qualitative analysis \seeFig{results_psycho}-B
 As we could assess qualitatively in~\seeFig{results_raw}-B,
-the trace of the rating scale correlates well
+the trace of the rating scale seems to correlate well
 with the inferred probability $\hat{p}$.
 Similarly to the strength of aSPEM,
-this traces exhibits also
-Note that at every pause (black vertical bar),
+(1) this traces exhibits also a positive correlation
+(the next outcome will in general be correctly inferred,
+as compared to a random choice),
+(2) stronger biases lead to lower variabilities in the estimate,
+(3) a (hidden) switch in the value of the bias is
+most of the time correctly idetified after only a few trials.
+Note also that at every pause (black vertical bar),
 participants tended to provides with more neutral scales
 than at the end of a sub-block of trials.
 This would correspond to a resetting mechanism
 of the predicted value of the next outcome.
-
+As a consequence, the experiment performed in the second session
+shows that the value that is consciously evaluated by participants
+are qualitatively similar to that which is unconsciously generated behaviourally
+in the form of the strength of aSPEM.
 
 %: quantitative analysis
 Similarly to~\seeFig{results_psycho}-A,
-we now compare the value of rating scale
+we now compare quantitatively the value of rating scale
 as measured during the second session.
 The KDE estimate shown in~\seeFig{results_psycho}-B,
 represents the reliationship between
@@ -1093,7 +1104,7 @@ the estimated proability
 and the value which was predicted at each trial
 by participants for the outcome of the next trial.
 This exhibits a consistant relationship
-but which following a non-linear trace.
+but which now follows a non-linear trace.
 In particular, this relationship was finer
 in comparison with a other agents
 such as the forgetful agent~\seeApp{results_psycho}
