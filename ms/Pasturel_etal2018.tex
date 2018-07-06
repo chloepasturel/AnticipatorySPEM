@@ -593,6 +593,21 @@ to generate the sequence of directions.
 It is represented as a graphical model representing
 the three levels of the stochastic model. %
 ~\textbf{B}
+%
+% * I show here the overlay of this variable on the plot of
+%  probability biases
+%
+% * these accelarations values were here scaled according
+% to their extremal values.
+%
+% * there seems to be a trend with the polarity of the acceleration
+% being negative for p values below .5 and positive for values above .5
+%
+% To observe the fit in an appropriate range between 0 and 1,
+% the data for participant 18 was normalized and
+% re-centered with the following transformation method:
+% $\widetilde{aSPEM} = \frac{aSPEM_t-Min(aSPEM)}{Max_(aSPEM)-Min(aSPEM)}$.
+%
 Raw results for one characteristic observer.
 In this plot we superpose the sequence of event
 (red or black dots for respectively left or right directions),
@@ -956,7 +971,7 @@ to generate the (pseudo-)random sequence of
 the dot's directions,
 and in a first session, we recorded the participants' eye movements.
 Among our $12$ subjects,
-we show one representative example in~\seeFig{results_raw}
+we show one representative example in~\seeFig{results_raw}-B.
 This representative participant was chosen as that
 with the median fit in the quantitative analysis
 that will follow (\seeSec{inter}).
@@ -1052,123 +1067,57 @@ We deduce that the trace of inferred probabilities is a powerful regressor
 to explain the strength of aSPEM.
 We will now try to extend this result
 to the second session with rating scales.
-
-
-
-
-
-
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Rating scale recordings}
-%: quantitativer analysis \seeFig{results_psycho}-B
-We now compare the value of bet during the bet experiment
-with the acceleration of anticipation during the recording :
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%: qualitative analysis \seeFig{results_psycho}-B
+As we could assess qualitatively in~\seeFig{results_raw}-B,
+the trace of the rating scale correlates well
+with the inferred probability $\hat{p}$.
+Similarly to the strength of aSPEM,
+this traces exhibits also
+Note that at every pause (black vertical bar),
+participants tended to provides with more neutral scales
+than at the end of a sub-block of trials.
+This would correspond to a resetting mechanism
+of the predicted value of the next outcome.
 
 
- * I show here the overlay of this variable on the plot of
-  probability biases
-
- * these accelarations values were here scaled according
- to their extremal values.
-
- * there seems to be a trend with the polarity of the acceleration
- being negative for p values below .5 and positive for values above .5
-
-... to make this clearer, and because we used the same sequence,
-we can overlay the results of both experiments in one plot:
-
-which qualitatively confirms such an intuition...
-
-%\begin{center}
-%    \includegraphics[width=1\linewidth]{p_parie--v_a}
-%\end{center}
-
-%\begin{center}
-%    \includegraphics[width=1\linewidth]{p_bet--v_a}
-%\end{center}
-
-
-%\begin{figure}[H]
-%\centering
-%\begin{subfigure}{1\textwidth}
-%\includegraphics[width=1\textwidth]{data_fit_S18.pdf}
-%\phantomcaption{\label{fig:data_fit_S18.pdf}}
-%\end{subfigure}
-\caption[Todo]{Fit between the probability predicted by the BCP algorithm
-(in red with error bars) $\hat{p}$
-(for the sequences of events (rightward and leftward trials)
-that we used for our different experimental blocks) and
-the experimental datas obtained by participant 18.~\textbf{NB:}
-To observe the fit in an appropriate range between 0 and 1,
-the data for participant 18 was normalized and
-re-centered with the following transformation method:
-$\widetilde{aSPEM} = \frac{aSPEM_t-Min(aSPEM)}{Max_(aSPEM)-Min(aSPEM)}$.
-%\label{fig:data_fit_S18.pdf}}
-%\end{figure}
-
-
-Another visualization,
-the scatter plot of acceleration
-as a function of probability bet shows also
-that there is a correlation between both  variables.
-
-This allows to make a first point:
-it is possible to use more genreal models
-such as hierarchical generative models.
-
-However, while this results seem encouraging,
-a more finer analysis may be necessary.
-
-\subsection{Comparing the Bayesian change point model with humans}
-
-Example of results obtained during the bet and the recording :
-
-Let's plot the acceleration of anticipation (slope of aSPEM
-as a function of the real probability at every given trial :
-
-Let's plot the value of the bet (probability bet)
-and the acceleration of anticipation (slope of aSPEM)
-as a function of the real probability at every given trial :
-
-
-Example of results obtained during the recording overlaid
-with the results of the bet experiment :
-
-First, we overlay the results of the bet result for one of the
- 12 subjects
-
-We rescaled th value given by the observer so that it fits to 0
-(sure it goes left) to 1 (sure it goes right)
-
-We observe a pretty good fit of this trace as a function
-of trial number
-
-We now compare the individual guesses during the bet experiment and
-the acceleration of anticipation during the eye movement recordings
-with the model simulations :
-
-
-
-include the comparison with a control agent, the forgetful agent
-with time characteristics $\tau$
-
-
-%
-to summarize, we have shown that
-- there is a correlation in the anticiapatory response of eye movements
-in a volatile environment that is captured if we know the true probability
-- that a fixed length models captures some of this correlation, but that
-- our online bayesian changep[oint model better captures this correlation
-and that this may hint at the neural mechanisms used to anticipate
-in a dynamic environment
-
-the brain is not strongly a bayesian machine, but weakly
-
-
+%: quantitative analysis
+Similarly to~\seeFig{results_psycho}-A,
+we now compare the value of rating scale
+as measured during the second session.
+The KDE estimate shown in~\seeFig{results_psycho}-B,
+represents the reliationship between
+the estimated proability
+and the value which was predicted at each trial
+by participants for the outcome of the next trial.
+This exhibits a consistant relationship
+but which following a non-linear trace.
+In particular, this relationship was finer
+in comparison with a other agents
+such as the forgetful agent~\seeApp{results_psycho}
+We modelled this behaviour as
+a logistic regression over
+the log-odd ratio estimated by the agent.
+This analysis provide with regression factors for each participant. %TODO
+It shows that the bias (intercept)
+was negligeable, while the slope (logistic factor)
+was always positive.
+This indicates a generic aversion to risk~\citep{KanehmanXX}
+such that the value of a possible outcome
+is down-weighted by the precision of the inferrence.
+Our logistic regression analyses
+suggests that this may come from a multiplicative weight
+on the (log-) odd-ratio which is chosen as a rating scaled
+compared to the (log-)odd-ratio of the inferred probability.
 
 \subsection{Analyzing inter-individual differences}
 \label{sec:inter}
 
 representative example in~\seeFig{results_raw}
+
+with time characteristics $\tau$
 
 By extracting the parameters for every subject
 we can expect to characterise inter individual differences.
@@ -1241,6 +1190,16 @@ perspectives:
 \item there is a stong correlation between the strength of anticipation and the probability of the process,
 
 \item we have developed a Bayesian model of an agent estimating the probability of changing points. This allows to dynamically infer the direction probability and directly compare model and human behaviour.
+
+% to summarize, we have shown that
+% - there is a correlation in the anticiapatory response of eye movements
+% in a volatile environment that is captured if we know the true probability
+% - that a fixed length models captures some of this correlation, but that
+% - our online bayesian changep[oint model better captures this correlation
+% and that this may hint at the neural mechanisms used to anticipate
+% in a dynamic environment
+%
+% the brain is not strongly a bayesian machine, but weakly
 
 \end{itemize}
 %: %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -1379,8 +1338,8 @@ While being sensible to recording errors, this allows us to extract the
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{Appendix 3: }
-\label{app3}
+\subsection{Appendix 3: Supplementary psychophysical results}
+\label{app:results_psycho}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
