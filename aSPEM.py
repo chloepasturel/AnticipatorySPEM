@@ -757,48 +757,28 @@ class Analysis(object):
         from ANEMO import read_edf
         #from edfreader import read_edf
         from ANEMO import ANEMO
+        ANEMO = ANEMO(self.exp)
 
         resultats = os.path.join(self.exp['datadir'], self.mode + '_' + self.observer + '_' + self.timeStr + '.asc')
         data = read_edf(resultats, 'TRIALID')
 
-        N_trials = self.exp['N_trials']
-        N_blocks = self.exp['N_blocks']
-        screen_width_px = self.exp['screen_width_px']
-        screen_height_px = self.exp['screen_height_px']
-        V_X = self.exp['V_X']
-        RashBass = self.exp['RashBass']
-        stim_tau = self.exp['stim_tau']
-        p = self.exp['p']
-        bino = p[:,:,0]
-
         if file_fig is None :
             file_fig = 'figures/enregistrement_%s'%(self.observer)
 
-        ANEMO.plot_position(data=data, N_trials=N_trials, N_blocks=N_blocks, bino=bino, V_X=V_X, RashBass=RashBass, stim_tau=stim_tau,
-                            screen_width_px=screen_width_px, screen_height_px=screen_height_px, fig=fig, axs=axs, fig_width=fig_width, t_label=t_label, file_fig=file_fig)
+        ANEMO.plot_position(data=data, fig=fig, axs=axs, fig_width=fig_width, t_label=t_label, file_fig=file_fig)
 
-        #        for f in range(len(fixations)) :
-        #            axs[trial]. axvspan(fixations[f][0]-start, fixations[f][1]-start, color='r', alpha=0.1)
-        #        for s in range(len(saccades)) :
-        #            axs[trial]. axvspan(saccades[s][0]-start, saccades[s][1]-start, color='k', alpha=0.2)
 
-        #    plt.tight_layout() # pour supprimer les marge trop grande
-        #    plt.subplots_adjust(hspace=0) # pour enlever espace entre les figures
-
-        #    plt.savefig('figures/enregistrement_%s_%s.pdf'%(self.observer, block+1))
-        #plt.close()
-        #return fig, axs
-
-    def plot_velocity(self, block=0, trials=0, report=None, fig_width=15, t_titre=35, t_label=20):
+    def plot_velocity(self, block=0, trials=0, report=None, fig_width=15, t_titre=35, t_label=20, list_events=None, stop_recherche_misac=None,fct_fit='fct_velocity'):
         import matplotlib.pyplot as plt
         from ANEMO import read_edf
         from ANEMO import ANEMO
+        ANEMO = ANEMO(self.exp)
 
         resultats = os.path.join('data', self.mode + '_' + self.observer + '_' + self.timeStr + '.asc')
         data = read_edf(resultats, 'TRIALID')
 
-        fig, axs = ANEMO.plot_velocity(data=data, trials=trials, block=block, N_trials=self.exp['N_trials'], px_per_deg=self.exp['px_per_deg'],
-                                       fig_width=fig_width, t_titre=t_titre, t_label=t_label)
+        fig, axs = ANEMO.plot_velocity(data=data, trials=trials, block=block, list_events=list_events, stop_recherche_misac=stop_recherche_misac,
+                                       fig_width=fig_width, t_titre=t_titre, t_label=t_label, fct_fit=fct_fit)
 
         return fig, axs
 
@@ -807,21 +787,19 @@ class Analysis(object):
         import matplotlib.pyplot as plt
         from ANEMO import read_edf
         from ANEMO import ANEMO
+        ANEMO = ANEMO(self.exp)
 
         resultats = os.path.join('data', self.mode + '_' + self.observer + '_' + self.timeStr + '.asc')
         data = read_edf(resultats, 'TRIALID')
-        
-        N_trials = self.exp['N_trials']
-        N_blocks = self.exp['N_blocks']
-        p = self.exp['p']
-        px_per_deg = self.exp['px_per_deg']
 
         if file_fig is None :
             file_fig='figures/Fit_%s'%(self.observer)
 
-        param = ANEMO.Fit (data=data, N_trials=N_trials, N_blocks=N_blocks, binomial=p[:,:,0], px_per_deg=px_per_deg, list_events=list_events,
-                           sup=sup, time_sup=time_sup, observer=self.observer, plot=plot, fig_width=fig_width, t_label=t_label, t_text=t_text,
-                           file_fig=file_fig, param_fit=param_fit, stop_recherche_misac=stop_recherche_misac, step_fit=step_fit)
+
+        param = ANEMO.Fit (data=data, list_events=list_events, sup=sup, time_sup=time_sup, plot=plot,
+                           fig_width=fig_width, t_label=t_label, t_text=t_text, file_fig=file_fig,
+                           param_fit=param_fit, stop_recherche_misac=stop_recherche_misac,
+                           step_fit=step_fit, fct_fit='fct_velocity')
 
         if file_save is None :
             file = os.path.join('parametre', 'param_Fit_' + self.observer + '.pkl')
@@ -834,28 +812,31 @@ class Analysis(object):
 
         print('FIN !!!')
 
-    def plot_Fit(self, plot='fonction', block=0, trials=0, report=None, fig_width=15, t_titre=35, t_label=20):
+    def plot_Fit(self, plot='fonction', block=0, trials=0, list_events=None, stop_recherche_misac=None, param_fit=None,
+                 sup=True, time_sup=-280, step_fit=2, fct_fit='fct_velocity',
+                 report=None, fig_width=15, t_titre=35, t_label=20):
 
         import matplotlib.pyplot as plt
         from ANEMO import read_edf
         #from edfreader import read_edf
         from ANEMO import ANEMO
+        ANEMO = ANEMO(self.exp)
 
         resultats = os.path.join('data', self.mode + '_' + self.observer + '_' + self.timeStr + '.asc')
         data = read_edf(resultats, 'TRIALID')
 
-        N_trials = self.exp['N_trials']
-        p = self.exp['p']
-        px_per_deg = self.exp['px_per_deg']
-        bino = p[:,:,0]
 
         if report is None :
-            fig, axs = ANEMO.plot_Fit(data=data, bino=bino, trials=trials, block=block, N_trials=N_trials, px_per_deg=px_per_deg,
-                                      plot=plot, fig_width=fig_width, t_titre=t_titre, t_label=t_label, report=report)
+            fig, axs = ANEMO.plot_Fit(data=data, trials=trials, block=block, list_events=list_events,
+                                      stop_recherche_misac=stop_recherche_misac, param_fit=param_fit,
+                                      plot=plot, fig_width=fig_width, t_titre=t_titre, t_label=t_label, report=report,
+                                      sup=sup, time_sup=time_sup, step_fit=step_fit, fct_fit=fct_fit)
             return fig, axs
         else :
-            fig, axs, results = ANEMO.plot_Fit(data=data, bino=bino, trials=trials, block=block, N_trials=N_trials, px_per_deg=px_per_deg,
-                                               plot=plot, fig_width=fig_width, t_titre=t_titre, t_label=t_label, report=report)
+            fig, axs, results = ANEMO.plot_Fit(data=data, trials=trials, block=block, list_events=list_events,
+                                               stop_recherche_misac=stop_recherche_misac, param_fit=param_fit,
+                                               plot=plot, fig_width=fig_width, t_titre=t_titre, t_label=t_label, report=report,
+                                               sup=sup, time_sup=time_sup, step_fit=step_fit, fct_fit=fct_fit)
             return fig, axs, results
 
 
