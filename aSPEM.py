@@ -782,7 +782,8 @@ class Analysis(object):
 
         return fig, axs
 
-    def Fit (self, plot=None, fig_width=12, file_save=None, t_label=20, t_text=14, file_fig=None, list_events=None, sup=True, time_sup=-280, param_fit=None, stop_recherche_misac=None, step_fit=2) :
+    def Fit (self, plot=True, fct_fit='fct_velocity', fig_width=12, file_save=None, t_label=20, t_text=14, file_fig=None, list_events=None, sup=True, time_sup=-280, param_fit=None,
+             stop_recherche_misac=None, step_fit=2, avant=0, apres=15, do_whitening=False) :
 
         import matplotlib.pyplot as plt
         from ANEMO import read_edf
@@ -793,16 +794,16 @@ class Analysis(object):
         data = read_edf(resultats, 'TRIALID')
 
         if file_fig is None :
-            file_fig='figures/Fit_%s'%(self.observer)
+            file_fig='figures/Fit_%s_%s_step_%s_whitening'%(self.observer, step_fit, do_whitening)
 
 
         param = ANEMO.Fit (data=data, list_events=list_events, sup=sup, time_sup=time_sup, plot=plot,
                            fig_width=fig_width, t_label=t_label, t_text=t_text, file_fig=file_fig,
                            param_fit=param_fit, stop_recherche_misac=stop_recherche_misac,
-                           step_fit=step_fit, fct_fit='fct_velocity')
+                           step_fit=step_fit, fct_fit=fct_fit, avant=avant, apres=apres, do_whitening=do_whitening)
 
         if file_save is None :
-            file = os.path.join('parametre', 'param_Fit_' + self.observer + '.pkl')
+            file = os.path.join('parametre', 'param_Fit_' + self.observer + '_' + step_fit + '_step_' + do_whitening + '_whitening.pkl')
         else :
             file = file_save
 
