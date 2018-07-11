@@ -794,7 +794,7 @@ class Analysis(object):
         data = read_edf(resultats, 'TRIALID')
 
         if file_fig is None :
-            file_fig='figures/Fit_%s_%s_step_%s_whitening'%(self.observer, step_fit, do_whitening)
+            file_fig='figures/Fit_%s_%s_%s_step_%s_whitening'%(self.observer, fct_fit, step_fit, do_whitening)
 
 
         param = ANEMO.Fit (data=data, list_events=list_events, sup=sup, time_sup=time_sup, plot=plot,
@@ -803,7 +803,8 @@ class Analysis(object):
                            step_fit=step_fit, fct_fit=fct_fit, avant=avant, apres=apres, do_whitening=do_whitening)
 
         if file_save is None :
-            file = os.path.join('parametre', 'param_Fit_' + self.observer + '_' + step_fit + '_step_' + do_whitening + '_whitening.pkl')
+            name_param = 'param_Fit_%s_%s_%s_step_%s_whitening.pkl'%(self.observer, fct_fit, step_fit, do_whitening)
+            file = os.path.join('parametre', name_param)
         else :
             file = file_save
 
