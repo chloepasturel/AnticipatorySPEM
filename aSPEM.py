@@ -678,8 +678,9 @@ def results_sujet(self, ax, sujet, s, mode_bcp, tau, t_label):
 class Analysis(object):
     """ docstring for the aSPEM class. """
 
-    def __init__(self, observer=None, mode=None) :
+    def __init__(self, observer=None, mode=None, caracteristique_fit={'fct_fit':'fct_velocity', 'step_fit':2, 'whitening':False}) :
         self.subjects = ['AM','BMC','CS','DC','FM','IP','LB','OP','RS','SR','TN','YK']
+        self.caracteristique_fit = caracteristique_fit
         self.mode = mode
         self.observer = observer
         self.init()
@@ -721,7 +722,8 @@ class Analysis(object):
         self.ENREGISTREMENT = []
         for x in range(len(liste)) :
             if liste[x][0]=='enregistrement' and liste[x][1] in self.subjects:
-                a = 'parametre/param_Fit_%s.pkl'%(liste[x][1])
+                #a = 'parametre/param_Fit_%s.pkl'%(liste[x][1])
+                a = 'parametre/param_Fit_%s_%s_%s_step_%s_whitening.pkl'%(liste[x][1], self.caracteristique_fit['fct_fit'], self.caracteristique_fit['step_fit'], self.caracteristique_fit['whitening'])
                 try :
                     with open(a, 'rb') as fichier :
                         b = pickle.load(fichier, encoding='latin1')
@@ -816,7 +818,7 @@ class Analysis(object):
 
     def plot_Fit(self, plot='fonction', block=0, trials=0, list_events=None, stop_recherche_misac=None, param_fit=None,
                  sup=True, time_sup=-280, step_fit=2, fct_fit='fct_velocity',
-                 report=None, fig_width=15, t_titre=35, t_label=20):
+                 report=None, fig_width=15, t_titre=35, t_label=20, do_whitening=False):
 
         import matplotlib.pyplot as plt
         from ANEMO import read_edf
@@ -832,13 +834,13 @@ class Analysis(object):
             fig, axs = ANEMO.plot_Fit(data=data, trials=trials, block=block, list_events=list_events,
                                       stop_recherche_misac=stop_recherche_misac, param_fit=param_fit,
                                       plot=plot, fig_width=fig_width, t_titre=t_titre, t_label=t_label, report=report,
-                                      sup=sup, time_sup=time_sup, step_fit=step_fit, fct_fit=fct_fit)
+                                      sup=sup, time_sup=time_sup, step_fit=step_fit, fct_fit=fct_fit, do_whitening=do_whitening)
             return fig, axs
         else :
             fig, axs, results = ANEMO.plot_Fit(data=data, trials=trials, block=block, list_events=list_events,
                                                stop_recherche_misac=stop_recherche_misac, param_fit=param_fit,
                                                plot=plot, fig_width=fig_width, t_titre=t_titre, t_label=t_label, report=report,
-                                               sup=sup, time_sup=time_sup, step_fit=step_fit, fct_fit=fct_fit)
+                                               sup=sup, time_sup=time_sup, step_fit=step_fit, fct_fit=fct_fit, do_whitening=do_whitening)
             return fig, axs, results
 
 
