@@ -1092,14 +1092,22 @@ with mean anticipatory eye velocity
 linearly related to the probability of motion's speed or direction~(\seeFig{intro}-B, inset).
 These results are coherent within previous oculomotor findings
 by our and also other groups~\citep{SantosKowler2017}.
+These results imply that the probability bias over a target's direction is
+one additional factor beyond other physical and cognitive cues~\citep{Kowler2014, SantosKowler2017},
+that modulate the common predictive framework
+driving anticipatory behavior to optimize a rapid and
+precise foveation of the target on its most expected future path.
 
-
-%: how we do it
+%: how we do it : TODO remùove redundancy with "contributions" (1.4)
 To extend such results to more generic experimental condition,
-it seems important to investigate the integration of environmental statistical regularities
+we have modified the experimental protocol in two manners.
+At first, it seems important to investigate the integration of environmental statistical regularities
 in a smooth tracking task with
 a family of direction-biases for the target motion.
-
+As such, we have used a more complex input pattern 
+for which the probability $p$ was varying randomly
+within blocks of random-length.
+The details of this protocol will be detailed below~(\seeSec{switching_model}).
 Additionally,~\citet{Maus2015} have recently shown that
 both perceptual adaptation and priming of aSPEM could occur simultaneously.
 They found a robust repulsive adaptation effect
@@ -1110,7 +1118,7 @@ their usefulness in the actual production of movements.
 Indeed, both priming and adaptation can hypothetically share
 a common internal representation of stimulus' speed
 that has been build upon the mean velocity of last encountered speeds.
-Then the comparison of the internal representation of speed
+Then, the comparison of the internal representation of speed
 with the current stimulus velocity could explain repulsive aftereffects and
 at the same time, be used to elicit for next stimulus occurrences
 an aSPEM component at the appropriate velocity.
@@ -1125,26 +1133,18 @@ adaptation for longer stimulus history, around $15$ trials.
 Such history length can still be considered
 short in comparison to the several hundreds 
 of trials that are commonly used in psychophysical studies.
-
-
-
-~(\seeFig{intro}-C)
-
 Here, we replicated part of those results
-using a limited number of direction probability bias and
-strengthened them by generalizing them on seventeen participants.
-These results imply that the probability bias over a target's direction is
-one additional factor beyond other physical and cognitive cues~\citep{Kowler2014, SantosKowler2017},
-that modulate the common predictive framework
-driving anticipatory behavior to optimize a rapid and
-precise foveation of the target on its most expected future path.
-
+by asking to the participants,
+\emph{prior} to see the target, 
+to evaluate their confidence for the next trial on a rating scale 
+between "sure left", to "unsure" and finally "sure right"~(\seeFig{intro}-C).
+XXX
 % --------------------------------------------------------------------------------------
 \subsection{Contributions}%Outline}
 % --------------------------------------------------------------------------------------
 %: limits of the previous method
 The goal of this study is to generalize the adaptive process
-obesrved in aSPEM to more ecological settings but
+observed in aSPEM to more ecological settings but
 also to broaden its scope by showing that such unconscious process
 also occurs at the conscious level.
 Indeed, by manipulating the probability for target motion direction,
@@ -1305,6 +1305,7 @@ Finally, we will summarize and conclude this study and
 offer some perspectives for future work.
 %: %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Results: Bayesian change point model}
+\label{sec:switching_model}
 
 % These python scripts are available at \url{https://github.com/laurentperrinet/bayesianchangepoint}.
 %TODO include changing point theory and bibliography
