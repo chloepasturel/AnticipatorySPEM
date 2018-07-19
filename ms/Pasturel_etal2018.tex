@@ -211,6 +211,9 @@ pdftitle={\Title},%
 pdfauthor={\AuthorA},%< \Email > \Address},%
 }%
 \usepackage{color}%
+\newcommand{\LP}[1]{\textbf{\textcolor{red}{[LP: #1]}}}
+\newcommand{\AM}[1]{\textbf{\textcolor{blue}{[AM: #1]}}}
+\newcommand{\CP}[1]{\textbf{\textcolor{green}{[CP: #1]}}}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \title{\Title}%
 \author{\AuthorA,
@@ -237,6 +240,7 @@ the adaptation of cognitive systems}
 %: general volatility and perceptual learning
 We live in a fundamentally volatile world for which
 our cognitive system has to constantly adapt.
+\LP{Anna , you had a better example which was less dramatic than ``
 Think for instance of the variability of environmental contingencies
 present in global climate and
 the probability of a change in its dynamic
@@ -254,6 +258,10 @@ concentration and an elevation of temperature),
 one should be able to predict at best if either
 one could continue to exploit a similar strategy (emit gases)
 or if it is necessary to explore different paradigms (limit emissions).
+''}
+\AM{this is my idea, LAurent:
+...
+}
 % * the evolution  of prices on the stock market: Any Socio-economic contextual index may make the price evolve up or down, slowly or more Rapidly
 % * ecological change
 % * the side (left or right of the field) in which the ball is on a soccer field
@@ -1008,8 +1016,8 @@ with the strength of aSPEM.
 \begin{figure}%[b!]
 % cf 3_Results_2.ipynb
 \begin{center}
-    \includegraphics[width=1\linewidth]{results_KDE_VEM_vs_p_hat}
-    \includegraphics[width=1\linewidth]{results_KDE_bet_vs_p_hat}
+%    \includegraphics[width=1\linewidth]{results_KDE_VEM_vs_p_hat}
+%    \includegraphics[width=1\linewidth]{results_KDE_bet_vs_p_hat}
 \end{center}
 \caption{\emph{Psychophysical results over all participants}
 Each trial in our experimental results in an estimate of
