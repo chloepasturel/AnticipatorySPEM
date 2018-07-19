@@ -1,7 +1,7 @@
 %!TeX TS-program = pdflatex
 %!TeX encoding = UTF-8 Unicode
 %!TeX spellcheck = en-US
-%!BIB TS-program = bibtex
+%!BIB TS-program = biber
 % -*- coding: UTF-8; -*-
 % vim: set fenc=utf-8
 %: METADATA
@@ -724,19 +724,19 @@ year = {2010}
 }
 \end{filecontents}
 %\usepackage[numbers,comma,sort&compress,round]{natbib} %
-\usepackage[%style=nature,
-maxcitenames=2,
-maxnames = 2,
+\usepackage[style=apa,
+%maxcitenames=2,
+%maxnames = 2,
 firstinits=true,
 uniquename=init,
 sorting=none,
 url=false,
 isbn=false,
 eprint=false,
-texencoding=latin1,
+texencoding=utf8,
 bibencoding=utf8,
 autocite=superscript,
-backend=bibtex,
+backend=biber,
 %articletitle=false
 ]{biblatex}%
 \addbibresource{Pasturel_etal2018.bib}%
