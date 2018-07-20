@@ -392,28 +392,6 @@ adsnote = {Provided by the SAO/NASA Astrophysics Data System}
 	Year = {2014},
 	Bdsk-Url-1 = {https://doi.org/10.1007/s13398-014-0173-7.2}}
 
-@article{Kemp2008,
-	Abstract = {Algorithms for finding structure in data have become increasingly important both as tools for scientific data analysis and as models of human learning, yet they suffer from a critical limitation. Scientists discover qualitatively new forms of structure in observed data: For instance, Linnaeus recognized the hierarchical organization of biological species, and Mendeleev recognized the periodic structure of the chemical elements. Analogous insights play a pivotal role in cognitive development: Children discover that object category labels can be organized into hierarchies, friendship networks are organized into cliques, and comparative relations (e.g., "bigger than" or "better than") respect a transitive order. Standard algorithms, however, can only learn structures of a single form that must be specified in advance: For instance, algorithms for hierarchical clustering create tree structures, whereas algorithms for dimensionality-reduction create low-dimensional spaces. Here, we present a computational model that learns structures of many different forms and that discovers which form is best for a given dataset. The model makes probabilistic inferences over a space of graph grammars representing trees, linear orders, multidimensional spaces, rings, dominance hierarchies, cliques, and other forms and successfully discovers the underlying structure of a variety of physical, biological, and social domains. Our approach brings structure learning methods closer to human abilities and may lead to a deeper computational understanding of cognitive development.},
-	Archiveprefix = {arXiv},
-	Arxivid = {arXiv:1408.1149},
-	Author = {Kemp, C. and Tenenbaum, J. B.},
-	Doi = {10.1073/pnas.0802631105},
-	Eprint = {arXiv:1408.1149},
-	File = {:Users/damasse.j-b/Documents/Mendeley Desktop/Kempsl.pdf:pdf},
-	Isbn = {1091-6490 (Electronic)},
-	Issn = {0027-8424},
-	Journal = {Proceedings of the National Academy of Sciences},
-	Mendeley-Groups = {biblio thesis},
-	Number = {31},
-	Pages = {10687--10692},
-	Pmid = {18669663},
-	Title = {{The discovery of structural form}},
-	Url = {http://www.pnas.org/cgi/doi/10.1073/pnas.0802631105},
-	Volume = {105},
-	Year = {2008},
-	Bdsk-Url-1 = {http://www.pnas.org/cgi/doi/10.1073/pnas.0802631105},
-	Bdsk-Url-2 = {https://doi.org/10.1073/pnas.0802631105}}
-
 @article{Kohn2007,
 	Abstract = {Recent sensory experience affects both perception and the response properties of visual neurons. Here I review a rapid from of experience-dependent plasticity that follows adaptation, the presentation of a particular stimulus or ensemble of stimuli for periods ranging from tens of milliseconds to minutes. Adaptation has a rich history in psychophysics, where it is often used as a tool for dissecting the perceptual mechanisms of vision. Although we know comparatively little about the neurophysiological effects of adaptation, work in the last decade has revealed a rich repertoire of effects. This review focuses on this recent physiological work, the cellular and biophysical mechanisms that may underlie the observed effects, and the functional benefit that they may afford. I conclude with a brief discussion of some important open questions in the field.},
 	Author = {Kohn, Adam and Kohn, Adam},
@@ -969,10 +947,8 @@ As such, sequential effects in binary sequences are better explained
 by a learning of transition probabilities
 than of the absolute item frequencies or the frequencies of their alternations.
 The critical difference lies in the content
-of what is learned (item frequencies versus transition probabilities).
-More generally, Bayesian models may consider
-a vast hypothesis space~\citep{Kemp2008} and
-then attempt to capture human behavior.
+of what is learned (transition probabilities versus item frequencies)
+in an attempt to capture human behavior.
 %Chopin and %Mamassian and the use of visual confidence  (see Ann rev of Vision 2016)
 Interestingly, the observation of priming effects
 have been observed for anticipatory smooth eye movements (aSPEM)
@@ -997,7 +973,7 @@ and therefore allow for a better understanding of such predictive processes. %
 \end{tikzpicture}
 }
 \caption{\emph{Anticipatory SPEM (aSPEM): psychophysics and results} %
-\textbf{(A)} Human observers were presented $600$ trials
+\textbf{(A)}~Human observers were presented $600$ trials % TODO:check
 which each consists of sequentially:
 a fixation dot (of random duration between $400$ and $600$ \ms),
 a blank screen (of fixed duration of  $XXX$ \ms) and
@@ -1012,24 +988,24 @@ we replicated the experiment of~\citep{Montagnini2010} and
 tested sequentially for $5$ different values of $p$:
 $.5$, $.25$, $.75$, $.9$ and $1.$ 
 in fixed blocks of $120$ trials each.
-\textbf{(B)}
-Velocity traces of eyes movements averaged for each bias condition
+\textbf{(B)}~Velocity traces of eyes movements 
+averaged for each bias condition
 over conditions and observers.
 These traces are aligned to the onset of the moving dot.
 Saccades were removed using a thresholding method~(\seeApp{em}) and
 error bars show one standard deviation over all samples.
 In the unbiased condition, one can distinguish
-a visually driven component (after a latency of $\approx 80 \ms$),
+a visually-driven component (after a latency of $\approx 80 \ms$),
 which corresponds to Smooth Pursuit Eye Movements (SPEM).
 When introducing a bias in the direction,
 one observes that the velocity of the eye progressively ramps
-in the direction of the bias and before any visually-guided component:
+in the direction of the bias and before any visually-driven component:
 This phase is the Anticipatory SPEM (aSPEM).
 As reported previously~\citep{Montagnini2010, SantosKowler2017},
 the slope of this ramp correlates with the strength of the bias.
 This is shown in the inset showing the average gain in velocity ($\pm$ SEM)
 before any visually driven information (here, at $t=50 \ms$).
-\textbf{(C)} In this paper, we extended this experiment in two aspects.
+\textbf{(C)}~In this paper, we extended this experiment in two aspects.
 First, we generalized the generation of random sequences
 by using random-length blocks
 to avoid potential inter-blocks confounds (\seeFig{results_psycho}).
@@ -1058,18 +1034,17 @@ thus enabling high-resolution visual detection.
 This process is retarded by different factors such as axonal transduction,
 neural processing and the inertia of the oculomotor system~\citep{Krauzlis}.
 When predictive information is available about target motion,
-anticipatory smooth pursuit eye movements (aSPEM) are
+anticipatory SPEM (aSPEM) are
 efficiently generated before target's appearance~\citep{Westheimer1954, Kowler1979a, Kowler1979b}.
 Moreover, some experiments have demonstrated the existence
 of prediction-based smooth pursuit during
 the transient disappearance of a moving dot~\citep{Badler2006,BeckerFuchs1985}.
 Overall, it is now clear that smooth pursuit behavior
-can be modulated even in the absence of online sensory stimulation.
+can be modulated even in the absence of a direct sensory stimulation.
 As such, this behavior is a useful marker 
-to study the trial-by-trial evolution
-of expectancy-based oculomotor behavior,
-as well as how sensorimotor expectancy interacts
-with context contingencies in shaping oculomotor behavior.
+to study expectancy-based oculomotor behavior,
+and in particular as to how sensorimotor expectancy interacts
+with context contingencies in shaping (oculomotor) behavior.
 
 %: in summary we get a linear relationship (talk about santos & kowler and others)
 Typically, aSPEM is observed after a temporal cue and
@@ -1084,12 +1059,12 @@ between target motion onset and foveation~\citep{PerrinetAdamasFriston2014}.
 In a previous study~\citep{SoutoMontagniniMasson2008,Montagnini2010},
 we have analyzed how forthcoming motion properties,
 such as target speed or direction, can be
-predicted and anticipated with coherent orienting eye movements~(\seeFig{intro}-B).
+predicted and anticipated with coherent orienting eye movements.
 It has been observed that aSPEM increase in velocity
 when the target repeatedly moves in the same direction~\citep{Kowler1984, Kowler1989, Heinen2005}.
 We similarly found a graded effect of both the speed and the direction-bias,
 with mean anticipatory eye velocity
-linearly related to the probability of motion's speed or direction~(\seeFig{intro}-B, inset).
+linearly related to the probability of motion's speed or direction~(\seeFig{intro}-B).
 These results are coherent within previous oculomotor findings
 by our and also other groups~\citep{SantosKowler2017}.
 These results imply that the probability bias over a target's direction is
