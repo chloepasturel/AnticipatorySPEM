@@ -1152,7 +1152,11 @@ This suggests that probabilistic information may be used
 to inform the internal representation of motion prediction
 for the initiation of anticipatory movements~\citep{Montagnini2010}.
 First, one possible confound in the previous study 
-comes from the fact that the sequence of blocks of conditions on $p$
+is that the range of possible biases is finite and 
+that there is no direct experimental evidence that 
+any continuous value within the possible range (that is, $\[ 0, 1 \]$)
+may be picked up by the visual system.
+Second, another possible caveat comes from the fact that the sequence of blocks of conditions on $p$
 was used within blocks of fixed lengths.
 Indeed, observers may potentially pick up
 the information on this fixed length
@@ -1238,23 +1242,27 @@ one may introduce a parametric mechanism controlling for its volatility.
 By definition, volatility measures the temporal variability
 of the sufficient parameters of a random variable.
 In the HGF model~\citep{Matthys2011} for instance,
-volatility is modeled as the non-linear transformation
-of a random walk (modeled itself by a Brownian motion).
+volatility is controlled as the non-linear transformation
+of a random walk (modeled itself by a Brownian motion with a given diffusion factor).
 This models allows to generate a sequence of binary choices
 where the variability fluctuates along a given trajectory.
 Such a forward probabilistic model is invertible
 using some simplifying assumptions and allows
 to extract an inference of the agent's belief about volatility~\citep{Voessel??}.
 Herein, we will use a simpler model where
-The probability of this process varied in a piecewise-constant
+the probability of this process varied in a piecewise-constant
 (that is, a step function varying between~$0$ and~$1$),
 similarly to~\citet{Meyniel13}.
-For each trial, a target makes either to the left or to the right,
-and we denote this variable as $x_0^t$ at trial $t$.
-This direction being drawn from a Bernoulli process $\Bb$
+It means that instead of a complex stochastic trajectory, 
+the bias in target direction is stationary between two events 
+(that we denote as ``switches''),
+and that it changes at the moment of a switch.
+Mathematically, for each trial, a target moves either to the left or to the right,
+and we denote at trial $t$ this variable (target direction) as $x_0^t$.
+This direction is drawn from a Bernoulli process $\Bb$
 with a parameter that we define as $p=x_1^t$.
-The novelty is that this variable is chosen
-at random from a prior distribution $\Pp$ at the moment of a switch.
+One novelty is that the variable $p$ is itself a random variable:
+it is chosen at random from a prior distribution $\Pp$ at the moment of a switch.
 The occurrence of these switches is itself drawn from a Bernoulli process
 of probability $1/\lambda$.
 Mathematically, this is easily described
