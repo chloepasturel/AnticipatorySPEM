@@ -1176,56 +1176,57 @@ by explicitly modeling a dynamic process with a given volatility.
 %-------------------------------------------------------------%
 %:  FIGURE 2 fig:results_raw
 \begin{figure}%[b!]
-\centering{
-\begin{tikzpicture}%[thick,scale=1, every node/.style={scale=1} ]
-	% cf 1_generative-model.ipynb
-	\node [anchor=north west]  (img1) at (0.000\linewidth,.618\linewidth){\includegraphics[width=0.2\linewidth]{bayesianchangepoint}};
-	% cf 3_Results_2.ipynb ??
-	\node [anchor=north west]  (img2) at (0.200\linewidth,.618\linewidth){\includegraphics[width=0.8\linewidth]{bayesianchangepoint}};
-	% cf 0_protocole.ipynb
-	\draw [anchor=north west] (0.000\linewidth, .618\linewidth) node {$\mathsf{(A)}$};
-	\draw [anchor=north west] (0.200\linewidth, .618\linewidth) node {$\mathsf{(B)}$};
-\end{tikzpicture}
-}	% cf 2_Methodes.ipynb ??
+\centering{\includegraphics[width=\linewidth]{results_enregistrement}}
+%\begin{tikzpicture}%[thick,scale=1, every node/.style={scale=1} ]
+%	% cf 1_generative-model.ipynb
+%	\node [anchor=north west]  (img1) at (0.000\linewidth,.618\linewidth){\includegraphics[width=0.2\linewidth]{bayesianchangepoint}};
+%	% cf 3_Results_2.ipynb ??
+%	\node [anchor=north west]  (img2) at (0.200\linewidth,.618\linewidth){\includegraphics[width=0.8\linewidth]{results_enregistrement}};
+%	% cf 0_protocole.ipynb
+%	\draw [anchor=north west] (0.000\linewidth, .618\linewidth) node {$\mathsf{(A)}$};
+%	\draw [anchor=north west] (0.200\linewidth, .618\linewidth) node {$\mathsf{(B)}$};
+%\end{tikzpicture}
+%}	% cf 2_Methodes.ipynb ??
 % ou cf 3_Results_2.ipynb
-\caption{%
-\emph{The binomial switching model and raw Psychophysical results}%
-~\textbf{A}
-This diagram represents the stochastic model chosen
-to generate the sequence of directions.
-It is represented as a graphical model representing
-the three levels of the stochastic model. %
-~\textbf{B}
+\caption{
+%\caption{
+\emph{The binomial switching model and raw psychophysical results.}%
+%~\textbf{A}
+%This diagram represents the stochastic model chosen
+%to generate the sequence of directions.
+%It is represented as a graphical model representing
+%the three levels of the stochastic model. %
 %
-% * I show here the overlay of this variable on the plot of
-%  probability biases
-%
-% * these accelarations values were here scaled according
-% to their extremal values.
-%
-% * there seems to be a trend with the polarity of the acceleration
-% being negative for p values below .5 and positive for values above .5
-%
-% To observe the fit in an appropriate range between 0 and 1,
-% the data for participant 18 was normalized and
-% re-centered with the following transformation method:
-% $\widetilde{aSPEM} = \frac{aSPEM_t-Min(aSPEM)}{Max_(aSPEM)-Min(aSPEM)}$.
-%
-Raw results for one characteristic observer.
-In this plot we superpose the sequence of event
-(red or black dots for respectively left or right directions),
-the (hidden) evolution of the value of $p$ (horizontal black segments)
-and the underlying times for switches (vertical black lines).
-Note that we introduced pauses every  $50$ trials to prevent from fatigue.
+\LP{TODO: only show block 2 ??}
+Above, we plot the sequence of target directions
+that were presented to observers
+(red or black dots for respectively left or right directions :TODO).
+It is a binary random variable which varies dynamically 
+as a function of the number of trials.
+It is composed of 3 blocks of $200$ trials,
+each trial being either the eye recording~(\seeFig{intro}-A) 
+or in a subsequent day the rating scale~(\seeFig{intro}-C).
+Note that we introduced pauses every $50$ trials to prevent from fatigue.
+Raw results for two characteristic observers.
 % Each block is divided in 4 sub-blocks of $50$ trials as denoted by vertical black bars
 Using a pseudo-random number generator with the same seed,
 we could present the exact same sequence to all subjects. %
-We have superposed the trace of
-1/ the aSPEM strength as measured by the horizontal displacement
-at the onset of the visually-driven SPEM (red line),
-2/ the response to the bet experiment (red line) and
-3/ the result of the BCP model (blue line)
-along with the confidence interval for this estimate (blue shaded area).
+Below, we have superposed the trace of
+1/ the (hidden) evolution of the value of $p$ (horizontal gray areas)
+and the underlying times for switches (vertical black lines : TODO).
+2/ the recorded aSPEM strength as measured by the horizontal displacement
+at the onset of the visually-driven SPEM (black line); 
+these values were here scaled according to their extremal values,
+\LP{>CP: TODO:and we show as an horizontal dashed line the zero value.}
+3/ the response to the rating scale experiment (red line) and
+%3/ the result of the BCP model (blue line)
+%along with the confidence interval for this estimate (blue shaded area).
+\LP{>CP: TODO: yticks pour les 2 sujets sopnt pas pareils}
+Qualitatively, there seems to be a trend with the polarity of aSPEM
+to be negative for p values below .5 and positive for values above .5,
+but also that the consciously predicted value 
+for the next outcome 
+to follow a similar trajectory.
 }
 \label{fig:results_raw}
 \end{figure}
@@ -1261,12 +1262,12 @@ by a graphical model~(\seeFig{results_psycho}-A) and
 the following definition:
 \eql{\choice{
 x_0^t \eqdef o_t \propto \Bb(p^t) \\
-x_1^t \eqdef p_t = p_{t-1} \quad \text{if} \quad s_t=0 \quad \text{and else} \quad p_t \propto \Jj \\
+x_1^t \eqdef p_t = p_{t-1} \quad \text{if} \quad s_t=0 \quad \text{and else} \quad p_t \propto \Pp \\
 x_2^t \eqdef s_t \propto \Bb(1/\lambda)
 }\label{eq:sgm}}.
 Note that the prior distribution $\Pp$ can be for instance
-the uniform distributions on $ [ O, 1 ] $ or
-Jeffrey's prior~\seeApp{bcp}(TODO: put in appendix).
+the uniform distributions on $ [ 0, 1 ] $ or
+Jeffrey's prior $\Jj$~\seeApp{bcp}(TODO: put in appendix).
 There is always a switch at $t=0$ and for each pause.
 In conclusion, the experimental setup of the first session
 is similar to that presented in~\seeFig{intro}-A, except for
