@@ -786,10 +786,10 @@ backend=biber,
 %\usepackage{tikz,tkz-euclide} \usetkzobj{all} % loading all objects
 %\usetikzlibrary{positioning} \usetikzlibrary{calc}
 %\usepackage{sfmath}
-\newcommand{\seeFig}[1]{see Figure~\ref{fig:#1}}
-\newcommand{\seeEq}[1]{see Equation~\ref{eq:#1}}
-\newcommand{\seeApp}[1]{see Appendix~\ref{app:#1}}
-\newcommand{\seeSec}[1]{see Section~\ref{sec:#1}}
+\newcommand{\seeFig}[1]{Figure~\ref{fig:#1}}
+\newcommand{\seeEq}[1]{Equation~\ref{eq:#1}}
+\newcommand{\seeApp}[1]{Appendix~\ref{app:#1}}
+\newcommand{\seeSec}[1]{Section~\ref{sec:#1}}
 %============ hyperref ===================
 \usepackage[unicode,linkcolor=red,citecolor=red,filecolor=black,urlcolor=red,pdfborder={0 0 0}]{hyperref}%
 \hypersetup{%
@@ -1026,7 +1026,7 @@ before any visually driven information (here, at $t=50~\ms$).
 \textbf{(C)}~In this paper, we extended this experiment in two aspects.
 First, we generalized the generation of random sequences
 by using random-length blocks
-to avoid potential inter-blocks confounds (\seeFig{results_psycho}).
+to avoid potential inter-blocks confounds (see \seeFig{results_psycho}).
 Second, to asses this adaptive mechanism at the conscious level,
 we asked each observer to perform the same experiment on a subsequent day,
 but with different instructions.
@@ -1072,7 +1072,7 @@ with context contingencies in shaping (oculomotor) behavior.
 
 %: linear relationship (talk about santos & kowler and others)
 Typically, aSPEM is observed after a temporal cue and
-ahead of target motion onset~\citep{Kowler1979a,Kowler1979b, Kowler1984}~(\seeFig{intro}-A).
+ahead of target motion onset~\citep{Kowler1979a,Kowler1979b, Kowler1984}~(see \seeFig{intro}-A).
 It is generally assumed that the role of anticipatory eye movements is
 to limit the behavioral impairment due
 to the amplitude of eye-to-target position and velocity mismatch and
@@ -1088,7 +1088,7 @@ It has been observed that aSPEM increase in velocity
 when the target repeatedly moves in the same direction~\citep{Kowler1984, Kowler1989, Heinen2005}.
 We similarly found a graded effect of both the speed and the direction-bias,
 with mean anticipatory eye velocity
-linearly related to the probability of motion's speed or direction~(\seeFig{intro}-B).
+linearly related to the probability of motion's speed or direction~(see \seeFig{intro}-B).
 These results are coherent within previous oculomotor findings
 by our and also other groups~\citep{SantosKowler2017}.
 These results imply that the probability bias over a target's direction is
@@ -1136,7 +1136,7 @@ Here, we replicated part of those results
 by asking to the participants,
 \emph{prior} to see the target, 
 to evaluate their confidence for the next trial on a rating scale 
-between "sure left", to "unsure" and finally "sure right"~(\seeFig{intro}-C).
+between "sure left", to "unsure" and finally "sure right"~(see \seeFig{intro}-C).
 % --------------------------------------------------------------------------------------
 \subsection{Contributions}%Outline}
 % --------------------------------------------------------------------------------------
@@ -1147,8 +1147,8 @@ also to broaden its scope by showing that such unconscious process
 also occurs at the conscious level.
 Indeed, by manipulating the probability for target motion direction,
 as measured during a fixed duration gap
-before target ramp-motion onset~(\seeFig{intro}-A),
-it is possible to bias the direction and mean velocity of aSPEM~(\seeFig{intro}-B).
+before target ramp-motion onset~(see \seeFig{intro}-A),
+it is possible to bias the direction and mean velocity of aSPEM~(see \seeFig{intro}-B).
 This suggests that probabilistic information may be used
 to inform the internal representation of motion prediction
 for the initiation of anticipatory movements~\citep{Montagnini2010}.
@@ -1210,8 +1210,8 @@ that were presented to observers
 It is a binary random variable which varies dynamically 
 as a function of the number of trials.
 It is composed of 3 blocks of $200$ trials,
-each trial being either the eye recording~(\seeFig{intro}-A) 
-or in a subsequent day the rating scale~(\seeFig{intro}-C).
+each trial being either the eye recording~(see \seeFig{intro}-A) 
+or in a subsequent day the rating scale~(see \seeFig{intro}-C).
 Note that we introduced pauses every $50$ trials to prevent from fatigue.
 Raw results for two characteristic observers.
 % Each block is divided in 4 sub-blocks of $50$ trials as denoted by vertical black bars
@@ -1293,33 +1293,37 @@ is similar to that presented in~\seeFig{intro}-A, except for
 this new generative model for the pseudo-random sequence of binary events
 which randomizes the occurrence of the switches
 and the range of bias' values that are explored.
+\seeEq{sgm} defines the binomial switching model which we will use 
+for the generation of sequences in experiments
+but also as the basis of an ideal observer model.
 
 %: outline
 This paper is organized in five parts.
 After this introduction where we presented the motivation for this study, 
 the next section~(\seeSec{bayesian_change_point}) will present
 an inversion of the forward probabilistic model defined in~\seeEq{sgm}.
-There is yet no such algorithm to our knowledge and
+There is yet to our knowledge no such algorithm and
 we will here provide with a solution
 by extending previous results from~\citet{AdamsMackay2007}
-to the case of binomial data.
+to the case of binomial data as in the presented binomial switching model.
 We will also provide with a computational implementation
 and a quantitative evaluation of this algorithm.
-Then, in~\seeSec{eye_rec} we will present psychophysics on eye movements
-to validate the generalization of previous results
-In a first session, participants observe a target moving horizontally
-with constant speed from the center
-either to the right or left across trials~(\seeFig{intro}-A).
-The probability of either motion direction changes randomly in time.
+Then, we will present in~\seeSec{eye_rec} psychophysics on eye movements
+to validate the generalization of previous results%.
+%In a first session, participants observe a target moving horizontally
+%with constant speed from the center
+%either to the right or left across trials
+~(see \seeFig{intro}-A).
+%The probability of either motion direction changes randomly in time.
 In a second session, participants are asked to estimate
 "how much they are confident that
 the target will move to the right or left in the next trial" and
-to adjust the cursor's position on the screen accordingly~(\seeFig{intro}-C).
+to adjust the cursor's position on the screen accordingly~(see \seeFig{intro}-C).
 This will be presented in~\seeSec{rating_scale}.
 In the fourth part, we will analyze the inference of the volatility
 for each individual participant~\seeSec{inter}.
 This will allow the analysis of inter-individual changes for each session
-and in particular in one could predict one's prior volatility,
+and in particular if one could predict observers's prior volatility,
 that is, a measure of the dynamic compromise between exploration and exploitation
 across the two different sessions testing predictive adaptive processes
 at the unconscious and conscious levels.
