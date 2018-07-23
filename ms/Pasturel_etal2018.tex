@@ -817,6 +817,7 @@ pdfauthor={\AuthorA},%< \Email > \Address},%
 %: %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Motivation}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\label{sec:intro}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Volatility of sensory contingencies and
@@ -1105,7 +1106,7 @@ a family of direction-biases for the target motion.
 As such, we have used a more complex input pattern 
 for which the probability $p$ was varying randomly
 within blocks of random-length.
-The details of this protocol will be detailed below~(\seeSec{switching_model}).
+The details of this protocol will be detailed below~(\seeSec{bayesian_change_point}).
 Additionally,~\citet{Maus2015} have recently shown that
 both perceptual adaptation and priming of aSPEM could occur simultaneously.
 They found a robust repulsive adaptation effect
@@ -1245,31 +1246,36 @@ of the sufficient parameters of a random variable.
 In the HGF model~\citep{Matthys2011} for instance,
 volatility is controlled as the non-linear transformation
 of a random walk (modeled itself by a Brownian motion with a given diffusion factor).
-This models allows to generate a sequence of binary choices
+This models allows to ultimately generate a sequence of binary choices
 where the variability fluctuates along a given trajectory.
 Such a forward probabilistic model is invertible
 using some simplifying assumptions and allows
 to extract an inference of the agent's belief about volatility~\citep{Voessel??}.
 Herein, we will use a simpler model where
-the probability of this process varied in a piecewise-constant
+the bias in target direction varies according of a piecewise-constant function
 %(that is, a step function varying between~$0$ and~$1$),
 similarly to~\citet{Meyniel13}.
 It means that instead of a complex stochastic trajectory, 
 we draw random events (that we denote as ``switches'')
 with a given mean frequency,
-and that the bias in target direction is stationary between two events.
-It means that the value $p$ of the bias only changes at the moment of a switch,
+and that the bias in target direction is stationary between two switches:
+The value $p$ of the bias only changes at the moment of a switch,
 independently of the previous bias' value.
+Such a sequence is presented in~\seeFig{results_psycho},
+where we show the realization of above target's directions and
+below of the underlying (hidden) bias' probability.
 Mathematically, for each trial, 
 the occurrence of a switch ($1$ for true, $0$ for false)
 is  drawn from a Bernoulli process with parameter its frequency $1/\lambda$.
 The value of $\lambda$ thus gives the average length (in number of trials) 
 between the occurrence of two switches.
-Then, a target moves either to the left or to the right,
+The bias in target direction is a parameter that we define as $p=x_1^t \in [0, 1]$.
+It is chosen at random from a prior distribution $\Pp$ at the moment of a switch,
+and else it is constant until the next occurrence of a switch.
+Finally, a target moves either to the left or to the right,
 and we denote at trial $t$ this variable (target direction) as $x_0^t\in \{ 0, 1 \}$.
 This direction is drawn from a Bernoulli process $\Bb$
-with a parameter that we define as $p=x_1^t \in [0, 1]$.
-it is chosen at random from a prior distribution $\Pp$ at the moment of a switch.
+with the direction bias $p=x_1^t$.
 Mathematically, this is easily described
 by a 3-layered graphical model according to %~(\seeFig{results_psycho}-A) and
 the following definition:
@@ -1280,16 +1286,18 @@ x_0^t \propto \Bb(x_1^t)
 }\label{eq:sgm}}
 Note that the prior distribution $\Pp$ can be for instance
 the uniform distributions on $ [ 0, 1 ] $ or
-Jeffrey's prior $\Jj$~\seeApp{bcp}(TODO: put in appendix).
+Jeffrey's prior $\Jj$~\seeApp{bcp} (TODO: put in appendix).
 There is always a switch at $t=0$ and for each pause.
 In conclusion, the experimental setup of the first session
 is similar to that presented in~\seeFig{intro}-A, except for
 this new generative model for the pseudo-random sequence of binary events
-~\seeFig{results_psycho}-B.
+which randomizes the occurrence of the switches
+and the range of bias' values that are explored.
 
 %: outline
 This paper is organized in five parts.
-After this introduction, the next section will present
+After this introduction where we presented the motivation for this study, 
+the next section~(\seeSec{bayesian_change_point}) will present
 an inversion of the forward probabilistic model defined in~\seeEq{sgm}.
 There is yet no such algorithm to our knowledge and
 we will here provide with a solution
@@ -1297,7 +1305,7 @@ by extending previous results from~\citet{AdamsMackay2007}
 to the case of binomial data.
 We will also provide with a computational implementation
 and a quantitative evaluation of this algorithm.
-Then, we will present psychophysics on eye movements
+Then, in~\seeSec{eye_rec} we will present psychophysics on eye movements
 to validate the generalization of previous results
 In a first session, participants observe a target moving horizontally
 with constant speed from the center
@@ -1307,18 +1315,19 @@ In a second session, participants are asked to estimate
 "how much they are confident that
 the target will move to the right or left in the next trial" and
 to adjust the cursor's position on the screen accordingly~(\seeFig{intro}-C).
+This will be presented in~\seeSec{rating_scale}.
 In the fourth part, we will analyze the inference of the volatility
-for each individual participant.
+for each individual participant~\seeSec{inter}.
 This will allow the analysis of inter-individual changes for each session
 and in particular in one could predict one's prior volatility,
 that is, a measure of the dynamic compromise between exploration and exploitation
 across the two different sessions testing predictive adaptive processes
 at the unconscious and conscious levels.
 Finally, we will summarize and conclude this study and
-offer some perspectives for future work.
+offer some perspectives for future work~\seeSec{outro}.
 %: %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Results: Bayesian change point model}
-\label{sec:switching_model}
+\label{sec:bayesian_change_point}
 
 % These python scripts are available at \url{https://github.com/laurentperrinet/bayesianchangepoint}.
 %TODO include changing point theory and bibliography
@@ -1579,11 +1588,12 @@ as a summary, for any given sequence,
  in fixed-length blocks
 
 %: %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Results: psychophysics}
+%\section{Results: psychophysics}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{Eye movements recordings}
+\section{Results: Eye movements recordings}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\label{sec:eye_rec}
 %: raw results show a qualitative trend
 We applied the binomial switching model
 to generate the (pseudo-)random sequence of
@@ -1690,8 +1700,9 @@ to explain the strength of aSPEM.
 We will now try to extend this result
 to the second session with rating scales.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{Rating scale recordings}
+\section{Results: Rating scale recordings}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\label{sec:rating_scale}
 %: qualitative analysis \seeFig{results_psycho}-B
 As we could assess qualitatively in~\seeFig{results_raw}-B,
 the trace of the rating scale seems to correlate well
@@ -1744,7 +1755,7 @@ on the (log-) odd-ratio which is chosen as a rating scaled
 compared to the (log-)odd-ratio of the inferred probability.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{Analyzing inter-individual differences}
+\section{Results: Analyzing inter-individual differences}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \label{sec:inter}
 %: separate above analysis
@@ -1806,6 +1817,7 @@ It can serve as a biomarker...
 
 \section{Discussion}
 
+\label{sec:outro}
 
 %The oculomotor system has to constantly update its knowledge about the environment. An ordeal is then to adapt to changes with the shortest delays. Early studies have proposed that stimuli provides information to modulate reaction times within sequences~\citep{Hyman1953, Tune1964, Schvaneveldt}. This theoretical approach is coherent with the notion of local transition probabilities that quantifies at which extent an observation deviates from the preceding ones~\citep{Meyniel2016}. The way expectations act on cognitive processes has been investigated by a wide range of domains such as predictive coding~\citep{Wolpert2000, Wacongne2012}, active inference~\citep{Friston2010}, motor control~\citep{Sutton1998, Behrens2007} and reinforcement learning~\citep{Nassar2012}. Non-stationary observations can also explain why both local and global effects emerge and why local effects persist in the long run even within purely random sequences~\citep{Cho2002, Yu2009}. This constant update of a general belief on the world can be a consequence of the constant attempt to learn the non-stationary structure of the environment that can change at unpredictable times~\citep{Yu2009}. Many studies have actually already pointed the brain's ability to apprehend non-stationary states in environments~\citep{Ossmy2013, Meyniel2015}. As explained by~\citet{Meyniel2016}, the belief upon an environment can be divided in two different ways:
 %
