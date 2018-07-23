@@ -969,24 +969,24 @@ and therefore allow for a better understanding of such predictive processes. %
 \node [anchor=north west]  (img2) at (0.666\linewidth,.618\linewidth){\includegraphics[width=0.25\linewidth]{protocol_bet_simple}};
 \draw [anchor=north west] (0.000\linewidth, .618\linewidth) node {$\mathsf{(A)}$};
 \draw [anchor=north west] (0.333\linewidth, .618\linewidth) node {$\mathsf{(B)}$};
-\draw [anchor=north west] (0.666\linewidth, .618\linewidth) node {$\mathsf{(C)}$};
+\draw [anchor=north west] (0.666\linewidth, .618\linewidth) node {$\mathsf{(C)}$};					
 \end{tikzpicture}
 }
 \caption{\emph{Anticipatory SPEM (aSPEM): psychophysics and results} %
 \textbf{(A)}~Human observers were presented $600$ trials % TODO:check
 which each consists of sequentially:
-a fixation dot (of random duration between $400$ and $600$ \ms),
-a blank screen (of fixed duration of  $XXX$ \ms) and
+a fixation dot (of random duration between $400$ and $600$~\ms),
+a blank screen (of fixed duration of  $300$~\ms) and
 a moving dot (at $15$ deg/s) which the observers were instructed to follow.
 The direction of the dot was drawn pseudo-randomly
 using a probabilistic bias $p$ which defines the parameter
 of the binomial distribution
-($0\leq p\leq 1 $. The direction is unbiased for $p=0.5$,
-always left for $p=0$ and always right if $p=1$).
+($0\leq p\leq 1 $). The direction is unbiased for $p=0.5$,
+always left for $p=0$ and always right if $p=1$.
 In a first experiment,
 we replicated the experiment of~\citep{Montagnini2010} and
 tested sequentially for $5$ different values of $p$:
-$.5$, $.25$, $.75$, $.9$ and $1.$ 
+$.5$, $.25$, $.75$, $.9$ and $1.$,  
 in fixed blocks of $120$ trials each.
 \textbf{(B)}~Velocity traces of eyes movements 
 averaged for each bias condition
@@ -995,7 +995,7 @@ These traces are aligned to the onset of the moving dot.
 Saccades were removed using a thresholding method~(\seeApp{em}) and
 error bars show one standard deviation over all samples.
 In the unbiased condition, one can distinguish
-a visually-driven component (after a latency of $\approx 80 \ms$),
+a visually-driven component (after a latency of $\approx 80~\ms$),
 which corresponds to Smooth Pursuit Eye Movements (SPEM).
 When introducing a bias in the direction,
 one observes that the velocity of the eye progressively ramps
@@ -1004,7 +1004,7 @@ This phase is the Anticipatory SPEM (aSPEM).
 As reported previously~\citep{Montagnini2010, SantosKowler2017},
 the slope of this ramp correlates with the strength of the bias.
 This is shown in the inset showing the average gain in velocity ($\pm$ SEM)
-before any visually driven information (here, at $t=50 \ms$).
+before any visually driven information (here, at $t=50~\ms$).
 \textbf{(C)}~In this paper, we extended this experiment in two aspects.
 First, we generalized the generation of random sequences
 by using random-length blocks
@@ -1017,8 +1017,8 @@ for their estimate of the direction of the dot before each trial.
 This was performed by moving a mouse cursor on a rating scale
 between "sure left", to "unsure" and finally "sure right".
 Eye movements were not recorded.
-Due to the random nature of the sequence no observer noticed
-that the same pseudo-random sequence was used in the experiment.
+Due to the (pseudo-)random nature of the sequence no observer noticed
+that the same sequence of directions was used in the experiment.
 }
 \label{fig:intro}
 \end{figure}
@@ -1056,7 +1056,7 @@ of the variability introduced by the neural noise
 at the neuro-motor junction~\citep{WolpertXXX}.
 This reduces the typical sensorimotor delay
 between target motion onset and foveation~\citep{PerrinetAdamasFriston2014}.
-In a previous study~\citep{SoutoMontagniniMasson2008,Montagnini2010},
+In a previous study~\citep{Montagnini2010},
 we have analyzed how forthcoming motion properties,
 such as target speed or direction, can be
 predicted and anticipated with coherent orienting eye movements.
@@ -1073,7 +1073,7 @@ that modulate the common predictive framework
 driving anticipatory behavior to optimize a rapid and
 precise foveation of the target on its most expected future path.
 
-%: how we do it : TODO remùove redundancy with "contributions" (1.4)
+%: how we do it : TODO remove redundancy with "contributions" (1.4)
 To extend such results to more generic experimental condition,
 we have modified the experimental protocol in two manners.
 At first, it seems important to investigate the integration of environmental statistical regularities
@@ -1113,7 +1113,6 @@ by asking to the participants,
 \emph{prior} to see the target, 
 to evaluate their confidence for the next trial on a rating scale 
 between "sure left", to "unsure" and finally "sure right"~(\seeFig{intro}-C).
-XXX
 % --------------------------------------------------------------------------------------
 \subsection{Contributions}%Outline}
 % --------------------------------------------------------------------------------------
@@ -1751,8 +1750,8 @@ The scatter plot of the best fit values are shown in~\seeFig{results_inter}.
 It first shows that there is some variability in the best fit value of $\tau$
 in both sessions.
 If the average is close to the (hidden) value used to generate the sequence
-(with $\tau = XX \ms \pm XX \ms$ for the first session and
- $\tau = XX \ms \pm XX \ms$ for the second),
+(with $\tau = XX~\ms \pm XX~\ms$ for the first session and
+ $\tau = XX~\ms \pm XX~\ms$ for the second),
  we observe a variability which is characteristic of the spectrum of individual choices.
 More importantly, there is a slight but consistant
 correlation between the values for each participant for one session
