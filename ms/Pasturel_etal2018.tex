@@ -1154,7 +1154,7 @@ for the initiation of anticipatory movements~\citep{Montagnini2010}.
 First, one possible confound in the previous study 
 is that the range of possible biases is finite and 
 that there is no direct experimental evidence that 
-any continuous value within the possible range (that is, $\[ 0, 1 \]$)
+any continuous value within the possible range (that is, the segment $[ 0, 1 ]$)
 may be picked up by the visual system.
 Second, another possible caveat comes from the fact that the sequence of blocks of conditions on $p$
 was used within blocks of fixed lengths.
@@ -1174,7 +1174,8 @@ the buildup of aSPEM and its dynamics is linked to
 an explicit estimate of probabilities is unknown.
 To alleviate this problem, we developed a new paradigm
 in order to address this question
-by explicitly modeling a dynamic process with a given volatility.
+by explicitly modeling a dynamic process with a given volatility:
+One first novelty is that the variable $p$ is itself a random variable.
 
 %\subsection{Generative model: the binomial switching model}
 %-------------------------------------------------------------%
@@ -1237,8 +1238,8 @@ to follow a similar trajectory.
 %-------------------------------------------------------------%
 %: design of the binomial switching generative model
 Indeed, to assess the dynamics of the adaptive processes
-which compensate for the variability of sensory,
-one may introduce a parametric mechanism controlling for its volatility.
+which compensate for the variability of sensory sequences,
+one may introduce a parametric mechanism controlling for their volatility.
 By definition, volatility measures the temporal variability
 of the sufficient parameters of a random variable.
 In the HGF model~\citep{Matthys2011} for instance,
@@ -1251,28 +1252,32 @@ using some simplifying assumptions and allows
 to extract an inference of the agent's belief about volatility~\citep{Voessel??}.
 Herein, we will use a simpler model where
 the probability of this process varied in a piecewise-constant
-(that is, a step function varying between~$0$ and~$1$),
+%(that is, a step function varying between~$0$ and~$1$),
 similarly to~\citet{Meyniel13}.
 It means that instead of a complex stochastic trajectory, 
-the bias in target direction is stationary between two events 
-(that we denote as ``switches''),
-and that it changes at the moment of a switch.
-Mathematically, for each trial, a target moves either to the left or to the right,
-and we denote at trial $t$ this variable (target direction) as $x_0^t$.
+we draw random events (that we denote as ``switches'')
+with a given mean frequency,
+and that the bias in target direction is stationary between two events.
+It means that the value $p$ of the bias only changes at the moment of a switch,
+independently of the previous bias' value.
+Mathematically, for each trial, 
+the occurrence of a switch ($1$ for true, $0$ for false)
+is  drawn from a Bernoulli process with parameter its frequency $1/\lambda$.
+The value of $\lambda$ thus gives the average length (in number of trials) 
+between the occurrence of two switches.
+Then, a target moves either to the left or to the right,
+and we denote at trial $t$ this variable (target direction) as $x_0^t\in \{ 0, 1 \}$.
 This direction is drawn from a Bernoulli process $\Bb$
-with a parameter that we define as $p=x_1^t$.
-One novelty is that the variable $p$ is itself a random variable:
+with a parameter that we define as $p=x_1^t \in [0, 1]$.
 it is chosen at random from a prior distribution $\Pp$ at the moment of a switch.
-The occurrence of these switches is itself drawn from a Bernoulli process
-of probability $1/\lambda$.
 Mathematically, this is easily described
-by a graphical model~(\seeFig{results_psycho}-A) and
+by a 3-layered graphical model according to %~(\seeFig{results_psycho}-A) and
 the following definition:
 \eql{\choice{
-x_0^t \eqdef o_t \propto \Bb(p^t) \\
-x_1^t \eqdef p_t = p_{t-1} \quad \text{if} \quad s_t=0 \quad \text{and else} \quad p_t \propto \Pp \\
-x_2^t \eqdef s_t \propto \Bb(1/\lambda)
-}\label{eq:sgm}}.
+x_2^t \propto \Bb(1/\lambda) \\
+x_1^t = x_1^{t-1} \quad \text{if} \quad x_2^t=0 \quad \text{and else} \quad x_1^t \propto \Pp \quad \text{for} \quad x_2^t=1 \\
+x_0^t \propto \Bb(x_1^t)
+}\label{eq:sgm}}
 Note that the prior distribution $\Pp$ can be for instance
 the uniform distributions on $ [ 0, 1 ] $ or
 Jeffrey's prior $\Jj$~\seeApp{bcp}(TODO: put in appendix).
