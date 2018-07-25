@@ -130,17 +130,21 @@ human cognitive abilities in uncertain and dynamic environments.
 \begin{filecontents}{Pasturel_etal2018.bib}
 
 @article{AdamsMackay2007,
-author = {{Prescott Adams}, R. and {MacKay}, D.~J.~C.},
+author = {{Prescott Adams}, Ryan and {MacKay}, David~J.~C.},
 title = "{Bayesian Online Changepoint Detection}",
 journal = {ArXiv e-prints},
 archivePrefix = "arXiv",
 eprint = {0710.3742},
 primaryClass = "stat.ML",
+INSTITUTION = "University of Cambridge",
+ADDRESS = "Cambridge, UK",
 keywords = {Statistics - Machine Learning},
 year = 2007,
 month = oct,
 adsurl = {http://adsabs.harvard.edu/abs/2007arXiv0710.3742P},
 adsnote = {Provided by the SAO/NASA Astrophysics Data System}
+NOTE = "arXiv:0710.3742v1 [stat.ML]",
+URL = "http://arxiv.org/abs/0710.3742"
 }
 
 
@@ -1283,6 +1287,7 @@ by a 3-layered graphical model according to %~(\seeFig{results_psycho}-A) and
 the following definition:
 \eql{\choice{
 x_2^t \propto \Bb(1/\lambda) \\
+% TODO: nest the choice
 x_1^t = x_1^{t-1} \quad \text{if} \quad x_2^t=0 \quad \text{and else} \quad x_1^t \propto \Pp \quad \text{for} \quad x_2^t=1 \\
 x_0^t \propto \Bb(x_1^t)
 }\label{eq:sgm}}
@@ -1333,165 +1338,85 @@ Finally, we will summarize and conclude this study and
 offer some perspectives for future work~\seeSec{outro}.
 %: %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Results: Bayesian change point model}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \label{sec:bayesian_change_point}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%: short intro
+As we saw above, Bayesian methods provide with
+a powerful framework for studying human behavior.
+In the HGF model~\citep{Matthys2011} for instance,
+authors defined a multi-layered generative model for 
+sequences of input (binary) stimuli.
+By ``inverting'' this stochastic process,
+one could extract relevant descriptors at the different levels
+and fit that parameters with the recorded behavior. 
+Here, we will use a similar approach but on a diferent generative model.
+First, we will define a control ideal observer
+which assumes that data is stationary in a fixed history window.
+Then, we will extend this control model to the case 
+where switches of the probabilistic bias occur during the experiment, 
+as defined by the forward probabilistic model~\seeEq{sgm}.
 
-% These python scripts are available at \url{https://github.com/laurentperrinet/bayesianchangepoint}.
-%TODO include changing point theory and bibliography
-% TODO : check http://www.princeton.edu/~rcw2/papers/WilsonEtAl_PLOSCompBiol2013.pdf and bernouilli case + evaluation
 
-
-
-See Matthys
-
-Necessity of using a generative model
-
-
+% --------------------------------------------------------------------------------------
 \subsection{Forgetful-agent model (Leaky integrator)}
-% it's a particular case of the solution to the generative model assumaing a fixed -block length
-%
-% Following the~\citet{Maus2015} analysis, we performed a first study~page~\pageref{chap:4} in which we wanted to test a more realistic model of how trial-history shapes motion expectation in a direction-biased experiment.  According to~\citet{Anderson2006}, the temporal evolution for the expectation of a given event can be modeled making a simple assumption: the update of the estimated probability for an event is based on the discount of the previous estimated probability by a factor$~\lambda$, relative to new information. The value of$~\lambda$ presumably represents a compromise between responding rapidly to genuine changes in the environment and not prematurely discarding information still of value for slowly changing contexts. We extended~\citet{Anderson2006}'s approach to our analysis of anticipatory smooth pursuit across different contexts corresponding to the experimental blocks with different global probability-bias. We designed a forgetful agent estimating the target motion direction-bias according to the following iterative equation, where the estimated probability of a target moving rightwards is obtained from (1) the previous bias inference, (2) the imposed target directions and (3) a memory decay in the weighting of information. This model can be explained with the following equation:
-%
-%
-%\[\hat{p}_{0} = 0.5\]
-%\[\hat{p}_{i+1} = (1 - 1/\tau)*\hat{p}_{i} + 1/\tau * \textit{D}_{i}\]
-%
-%where
-%\begin{enumerate}[label={}]
-%\item $\hat{p}_{i}$ = estimation of rightward trials probability at trial~\textit{i}
-%\item $\tau$ = characteristic memory decay time (in trials for the inference of $p$)
-%\item $\textit{D}_{i}$ = Imposed directions. Sequence of 0 (leftward) and 1 (rightward) trials
-%\end{enumerate}
-%
-% We simulated the sequence of p-estimates of the forgetful agent for each direction-bias block and for different values of~$\tau$. Fig~\ref{fig:p_est.pdf} below illustrates, for the $p=90\%$ direction bias block, the intuitive notion that with a small value for~$\tau$~(or equivalently a volatile memory) the agent's estimate is more sensitive to changes in the target direction trial sequence. On the other hand,  with larger~$\tau$~like 40 or 50, the estimation of p tends to fluctuate only very mildly around the global direction-bias over the experimental block.
-%
-%\begin{figure}[H]
-%\centering
-%\begin{subfigure}{1\textwidth}
-%\includegraphics[width=1\textwidth]{p_est.pdf}
-%\phantomcaption{\label{fig:p_est.pdf}}
-%\end{subfigure}
-%\caption[A forgetful-agent]{The forgetful agent's $p$-estimations with different values of~$\tau$ for the $p=90\%$ direction-bias block\label{fig:p_est.pdf}}
-%\end{figure}
-%
-% Then, we performed a linear regression analysis of the relation between the experimentally measured anticipatory eye velocity and the simulated estimate of p for each direction-bias block. To do so, we again pooled together the eye movement velocity from all participants in each experimental condition and along the direction-bias estimated by the model at the time of their triggering. We then estimated the correlation coefficient $R$ as a function of~$\tau$. We found that $R$ is maximised for~$\tau = 5$ in $p = 50\%$ blocks ($R=.18$, $p<.05$) and $p = 75\%$ blocks ($R=.27$, $p<.05$) , and for~$\tau = 10$ for $p = 90\%$ blocks ($R=.32$, $p<.05$) (see Fig~\ref{fig:R_BL.pdf}). The correlation coefficient decreases for higher values of~$\tau$, coherent with the previous study from~\citet{Maus2015} from which we inspired this analysis. Still, the overall $R$ values are slightly higher compared to the raw linear regression with the unweighted fixed-size memory, indicating a better performance of this "forgetful" agent model.
-%
-%\begin{figure}[H]
-%\centering
-%\begin{subfigure}{1\textwidth}
-%\includegraphics[width=1\textwidth]{R_BL.pdf}
-%\phantomcaption{\label{fig:R_BL.pdf}}
-%\end{subfigure}
-%\caption[Pearson's R between experimental data and forgetful agent]{Linear regression coefficient R as a function of~$\tau$~$(1/\lambda)$ . This quantity is a rough estimate of the matching between the simulated p-estimates by the forgetful agent and experimental anticipatory eye velocity.\label{fig:R_BL.pdf}}
-%\end{figure}
-%
-% We then looked at the linear relation of experimental data with the probability bias estimated by the model throughout all direction blocks for all our participants with~$\tau = 10$ and as we can see on Fig~\ref{fig:P_VEM_vs_pestBL.png}, we found a graded relation between Pearson's $R$ with  $R = .17$ ($p<.05$) in $p = 50\%$ blocks, $R=.27$ ($p<.05$) in $p = 75\%$ and $R=.30$ ($p<.05$) in $p = 90\%$ blocks. This shows that anticipatory smooth eye velocities are somehow related to the estimation of $p$ given by a forgetful agent. The overall computation of this analysis to all our condition showed, coherently with~\citep{Maus2015} (see study~\ref{chap:4},~page~\pageref{chap:4}), a tendency of having higher R's for short-memory, independently of the experimental condition (see Fig~\ref{fig:R_summary_2.pdf}). Though, it is important to note a better fitting quality for this using the forgetful-agent model as in~\citet{Anderson2006}.
-%
-%\begin{figure}[H]
-%\centering
-%\begin{subfigure}{1\textwidth}
-%\includegraphics[width=1\textwidth]{P_VEM_vs_pestBL.png}
-%\phantomcaption{\label{fig:P_VEM_vs_pestBL.png}}
-%\end{subfigure}
-%\caption[Anticipatory smooth velocity classified by the estimated probability bias]{Linear regression of anticipatory velocities in function of a~$\tau$~$(1/\lambda)$ = 10 estimation. \label{fig:P_VEM_vs_pestBL.png}}
-%\end{figure}
-%
-%\begin{figure}[H]
-%\centering
-%\begin{subfigure}{1\textwidth}
-%\includegraphics[width=1\textwidth]{R_summary_2.pdf}
-%\phantomcaption{\label{fig:R_summary_2.pdf}}
-%\end{subfigure}
-%\caption[Relation between P-estimation and experimental conditions]{Linear regression of anticipatory velocities in function of a~$\tau$~$(1/\lambda)$ = 10 estimation for each conditions. \label{fig:R_summary_2.pdf}}
-%\end{figure}
-%
-% To conclude on this section, the "forgetful agent" computed an exponentially-weighted moving average and estimated the probability of a stimulus going to the right given the previous instances of rightward stimulus and a progressive discount of past information. When we looked at the relation between aSPEM velocities and the direction-bias estimated by our model, we found higher Pearson's R for short-term memory ($\approx$ 5 to 10 trial history lengths) rather than long-term memory. However, a first critic could be that our proposed model may be too rigid and does not sufficiently imply the concepts of volatility~\citep{Behrens2007} or Bayesian uncertainty~\citep{Vilares2011}. It seems plausible that the memory (history length) the brain uses for inference is varying and that this variation could be related to the volatility inferred from information in the past. For instance, our model could not be applied to $p = 100\%$ rightward direction blocks because of a pretty quick saturation toward an estimation of probability equal to 1 even though experimental aSPEM datas shows a weak but existing proportion of aSPEM to the left direction. To address this hypothesis, our next model work will be inspired by a Bayesian Change-point detection model~\citep{Adams2007}, which mimics an ideal agent inferring both the likelihood of a specific event's occurrence with the volatility of the environment (e.g the duration since a change in bias).
-%
+% --------------------------------------------------------------------------------------
+%: justification from previous studies 
+Following~\citep{Maus2015}, 
+we defined a first ideal observer
+ in which we wanted to test a more realistic model of how trial-history shapes motion expectation in a direction-biased experiment.  According to~\citet{Anderson2006}, the temporal evolution for the expectation of a given event can be modeled making a simple assumption: the update of the estimated probability for an event is based on the discount of the previous estimated probability by a factor$~\lambda$, relative to new information. The value of$~\lambda$ presumably represents a compromise between responding rapidly to genuine changes in the environment and not prematurely discarding information still of value for slowly changing contexts. We extended~\citet{Anderson2006}'s approach to our analysis of anticipatory smooth pursuit across different contexts corresponding to the experimental blocks with different global probability-bias.
+We designed a forgetful agent estimating the target motion direction-bias according to the following iterative equation, where the estimated probability of a target moving rightwards is obtained from (1) the previous bias inference, (2) the imposed target directions and (3) a memory decay in the weighting of information. This model can be explained with the following equation:
+
+\eql{\choice{
+r^t = 0 \quad \text{if} \quad x_2^t=0 \\
+\hat{p}_{i+1} = (1 - 1/\tau)*\hat{p}_{i} + 1/\tau * x_0^t}
+\label{eq:leaky}}
+
+
+%: this heuristic is an ideal observer it's a particular case of the solution to the generative model assumaing a fixed -block length
+To conclude on this section, the "forgetful agent" computed an exponentially-weighted moving average and estimated the probability of a stimulus going to the right given the previous instances of rightward stimulus and a progressive discount of past information. When we looked at the relation between aSPEM velocities and the direction-bias estimated by our model, we found higher Pearson's R for short-term memory ($\approx$ 5 to 10 trial history lengths) rather than long-term memory. However, a first critic could be that our proposed model may be too rigid and does not sufficiently imply the concepts of volatility~\citep{Behrens2007} or Bayesian uncertainty~\citep{Vilares2011}. It seems plausible that the memory (history length) the brain uses for inference is varying and that this variation could be related to the volatility inferred from information in the past. For instance, our model could not be applied to $p = 100\%$ rightward direction blocks because of a pretty quick saturation toward an estimation of probability equal to 1 even though experimental aSPEM datas shows a weak but existing proportion of aSPEM to the left direction. To address this hypothesis, our next model work will be inspired by a Bayesian Change-point detection model~\citep{Adams2007}, which mimics an ideal agent inferring both the likelihood of a specific event's occurrence with the volatility of the environment (e.g the duration since a change in bias).
+
+%: using \hat{p} as a regressor / limits of the leaky integrator
 
 
 
+% --------------------------------------------------------------------------------------
 \subsection{Bayesian change point model}
-
+% --------------------------------------------------------------------------------------
+%: overcoming this difficulty using a latent variable= run-length / fundamental in bayesian methods / message passing
 We have designed an agent adapted the Bayesian Online Change-point Detection model~\citep{AdamsMackay2007}. This model uses a latent variable r which represents the length of the current interval during which motion-direction probability ($\hat{P}$) has not changed. The agent infers at each trial the likelihood  of r and then deduces the optimal $\hat{P}$ (we used the expected value and the max as readouts) and the uncertainty associated to it. We simulated the model across our experimental sequences, as illustrated by the example for the third block.
 
+This model uses a latent variable r which represents the length of the current interval during which motion-direction probability~($\hat{p}$)~has not changed. The agent infers at each trial the likelihood of r and then deduces the optimal~$\hat{p}$~(we used the expected value and the max as readouts) and the uncertainty associated to it.
 
-%* an implementation of
-%%[Adams &amp; MacKay 2007 "Bayesian Online Changepoint Detection"](http://arxiv.org/abs/0710.3742)
-%in Python.
-%
-%````
-%@TECHREPORT{ adams-mackay-2007,
-%AUTHOR = "Ryan Prescott Adams and David J.C. MacKay",
-%TITLE  = "Bayesian Online Changepoint Detection",
-%INSTITUTION = "University of Cambridge",
-%ADDRESS = "Cambridge, UK",
-%YEAR = "2007",
-%NOTE = "arXiv:0710.3742v1 [stat.ML]",
-%URL = "http://arxiv.org/abs/0710.3742"
-%}
-%````
-%
-%* adapted from https://github.com/JackKelly/bayesianchangepoint by Jack Kelly (2013) for a binomial input.
-%
-%* This code is based on the  [MATLAB implementation](http://www.inference.phy.cam.ac.uk/rpa23/changepoint.php) provided by Ryan Adam. Was available at http://hips.seas.harvard.edu/content/bayesian-online-changepoint-detection
-%
-% * full code @ https://github.com/laurentperrinet/bayesianchangepoint
-
+\eql{\choice{
+r^t = 0 \quad \text{if} \quad x_2^t=0 \\
+\text{and else} \quad r^t = r^{t-1} +1 }\label{eq:run_length}}
+ in this graph information will be represented at different nodes. each node represent a belief which takes the form of a probability distribution over the set of parameters that we wish to describe.
+it can be the mean and variance of a Gaussian, but in general it will be 2 parameters. in our case, we wish to estimate p (between zero and one) - it is characterized by the beta distribution (mathematically it is the conjugate of the bernouilli distribution)
+ (mathematically, we will use the family of exponenetial distributions:, gaussians, binomials) among which the beta distribution belongs
+First, we initialize the first node to prior values
+* at trial zero, there is no information, so we intiialize to the prior values
 
 %-------------------------------------------------------------%
 %:  FIGURE 3 fig:bayesianchangepoint \seeFig{bayesianchangepoint}
-%: TODO présente le principe de l'algorithme, le résultat sur une séquence et une aanlyse quantitative qui permettra de l'utiliser pour les expériences psycho
+%: TODO présente (A) le principe de l'algorithme, (B) le résultat sur une séquence et (C) une analyse quantitative qui permettra de l'utiliser pour les expériences psycho
 \begin{figure}%[b!]
 \begin{center}
 % cf 3_Results_2.ipynb
     \includegraphics[width=1\linewidth]{bayesianchangepoint}
 \end{center}
-\caption{\emph{Bayesian change point model}~\textbf{A} shows hypothetic datas that works as a binomial choice, either 0 (leftward) or 1 (rightward). In particular, the probability switched at trials 6 and 10.~\textbf{B} shows the graph (treillis) on which the message indicates that mass probability is being passed. Black lines denotes "upwards", that is, for which there is a progression of the run length at the next step. The red line stands for the possibility that a switch happened, and then falls back to zero. The black curve stands for the run length of simulated datas in~\textbf{A} in function of time (r$_t$). We can see that the run length drops back to zero when change occurs at trials 6 and 10.
+\caption{\emph{Bayesian change point model}~\textbf{A} shows hypothetic datas that works as a binomial choice, either 0 or 1 . In particular, the probability switched at trials 6 and 10. We show the graph (treillis) on which the message indicates that mass probability is being passed. Black lines denotes "upwards", that is, for which there is a progression of the run length at the next step. The red line stands for the possibility that a switch happened, and then falls back to zero. The black curve stands for the run length of simulated datas in~\textbf{A} in function of time (r$_t$). We can see that the run length drops back to zero when change occurs at trials 6 and 10.
+~\textbf{(B)} is a sequence of points representing leftward (0) of rightward trials (1) with a given probability $p$ of being rightward and that changes at some trials (clear red). The predicted probability $\hat{p}$ ($\tau=N_{trial}/4$ tells the BCP that the probability is more susceptible to change every $N_{trial}/4$), continue and dotted dark red lines shows the $p$$-$estimation.~\textbf{B} shows the probability of the run length, the probability of the having same probability consecutive trials. The red line represents the $\hat{r}$, that represents the sum of he products of each r (number of consecutive trials having the same probability)  $\sum_{r=0}^\infty r \cdot P(r)$.~\textbf{C} represent the probability of each r for trials 50 and 250 along their $\hat{r}$ and their $\hat{p}$. For instance, for trial 50, we can observe that $\hat{r}$ is close from the real number of trials during the probability has not change (real $p$ stayed for 50 trials). $\hat{p}$ is also pretty close from the real $p$ ($p=1$).~\textbf{D} shows that at trial 250 $\hat{r}$ is more far than the real r that is also equal to 50 trials. But here, $\hat{p}$ is closer from $p$ that is equal to 0.75.
 %\textbf{(C)}
-%* in this graph information will be represented at different nodes. each node represent a belief which takes the form of a probability distribution over the set of parameters that we wish to describe.
-%* it can be the mean and variance of a Gaussian, but in general it will be 2 parameters. in our case, we wish to estimate p (between zero and one) - it is characterized by the beta distribution (mathematically it is the conjugate of the bernouilli distribution)
-%* (mathematically, we will use th family of exponenetial distributions:, gaussians, binomials) among which the beta distribution belongs
-%First, we initialize the first node to prior values
-%* at trial zero, there is no information, so we intiialize to the prior values
-% use p log p + (1-p) log (1-p ) as in logistic regression?
 % TODO show fit with different hazard rates
 }
 \label{fig:bayesianchangepoint}
 \end{figure}
 %-------------------------------------------------------------%
+%: online estimation
 
-
-Fig~\ref{fig:BCP_figA}~\textbf{A} shows one instance of a sequence of simulated datas of leftward and rightward trials with a probability $p$ of being rightward with possible variations through times. It also shows the predicted probability $\hat{p}$ by using the BCP algorithm. Fig~\ref{fig:BCP_figB} illustrates the belief r on the predicted probability $\hat{p}$ at a given trial. On Fig~\ref{fig:BCP_figC} and Fig~\ref{fig:BCP_figD}, we can see the belief on the run length estimation.
-
-Note, the fixed-length is imply implemented by a (broken) line with fixed run-length $r_t=\tau$) - this allows for a simple comparison
-
-\subsection{Bayesian change point algorithm}
-
-%cf p33 de 2018-02-12 journal club bayesian changepoint chloe.pdf
-
-% Fig~\ref{fig:BCP_figA}~\textbf{A} shows one instance of a sequence of simulated datas of leftward and rightward trials with a probability $p$ of being rightward with possible variations through times. It also shows the predicted probability $\hat{p}$ by using the BCP algorithm. Fig~\ref{fig:BCP_figB} illustrates the belief r on the predicted probability $\hat{p}$ at a given trial. On Fig~\ref{fig:BCP_figC} and Fig~\ref{fig:BCP_figD}, we can see the belief on the run length estimation.
-%
-%\begin{figure}[H]
-%\centering
-%\begin{subfigure}{1\textwidth}
-%\includegraphics[width=1\textwidth]{BCP_fig.pdf}
-%\phantomcaption{\label{fig:BCP_figA}}
-%\end{subfigure}
-%\begin{subfigure}{0\textwidth}
-%\includegraphics[width=1\textwidth]{BCP_fig.pdf}
-%\phantomcaption{\label{fig:BCP_figB}}
-%\end{subfigure}
-%\begin{subfigure}{0\textwidth}
-%\includegraphics[width=1\textwidth]{BCP_fig.pdf}
-%\phantomcaption{\label{fig:BCP_figC}}
-%\end{subfigure}
-%\begin{subfigure}{0\textwidth}
-%\includegraphics[width=1\textwidth]{BCP_fig.pdf}
-%\phantomcaption{\label{fig:BCP_figD}}
-%\end{subfigure}
-%\caption[Bayesian Change Point model computation]{~\textbf{A} is a sequence of points representing leftward (0) of rightward trials (1) with a given probability $p$ of being rightward and that changes at some trials (clear red). The predicted probability $\hat{p}$ ($\tau=N_{trial}/4$ tells the BCP that the probability is more susceptible to change every $N_{trial}/4$), continue and dotted dark red lines shows the $p$$-$estimation.~\textbf{B} shows the probability of the run length, the probability of the having same probability consecutive trials. The red line represents the $\hat{r}$, that represents the sum of he products of each r (number of consecutive trials having the same probability)  $\sum_{r=0}^\infty r \cdot P(r)$.~\textbf{C} represent the probability of each r for trials 50 and 250 along their $\hat{r}$ and their $\hat{p}$. For instance, for trial 50, we can observe that $\hat{r}$ is close from the real number of trials during the probability has not change (real $p$ stayed for 50 trials). $\hat{p}$ is also pretty close from the real $p$ ($p=1$).~\textbf{D} shows that at trial 250 $\hat{r}$ is more far than the real r that is also equal to 50 trials. But here, $\hat{p}$ is closer from $p$ that is equal to 0.75. \label{fig:BCP_fig.pdf}}
-%\end{figure}
-%
-% We adapted this model to the data our first study,~page~\pageref{chap:4}, by taking the alternating output of leftward/rightward trials as the sequence of observations that will be under the analysis of the model. This model uses a latent variable r which represents the length of the current interval during which motion$-$direction probability~($\hat{p}$)~has not changed. The agent infers at each trial the likelihood of r and then deduces the optimal~$\hat{p}$~(we used the expected value and the max as readouts) and the uncertainty associated to it. Finally, the whole algorithm simplifies to the following iterations:
+projecting beliefs backwards and forward  : the algorithm is online et the price of memory
 
 Following the principle of Active Inference,
 To summarize, the algorithm % uncover progressively
@@ -1526,6 +1451,12 @@ where $\KL{\hat p}{p}$ is the Kullback-Leibler divergence between samples $\hat 
 \KL{\hat p}{p} = \hat{p} \log\pa{\frac{\hat p}{p}} + (1-\hat p) \log\pa{\frac{1-\hat p}{1-p}}.
 \end{equation}
 
+Note, the fixed-length is imply implemented by a (broken) line with fixed run-length $r_t=\tau$) - this allows for a simple comparison
+
+% TODO : check http://www.princeton.edu/~rcw2/papers/WilsonEtAl_PLOSCompBiol2013.pdf and bernouilli case + evaluation
+
+%cf p33 de 2018-02-12 journal club bayesian changepoint chloe.pdf
+
 
 Contrary to the forgetful-agent model where~$\tau$ was a fixed parameter, the BCP use a changing~$\tau$ parameter. In the latter the~$\tau$ parameter informs the BCP model that the probability is suspected to change every~$\tau$ trials. As we can see on~\ref{fig:search_tau.png}, participants do not have the same pattern of responses (examples of participants 16 and 18 below). Still we were able to extract the parameter~$\tau$ that maximizes the fit between the probability computed by the BCP model ($\hat{p}$) and the experimental datas.
 
@@ -1544,28 +1475,32 @@ Contrary to the forgetful-agent model where~$\tau$ was a fixed parameter, the BC
 
 
 
-%\subsection{Computing the likelihood}
+%: Computing the likelihood /  use p log p + (1-p) log (1-p ) as in logistic regression?
+
 The main difference between our algorithm and that of Wilson is the way that the likelihood is computed.
-%different read-outs : see 2018-02-12 journal club bayesian changepoint chloe.pdf p.33
 
-See also Radillo / Brady 2017 - Rats and dyncmac envt - allows to extend to the continuous case
-
+% --------------------------------------------------------------------------------------
 \subsection{Quantitative analysis of the Bayesian change point algorithm}
+% --------------------------------------------------------------------------------------
+
+%: python scripts 
+
+
+%* an implementation of
+%%[Adams &amp; MacKay 2007 "Bayesian Online Changepoint Detection"](http://arxiv.org/abs/0710.3742)
+%in Python.
+%
+%
+%* adapted from https://github.com/JackKelly/bayesianchangepoint by Jack Kelly (2013) for a binomial input.
+%
+%* This code is based on the  [MATLAB implementation](http://www.inference.phy.cam.ac.uk/rpa23/changepoint.php) provided by Ryan Adam. Was available at http://hips.seas.harvard.edu/content/bayesian-online-changepoint-detection
+%
+% * full code @ https://github.com/laurentperrinet/bayesianchangepoint are available at \url{https://github.com/laurentperrinet/bayesianchangepoint}.
+
+\seeFig{bayesianchangepoint}~\textbf{A} shows one instance of a sequence of simulated datas of leftward and rightward trials with a probability $p$ of being rightward with possible variations through times. It also shows the predicted probability $\hat{p}$ by using the BCP algorithm. Fig~\ref{fig:BCP_figB} illustrates the belief r on the predicted probability $\hat{p}$ at a given trial. On Fig~\ref{fig:BCP_figC} and Fig~\ref{fig:BCP_figD}, we can see the belief on the run length estimation.
+
 we see that as in the synthetic example above,
 there is a correct detection of switch after a short delay of a few trials
-
-in particular, from this correct detection,
-the value of the inferred probability approaches
-the true one as the number of observations increase in one subblock.
-
-again, we see that a fixed length model gives a similar output
-but with the two disadvantages described above
-
-
-%different read-outs : see 2018-02-12 journal club bayesian changepoint chloe.pdf p.42
-Let's now see the application of our model to a simple synthetic example before applying it to the experimental protocol that we used in our two experiments
-
-
 - we show two panels, one below which displays the value of the belief for the different run-length, and one above where we will show the resaulting prediction of the next outcome.
 we obtain for any given sequence different values at the given trial in the form of columns for any possible run-length: the belief,
 and the sufficient statistics for the beta distirbution which allow to provide with an estimate of the current probability
@@ -1581,11 +1516,34 @@ such that belief is more stronlgly diffused until the probability
 
 -second, we may use this information to read-out the information the most probable probability and the confidence interval as shown by the red dashed lines (.05, and .95)
 
+again, we see that a fixed length model gives a similar output
+but with the two disadvantages described above
 
 This is in contrast with a fixed length model, for which
 - the delay will always be similar
 - there is no dynamic upDATE OF THE INFERRD probability
 
+
+in particular, from this correct detection,
+the value of the inferred probability approaches
+the true one as the number of observations increase in one subblock.
+
+
+%: different read-outs : see 2018-02-12 journal club bayesian changepoint chloe.pdf p.33/ p.42
+Let's now see the application of our model to a simple synthetic example before applying it to the experimental protocol that we used in our two experiments
+
+MAX - expectation - hindsight
+
+Mututual information = likelihood / 
+
+
+
+
+%: perspectives
+See also Radillo / Brady 2017 - Rats and dyncmac envt - allows to extend to the continuous case
+
+
+remember it is one hazard rate
 
 as a summary, for any given sequence,
  we get an estimate of the probability given by the ideal observer.
@@ -1603,8 +1561,9 @@ as a summary, for any given sequence,
 %: raw results show a qualitative trend
 We applied the binomial switching model
 to generate the (pseudo-)random sequence of
-the dot's directions,
-and in a first session, we recorded the participants' eye movements.
+the dot's directions (the alternating output of leftward/rightward trials)
+as the sequence of observations.
+In a first session, we recorded the participants' eye movements.
 Among our $12$ subjects,
 we show one representative example in~\seeFig{results_raw}-B.
 This representative participant was chosen as that
