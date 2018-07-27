@@ -984,19 +984,21 @@ and therefore allow for a better understanding of such predictive processes. %
 %: FIGURE 1 fig:intro
 \begin{figure}%[b!]
 \centering{
-\includegraphics[width=0.66\linewidth]{protocol_recording}
-\includegraphics[width=0.33\linewidth]{protocol_bet_simple}
-%\begin{tikzpicture}%[thick,scale=1, every node/.style={scale=1} ]
-%% cf 0_protocole.ipynb
-%\node [anchor=north west]  (img2) at (0.000\linewidth,.618\linewidth){\includegraphics[width=0.333\linewidth]{protocol_recording}};
-%% cf 3_Results_2.ipynb ??
-%\node [anchor=north west]  (img2) at (0.333\linewidth,.618\linewidth){\includegraphics[width=0.333\linewidth]{image_anna_1}};
-%% cf 0_protocole.ipynb
-%\node [anchor=north west]  (img2) at (0.666\linewidth,.618\linewidth){\includegraphics[width=0.25\linewidth]{protocol_bet_simple}};
-%\draw [anchor=north west] (0.000\linewidth, .618\linewidth) node {$\mathsf{(A)}$};
-%\draw [anchor=north west] (0.333\linewidth, .618\linewidth) node {$\mathsf{(B)}$};
-%\draw [anchor=north west] (0.666\linewidth, .618\linewidth) node {$\mathsf{(C)}$};
-%\end{tikzpicture}
+\begin{tikzpicture}%[thick,scale=1, every node/.style={scale=1} ]
+% cf 0_protocole.ipynb
+\node [anchor=north west]  (img2) at (0.000\linewidth,.618\linewidth){\includegraphics[width=0.5\linewidth]{protocol_recording_ms}};
+% cf 0_protocole_Trace_Moyenne.ipynb
+
+\node [anchor=north west]  (img2) at (0.51\linewidth,.628\linewidth){\includegraphics[width=0.33\linewidth]{Trace_moyenne}};
+%\node [anchor=north west]  (img2) at (0.5\linewidth,.618\linewidth){\includegraphics[width=0.25\linewidth]{image_anna_1}};
+% cf 0_protocole.ipynb
+\node [anchor=north west]  (img2) at (0.844\linewidth,.538\linewidth){\includegraphics[width=0.156\linewidth]{protocol_bet_simple}};
+
+%\node [anchor=north west]  (img2) at (0.75\linewidth,.618\linewidth){\includegraphics[width=0.25\linewidth]{protocol_bet_simple}};
+\draw [anchor=north west] (0.000\linewidth, .6\linewidth) node {$\mathsf{(A)}$};
+\draw [anchor=north west] (0.54\linewidth, .6\linewidth) node {$\mathsf{(B)}$};
+\draw [anchor=north west] (0.844\linewidth, .6\linewidth) node {$\mathsf{(C)}$};
+\end{tikzpicture}
 }
 \caption{\emph{Anticipatory SPEM (aSPEM): psychophysics and results} %
 \textbf{(A)}~Human observers were presented $600$ trials % TODO:check
