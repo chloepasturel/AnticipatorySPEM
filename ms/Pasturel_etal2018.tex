@@ -1477,6 +1477,54 @@ with the volatility of the environment
 \subsection{Bayesian change point model}
 % ------------------------------------------------------------------
 %-------------------------------------------------------------%
+%:  FIGURE 3 fig:bayesianchangepoint \seeFig{bayesianchangepoint}
+%: TODO présente (A) le principe de l'algorithme, (B) le résultat sur une séquence et (C) une analyse quantitative qui permettra de l'utiliser pour les expériences psycho
+\begin{figure}%[b!]
+\begin{center}
+% cf 3_Results_2.ipynb
+    \includegraphics[width=1\linewidth]{bayesianchangepoint}
+\end{center}
+\caption{\emph{Bayesian change point model}
+~\textbf{A} shows hypothetic datas that works as a binomial choice, either $0$ or $1$. 
+In particular, the probability switched at trials 6 and 10. 
+We show the graph (treillis) on which the message indicates that 
+mass probability is being passed. 
+Black lines denotes "upwards", 
+that is, for which there is a progression of the run length at the next step. 
+The red line stands for the possibility that a switch happened, 
+and then falls back to zero. 
+The black curve stands for 
+the run length of simulated datas in~\textbf{A} 
+as a function of time (r$_t$). 
+We can see that 
+the run length drops back to zero 
+when change occurs at trials 6 and 10.
+~\textbf{(B)} is a sequence of points representing 
+leftward (0) of rightward trials (1) 
+with a given probability $p$ of being rightward and 
+that changes at some trials (clear red). 
+The predicted probability $\hat{p}$ ($\tau=N_{trial}/4$ tells the BCP 
+that the probability is more susceptible to change every $N_{trial}/4$), 
+continue and dotted dark red lines shows the $p$$-$estimation.
+~\textbf{B} shows the probability of the run length, 
+the probability of the having same probability consecutive trials. 
+The red line represents the $\hat{r}$, 
+that represents the sum of he products of each r
+(number of consecutive trials having the same probability)  
+$\sum_{r=0}^\infty r \cdot P(r)$.
+~\textbf{C} represent the probability of each r for trials 50 and 250 
+along their $\hat{r}$ and their $\hat{p}$. 
+For instance, for trial 50, we can observe that $\hat{r}$ is close 
+from the real number of trials during the probability has not changed (real $p$ stayed for 50 trials). 
+$\hat{p}$ is also pretty close from the real $p$ ($p=1$).
+~\textbf{D} shows that at trial 250 $\hat{r}$ is more far than the real r 
+that is also equal to 50 trials. 
+But here, $\hat{p}$ is closer from $p$ that is equal to 0.75.
+}
+\label{fig:bayesianchangepoint}
+\end{figure}
+%-------------------------------------------------------------%
+%-------------------------------------------------------------%
 %: precision in our belief of \hat{p}
 %-------------------------------------------------------------%
 A crucial difference in the simple agent presented above (see~\seeEq{leaky2})
@@ -1575,54 +1623,6 @@ transition matrix see Treillis
 
 Contrary to the forgetful-agent model where~$\tau$ was a fixed parameter, the BCP use a changing~$\tau$ parameter. In the latter the~$\tau$ parameter informs the BCP model that the probability is suspected to change every~$\tau$ trials.
 
-%-------------------------------------------------------------%
-%:  FIGURE 3 fig:bayesianchangepoint \seeFig{bayesianchangepoint}
-%: TODO présente (A) le principe de l'algorithme, (B) le résultat sur une séquence et (C) une analyse quantitative qui permettra de l'utiliser pour les expériences psycho
-\begin{figure}%[b!]
-\begin{center}
-% cf 3_Results_2.ipynb
-    \includegraphics[width=1\linewidth]{bayesianchangepoint}
-\end{center}
-\caption{\emph{Bayesian change point model}
-~\textbf{A} shows hypothetic datas that works as a binomial choice, either $0$ or $1$. 
-In particular, the probability switched at trials 6 and 10. 
-We show the graph (treillis) on which the message indicates that 
-mass probability is being passed. 
-Black lines denotes "upwards", 
-that is, for which there is a progression of the run length at the next step. 
-The red line stands for the possibility that a switch happened, 
-and then falls back to zero. 
-The black curve stands for 
-the run length of simulated datas in~\textbf{A} 
-as a function of time (r$_t$). 
-We can see that 
-the run length drops back to zero 
-when change occurs at trials 6 and 10.
-~\textbf{(B)} is a sequence of points representing 
-leftward (0) of rightward trials (1) 
-with a given probability $p$ of being rightward and 
-that changes at some trials (clear red). 
-The predicted probability $\hat{p}$ ($\tau=N_{trial}/4$ tells the BCP 
-that the probability is more susceptible to change every $N_{trial}/4$), 
-continue and dotted dark red lines shows the $p$$-$estimation.
-~\textbf{B} shows the probability of the run length, 
-the probability of the having same probability consecutive trials. 
-The red line represents the $\hat{r}$, 
-that represents the sum of he products of each r
-(number of consecutive trials having the same probability)  
-$\sum_{r=0}^\infty r \cdot P(r)$.
-~\textbf{C} represent the probability of each r for trials 50 and 250 
-along their $\hat{r}$ and their $\hat{p}$. 
-For instance, for trial 50, we can observe that $\hat{r}$ is close 
-from the real number of trials during the probability has not changed (real $p$ stayed for 50 trials). 
-$\hat{p}$ is also pretty close from the real $p$ ($p=1$).
-~\textbf{D} shows that at trial 250 $\hat{r}$ is more far than the real r 
-that is also equal to 50 trials. 
-But here, $\hat{p}$ is closer from $p$ that is equal to 0.75.
-}
-\label{fig:bayesianchangepoint}
-\end{figure}
-%-------------------------------------------------------------%
 
 %-------------------------------------------------------------%
 %: Computing the likelihood /  use p log p + (1-p) log (1-p ) as in logistic regression?
