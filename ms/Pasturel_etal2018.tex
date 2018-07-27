@@ -984,17 +984,19 @@ and therefore allow for a better understanding of such predictive processes. %
 %: FIGURE 1 fig:intro
 \begin{figure}%[b!]
 \centering{
-\begin{tikzpicture}%[thick,scale=1, every node/.style={scale=1} ]
-% cf 0_protocole.ipynb
-\node [anchor=north west]  (img2) at (0.000\linewidth,.618\linewidth){\includegraphics[width=0.333\linewidth]{protocol_recording}};
-% cf 3_Results_2.ipynb ??
-\node [anchor=north west]  (img2) at (0.333\linewidth,.618\linewidth){\includegraphics[width=0.333\linewidth]{image_anna_1}};
-% cf 0_protocole.ipynb
-\node [anchor=north west]  (img2) at (0.666\linewidth,.618\linewidth){\includegraphics[width=0.25\linewidth]{protocol_bet_simple}};
-\draw [anchor=north west] (0.000\linewidth, .618\linewidth) node {$\mathsf{(A)}$};
-\draw [anchor=north west] (0.333\linewidth, .618\linewidth) node {$\mathsf{(B)}$};
-\draw [anchor=north west] (0.666\linewidth, .618\linewidth) node {$\mathsf{(C)}$};
-\end{tikzpicture}
+\includegraphics[width=0.66\linewidth]{protocol_recording}
+\includegraphics[width=0.33\linewidth]{protocol_bet_simple}
+%\begin{tikzpicture}%[thick,scale=1, every node/.style={scale=1} ]
+%% cf 0_protocole.ipynb
+%\node [anchor=north west]  (img2) at (0.000\linewidth,.618\linewidth){\includegraphics[width=0.333\linewidth]{protocol_recording}};
+%% cf 3_Results_2.ipynb ??
+%\node [anchor=north west]  (img2) at (0.333\linewidth,.618\linewidth){\includegraphics[width=0.333\linewidth]{image_anna_1}};
+%% cf 0_protocole.ipynb
+%\node [anchor=north west]  (img2) at (0.666\linewidth,.618\linewidth){\includegraphics[width=0.25\linewidth]{protocol_bet_simple}};
+%\draw [anchor=north west] (0.000\linewidth, .618\linewidth) node {$\mathsf{(A)}$};
+%\draw [anchor=north west] (0.333\linewidth, .618\linewidth) node {$\mathsf{(B)}$};
+%\draw [anchor=north west] (0.666\linewidth, .618\linewidth) node {$\mathsf{(C)}$};
+%\end{tikzpicture}
 }
 \caption{\emph{Anticipatory SPEM (aSPEM): psychophysics and results} %
 \textbf{(A)}~Human observers were presented $600$ trials % TODO:check
@@ -1387,12 +1389,14 @@ for slowly changing contexts  ($\lambda \approx 0$).
 Equivalently, one can define $\tau = 1 / \lambda$ as
 a characteristic time for the integration of information.
 At trial $t$, this model can be expresed with the following equation:
+%TODO fix the notation \hat{p}^{t+1} > \hat{p}(t+1)
 \eql{%\choice{
 % p^t = 0 \quad \text{if} \quad x_2^t=0 \\
 \hat{p}^{t+1} = (1 - 1/\tau) \cdot \hat{p}^{t} + 1/\tau \cdot x_0^t
 % }
 \label{eq:leaky}}
 where $\hat{p}^0$ is equal to some prior value ($.5$ in the unbiased case).
+% NOTE: it's an AR(1) process https://stats.stackexchange.com/questions/358162/writing-ar1-as-a-ma-infty-process
 %: from heuristics to ideal observer
 Looking more closely at this expression,
 the "forgetful agent" computed in \seeEq{leaky}
