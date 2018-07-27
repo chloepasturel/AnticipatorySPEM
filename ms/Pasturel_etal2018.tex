@@ -121,7 +121,8 @@ human cognitive abilities in uncertain and dynamic environments.
 %============ graphics ===================
 \usepackage[pdftex]{graphicx}%
 \DeclareGraphicsExtensions{.pdf,.png,.jpg}%
-\graphicspath{{../figures/}, {./figures/}}% TODO remove {./figures/},  at the end
+%\graphicspath{{../figures/}, {./figures/}}% TODO remove {./figures/},  at the end
+\graphicspath{{./figures/}}
 %============ bibliography ===================
 
 \usepackage{filecontents}
@@ -986,13 +987,12 @@ and therefore allow for a better understanding of such predictive processes. %
 \centering{
 \begin{tikzpicture}%[thick,scale=1, every node/.style={scale=1} ]
 % cf 0_protocole.ipynb
-\node [anchor=north west]  (img2) at (0.000\linewidth,.618\linewidth){\includegraphics[width=0.5\linewidth]{protocol_recording_ms}};
+\node [anchor=north west]  (img2) at (0.000\linewidth,.618\linewidth){\includegraphics[width=0.5\linewidth]{1_A_protocol_recording}};
 % cf 0_protocole_Trace_Moyenne.ipynb
-
-\node [anchor=north west]  (img2) at (0.51\linewidth,.628\linewidth){\includegraphics[width=0.33\linewidth]{Trace_moyenne}};
+\node [anchor=north west]  (img2) at (0.51\linewidth,.628\linewidth){\includegraphics[width=0.33\linewidth]{1_B_Trace_moyenne}};
 %\node [anchor=north west]  (img2) at (0.5\linewidth,.618\linewidth){\includegraphics[width=0.25\linewidth]{image_anna_1}};
 % cf 0_protocole.ipynb
-\node [anchor=north west]  (img2) at (0.844\linewidth,.538\linewidth){\includegraphics[width=0.156\linewidth]{protocol_bet_simple}};
+\node [anchor=north west]  (img2) at (0.844\linewidth,.538\linewidth){\includegraphics[width=0.156\linewidth]{1_C_protocol_bet_simple}};
 
 %\node [anchor=north west]  (img2) at (0.75\linewidth,.618\linewidth){\includegraphics[width=0.25\linewidth]{protocol_bet_simple}};
 \draw [anchor=north west] (0.000\linewidth, .6\linewidth) node {$\mathsf{(A)}$};
@@ -1192,7 +1192,8 @@ One first novelty is that the variable $p$ is itself a random variable.
 %-------------------------------------------------------------%
 %:  FIGURE 2 fig:results_raw
 \begin{figure}%[b!]
-\centering{\includegraphics[width=\linewidth]{results_enregistrement}}
+% cf 1_generative-model
+\centering{\includegraphics[width=\linewidth]{2_results_enregistrement}}
 %\begin{tikzpicture}%[thick,scale=1, every node/.style={scale=1} ]
 %	% cf 1_generative-model.ipynb
 %	\node [anchor=north west]  (img1) at (0.000\linewidth,.618\linewidth){\includegraphics[width=0.2\linewidth]{bayesianchangepoint}};
