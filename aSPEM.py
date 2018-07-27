@@ -846,7 +846,7 @@ class Analysis(object):
 
     def plot_experiment(self, sujet=[0], mode_bcp='expectation', tau=40, direction=True, p=None, num_block=None, mode=None,
                         fig=None, axs=None, fig_width=15, titre=None, t_titre=35, t_label=25, return_proba=None, color=[['k', 'k'], ['r', 'r'], ['k','w']],
-                        alpha = [[.35,.15],[.35,.15],[1,0]], lw = 1.3):
+                        alpha = [[.35,.15],[.35,.15],[1,0]], lw = 1.3, legends=False):
 
         import matplotlib.pyplot as plt
         import bayesianchangepoint as bcp
@@ -861,7 +861,7 @@ class Analysis(object):
             BLOCK = range(N_blocks)
         else:
             ec=0.1
-            BLOCK = [num_block]
+            BLOCK = num_block
 
 
         if fig is None:
@@ -912,12 +912,6 @@ class Analysis(object):
             axs[i_layer].yaxis.set_tick_params(direction='out')
             axs[i_layer].yaxis.set_ticks_position('left')
 
-            y_ticks=[0, 0.5, 1, 1+ec, 1.5+ec, 2+ec, 2+ec*2, 2.5+ec*2, 3+ec*2]
-            axs[i_layer].set_yticks(y_ticks[:len(BLOCK)*3])
-            axs[i_layer].set_yticklabels(['0', '0.5', '1']*len(BLOCK),fontsize=t_label/2)
-
-
-
             axs[i_layer].set_xlim(-1, N_trials)
             if i_layer==(len(axs)-1) :
                 axs[i_layer].set_xticks([0, 49, 99, 149, 199])
@@ -957,6 +951,8 @@ class Analysis(object):
                                               lw=.5, alpha=alpha[i_layer][1], facecolor=color[i_layer][1], step='pre')
 
                     axs[i_layer].set_ylabel(label, fontsize=t_label)
+                    if mode=='deux' :
+                        axs[1].text(-0.055, 0.5, 'Probability', fontsize=t_label, rotation=90, transform=axs[1].transAxes, ha='right', va='center')
             else :
                 if direction is True :
                     axs[0].step(range(N_trials), p[:, block, 0]+i_block+ec*i_block, lw=1, c=color[0][0], alpha=alpha[0][0])
@@ -1023,38 +1019,50 @@ class Analysis(object):
             elif mode == 'enregistrement' :
                 mini = 8
                 ec1 = ec*mini*2
+                ax1 = axs[a].twinx()
                 for i_block, block in enumerate(BLOCK):
-                    ax1 = axs[a].twinx()
                     if i_block == 0 :
                         #axs[a].step(range(N_trials), i_block+np.array(v_anti[block]+ec*i_block, color='k', lw=lw, alpha=1, label='Eye movement')
-                        ax1.step(range(N_trials), i_block+(np.array(v_anti[block])*((np.array(latence[block])-np.array(start_anti[block]))/1000))+ec1*i_block,
+                        ax1.step(range(N_trials), 2*(mini*i_block)+(np.array(v_anti[block])*((np.array(latence[block])-np.array(start_anti[block]))/1000))+ec1*i_block,
                                     color='k', lw=lw, alpha=1, label='Eye movement')
                     else :
                         #axs[a].step(range(N_trials), i_block+np.array(v_anti[block]+ec*i_block, color='k', lw=lw, alpha=1)
-                        ax1.step(range(N_trials), i_block+(np.array(v_anti[block])*((np.array(latence[block])-np.array(start_anti[block]))/1000))+ec1*i_block,
+                        ax1.step(range(N_trials), 2*(mini*i_block)+(np.array(v_anti[block])*((np.array(latence[block])-np.array(start_anti[block]))/1000))+ec1*i_block,
                                     color='k', lw=lw, alpha=1)
                 if titre is None :
                     axs[0].set_title('Eye movements recording results', fontsize=t_titre, x=0.5, y=y_t)
-
+                axs[a].set_yticks([])
+                popo = 'left'
             #------------------------------------------------
             elif mode=='deux':
                 mini = 8
                 ec1 = ec*mini*2
+                
+                y_ticks=[0, 0.5, 1, 1+ec, 1.5+ec, 2+ec, 2+ec*2, 2.5+ec*2, 3+ec*2]
+                axs[a].set_yticks(y_ticks[:len(BLOCK)*3])
+                axs[a].set_yticklabels(['0', '0.5', '1']*len(BLOCK),fontsize=t_label/2)
+                
+                ax1 = axs[a].twinx()
                 for i_block, block in enumerate(BLOCK):
-                    ax1 = axs[a].twinx()
                     if i_block == 0 :
                         axs[a].step(range(N_trials), i_block+results[:, block]+ec*i_block, lw=lw, alpha=1, color='r', label='Individual guess')
                         axs[a].step(range(1), -1000, color='k', lw=lw, alpha=1, label='Eye movement')
                         #ax1.step(range(N_trials), i_block+np.array(v_anti[block])+ec1*i_block, color='k', lw=lw, alpha=1, label='Eye movement')
-                        ax1.step(range(N_trials), i_block+(np.array(v_anti[block])*((np.array(latence[block])-np.array(start_anti[block]))/1000))+ec1*i_block,
+                        ax1.step(range(N_trials), 2*(mini*i_block)+(np.array(v_anti[block])*((np.array(latence[block])-np.array(start_anti[block]))/1000))+ec1*i_block,
                                  color='k', lw=lw, alpha=1, label='Eye movement')
                     else :
                         axs[a].step(range(N_trials), i_block+results[:, block]+ec*i_block, lw=lw, alpha=1, color='r')
                         #ax1.step(range(N_trials), i_block+np.array(v_anti[block])+ec1*i_block, color='k', lw=lw, alpha=1)
-                        ax1.step(range(N_trials), i_block+(np.array(v_anti[block])*((np.array(latence[block])-np.array(start_anti[block]))/1000))+ec1*i_block,
+                        ax1.step(range(N_trials), 2*(mini*i_block)+(np.array(v_anti[block])*((np.array(latence[block])-np.array(start_anti[block]))/1000))+ec1*i_block,
                                  color='k', lw=lw, alpha=1)
                 if titre is None :
                     axs[0].set_title('Bet + Eye movements results', fontsize=t_titre, x=0.5, y=y_t)
+
+                axs[a].set_ylabel('Bet of probability', fontsize=t_label/1.5, color='r')
+                axs[a].tick_params('y', colors='r')
+                axs[a].yaxis.set_label_coords(-0.03, 0.5)
+                popo = 'right'
+                ax1.set_ylabel('Velocity of eye °/s', rotation=-90,fontsize=t_label/1.5)
 
             if mode in ['enregistrement', 'deux'] :
                 ax1.set_ylim(-mini-(ec1/2), len(BLOCK)*mini + ec1*len(BLOCK)-(ec1/2))
@@ -1063,16 +1071,11 @@ class Analysis(object):
                          3*mini+2*ec1, 4*mini+2*ec1, 5*mini+2*ec1]
                 
                 ax1.set_yticks(y_ticks[:len(BLOCK)*3])
-                ax1.set_ylabel('Velocity of eye °/s', rotation=-90,fontsize=t_label/1.5)
-
                 ax1.set_yticklabels(['-%s'%mini, '0', '%s'%mini]*len(BLOCK),fontsize=t_label/2)
                 ax1.yaxis.set_label_coords(1.035, 0.5)
                 ax1.yaxis.set_tick_params(colors='k', direction='out')
-                ax1.yaxis.set_ticks_position('right')
+                ax1.yaxis.set_ticks_position(popo)
 
-                axs[a].set_ylabel('Bet of probability', fontsize=t_label/1.5, color='r')
-                axs[a].tick_params('y', colors='r')
-                axs[a].yaxis.set_label_coords(-0.03, 0.5)
 
             #------------------------------------------------
             if mode is None and titre is None :
@@ -1082,8 +1085,8 @@ class Analysis(object):
             if titre is not None :
                 axs[0].set_title(titre, fontsize=t_titre, x=0.5, y=y_t)
 
- 
-        axs[1].legend(fontsize=t_label/1.3, bbox_to_anchor=(0., 2.1, 1, 0.), loc=3, ncol=2, mode="expand", borderaxespad=0.)
+        if legends is True :
+            axs[1].legend(fontsize=t_label/1.3, bbox_to_anchor=(0., 2.1, 1, 0.), loc=3, ncol=2, mode="expand", borderaxespad=0.)
 
         axs[-1].set_xlabel('Trials', fontsize=t_label)
         try:
