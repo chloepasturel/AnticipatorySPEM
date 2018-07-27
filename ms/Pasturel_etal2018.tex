@@ -1292,7 +1292,7 @@ x_2^t \propto \Bb(1/\lambda) \\
 % TODO: nest the choice
 x_1^t = x_1^{t-1} \quad \text{if} \quad x_2^t=0 \quad \text{and else} \quad x_1^t \propto \Pp \quad \text{for} \quad x_2^t=1 \\
 x_0^t \propto \Bb(x_1^t)
-}\label{eq:sgm}}
+}\label{eq:bsm}}
 Note that the prior distribution $\Pp$ can be for instance
 the uniform distributions on $ [ 0, 1 ] $ or
 Jeffrey's prior $\Jj$~(see \seeApp{bcp} (TODO: put in appendix).
@@ -1302,7 +1302,7 @@ is similar to that presented in~\seeFig{intro}-A, except for
 this new generative model for the pseudo-random sequence of binary events
 which randomizes the occurrence of the switches
 and the range of bias' values that are explored.
-\seeEq{sgm} defines the binomial switching model which we will use
+\seeEq{bsm} defines the binomial switching model which we will use
 for the generation of sequences in experiments
 but also as the basis of an ideal observer model.
 
@@ -1310,7 +1310,7 @@ but also as the basis of an ideal observer model.
 This paper is organized in five parts.
 After this introduction where we presented the motivation for this study,
 the next section~(\seeSec{bayesian_change_point}) will present
-an inversion of the forward probabilistic model defined in~\seeEq{sgm}.
+an inversion of the forward probabilistic model defined in~\seeEq{bsm}.
 There is yet to our knowledge no such algorithm and
 we will here provide with a solution
 by extending previous results from~\citet{AdamsMackay2007}
@@ -1363,7 +1363,7 @@ First, we will define a control ideal observer
 which assumes that data is stationary in a fixed history window.
 Then, we will extend this control model to the case
 where switches of the probabilistic bias occur during the experiment,
-as defined by the forward probabilistic model defined in~\seeEq{sgm}.
+as defined by the forward probabilistic model defined in~\seeEq{bsm}.
 %
 % ------------------------------------------------------------------
 \subsection{Forgetful-agent model (Leaky integrator)}
@@ -1475,17 +1475,34 @@ with the volatility of the environment
 \subsection{Bayesian change point model}
 % ------------------------------------------------------------------
 %-------------------------------------------------------------%
+%: precision in our belief of \hat{p}
 %: overcoming this difficulty using a latent variable= run-length we will put in competition different leaky integrators in parallel + evazluate them / fundamental in bayesian methods / message passing / sufficient statistics of a beta distribution
 %-------------------------------------------------------------%
-We have designed an agent adapted the Bayesian Online Change-point Detection model~\citep{AdamsMackay2007}. This model uses a latent variable r which represents the length of the current interval during which motion-direction probability ($\hat{P}$) has not changed. The agent infers at each trial the likelihood  of r and then deduces the optimal $\hat{P}$ (we used the expected value and the max as readouts) and the uncertainty associated to it. We simulated the model across our experimental sequences, as illustrated by the example for the third block.
+A crucial difference in the simple agent presented above (see~\seeEq{leaky2})
+and the binomial switching model (see~\seeEq{bsm})
+is that at any moment during the experiment, the time since a switch may vary.
+We have designed an agent adapted the Bayesian Online Change-point Detection model~\citep{AdamsMackay2007},
+which uses a similar generative model 
+but for which the observed data is Gaussian and not binomial as in our case. 
+An agent may therefore have a belief over the number of trial since the switch.
+This number, that following~\citep{AdamsMackay2007} we will call the \emph{run-length}, is useful in two manners. 
+First, it allows in theory for the agent to restrict the evaluation of $\hat{p}$ 
+to only that samples produced until the switch,
+knowing that those before the switch are independent.
+Second, it is known in all generality 
 
-This model uses a latent variable r which represents the length of the current interval during which motion-direction probability~($\hat{p}$)~has not changed. The agent infers at each trial the likelihood of r and then deduces the optimal~$\hat{p}$~(we used the expected value and the max as readouts) and the uncertainty associated to it.
+
 \eql{\choice{
 r^t = 0 \quad \text{if} \quad x_2^t=0 \\
 \text{and else} \quad r^t = r^{t-1} +1 }\label{eq:run_length}}
  in this graph information will be represented at different nodes. each node represent a belief which takes the form of a probability distribution over the set of parameters that we wish to describe.
-it can be the mean and variance of a Gaussian, but in general it will be 2 parameters. in our case, we wish to estimate p (between zero and one) - it is characterized by the beta distribution (mathematically it is the conjugate of the bernouilli distribution)
- (mathematically, we will use the family of exponenetial distributions:, gaussians, binomials) among which the beta distribution belongs
+ 
+ it can be the mean and variance of a Gaussian, but in general it will be 2 parameters. in our case, we wish to estimate p (between zero and one) - it is characterized by the beta distribution (mathematically it is the conjugate of the bernouilli distribution)
+
+ 
+The agent infers at each trial the likelihood  of r and then deduces the optimal $\hat{p}$ (we used the expected value and the max as readouts) and the uncertainty associated to it. 
+
+% (mathematically, we will use the family of exponenetial distributions:, gaussians, binomials) among which the beta distribution belongs
 First, we initialize the first node to prior values
 \eql{\choice{
 %    \item    Calculate Growth Probabilities $P(r_t=r_{t-1}+1, x_{1:t}) = P(r_{t-1}, x_{1:t-1}) \pi^{(r)}_t (1-H(r^{(r)}_{t-1}))$
@@ -1506,8 +1523,26 @@ Contrary to the forgetful-agent model where~$\tau$ was a fixed parameter, the BC
 % cf 3_Results_2.ipynb
     \includegraphics[width=1\linewidth]{bayesianchangepoint}
 \end{center}
-\caption{\emph{Bayesian change point model}~\textbf{A} shows hypothetic datas that works as a binomial choice, either 0 or 1 . In particular, the probability switched at trials 6 and 10. We show the graph (treillis) on which the message indicates that mass probability is being passed. Black lines denotes "upwards", that is, for which there is a progression of the run length at the next step. The red line stands for the possibility that a switch happened, and then falls back to zero. The black curve stands for the run length of simulated datas in~\textbf{A} in function of time (r$_t$). We can see that the run length drops back to zero when change occurs at trials 6 and 10.
-~\textbf{(B)} is a sequence of points representing leftward (0) of rightward trials (1) with a given probability $p$ of being rightward and that changes at some trials (clear red). The predicted probability $\hat{p}$ ($\tau=N_{trial}/4$ tells the BCP that the probability is more susceptible to change every $N_{trial}/4$), continue and dotted dark red lines shows the $p$$-$estimation.~\textbf{B} shows the probability of the run length, the probability of the having same probability consecutive trials. The red line represents the $\hat{r}$, that represents the sum of he products of each r (number of consecutive trials having the same probability)  $\sum_{r=0}^\infty r \cdot P(r)$.~\textbf{C} represent the probability of each r for trials 50 and 250 along their $\hat{r}$ and their $\hat{p}$. For instance, for trial 50, we can observe that $\hat{r}$ is close from the real number of trials during the probability has not change (real $p$ stayed for 50 trials). $\hat{p}$ is also pretty close from the real $p$ ($p=1$).~\textbf{D} shows that at trial 250 $\hat{r}$ is more far than the real r that is also equal to 50 trials. But here, $\hat{p}$ is closer from $p$ that is equal to 0.75.
+\caption{\emph{Bayesian change point model}
+~\textbf{A} shows hypothetic datas that works as a binomial choice, either $0$ or $1$. 
+In particular, the probability switched at trials 6 and 10. 
+We show the graph (treillis) on which the message indicates that 
+mass probability is being passed. 
+Black lines denotes "upwards", 
+that is, for which there is a progression of the run length at the next step. 
+The red line stands for the possibility that a switch happened, 
+and then falls back to zero. 
+The black curve stands for 
+the run length of simulated datas in~\textbf{A} 
+as a function of time (r$_t$). 
+We can see that 
+the run length drops back to zero 
+when change occurs at trials 6 and 10.
+~\textbf{(B)} is a sequence of points representing 
+leftward (0) of rightward trials (1) 
+with a given probability $p$ of being rightward and 
+that changes at some trials (clear red). 
+The predicted probability $\hat{p}$ ($\tau=N_{trial}/4$ tells the BCP that the probability is more susceptible to change every $N_{trial}/4$), continue and dotted dark red lines shows the $p$$-$estimation.~\textbf{B} shows the probability of the run length, the probability of the having same probability consecutive trials. The red line represents the $\hat{r}$, that represents the sum of he products of each r (number of consecutive trials having the same probability)  $\sum_{r=0}^\infty r \cdot P(r)$.~\textbf{C} represent the probability of each r for trials 50 and 250 along their $\hat{r}$ and their $\hat{p}$. For instance, for trial 50, we can observe that $\hat{r}$ is close from the real number of trials during the probability has not change (real $p$ stayed for 50 trials). $\hat{p}$ is also pretty close from the real $p$ ($p=1$).~\textbf{D} shows that at trial 250 $\hat{r}$ is more far than the real r that is also equal to 50 trials. But here, $\hat{p}$ is closer from $p$ that is equal to 0.75.
 %\textbf{(C)}
 % TODO show fit with different hazard rates
 }
