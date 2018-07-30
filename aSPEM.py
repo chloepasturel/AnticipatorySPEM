@@ -396,7 +396,7 @@ def full_liste(PARI, ENREGISTREMENT, P_HAT=None):
 
     if P_HAT is not None :
         import bayesianchangepoint as bcp
-        full = pd.DataFrame(index=np.arange(len(PARI)*600),columns=('sujet', 'proba','bino','results','va','p_hat_e','p_hat_m', 'p_hat_f'))
+        full = pd.DataFrame(index=np.arange(len(PARI)*600),columns=('sujet', 'proba','bino','results','aa','va','p_hat_e','p_hat_m', 'p_hat_f'))
     else :
         full = pd.DataFrame(index=np.arange(len(PARI)*600),columns=('sujet', 'proba','bino','results','va'))
 
@@ -408,6 +408,8 @@ def full_liste(PARI, ENREGISTREMENT, P_HAT=None):
         p = PARI[x]['p']
         results = (PARI[x]['results']+1)/2
         v_anti = ENREGISTREMENT[x]['v_anti']
+        start_anti = ENREGISTREMENT[x]['start_anti']
+        latence = ENREGISTREMENT[x]['latence']
 
         for block in range(N_blocks):
 
@@ -419,7 +421,8 @@ def full_liste(PARI, ENREGISTREMENT, P_HAT=None):
             full['proba'][a:b] = p[:, block, 1]
             full['bino'][a:b] = p[:, block, 0]
             full['results'][a:b] = results[:, block]
-            full['va'][a:b] = v_anti[block]
+            full['aa'][a:b] = v_anti[block]
+            full['va'][a:b] = (np.array(v_anti[block])*((np.array(latence[block])-np.array(start_anti[block]))/1000))
 
             if P_HAT is not None :
                 tau = N_trials/5.
@@ -488,21 +491,21 @@ def KDE(ax, x, y, xmin, xmax, ymin, ymax, mode_kde) :
         ax.contourf(xx, yy, fmean, cmap='Greys')
     return ax
 
-def regress(ax, p, data, y1, y2, t_label) :
+def regress(ax, p, data, y1, y2, t_label,color='k') :
     from scipy import stats
     slope, intercept, r_, p_value, std_err = stats.linregress(p, data)
     x_test = np.linspace(np.min(p), np.max(p), 100)
     fitLine = slope * x_test + intercept
-    ax.plot(x_test, fitLine, c='k', linewidth=2)
-    ax.text(0.75,y1+(y2-y1)/10, 'r = %0.3f'%(r_), fontsize=t_label/1.2)
+    ax.plot(x_test, fitLine, c=color, linewidth=2)
+    ax.text(0.75,y1+(y2-y1)/10, 'r = %0.3f'%(r_), color=color, fontsize=t_label/1.2)
 
     hist, x_edges, y_edges = np.histogram2d(p, data ,bins=20)
-    ax.text(0.75,y1+2*(y2-y1)/10, 'MI = %0.3f'%(mutual_information(hist)), fontsize=t_label/1.2)
+    ax.text(0.75,y1+2*(y2-y1)/10, 'MI = %0.3f'%(mutual_information(hist)), color=color, fontsize=t_label/1.2)
 
     return ax
 
 
-def scatter_KDE(self, ax, mode_bcp, plot, mode_kde, result, t_titre, t_label) :
+def scatter_KDE(self, ax, mode_bcp, plot, mode_kde, result, t_titre, t_label, titre=None, color_r='r') :
 
     colors = ['black','dimgrey','grey','darkgrey','silver','rosybrown','lightcoral','indianred','firebrick','brown','darkred','red']
     nb_sujet = len(self.PARI)
@@ -537,11 +540,16 @@ def scatter_KDE(self, ax, mode_bcp, plot, mode_kde, result, t_titre, t_label) :
 
         elif result=='acceleration' :
             # masque les essais qui où full_va = NAN
+            x = np.ma.masked_array(full_p_hat.values.tolist(), mask=np.isnan(full['aa'].values.tolist())).compressed()
+            y = np.ma.masked_array(full['aa'].values.tolist(), mask=np.isnan(full['aa'].values.tolist())).compressed()
+            ymin, ymax = -21.28, 21.28 #np.min(y), np.max(y)
+            ax = KDE(ax, x, y, xmin, xmax, ymin, ymax, mode_kde)
+        elif result=='velocity' :
+            # masque les essais qui où full_va = NAN
             x = np.ma.masked_array(full_p_hat.values.tolist(), mask=np.isnan(full['va'].values.tolist())).compressed()
             y = np.ma.masked_array(full['va'].values.tolist(), mask=np.isnan(full['va'].values.tolist())).compressed()
             ymin, ymax = -21.28, 21.28 #np.min(y), np.max(y)
             ax = KDE(ax, x, y, xmin, xmax, ymin, ymax, mode_kde)
-
     #------------------------------------------------
     # LINREGRESS
     #------------------------------------------------
@@ -551,29 +559,50 @@ def scatter_KDE(self, ax, mode_bcp, plot, mode_kde, result, t_titre, t_label) :
         data = full['results'].values.tolist()
         y1 = -0.032
         y2 = 1.032
-        ax = regress(ax, p, data, y1, y2, t_label)
+        ax = regress(ax, p, data, y1, y2, t_label, color=color_r)
 
         #------------------------------------------------
         # cosmétique
         #------------------------------------------------
         ax.set_ylabel('Probability Bet', fontsize=t_label/1.2)
-        ax.set_title("Probability Bet", fontsize=t_titre/1.2, x=0.5, y=1.05)
+        if titre is None :
+            ax.set_title("Probability Bet", fontsize=t_titre/1.2, x=0.5, y=1.05)
+
 
     elif result=='acceleration' :
         # VA
         # masque les essais qui où full_va = NAN
-        p = np.ma.masked_array(full_p_hat.values.tolist(), mask=np.isnan(full['va'].values.tolist())).compressed()
-        data = np.ma.masked_array(full['va'].values.tolist(), mask=np.isnan(full['va'].values.tolist())).compressed()
+        p = np.ma.masked_array(full_p_hat.values.tolist(), mask=np.isnan(full['aa'].values.tolist())).compressed()
+        data = np.ma.masked_array(full['aa'].values.tolist(), mask=np.isnan(full['aa'].values.tolist())).compressed()
         y1 = -21.28
         y2 = 21.28
-        ax = regress(ax, p, data, y1, y2, t_label)
+        ax = regress(ax, p, data, y1, y2, t_label, color=color_r)
 
         #------------------------------------------------
         # cosmétique
         #------------------------------------------------
         ax.set_ylabel('Acceleration of anticipation (°/s$^2$)', fontsize=t_label/1.2)
-        ax.set_title("Acceleration", fontsize=t_titre/1.2, x=0.5, y=1.05)
+        if titre is None :
+            ax.set_title("Acceleration", fontsize=t_titre/1.2, x=0.5, y=1.05)
 
+    elif result=='velocity' :
+        # VA
+        # masque les essais qui où full_va = NAN
+        p = np.ma.masked_array(full_p_hat.values.tolist(), mask=np.isnan(full['va'].values.tolist())).compressed()
+        data = np.ma.masked_array(full['va'].values.tolist(), mask=np.isnan(full['va'].values.tolist())).compressed()
+        y1 = -10.64
+        y2 = 10.64
+        ax = regress(ax, p, data, y1, y2, t_label, color=color_r)
+
+        #------------------------------------------------
+        # cosmétique
+        #------------------------------------------------
+        ax.set_ylabel('Velocity of anticipation (°/s)', fontsize=t_label/1.2)
+        if titre is None :
+            ax.set_title("Velocity", fontsize=t_titre/1.2, x=0.5, y=1.05)
+
+    if titre is not None :
+        ax.set_title(titre, fontsize=t_titre/1.2, x=0.5, y=1.05)
     ax.axis([-0.032, 1.032, y1, y2])
     ax.set_xlabel('$\hat{P}_{%s}$'%(mode_bcp), fontsize=t_label/1)
     ax.xaxis.set_ticks_position('bottom')
@@ -846,7 +875,7 @@ class Analysis(object):
 
     def plot_experiment(self, sujet=[0], mode_bcp='expectation', tau=40, direction=True, p=None, num_block=None, mode=None,
                         fig=None, axs=None, fig_width=15, titre=None, t_titre=35, t_label=25, return_proba=None, color=[['k', 'k'], ['r', 'r'], ['k','w']],
-                        alpha = [[.35,.15],[.35,.15],[1,0]], lw = 1.3, legends=False):
+                        alpha = [[.35,.15],[.35,.15],[1,0]], lw = 1.3, legends=False, TD=False):
 
         import matplotlib.pyplot as plt
         import bayesianchangepoint as bcp
@@ -870,7 +899,24 @@ class Analysis(object):
                 fig, axs = plt.subplots(3, 1, figsize=(fig_width, fig_width/1.6180))
             else :
                 if direction is True :
-                    fig, axs = plt.subplots(len(sujet)+1, 1, figsize=(fig_width, ((len(sujet)+1)*fig_width/3)/(1.6180)))
+                    if TD is True :
+                        import matplotlib.gridspec as gridspec
+                        #------------------------------------------------
+                        fig, axs = plt.subplots(len(sujet)+1, 1, figsize=(fig_width, ((len(sujet)+0.5)*fig_width/3)/(1.6180)))
+
+                        gs1 = gridspec.GridSpec(1, 1)
+                        gs1.update(left=0+0.1, bottom=0.85, right=1-0.05, top=1.-0.05, hspace=0.05)
+                        axs[0] = plt.subplot(gs1[0])
+
+                        gs2 = gridspec.GridSpec(len(sujet), 1)
+                        gs2.update(left=0+0.1, bottom=0+0.1, right=1-0.05, top=0.85-0.03, hspace=0.05)
+                        for s0 in range(len(sujet)):
+                            s = s0+1
+                            axs[s] = plt.subplot(gs2[s0])
+
+                    #------------------------------------------------
+                    else :
+                        fig, axs = plt.subplots(len(sujet)+1, 1, figsize=(fig_width, ((len(sujet)+1)*fig_width/3)/(1.6180)))
                 else :
                     fig, axs = plt.subplots(len(sujet), 1, figsize=(fig_width, ((len(sujet)+1)*fig_width/3)/(1.6180)))
 
@@ -964,7 +1010,10 @@ class Analysis(object):
                                               lw=.5, alpha=alpha[0][1], facecolor=color[0][1], step='pre')
 
 
-                    axs[0].set_ylabel('Target Direction', fontsize=t_label)
+                    if TD is True :
+                        axs[0].set_ylabel('TD', fontsize=t_label)
+                    else :
+                        axs[0].set_ylabel('Target Direction', fontsize=t_label)
                 for s in range(len(sujet)) :
                     if direction is True :
                         a = s+1
@@ -1086,7 +1135,10 @@ class Analysis(object):
                 axs[0].set_title(titre, fontsize=t_titre, x=0.5, y=y_t)
 
         if legends is True :
-            axs[1].legend(fontsize=t_label/1.3, bbox_to_anchor=(0., 2.1, 1, 0.), loc=3, ncol=2, mode="expand", borderaxespad=0.)
+            if TD is True :
+                axs[1].legend(fontsize=t_label/1.3, bbox_to_anchor=(0., 1.5, 1, 0.), loc=3, ncol=2, mode="expand", borderaxespad=0.)
+            else :
+                axs[1].legend(fontsize=t_label/1.3, bbox_to_anchor=(0., 2.1, 1, 0.), loc=3, ncol=2, mode="expand", borderaxespad=0.)
 
         axs[-1].set_xlabel('Trials', fontsize=t_label)
         try:
@@ -1101,7 +1153,8 @@ class Analysis(object):
         else :
             return fig, axs, p
 
-    def plot_bcp(self, plot='normal', block=[0,1,2], trial=50, N_scan=100, pause=None, mode=['expectation', 'max'], max_run_length=150, fig_width=15, t_titre=35, t_label=20):
+    def plot_bcp(self, plot='normal', ss_plot='expectation', block=[0,1,2], trial=50, N_scan=100, pause=None, mode=['expectation', 'max'], max_run_length=150,
+                 fig_width=15, t_titre=35, t_label=20, color=[['k', 'k'], ['r', 'r'], ['k','w']], alpha = [[.35,.15],[.35,.15],[1,0]]):
 
         '''plot='normal' -> bcp, 'detail' -> bcp2'''
 
@@ -1124,25 +1177,42 @@ class Analysis(object):
 
             import matplotlib.gridspec as gridspec
             block=[block[0]]
-            mode = ['expectation', 'max']
+            
             print('Block', block[0])
 
+            if ss_plot=='deux':
+                mode = ['expectation', 'max']
+                #------------------------------------------------
+                fig, axs = plt.subplots(5, 1, figsize=(fig_width, 1.5*(fig_width)/((1.6180))), sharex=True)
+
+                gs1 = gridspec.GridSpec(2, 1)
+                gs1.update(left=0+0.05, bottom=2/3, right=1, top=1.-0.1, hspace=0.05)
+                axs[0] = plt.subplot(gs1[0])
+                axs[1] = plt.subplot(gs1[1])
+
+                gs2 = gridspec.GridSpec(2, 1)
+                gs2.update(left=0+0.05, bottom=(1/3), right=1, top=(2/3)-0.1, hspace=0.05)
+                axs[2] = plt.subplot(gs2[0])
+                axs[3] = plt.subplot(gs2[1])
+
+                gs3 = gridspec.GridSpec(1, 1)
+                gs3.update(left=0+0.05, bottom=0+0.05, right=1, top=(1/3)-0.15, wspace=0.05)
+                axs[4] = plt.subplot(gs3[0])
             #------------------------------------------------
-            fig, axs = plt.subplots(5, 1, figsize=(fig_width, (fig_width)/((1.6180))), sharex=True)
+            
+            else :
+                mode = [ss_plot]
+                #------------------------------------------------
+                fig, axs = plt.subplots(3, 1, figsize=(fig_width, 0.7*(fig_width)/((1.6180))), sharex=True)
 
-            gs1 = gridspec.GridSpec(2, 1)
-            gs1.update(left=0, bottom=1/2, right=1, top=1., hspace=0.05)
-            axs[0] = plt.subplot(gs1[0])
-            axs[1] = plt.subplot(gs1[1])
+                gs1 = gridspec.GridSpec(2, 1)
+                gs1.update(left=0+0.045, bottom=1/3, right=1-0.001, top=1.-0.005, hspace=0.05)
+                axs[0] = plt.subplot(gs1[0])
+                axs[1] = plt.subplot(gs1[1])
 
-            gs2 = gridspec.GridSpec(2, 1)
-            gs2.update(left=0, bottom=-0.16, right=1, top=(1/2)-0.16, hspace=0.05)
-            axs[2] = plt.subplot(gs2[0])
-            axs[3] = plt.subplot(gs2[1])
-
-            gs3 = gridspec.GridSpec(1, 1)
-            gs3.update(left=0, bottom=-(0.82)/1.5, right=1, top=-0.32, wspace=0.05)
-            axs[4] = plt.subplot(gs3[0])
+                gs3 = gridspec.GridSpec(1, 1)
+                gs3.update(left=0+0.045, bottom=0+0.1, right=1-0.001, top=(1/3)-0.1, wspace=0.05)
+                axs[2] = plt.subplot(gs3[0])
             #------------------------------------------------
 
         if plot=='normal' :
@@ -1185,8 +1255,8 @@ class Analysis(object):
                 p_true = p[:, b, 1]
                 axs[num].step(range(N_trials), o, lw=1, alpha=.15, c='k')
                 axs[num].step(range(N_trials), p_true, lw=1, alpha=.13, c='k')
-                axs[num].fill_between(range(N_trials), np.zeros_like(o), o, lw=0, alpha=.15, facecolor='k', step='pre')
-                axs[num].fill_between(range(N_trials), np.zeros_like(p_true), p_true, lw=0, alpha=.13, facecolor='k', step='pre')
+                axs[num].fill_between(range(N_trials), np.zeros_like(o), o, lw=0, alpha=alpha[0][1], facecolor=color[0][0], step='pre')
+                axs[num].fill_between(range(N_trials), np.zeros_like(p_true), p_true, lw=0, alpha=alpha[1][1], facecolor=color[1][0], step='pre')
 
                 #---------------------------------------------------------------------------
                 # P_HAT
@@ -1248,19 +1318,33 @@ class Analysis(object):
                 #------------------------------------------------
                 if plot=='detail':
                     r_essai = (beliefs[:, trial])
-                    axs[4].plot(r_essai, c='k')
-                    axs[4].spines['top'].set_color('none')
-                    axs[4].spines['right'].set_color('none')
+                    
+                    if ss_plot=='deux' :
+                        axs[4].plot(r_essai, c='k')
+                        axs[4].spines['top'].set_color('none')
+                        axs[4].spines['right'].set_color('none')
 
-                    axs[4].set_xscale('log')
-                    axs[4].set_xlim(0, max_run_length)
+                        axs[4].set_xscale('log')
+                        axs[4].set_xlim(0, max_run_length)
 
-                    axs[4].set_xlabel('r$_{%s}$'%(trial), fontsize=t_label/1.5)
-                    axs[4].set_ylabel('p(r) at trial $%s$'%(trial), fontsize=t_label/1.5)
-                    axs[4].set_title('Belief on r for trial %s'%(trial), x=0.5, y=1., fontsize=t_titre/1.2)
-                    axs[4].xaxis.set_tick_params(labelsize=t_label/1.9)
-                    axs[4].yaxis.set_tick_params(labelsize=t_label/1.9)
+                        axs[4].set_xlabel('r$_{%s}$'%(trial), fontsize=t_label/1.5)
+                        axs[4].set_ylabel('p(r) at trial $%s$'%(trial), fontsize=t_label/1.5)
+                        axs[4].set_title('Belief on r for trial %s'%(trial), x=0.5, y=1., fontsize=t_titre/1.2)
+                        axs[4].xaxis.set_tick_params(labelsize=t_label/1.9)
+                        axs[4].yaxis.set_tick_params(labelsize=t_label/1.9)
+                    else :
+                        axs[2].plot(r_essai, c='k')
+                        axs[2].spines['top'].set_color('none')
+                        axs[2].spines['right'].set_color('none')
 
+                        axs[2].set_xscale('log')
+                        axs[2].set_xlim(0, max_run_length)
+
+                        axs[2].set_xlabel('r$_{%s}$'%(trial), fontsize=t_label/1.5)
+                        axs[2].set_ylabel('p(r) at trial $%s$'%(trial), fontsize=t_label/1.5)
+                        #axs[2].set_title('Belief on r for trial %s'%(trial), x=0.5, y=1., fontsize=t_titre/1.2)
+                        axs[2].xaxis.set_tick_params(labelsize=t_label/1.9)
+                        axs[2].yaxis.set_tick_params(labelsize=t_label/1.9)
 
                 #---------------------------------------------------------------------------
                 # cosmétique
@@ -1296,10 +1380,11 @@ class Analysis(object):
 
                     axs[num].yaxis.set_tick_params(labelsize=t_label/2)
 
-                    if m == 'expectation' :
-                        axs[num].set_title('Bayesian change point : expectation $\sum_{r=0}^\infty r \cdot p(r) \cdot \hat{p}(r) $', x=0.5, y=1.20, fontsize=t_titre)
-                    else :
-                        axs[num].set_title('Bayesian change point : $\hat{p} ( \mathrm{ArgMax}_r (p(r)) )$', x=0.5, y=1.05, fontsize=t_titre)
+                    if ss_plot=='deux' :
+                        if m == 'expectation' :
+                            axs[num].set_title('Bayesian change point : expectation $\sum_{r=0}^\infty r \cdot p(r) \cdot \hat{p}(r) $', x=0.5, y=1.20, fontsize=t_titre)
+                        else :
+                            axs[num].set_title('Bayesian change point : $\hat{p} ( \mathrm{ArgMax}_r (p(r)) )$', x=0.5, y=1.05, fontsize=t_titre)
 
                 for i_layer in range(len(axs)) :
                     axs[i_layer].xaxis.set_ticks_position('bottom')
@@ -1312,6 +1397,7 @@ class Analysis(object):
                     plt.show()
 
         if plot=='detail':
+            #fig.tight_layout()
             plt.show()
 
         return fig, axs
@@ -1399,12 +1485,12 @@ class Analysis(object):
 
         return fig, axs
 
-    def plot_scatter_KDE(self, mode_bcp='expectation', plot='kde', mode_kde='normal', result='bet', fig=None, axs=None, fig_width=15, t_titre=35, t_label=25) :
+    def plot_scatter_KDE(self, mode_bcp='expectation', plot='kde', mode_kde='normal', result='bet', fig=None, axs=None, fig_width=15, t_titre=35, t_label=25, titre=None, color_r='k') :
 
         if fig is None:
             fig_width= fig_width
             fig, axs = plt.subplots(1, 1, figsize=(fig_width, fig_width)) #/(1.6180)))
-        axs = scatter_KDE(self, axs, mode_bcp, plot, mode_kde, result, t_titre, t_label)
+        axs = scatter_KDE(self, axs, mode_bcp, plot, mode_kde, result, t_titre, t_label, titre, color_r)
 
         return fig, axs
 
