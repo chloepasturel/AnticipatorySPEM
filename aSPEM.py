@@ -491,16 +491,16 @@ def KDE(ax, x, y, xmin, xmax, ymin, ymax, mode_kde) :
         ax.contourf(xx, yy, fmean, cmap='Greys')
     return ax
 
-def regress(ax, p, data, y1, y2, t_label,color='k') :
+def regress(ax, p, data, y1, y2, t_label,color='k', x1=-0.032, x2=1.032) :
     from scipy import stats
     slope, intercept, r_, p_value, std_err = stats.linregress(p, data)
     x_test = np.linspace(np.min(p), np.max(p), 100)
     fitLine = slope * x_test + intercept
     ax.plot(x_test, fitLine, c=color, linewidth=2)
-    ax.text(0.75,y1+(y2-y1)/10, 'r = %0.3f'%(r_), color=color, fontsize=t_label/1.2)
+    ax.text(x2-(x2-x1)/10,y1+(y2-y1)/10, 'r = %0.3f'%(r_), color=color, fontsize=t_label/1.2, ha='right')
 
     hist, x_edges, y_edges = np.histogram2d(p, data ,bins=20)
-    ax.text(0.75,y1+2*(y2-y1)/10, 'MI = %0.3f'%(mutual_information(hist)), color=color, fontsize=t_label/1.2)
+    ax.text(x2-(x2-x1)/10,y1+2*(y2-y1)/10, 'MI = %0.3f'%(mutual_information(hist)), color=color, fontsize=t_label/1.2, ha='right')
 
     return ax
 
@@ -708,7 +708,7 @@ class Analysis(object):
     """ docstring for the aSPEM class. """
 
     def __init__(self, observer=None, mode=None, caracteristique_fit={'fct_fit':'fct_velocity', 'step_fit':2, 'whitening':False}) :
-        self.subjects = ['AM','BMC','CS','DC','FM','IP','LB','OP','RS','SR','TN','YK']
+        self.subjects = ['AM','BMC','CS','DC','FM','IP','LB','OP','RS','SR','TN']#,'YK'] # ne plus prendre en conte YK
         self.caracteristique_fit = caracteristique_fit
         self.mode = mode
         self.observer = observer
@@ -905,11 +905,11 @@ class Analysis(object):
                         fig, axs = plt.subplots(len(sujet)+1, 1, figsize=(fig_width, ((len(sujet)+0.5)*fig_width/3)/(1.6180)))
 
                         gs1 = gridspec.GridSpec(1, 1)
-                        gs1.update(left=0+0.1, bottom=0.85, right=1-0.05, top=1.-0.05, hspace=0.05)
+                        gs1.update(left=0+0.072, bottom=0.85, right=1-0.04, top=1.-0.1, hspace=0.05)
                         axs[0] = plt.subplot(gs1[0])
 
                         gs2 = gridspec.GridSpec(len(sujet), 1)
-                        gs2.update(left=0+0.1, bottom=0+0.1, right=1-0.05, top=0.85-0.03, hspace=0.05)
+                        gs2.update(left=0+0.072, bottom=0+0.1, right=1-0.04, top=0.85-0.03, hspace=0.05)
                         for s0 in range(len(sujet)):
                             s = s0+1
                             axs[s] = plt.subplot(gs2[s0])
@@ -945,7 +945,7 @@ class Analysis(object):
 
                 ax_block.set_ylim(-.05, N_blocks + .05)
                 ax_block.set_yticks(np.arange(N_blocks)+0.5)
-                ax_block.set_yticklabels(np.arange(N_blocks)+1, fontsize=t_label/1.5)
+                ax_block.set_yticklabels(np.arange(N_blocks)+1, fontsize=t_label/1.8)
                 ax_block.yaxis.set_tick_params(width=0, pad=(t_label/1.5)+10)
 
             #------------------------------------------------
@@ -961,7 +961,7 @@ class Analysis(object):
             axs[i_layer].set_xlim(-1, N_trials)
             if i_layer==(len(axs)-1) :
                 axs[i_layer].set_xticks([0, 49, 99, 149, 199])
-                axs[i_layer].set_xticklabels([1, 50, 100, 150, 200], ha='left', fontsize=t_label/2)
+                axs[i_layer].set_xticklabels([1, 50, 100, 150, 200], ha='left', fontsize=t_label/1.8)
                 axs[i_layer].xaxis.set_ticks_position('bottom')
             else :
                 axs[i_layer].set_xticks([])
@@ -969,18 +969,18 @@ class Analysis(object):
         # cosmétique
         #------------------------------------------------
         if len(sujet)==1 :
-            axs[0].set_yticklabels(['left','right']*len(BLOCK),fontsize=t_label/2)
+            axs[0].set_yticklabels(['left','right']*len(BLOCK),fontsize=t_label/1.8)
 
             y_ticks=[0, 0.5, 1, 1+ec, 1.5+ec, 2+ec, 2+ec*2, 2.5+ec*2, 3+ec*2]
             axs[1].set_yticks(y_ticks[:len(BLOCK)*3])
-            axs[1].set_yticklabels(['0', '0.5', '1']*len(BLOCK),fontsize=t_label/2)
-            axs[2].set_yticklabels(['No','Yes']*len(BLOCK),fontsize=t_label/2)
+            axs[1].set_yticklabels(['0', '0.5', '1']*len(BLOCK),fontsize=t_label/1.8)
+            axs[2].set_yticklabels(['No','Yes']*len(BLOCK),fontsize=t_label/1.8)
         else :
             if direction is True :
                 y_ticks=[0, 1, 1+ec, 2+ec, 2+ec*2, 3+ec*2]
                 axs[0].set_yticks(y_ticks[:len(BLOCK)*2])
                 
-                axs[0].set_yticklabels(['left','right']*len(BLOCK),fontsize=t_label/2)
+                axs[0].set_yticklabels(['left','right']*len(BLOCK),fontsize=t_label/1.8)
             #else :
             #    axs[1].legend(fontsize=t_label/1.3, bbox_to_anchor=(0., 2.1, 1, 0.), loc=3, ncol=2, mode="expand", borderaxespad=0.)
         ###################################################################################################################################
@@ -996,7 +996,7 @@ class Analysis(object):
                     axs[i_layer].fill_between(range(N_trials), i_block+np.ones_like(p[:, block, i_layer])+ec*i_block, i_block+p[:, block, i_layer]+ec*i_block,
                                               lw=.5, alpha=alpha[i_layer][1], facecolor=color[i_layer][1], step='pre')
 
-                    axs[i_layer].set_ylabel(label, fontsize=t_label)
+                    axs[i_layer].set_ylabel(label, fontsize=t_label/1.2)
                     if mode=='deux' :
                         axs[1].text(-0.055, 0.5, 'Probability', fontsize=t_label, rotation=90, transform=axs[1].transAxes, ha='right', va='center')
             else :
@@ -1011,9 +1011,9 @@ class Analysis(object):
 
 
                     if TD is True :
-                        axs[0].set_ylabel('TD', fontsize=t_label)
+                        axs[0].set_ylabel('TD', fontsize=t_label/1.2)
                     else :
-                        axs[0].set_ylabel('Target Direction', fontsize=t_label)
+                        axs[0].set_ylabel('Target Direction', fontsize=t_label/1.2)
                 for s in range(len(sujet)) :
                     if direction is True :
                         a = s+1
@@ -1029,7 +1029,7 @@ class Analysis(object):
                     #axs[a].set_yticklabels(['0','1','0','1','0','1'],fontsize=t_label/2)
                     #axs[a].set_ylabel('Subject %s'%(sujet[s]), fontsize=t_label)
                     #axs[a].set_ylabel('Subject %s'%(s), fontsize=t_label)
-                    axs[a].text(-0.055, 0.5, 'Subject %s'%(s), fontsize=t_label, rotation=90, transform=axs[a].transAxes, ha='right', va='center')
+                    axs[a].text(-0.055, 0.5, 'Subject %s'%(s), fontsize=t_label/1.2, rotation=90, transform=axs[a].transAxes, ha='right', va='center')
         #-------------------------------------------------------------------------------------------------------------
 
         for s in range(len(sujet)) :
@@ -1121,7 +1121,7 @@ class Analysis(object):
                 
                 ax1.set_yticks(y_ticks[:len(BLOCK)*3])
                 ax1.set_yticklabels(['-%s'%mini, '0', '%s'%mini]*len(BLOCK),fontsize=t_label/2)
-                ax1.yaxis.set_label_coords(1.035, 0.5)
+                ax1.yaxis.set_label_coords(1.043, 0.5)
                 ax1.yaxis.set_tick_params(colors='k', direction='out')
                 ax1.yaxis.set_ticks_position(popo)
 
@@ -1136,9 +1136,9 @@ class Analysis(object):
 
         if legends is True :
             if TD is True :
-                axs[1].legend(fontsize=t_label/1.3, bbox_to_anchor=(0., 1.5, 1, 0.), loc=3, ncol=2, mode="expand", borderaxespad=0.)
+                axs[1].legend(fontsize=t_label/1.8, bbox_to_anchor=(0., 1.3, 1, 0.), loc=3, ncol=2, mode="expand", borderaxespad=0.)
             else :
-                axs[1].legend(fontsize=t_label/1.3, bbox_to_anchor=(0., 2.1, 1, 0.), loc=3, ncol=2, mode="expand", borderaxespad=0.)
+                axs[1].legend(fontsize=t_label/1.8, bbox_to_anchor=(0., 2.1, 1, 0.), loc=3, ncol=2, mode="expand", borderaxespad=0.)
 
         axs[-1].set_xlabel('Trials', fontsize=t_label)
         try:
@@ -1203,15 +1203,15 @@ class Analysis(object):
             else :
                 mode = [ss_plot]
                 #------------------------------------------------
-                fig, axs = plt.subplots(3, 1, figsize=(fig_width, 0.7*(fig_width)/((1.6180))), sharex=True)
+                fig, axs = plt.subplots(3, 1, figsize=(fig_width, 0.8*(fig_width)/((1.6180))), sharex=True)
 
                 gs1 = gridspec.GridSpec(2, 1)
-                gs1.update(left=0+0.045, bottom=1/3, right=1-0.001, top=1.-0.005, hspace=0.05)
+                gs1.update(left=0+0.06, bottom=1/3+0.1, right=1-0.001, top=1.-0.005, hspace=0.05)
                 axs[0] = plt.subplot(gs1[0])
                 axs[1] = plt.subplot(gs1[1])
 
                 gs3 = gridspec.GridSpec(1, 1)
-                gs3.update(left=0+0.045, bottom=0+0.1, right=1-0.001, top=(1/3)-0.1, wspace=0.05)
+                gs3.update(left=0+0.06, bottom=0+0.1, right=1-0.001, top=(1/3)-0.1, wspace=0.05)
                 axs[2] = plt.subplot(gs3[0])
             #------------------------------------------------
 
@@ -1327,9 +1327,9 @@ class Analysis(object):
                         axs[4].set_xscale('log')
                         axs[4].set_xlim(0, max_run_length)
 
-                        axs[4].set_xlabel('r$_{%s}$'%(trial), fontsize=t_label/1.5)
+                        axs[4].set_xlabel('r$_{%s}$'%(trial), fontsize=t_label/1.2)
                         axs[4].set_ylabel('p(r) at trial $%s$'%(trial), fontsize=t_label/1.5)
-                        axs[4].set_title('Belief on r for trial %s'%(trial), x=0.5, y=1., fontsize=t_titre/1.2)
+                        axs[4].set_title('Belief on r for trial %s'%(trial), x=0.5, y=1., fontsize=t_titre/1.5)
                         axs[4].xaxis.set_tick_params(labelsize=t_label/1.9)
                         axs[4].yaxis.set_tick_params(labelsize=t_label/1.9)
                     else :
@@ -1340,11 +1340,11 @@ class Analysis(object):
                         axs[2].set_xscale('log')
                         axs[2].set_xlim(0, max_run_length)
 
-                        axs[2].set_xlabel('r$_{%s}$'%(trial), fontsize=t_label/1.5)
+                        axs[2].set_xlabel('r$_{%s}$'%(trial), fontsize=t_label/1.2)
                         axs[2].set_ylabel('p(r) at trial $%s$'%(trial), fontsize=t_label/1.5)
                         #axs[2].set_title('Belief on r for trial %s'%(trial), x=0.5, y=1., fontsize=t_titre/1.2)
-                        axs[2].xaxis.set_tick_params(labelsize=t_label/1.9)
-                        axs[2].yaxis.set_tick_params(labelsize=t_label/1.9)
+                        axs[2].xaxis.set_tick_params(labelsize=t_label/1.8)
+                        axs[2].yaxis.set_tick_params(labelsize=t_label/1.8)
 
                 #---------------------------------------------------------------------------
                 # cosmétique
@@ -1364,21 +1364,21 @@ class Analysis(object):
 
                 axs[num+1].set_ylim(-.05*140, 140 + (.05*140))
                 axs[num+1].set_yticks(np.arange(0, 140 + (.05*140), 140/2))
-                axs[num+1].set_xlabel('trials', fontsize=t_label);
+                axs[num+1].set_xlabel('trials', fontsize=t_label/1.2);
                 axs[num+1].set_xticks([-1, 49, 99,149])
-                axs[num+1].set_xticklabels([0, 50, 100, 150], ha='left', fontsize=t_label/2)
+                axs[num+1].set_xticklabels([0, 50, 100, 150], ha='left', fontsize=t_label/1.8)
 
                 if plot=='normal' :
-                    axs[2].set_xlabel('Hazard rate', fontsize=t_label/2)
-                    axs[2].set_ylabel('Mean log-likelihood (bits)', fontsize=t_label/2)
+                    axs[2].set_xlabel('Hazard rate', fontsize=t_label/1.2)
+                    axs[2].set_ylabel('Mean log-likelihood (bits)', fontsize=t_label/1.2)
                     axs[2].legend(frameon=False, loc="lower left")
 
                 if plot=='detail':
                     axs[num+1].bar(trial-1, 140 + (.05*140)+.05*140, bottom=-.05*140, color='firebrick', width=.5, linewidth=0, alpha=1)
-                    axs[num+1].yaxis.set_tick_params(labelsize=t_label/2)
-                    axs[num+1].set_xlabel('Trials', fontsize=t_label);
+                    axs[num+1].yaxis.set_tick_params(labelsize=t_label/1.8)
+                    axs[num+1].set_xlabel('Trials', fontsize=t_label/1.2);
 
-                    axs[num].yaxis.set_tick_params(labelsize=t_label/2)
+                    axs[num].yaxis.set_tick_params(labelsize=t_label/1.8)
 
                     if ss_plot=='deux' :
                         if m == 'expectation' :
