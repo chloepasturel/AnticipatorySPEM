@@ -403,38 +403,6 @@ def mutual_information(hgram):
     nzs = pxy > 0 # Only non-zero pxy values contribute to the sum
     return np.sum(pxy[nzs] * np.log(pxy[nzs] / px_py[nzs]))
 
-
-
-def scatter(self, ax, full, p_hat, colors, nb_sujet, result):
-    #------------------------------------------------
-    # SCATTER Plot
-    #------------------------------------------------
-    for x, color in enumerate(colors[:nb_sujet]):
-        s = self.PARI[x]['observer']
-        if result=='bet' :
-            ax.scatter(full[full.sujet==s][p_hat], full[full.sujet==s]['results'], c=color, alpha=0.5, linewidths=0)
-        elif result=='acceleration' :
-            ax.scatter(full[full.sujet==s][p_hat], full[full.sujet==s]['va'], c=color, alpha=0.5, linewidths=0)
-    return ax
-
-def KDE(ax, x, y, xmin, xmax, ymin, ymax, mode_kde) :
-    from scipy import stats
-    values = np.vstack([x, y])
-    kernel = stats.gaussian_kde(values)
-    xx, yy = np.mgrid[xmin:xmax:300j, ymin:ymax:300j]
-    positions = np.vstack([xx.ravel(), yy.ravel()])
-    f = np.reshape(kernel(positions).T, xx.shape)
-    if mode_kde=='normal':
-        ax.contourf(xx, yy, f, cmap='Greys', N=25)
-    elif mode_kde=='mean':
-        fmean = []
-        for x in range(len(f)):
-            fmean.append([])
-            for y in range(len(f[x])):
-                fmean[x].append(f[x][y]/np.sum(f[x]))
-        ax.contourf(xx, yy, fmean, cmap='Greys')
-    return ax
-
 def regress(ax, p, data, y1, y2, t_label,color='k', x1=-0.032, x2=1.032) :
     from scipy import stats
     slope, intercept, r_, p_value, std_err = stats.linregress(p, data)
@@ -448,8 +416,7 @@ def regress(ax, p, data, y1, y2, t_label,color='k', x1=-0.032, x2=1.032) :
 
     return ax
 
-
-def results_sujet(self, ax, sujet, s, mode_bcp, tau, t_label):
+def results_sujet(self, ax, sujet, s, mode_bcp, tau, t_label, pause):
 
     import bayesianchangepoint as bcp
     from scipy import stats
@@ -471,12 +438,16 @@ def results_sujet(self, ax, sujet, s, mode_bcp, tau, t_label):
 
     for block in range(N_blocks) :
         #----------------------------------------------------------------------------------
-        liste = [0,50,100,150,200]
+        if pause is True :
+            liste = [0,50,100,150,200]
+        else :
+            liste = [0, 200]
+
         for a in range(len(liste)-1) :
             p_bar, r, beliefs = bcp.inference(p[liste[a]:liste[a+1], block, 0], h=h, p0=.5)
             p_hat, r_hat = bcp.readout(p_bar, r, beliefs,mode=mode_bcp)
             p_low, p_sup = np.zeros_like(p_hat), np.zeros_like(p_hat)
-            for i_trial in range(50):
+            for i_trial in range(liste[a+1]-liste[a]):
                 p_low[i_trial], p_sup[i_trial] = stats.beta.ppf([.05, .95], a=p_hat[i_trial]*r_hat[i_trial], b=(1-p_hat[i_trial])*r_hat[i_trial])
 
             # Pour éviter d'avoir 36 légendes
@@ -536,9 +507,6 @@ def results_sujet(self, ax, sujet, s, mode_bcp, tau, t_label):
     #ax.bar(49, 3+ec*3, bottom=-ec/2, color='k', width=.2, linewidth=0)
 
     return ax
-
-
-
 
 def full_liste(self, modes_bcp=['expectation', 'max', 'mean', 'fixed', 'fixed-exp', 'hindsight'], pause=True):
 
@@ -611,125 +579,6 @@ def full_liste(self, modes_bcp=['expectation', 'max', 'mean', 'fixed', 'fixed-ex
                     full['p_hat_%s'%m][a:b] = p_hat_block[m]
 
     return full
-
-
-
-def scatter_KDE(self, ax, mode_bcp, plot, mode_kde,  result, t_titre, t_label, titre=None, pause=True, color_r='r') :
-
-    colors = ['black','dimgrey','grey','darkgrey','silver','rosybrown','lightcoral','indianred','firebrick','brown','darkred','red']
-    nb_sujet = len(self.PARI)
-    full = full_liste(self, modes_bcp=mode_bcp, pause=pause)
-
-    if mode_bcp == 'reel' :
-        p_hat = 'proba'
-    else :
-        p_hat = 'p_hat_'+mode_bcp
-    full_p_hat = full[p_hat]
-
-    #if mode_bcp=='expectation' :
-        #p_hat = 'p_hat_e'
-        #full_p_hat = full['p_hat_e']
-    #elif mode_bcp=='max' :
-        #p_hat = 'p_hat_m'
-        #full_p_hat = full['p_hat_m']
-    #elif mode_bcp=='fixed' :
-        #p_hat = 'p_hat_f'
-        #full_p_hat = full['p_hat_f']
-    #elif mode_bcp=='reel' :
-        #p_hat = 'proba'
-        #full_p_hat = full['proba']
-
-    if plot=='scatter' :
-        ax = scatter(self, ax, full, p_hat, colors, nb_sujet, result)
-
-    if plot=='kde':
-        #------------------------------------------------
-        # KDE
-        #------------------------------------------------
-        xmin, xmax = -0.032, 1.032 # np.min(x), np.max(x)
-        if result=='bet' :
-            x = full_p_hat.values.tolist()
-            y = full['results'].values.tolist()
-            ymin, ymax =  -0.032, 1.032 #np.min(y), np.max(y)
-            ax = KDE(ax, x, y, xmin, xmax, ymin, ymax, mode_kde)
-
-        elif result=='acceleration' :
-            # masque les essais qui où full_va = NAN
-            x = np.ma.masked_array(full_p_hat.values.tolist(), mask=np.isnan(full['aa'].values.tolist())).compressed()
-            y = np.ma.masked_array(full['aa'].values.tolist(), mask=np.isnan(full['aa'].values.tolist())).compressed()
-            ymin, ymax = -21.28, 21.28 #np.min(y), np.max(y)
-            ax = KDE(ax, x, y, xmin, xmax, ymin, ymax, mode_kde)
-        elif result=='velocity' :
-            # masque les essais qui où full_va = NAN
-            x = np.ma.masked_array(full_p_hat.values.tolist(), mask=np.isnan(full['va'].values.tolist())).compressed()
-            y = np.ma.masked_array(full['va'].values.tolist(), mask=np.isnan(full['va'].values.tolist())).compressed()
-            ymin, ymax = -21.28, 21.28 #np.min(y), np.max(y)
-            ax = KDE(ax, x, y, xmin, xmax, ymin, ymax, mode_kde)
-    #------------------------------------------------
-    # LINREGRESS
-    #------------------------------------------------
-    if result=='bet' :
-        # RESULTS
-        p = full_p_hat.values.tolist()
-        data = full['results'].values.tolist()
-        y1 = -0.032
-        y2 = 1.032
-        ax = regress(ax, p, data, y1, y2, t_label, color=color_r)
-
-        #------------------------------------------------
-        # cosmétique
-        #------------------------------------------------
-        ax.set_ylabel('Probability Bet', fontsize=t_label/1.2)
-        if titre is None :
-            ax.set_title("Probability Bet", fontsize=t_titre/1.2, x=0.5, y=1.05)
-
-
-    elif result=='acceleration' :
-        # VA
-        # masque les essais qui où full_va = NAN
-        p = np.ma.masked_array(full_p_hat.values.tolist(), mask=np.isnan(full['aa'].values.tolist())).compressed()
-        data = np.ma.masked_array(full['aa'].values.tolist(), mask=np.isnan(full['aa'].values.tolist())).compressed()
-        y1 = -21.28
-        y2 = 21.28
-        ax = regress(ax, p, data, y1, y2, t_label, color=color_r)
-
-        #------------------------------------------------
-        # cosmétique
-        #------------------------------------------------
-        ax.set_ylabel('Acceleration of anticipation (°/s$^2$)', fontsize=t_label/1.2)
-        if titre is None :
-            ax.set_title("Acceleration", fontsize=t_titre/1.2, x=0.5, y=1.05)
-
-    elif result=='velocity' :
-        # VA
-        # masque les essais qui où full_va = NAN
-        p = np.ma.masked_array(full_p_hat.values.tolist(), mask=np.isnan(full['va'].values.tolist())).compressed()
-        data = np.ma.masked_array(full['va'].values.tolist(), mask=np.isnan(full['va'].values.tolist())).compressed()
-        y1 = -10.64
-        y2 = 10.64
-        ax = regress(ax, p, data, y1, y2, t_label, color=color_r)
-
-        #------------------------------------------------
-        # cosmétique
-        #------------------------------------------------
-        ax.set_ylabel('Velocity of anticipation (°/s)', fontsize=t_label/1.2)
-        if titre is None :
-            ax.set_title("Velocity", fontsize=t_titre/1.2, x=0.5, y=1.05)
-
-    if titre is not None :
-        ax.set_title(titre, fontsize=t_titre/1.2, x=0.5, y=1.05)
-    ax.axis([-0.032, 1.032, y1, y2])
-    ax.set_xlabel('$\hat{P}_{%s}$'%(mode_bcp), fontsize=t_label/1)
-
-    ax.tick_params(labelsize=t_label/1.8, bottom=True, left=True)
-    #------------------------------------------------
-
-    return ax
-
-
-
-
-
 
 
 class Analysis(object):
@@ -808,10 +657,6 @@ class Analysis(object):
             for x in range(len(self.ENREGISTREMENT)):
                 if self.ENREGISTREMENT[x]['observer'] == self.observer :
                     self.param = self.ENREGISTREMENT[x]
-
-
-
-
 
 
     def plot_equation(self, equation='fct_velocity', fig_width=15, t_titre=35, t_label=20) :
@@ -1218,6 +1063,8 @@ class Analysis(object):
             f.dump(param)
 
         print('END !!!')
+
+
 
     def Plot_Average_Trace_P_real(self, delta, color, mean=False, pas_tps=10, ax=None, stop=610, show='r+l', title='', fig_width=15, t_titre=0, t_label=30*3) :
 
@@ -1886,14 +1733,110 @@ class Analysis(object):
         return fig
 
 
-    def plot_results(self, mode_bcp='mean', mode_kde=None, tau=40., sujet=[6], fig_width=15, t_titre=35, t_label=25, plot='Full', pause=True) :
+    def comparison(self, ax=None, proba='bcp', result='bet', mode_bcp='mean', show='kde', mean_kde=True,
+                    t_titre=35, t_label=25, titre=None, pause=True, color_r='r', fig=None, fig_width=15) :
+
+        if fig is not None:
+            import matplotlib.pyplot as plt
+            fig_width= fig_width
+            fig, ax = plt.subplots(1, 1, figsize=(fig_width, fig_width)) #/(1.6180)))
+
+        #colors = ['black','dimgrey','grey','darkgrey','silver','rosybrown','lightcoral','indianred','firebrick','brown','darkred','red']
+        nb_sujet = len(self.PARI)
+        full = full_liste(self, modes_bcp=mode_bcp, pause=pause)
+
+        if proba == 'real' :
+            ax.set_xlabel('$P_{real}$', fontsize=t_label/1)
+            proba = 'proba'
+        else :
+            ax.set_xlabel('$\hat{P}_{%s}$'%(mode_bcp), fontsize=t_label/1)
+            proba = 'p_hat_'+mode_bcp
+        full_proba = full[proba]
+
+        xmin, xmax = -0.032, 1.032
+
+        if result=='bet' :
+            res = 'results'
+            ymin, ymax = -0.032, 1.032
+
+            ax.set_ylabel('Probability Bet', fontsize=t_label/1.2)
+            if titre is None :
+                ax.set_title("Probability Bet", fontsize=t_titre/1.2, x=0.5, y=1.05)
+
+
+        elif result=='acceleration' :
+            res = 'aa'
+            ymin, ymax = -21.28, 21.28
+
+            ax.set_ylabel('Acceleration of anticipation (°/s$^2$)', fontsize=t_label/1.2)
+            if titre is None :
+                ax.set_title("Acceleration", fontsize=t_titre/1.2, x=0.5, y=1.05)
+
+        elif result=='velocity' :
+            res = 'va'
+            ymin, ymax = -10.64, 10.64
+
+            ax.set_ylabel('Velocity of anticipation (°/s)', fontsize=t_label/1.2)
+            if titre is None :
+                ax.set_title("Velocity", fontsize=t_titre/1.2, x=0.5, y=1.05)
+
+        full_result = full[res]
+
+        if show=='scatter' :
+            '''for x, color in enumerate(colors[:nb_sujet]):
+                s = self.PARI[x]['observer']
+                ax.scatter(full_proba[full.sujet==s], full_result[full.sujet==s], c=color, alpha=0.5, linewidths=0)'''
+            alpha=0.2
+            for x in range(nb_sujet):
+                s = self.PARI[x]['observer']
+                ax.scatter(full_proba[full.sujet==s], full_result[full.sujet==s], c=(0+(1/nb_sujet)*x, 0, 0, alpha), linewidths=0)
+
+        # masque les essais qui où full_result = NAN
+        proba = np.ma.masked_array(full_proba.values.tolist(), mask=np.isnan(full_result.values.tolist())).compressed()
+        data = np.ma.masked_array(full_result.values.tolist(), mask=np.isnan(full_result.values.tolist())).compressed()
+
+        if show=='kde':
+            from scipy import stats
+
+            values = np.vstack([proba, data])
+            kernel = stats.gaussian_kde(values)
+            xx, yy = np.mgrid[xmin:xmax:300j, ymin:ymax:300j]
+            positions = np.vstack([xx.ravel(), yy.ravel()])
+            f = np.reshape(kernel(positions).T, xx.shape)
+
+            if mean_kde is True :
+                fmean = []
+                for x in range(len(f)):
+                    fmean.append([])
+                    for y in range(len(f[x])):
+                        fmean[x].append(f[x][y]/np.sum(f[x]))
+
+                ax.contourf(xx, yy, fmean, cmap='Greys')
+
+            else :
+                ax.contourf(xx, yy, f, cmap='Greys', N=25)
+
+        ax = regress(ax, proba, data, ymin, ymax, t_label, color=color_r)
+
+        if titre is not None :
+            ax.set_title(titre, fontsize=t_titre/1.2, x=0.5, y=1.05)
+        ax.axis([xmin, xmax, ymin, ymax])
+
+        ax.tick_params(labelsize=t_label/1.8, bottom=True, left=True)
+        #------------------------------------------------
+
+        if fig is not None:
+            return fig, ax
+        else :
+            return ax
+
+    def plot_results(self, mode_bcp='mean', show='scatter', mean_kde=True, tau=40., sujet=[6], fig_width=15, t_titre=35, t_label=25, plot='Full', pause=True) :
 
         import matplotlib.pyplot as plt
         import matplotlib.gridspec as gridspec
         import bayesianchangepoint as bcp
         from scipy import stats
 
-        colors = ['black','dimgrey','grey','darkgrey','silver','rosybrown','lightcoral','indianred','firebrick','brown','darkred','red']
         nb_sujet = len(self.PARI)
         #full = full_liste(self, modes_bcp=mode_bcp, pause=True) #(self.PARI, self.ENREGISTREMENT, P_HAT=True)
 
@@ -1932,34 +1875,34 @@ class Analysis(object):
         if plot in ['Full', 'sujet'] :
             # axs[0].set_title('Results bayesian change point %s'%(mode_bcp), fontsize=t_titre, x=0.5, y=1.3)
             for s in range(len(sujet)) :
-                axs[s] = results_sujet(self, axs[s], sujet, s, mode_bcp, tau, t_label)
+                axs[s] = results_sujet(self, axs[s], sujet, s, mode_bcp, tau, t_label, pause)
 
         if plot in ['Full', 'scatterKDE'] :
 
             #------------------------------------------------
             # SCATTER KDE Plot
             #------------------------------------------------
-            opt = {'mode_bcp':mode_bcp, 'mode_kde':mode_kde, 't_titre':t_titre, 't_label':t_label}
-            if mode_kde is None :
-                axs[a] = scatter_KDE(self, ax=axs[a], plot='scatter', result='bet', **opt)
-                axs[b] = scatter_KDE(self, ax=axs[b], plot='scatter', result='acceleration', **opt)
+            if show=='kde' :
+                color_r='r'
             else :
-                axs[a] = scatter_KDE(self, ax=axs[a], plot='kde', result='bet', **opt)
-                axs[b] = scatter_KDE(self, ax=axs[b], plot='kde', result='acceleration', **opt)
+                color_r='k'
+
+            opt = {'show':show, 'mode_bcp':mode_bcp, 'mean_kde':mean_kde, 't_titre':t_titre, 't_label':t_label,
+                    'pause':pause, 'color_r':color_r}
+            axs[a] = Analysis.comparison(self, ax=axs[a], result='bet', **opt)
+            axs[b] = Analysis.comparison(self, ax=axs[b], result='velocity', **opt)
+
             #------------------------------------------------
 
         for i_layer in range(len(axs)) :
             axs[i_layer].tick_params(labelsize=t_label/1.8, bottom=True, left=True)
-            #axs[i_layer].xaxis.set_ticks_position('bottom')
-            #axs[i_layer].yaxis.set_ticks_position('left')
-            #axs[i_layer].xaxis.set_tick_params(labelsize=t_label/1.8)
-            #axs[i_layer].yaxis.set_tick_params(labelsize=t_label/1.8)
-            if i_layer < len(sujet)-1 :
-                axs[i_layer].set_xticks([])
-            elif i_layer == len(sujet)-1 :
-                axs[i_layer].set_xlabel('Trials', fontsize=t_label)
-                axs[i_layer].set_xticks([-1, 49, 99, 149])
-                axs[i_layer].set_xticklabels([0, 50, 100, 150], ha='left',fontsize=t_label/1.8)
+            if not plot in ['scatterKDE'] :
+                if i_layer < len(sujet)-1 :
+                    axs[i_layer].set_xticks([])
+                elif i_layer == len(sujet)-1 :
+                    axs[i_layer].set_xlabel('Trials', fontsize=t_label)
+                    axs[i_layer].set_xticks([-1, 49, 99, 149])
+                    axs[i_layer].set_xticklabels([0, 50, 100, 150], ha='left',fontsize=t_label/1.8)
 
         if not plot in ['scatterKDE'] :
             axs[0].legend(fontsize=t_label/1.2, bbox_to_anchor=(0., 1.05, 1, 0.), loc=4, ncol=3,
@@ -1969,14 +1912,8 @@ class Analysis(object):
 
         return fig, axs
 
-    def plot_scatter_KDE(self, mode_bcp='expectation', plot='kde', mode_kde='normal', result='bet',  pause=True, fig=None, axs=None, fig_width=15, t_titre=35, t_label=25, titre=None, color_r='k') :
 
-        if fig is None:
-            fig_width= fig_width
-            fig, axs = plt.subplots(1, 1, figsize=(fig_width, fig_width)) #/(1.6180)))
-        axs = scatter_KDE(self, axs, mode_bcp, plot, mode_kde, result, t_titre, t_label, titre,  pause, color_r)
 
-        return fig, axs
 
 
 
