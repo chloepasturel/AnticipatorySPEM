@@ -581,6 +581,9 @@ def full_liste(self, modes_bcp=['expectation', 'max', 'mean', 'fixed', 'fixed-ex
     return full
 
 
+
+
+
 class Analysis(object):
     """ docstring for the aSPEM class. """
 
@@ -657,6 +660,82 @@ class Analysis(object):
             for x in range(len(self.ENREGISTREMENT)):
                 if self.ENREGISTREMENT[x]['observer'] == self.observer :
                     self.param = self.ENREGISTREMENT[x]
+
+
+    def Full_list(self, modes_bcp=['expectation', 'max', 'mean', 'fixed', 'fixed-exp', 'hindsight'], pause=True):
+
+        import pandas as pd
+        pd.set_option('mode.chained_assignment', None)
+
+        N_trials = self.exp['N_trials']
+        N_blocks = self.exp['N_blocks']
+
+        p = self.exp['p']
+
+        full = pd.DataFrame(index=np.arange(len(self.PARI)*N_trials*N_blocks),columns=('sujet', 'proba','bino','results','aa','va'))
+
+        if modes_bcp is not None :
+
+            if type(modes_bcp) is not list : modes_bcp = [modes_bcp]
+
+            import bayesianchangepoint as bcp
+            for m in modes_bcp :
+                full['p_hat_%s'%m] = np.arange(len(self.PARI)*N_trials*N_blocks)*np.nan
+
+
+        for x in range(len(self.PARI)):
+
+            results = (self.PARI[x]['results']+1)/2
+            v_anti = self.ENREGISTREMENT[x]['v_anti']
+            start_anti = self.ENREGISTREMENT[x]['start_anti']
+            latence = self.ENREGISTREMENT[x]['latence']
+
+            for block in range(N_blocks):
+
+                nb = x*N_trials*N_blocks
+                a = nb + N_trials*block
+                b = (nb + N_trials*(block+1))
+
+                full['sujet'][a:b] = self.PARI[x]['observer']
+                full['proba'][a:b] = p[:, block, 1]
+                full['bino'][a:b] = p[:, block, 0]
+                full['results'][a:b] = results[:, block]
+                full['aa'][a:b] = v_anti[block]
+                full['va'][a:b] = (np.array(v_anti[block])*((np.array(latence[block])-np.array(start_anti[block]))/1000))
+
+
+                if modes_bcp is not None :
+                    tau = N_trials/5.
+                    h = 1./tau
+
+
+                    p_hat_block = {}
+
+                    for m in modes_bcp :
+                        p_hat_block[m] = []
+
+                    if pause is True :
+                        liste = [0,50,100,150,200]
+                        for s in range(len(liste)-1) :
+                            p_bar, r_bar, beliefs = bcp.inference(p[liste[s]:liste[s+1], block, 0], h=h, p0=.5)
+
+                            for m in modes_bcp :
+                                p_hat, r_hat = bcp.readout(p_bar, r_bar, beliefs, mode=m)
+                                p_hat_block[m].extend(p_hat)
+
+                    else :
+                        p_bar, r_bar, beliefs = bcp.inference(p[:, block, 0], h=h, p0=.5)
+                        for m in modes_bcp :
+                            p_hat, r_hat = bcp.readout(p_bar, r_bar, beliefs, mode=m)
+                            p_hat_block[m] = p_hat
+
+                    for m in modes_bcp :
+                        full['p_hat_%s'%m][a:b] = p_hat_block[m]
+
+        return full
+
+
+
 
 
     def plot_equation(self, equation='fct_velocity', fig_width=15, t_titre=35, t_label=20) :
