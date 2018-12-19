@@ -508,7 +508,6 @@ def results_sujet(self, ax, sujet, s, mode_bcp, tau, t_label, pause):
 
     return ax
 
-'''
 def full_liste(self, modes_bcp=['expectation', 'max', 'mean', 'fixed', 'fixed-exp', 'hindsight'], pause=True):
 
     import pandas as pd
@@ -580,7 +579,7 @@ def full_liste(self, modes_bcp=['expectation', 'max', 'mean', 'fixed', 'fixed-ex
                     full['p_hat_%s'%m][a:b] = p_hat_block[m]
 
     return full
-'''
+
 
 
 
@@ -589,7 +588,7 @@ class Analysis(object):
     """ docstring for the aSPEM class. """
 
     def __init__(self, observer=None, mode=None, caracteristique_fit={'fct_fit':'fct_velocity', 'step_fit':2, 'whitening':False}) :
-        self.subjects = ['AM','BMC','CS','DC','FM','IP','LB','OP','RS','SR','TN'] #,'YK'] # ne plus prendre en conte YK
+        self.subjects = ['AM','BMC','CS','DC','FM','IP','LB','OP','RS','SR','TN']#,'YK'] # ne plus prendre en conte YK
         self.caracteristique_fit = caracteristique_fit
         self.mode = mode
         self.observer = observer
@@ -683,56 +682,55 @@ class Analysis(object):
             for m in modes_bcp :
                 full['p_hat_%s'%m] = np.arange(len(self.PARI)*N_trials*N_blocks)*np.nan
 
+
         for x in range(len(self.PARI)):
-            for y in range(len(self.ENREGISTREMENT)) :
 
-                if self.PARI[x]['observer'] == self.ENREGISTREMENT[y]['observer'] :
+            results = (self.PARI[x]['results']+1)/2
+            v_anti = self.ENREGISTREMENT[x]['v_anti']
+            start_anti = self.ENREGISTREMENT[x]['start_anti']
+            latence = self.ENREGISTREMENT[x]['latence']
 
-                    results = (self.PARI[x]['results']+1)/2
-                    v_anti = self.ENREGISTREMENT[y]['v_anti']
-                    start_anti = self.ENREGISTREMENT[y]['start_anti']
-                    latence = self.ENREGISTREMENT[y]['latence']
+            for block in range(N_blocks):
 
-                    for block in range(N_blocks):
+                nb = x*N_trials*N_blocks
+                a = nb + N_trials*block
+                b = (nb + N_trials*(block+1))
 
-                        nb = x*N_trials*N_blocks
-                        a = nb + N_trials*block
-                        b = (nb + N_trials*(block+1))
-
-                        full['sujet'][a:b] = self.PARI[x]['observer']
-                        full['proba'][a:b] = p[:, block, 1]
-                        full['bino'][a:b] = p[:, block, 0]
-                        full['results'][a:b] = results[:, block]
-                        full['aa'][a:b] = v_anti[block]
-                        full['va'][a:b] = (np.array(v_anti[block])*((np.array(latence[block])-np.array(start_anti[block]))/1000))
+                full['sujet'][a:b] = self.PARI[x]['observer']
+                full['proba'][a:b] = p[:, block, 1]
+                full['bino'][a:b] = p[:, block, 0]
+                full['results'][a:b] = results[:, block]
+                full['aa'][a:b] = v_anti[block]
+                full['va'][a:b] = (np.array(v_anti[block])*((np.array(latence[block])-np.array(start_anti[block]))/1000))
 
 
-                        if modes_bcp is not None :
-                            tau = N_trials/5.
-                            h = 1./tau
+                if modes_bcp is not None :
+                    tau = N_trials/5.
+                    h = 1./tau
 
-                            p_hat_block = {}
 
-                            for m in modes_bcp :
-                                p_hat_block[m] = []
+                    p_hat_block = {}
 
-                            if pause is True :
-                                liste = [0,50,100,150,200]
-                                for s in range(len(liste)-1) :
-                                    p_bar, r_bar, beliefs = bcp.inference(p[liste[s]:liste[s+1], block, 0], h=h, p0=.5)
+                    for m in modes_bcp :
+                        p_hat_block[m] = []
 
-                                    for m in modes_bcp :
-                                        p_hat, r_hat = bcp.readout(p_bar, r_bar, beliefs, mode=m)
-                                        p_hat_block[m].extend(p_hat)
-
-                            else :
-                                p_bar, r_bar, beliefs = bcp.inference(p[:, block, 0], h=h, p0=.5)
-                                for m in modes_bcp :
-                                    p_hat, r_hat = bcp.readout(p_bar, r_bar, beliefs, mode=m)
-                                    p_hat_block[m] = p_hat
+                    if pause is True :
+                        liste = [0,50,100,150,200]
+                        for s in range(len(liste)-1) :
+                            p_bar, r_bar, beliefs = bcp.inference(p[liste[s]:liste[s+1], block, 0], h=h, p0=.5)
 
                             for m in modes_bcp :
-                                full['p_hat_%s'%m][a:b] = p_hat_block[m]
+                                p_hat, r_hat = bcp.readout(p_bar, r_bar, beliefs, mode=m)
+                                p_hat_block[m].extend(p_hat)
+
+                    else :
+                        p_bar, r_bar, beliefs = bcp.inference(p[:, block, 0], h=h, p0=.5)
+                        for m in modes_bcp :
+                            p_hat, r_hat = bcp.readout(p_bar, r_bar, beliefs, mode=m)
+                            p_hat_block[m] = p_hat
+
+                    for m in modes_bcp :
+                        full['p_hat_%s'%m][a:b] = p_hat_block[m]
 
         return full
 
@@ -1824,7 +1822,7 @@ class Analysis(object):
 
         #colors = ['black','dimgrey','grey','darkgrey','silver','rosybrown','lightcoral','indianred','firebrick','brown','darkred','red']
         nb_sujet = len(self.PARI)
-        full = Analysis.Full_list(self, modes_bcp=mode_bcp, pause=pause)
+        full = full_liste(self, modes_bcp=mode_bcp, pause=pause)
 
         if proba == 'real' :
             ax.set_xlabel('$P_{real}$', fontsize=t_label/1)
@@ -1839,6 +1837,7 @@ class Analysis(object):
         if result=='bet' :
             res = 'results'
             ymin, ymax = -0.032, 1.032
+
             ax.set_ylabel('Probability Bet', fontsize=t_label/1.2)
             if titre is None :
                 ax.set_title("Probability Bet", fontsize=t_titre/1.2, x=0.5, y=1.05)
@@ -1847,6 +1846,7 @@ class Analysis(object):
         elif result=='acceleration' :
             res = 'aa'
             ymin, ymax = -21.28, 21.28
+
             ax.set_ylabel('Acceleration of anticipation (°/s$^2$)', fontsize=t_label/1.2)
             if titre is None :
                 ax.set_title("Acceleration", fontsize=t_titre/1.2, x=0.5, y=1.05)
@@ -1854,6 +1854,7 @@ class Analysis(object):
         elif result=='velocity' :
             res = 'va'
             ymin, ymax = -10.64, 10.64
+
             ax.set_ylabel('Velocity of anticipation (°/s)', fontsize=t_label/1.2)
             if titre is None :
                 ax.set_title("Velocity", fontsize=t_titre/1.2, x=0.5, y=1.05)
@@ -1916,7 +1917,7 @@ class Analysis(object):
         from scipy import stats
 
         nb_sujet = len(self.PARI)
-        #full = Analysis.Full_list(self, modes_bcp=mode_bcp, pause=True) #(self.PARI, self.ENREGISTREMENT, P_HAT=True)
+        #full = full_liste(self, modes_bcp=mode_bcp, pause=True) #(self.PARI, self.ENREGISTREMENT, P_HAT=True)
 
         if plot == 'Full' :
             a = len(sujet)
