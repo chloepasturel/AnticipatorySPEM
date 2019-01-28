@@ -21,12 +21,11 @@ def binomial_motion(N_trials, N_blocks, tau, seed, Jeffreys=True, N_layer=3):
 
     trials = np.arange(N_trials)
     p = np.random.rand(N_trials, N_blocks, N_layer)
+
     for trial in trials:
         p[trial, :, 2] = np.random.rand(1, N_blocks) < 1/tau # switch
-        if Jeffreys: # /!\ REDEMANDER à laurent
-            p_random = beta.rvs(a=.5, b=.5, size=N_blocks)
-        else:
-            p_random = np.random.rand(1, N_blocks)
+        if Jeffreys: p_random = beta.rvs(a=.5, b=.5, size=N_blocks)
+        else: p_random = np.random.rand(1, N_blocks)
         p[trial, :, 1] = (1 - p[trial, :, 2])*p[trial-1, :, 1] + p[trial, :, 2] * p_random # probability
         p[trial, :, 0] =  p[trial, :, 1] > np.random.rand(1, N_blocks) # binomial
 
@@ -55,10 +54,8 @@ class aSPEM(object):
         datadir = 'data'
         import os
         for dir_ in [datadir, cachedir] :
-            try:
-                os.mkdir(dir_)
-            except:
-                pass
+            try: os.mkdir(dir_)
+            except: pass
 
         file = self.mode + '_' + self.observer + '_' + self.timeStr + '.pkl'
         if file in os.listdir(datadir) :
@@ -252,8 +249,7 @@ class aSPEM(object):
         # ---------------------------------------------------
         # EXPERIMENT
         # ---------------------------------------------------
-        if self.mode == 'pari' :
-            results = np.zeros((self.exp['N_trials'], self.exp['N_blocks'] ))
+        if self.mode == 'pari' : results = np.zeros((self.exp['N_trials'], self.exp['N_blocks'] ))
 
         if self.mode == 'enregistrement':
             ET.Start_exp()
@@ -265,8 +261,7 @@ class aSPEM(object):
             win.winHandle.set_visible(True) # remis pour voir si ça enléve l'écran blanc juste après calibration
             win.winHandle.set_fullscreen(True)
 
-        if self.mode == 'pari' :
-            score = 0
+        if self.mode == 'pari' : score = 0
 
         for block in range(self.exp['N_blocks']):
 
@@ -330,8 +325,7 @@ class aSPEM(object):
                 # ---------------------------------------------------
                 win.flip()
                 escape_possible(self.mode)
-                if self.mode == 'enregistrement':
-                    ET.StimulusOFF()
+                if self.mode == 'enregistrement': ET.StimulusOFF()
                 core.wait(0.3)
 
                 # ---------------------------------------------------
@@ -339,8 +333,7 @@ class aSPEM(object):
                 # ---------------------------------------------------
                 escape_possible(self.mode)
                 dir_bool = self.exp['p'][trial, block, 0]
-                if self.mode == 'enregistrement':
-                    ET.TargetON()
+                if self.mode == 'enregistrement': ET.TargetON()
                 presentStimulus_move(dir_bool)
                 escape_possible(self.mode)
                 win.flip()
@@ -362,11 +355,9 @@ class aSPEM(object):
                     ret_value = ET.fin_enregistrement()
                     ET.check_trial(ret_value)
 
-        if self.mode == 'pari' :
-            self.exp['results'] = results
+        if self.mode == 'pari' : self.exp['results'] = results
 
-        if self.mode == 'enregistrement':
-            ET.End_exp()
+        if self.mode == 'enregistrement': ET.End_exp()
 
         with open(self.exp_name(), 'wb') as fichier:
             f = pickle.Pickler(fichier)
@@ -438,10 +429,8 @@ def results_sujet(self, ax, sujet, s, mode_bcp, tau, t_label, pause):
 
     for block in range(N_blocks) :
         #----------------------------------------------------------------------------------
-        if pause is True :
-            liste = [0,50,100,150,200]
-        else :
-            liste = [0, 200]
+        if pause is True : liste = [0,50,100,150,200]
+        else : liste = [0, 200]
 
         for a in range(len(liste)-1) :
             p_bar, r, beliefs = bcp.inference(p[liste[a]:liste[a+1], block, 0], h=h, p0=.5)
@@ -481,8 +470,7 @@ def results_sujet(self, ax, sujet, s, mode_bcp, tau, t_label, pause):
     # affiche les numéro des block sur le côté gauche
     #------------------------------------------------
     ax_block = ax.twinx()
-    if s == 0 :
-        ax_block.set_ylabel('Block', fontsize=t_label/1.5, rotation='horizontal', ha='left', va='bottom')
+    if s == 0 : ax_block.set_ylabel('Block', fontsize=t_label/1.5, rotation='horizontal', ha='left', va='bottom')
     ax_block.yaxis.set_label_coords(1.01, 1.08)
     ax_block.set_ylim(0, N_blocks)
     ax_block.set_yticks(np.arange(N_blocks)+0.5)
@@ -525,8 +513,7 @@ def full_liste(self, modes_bcp=['expectation', 'max', 'mean', 'fixed', 'fixed-ex
         if type(modes_bcp) is not list : modes_bcp = [modes_bcp]
 
         import bayesianchangepoint as bcp
-        for m in modes_bcp :
-            full['p_hat_%s'%m] = np.arange(len(self.PARI)*N_trials*N_blocks)*np.nan
+        for m in modes_bcp : full['p_hat_%s'%m] = np.arange(len(self.PARI)*N_trials*N_blocks)*np.nan
 
 
     for x in range(len(self.PARI)):
@@ -557,8 +544,7 @@ def full_liste(self, modes_bcp=['expectation', 'max', 'mean', 'fixed', 'fixed-ex
 
                 p_hat_block = {}
 
-                for m in modes_bcp :
-                    p_hat_block[m] = []
+                for m in modes_bcp : p_hat_block[m] = []
 
                 if pause is True :
                     liste = [0,50,100,150,200]
@@ -575,8 +561,7 @@ def full_liste(self, modes_bcp=['expectation', 'max', 'mean', 'fixed', 'fixed-ex
                         p_hat, r_hat = bcp.readout(p_bar, r_bar, beliefs, mode=m)
                         p_hat_block[m] = p_hat
 
-                for m in modes_bcp :
-                    full['p_hat_%s'%m][a:b] = p_hat_block[m]
+                for m in modes_bcp : full['p_hat_%s'%m][a:b] = p_hat_block[m]
 
     return full
 
@@ -606,10 +591,8 @@ class Analysis(object):
         datadir = 'data'
         import os
         for dir_ in [datadir, cachedir] :
-            try:
-                os.mkdir(dir_)
-            except:
-                pass
+            try: os.mkdir(dir_)
+            except: pass
 
         # ---------------------------------------------------
         # récuperation de toutes les données
@@ -640,26 +623,20 @@ class Analysis(object):
                 except :
                     print('/!\ Le fichier param Fit n\'existe pas pour %s !'%(liste[x][1]))
         # ---------------------------------------------------
-        if self.observer is None :
-            self.observer = liste[12][1]
-        if self.mode is None :
-            self.mode = 'enregistrement'
+        if self.observer is None : self.observer = liste[12][1]
+        if self.mode is None : self.mode = 'enregistrement'
 
         for x in range(len(liste)):
-            if liste[x][1] == self.observer and liste[x][0] == self.mode :
-                self.timeStr = liste[x][2]+'_'+liste[x][3]
+            if liste[x][1] == self.observer and liste[x][0] == self.mode : self.timeStr = liste[x][2]+'_'+liste[x][3]
 
         if self.mode == 'pari' :
             for x in range(len(self.PARI)):
-                if self.PARI[x]['observer'] == self.observer :
-                    self.exp = self.PARI[x]
+                if self.PARI[x]['observer'] == self.observer : self.exp = self.PARI[x]
         else :
             for x in range(len(self.PARI)):
-                if self.PARI[x]['observer'] == self.observer :
-                    self.exp = self.PARI[x]
+                if self.PARI[x]['observer'] == self.observer : self.exp = self.PARI[x]
             for x in range(len(self.ENREGISTREMENT)):
-                if self.ENREGISTREMENT[x]['observer'] == self.observer :
-                    self.param = self.ENREGISTREMENT[x]
+                if self.ENREGISTREMENT[x]['observer'] == self.observer : self.param = self.ENREGISTREMENT[x]
 
 
     def Full_list(self, modes_bcp=['expectation', 'max', 'mean', 'fixed', 'fixed-exp', 'hindsight'], pause=True):
@@ -679,8 +656,7 @@ class Analysis(object):
             if type(modes_bcp) is not list : modes_bcp = [modes_bcp]
 
             import bayesianchangepoint as bcp
-            for m in modes_bcp :
-                full['p_hat_%s'%m] = np.arange(len(self.PARI)*N_trials*N_blocks)*np.nan
+            for m in modes_bcp : full['p_hat_%s'%m] = np.arange(len(self.PARI)*N_trials*N_blocks)*np.nan
 
 
         for x in range(len(self.PARI)):
@@ -711,8 +687,7 @@ class Analysis(object):
 
                     p_hat_block = {}
 
-                    for m in modes_bcp :
-                        p_hat_block[m] = []
+                    for m in modes_bcp : p_hat_block[m] = []
 
                     if pause is True :
                         liste = [0,50,100,150,200]
@@ -729,8 +704,7 @@ class Analysis(object):
                             p_hat, r_hat = bcp.readout(p_bar, r_bar, beliefs, mode=m)
                             p_hat_block[m] = p_hat
 
-                    for m in modes_bcp :
-                        full['p_hat_%s'%m][a:b] = p_hat_block[m]
+                    for m in modes_bcp : full['p_hat_%s'%m][a:b] = p_hat_block[m]
 
         return full
 
@@ -902,8 +876,7 @@ class Analysis(object):
         resultats = os.path.join(self.exp['datadir'], self.mode + '_' + self.observer + '_' + self.timeStr + '.asc')
         data = read_edf(resultats, 'TRIALID')
 
-        if file_fig is None :
-            file_fig = 'figures/%s_%s'%(show, self.observer)
+        if file_fig is None : file_fig = 'figures/%s_%s'%(show, self.observer)
 
         Plot.plot_Full_data(data, show=show, N_blocks=N_blocks,
                         N_trials=N_trials,
@@ -1117,8 +1090,7 @@ class Analysis(object):
 
         if plot is True :
             if file_fig is None :
-                if not os.path.exists('figures/Fit_%s'%equation):
-                    os.makedirs('figures/Fit_%s'%equation)
+                if not os.path.exists('figures/Fit_%s'%equation): os.makedirs('figures/Fit_%s'%equation)
                 file_fig='figures/Fit_%s/Fit_%s_%s_%s_step_%s_whitening'%(equation, self.observer, equation, step_fit, do_whitening)
 
         param = Fit.Fit_full(data, equation=equation, fitted_data=fitted_data,
@@ -1158,8 +1130,7 @@ class Analysis(object):
         timeStr = {}
         for fname in glob.glob('data/*pkl'):
             a = fname.split('/')[1].split('.')[0].split('_')
-            if a[1] in self.subjects and a[0] == self.mode :
-                timeStr[a[1]] = a[2]+'_'+a[3]
+            if a[1] in self.subjects and a[0] == self.mode : timeStr[a[1]] = a[2]+'_'+a[3]
 
 
 
@@ -1173,8 +1144,7 @@ class Analysis(object):
         for p_r in PROBA :
             v_r[p_r], v_l[p_r] = [], []
 
-        if mean is not True :
-            pas_tps = 1
+        if mean is not True : pas_tps = 1
 
         for x in range(len(self.subjects)) :
 
@@ -1213,15 +1183,13 @@ class Analysis(object):
             for tps in range(stop) :
                 if show in ['r', 'r+l'] :
                     liste_r = []
-                    for a in range(len(v_r[p_r])) :
-                        liste_r.append(v_r[p_r][a][tps])
+                    for a in range(len(v_r[p_r])) : liste_r.append(v_r[p_r][a][tps])
                     mean_v_r.append(np.nanmean(liste_r))
                     std_v_r.append(np.nanstd(liste_r))
 
                 if show in ['l', 'r+l'] :
                     liste_l = []
-                    for b in range(len(v_l[p_r])) :
-                        liste_l.append(v_l[p_r][b][tps])
+                    for b in range(len(v_l[p_r])) : liste_l.append(v_l[p_r][b][tps])
                     mean_v_l.append(np.nanmean(liste_l))
                     std_v_l.append(np.nanstd(liste_l))
 
@@ -1229,10 +1197,8 @@ class Analysis(object):
                 mean_m_r, mean_m_l = [], []
                 std_m_r, std_m_l = [], []
 
-                if show == 'r' :
-                    len_mean = len(mean_v_r)
-                else :
-                    len_mean = len(mean_v_l)
+                if show == 'r' : len_mean = len(mean_v_r)
+                else : len_mean = len(mean_v_l)
 
                 for t in np.arange(0,len_mean ,pas_tps) :
                     if show in ['r', 'r+l'] :
@@ -1243,10 +1209,8 @@ class Analysis(object):
                         mean_m_l.append(np.nanmean(mean_v_l[t:t+pas_tps]))
 
             else :
-                if show in ['r', 'r+l'] :
-                    mean_m_r, std_m_r  = mean_v_r, std_v_r
-                if show in ['l', 'r+l'] :
-                    mean_m_l, std_m_l = mean_v_l, std_v_l
+                if show in ['r', 'r+l'] : mean_m_r, std_m_r  = mean_v_r, std_v_r
+                if show in ['l', 'r+l'] : mean_m_l, std_m_l = mean_v_l, std_v_l
 
             if show in ['r', 'r+l'] :
                 mean_r, std_r = np.asarray(mean_m_r), np.asarray(std_m_r)
@@ -1254,22 +1218,17 @@ class Analysis(object):
                 ax.fill_between(range(int(stop/pas_tps)), mean_r+std_r, mean_r-std_r, facecolor=color[x], alpha=0.05)
 
             if show in ['l', 'r+l'] :
-                if show == 'l' :
-                    label_l = ' p = %.1f - %.1f'%(p_r, p_r+delta)
-                else :
-                    label_l = None
+                if show == 'l' : label_l = ' p = %.1f - %.1f'%(p_r, p_r+delta)
+                else : label_l = None
                 mean_l, std_l = np.asarray(mean_m_l), np.asarray(std_m_l)
                 ax.plot(mean_l, c=color[x], lw=2.5, alpha=1, label=label_l)
                 ax.fill_between(range(int(stop/pas_tps)), mean_l+std_l, mean_l-std_l, facecolor=color[x], alpha=0.05)
 
             x=x+1
 
-        if show == 'r' :
-            min_y, max_y = -11.28, 21.28
-        if show == 'l' :
-            min_y, max_y =  -21.28, 11.28
-        if show == 'r+l' :
-            min_y, max_y = -21.28, 21.28
+        if show == 'r' : min_y, max_y = -11.28, 21.28
+        if show == 'l' : min_y, max_y =  -21.28, 11.28
+        if show == 'r+l' : min_y, max_y = -21.28, 21.28
 
         ax.axis([0, (stop/pas_tps)-pas_tps, min_y, max_y])
 
@@ -1304,13 +1263,9 @@ class Analysis(object):
         N_blocks = self.exp['N_blocks']
         h = 1./tau
         ec = 0.2
-        if p is None :
-            p = self.exp['p']
-        if num_block is None :
-            BLOCK = range(N_blocks)
-        else:
-            ec=0.1
-            BLOCK = num_block
+        if p is None : p = self.exp['p']
+        if num_block is None : BLOCK = range(N_blocks)
+        else: ec, BLOCK = 0.1, num_block
 
 
         if fig is None:
@@ -1430,15 +1385,11 @@ class Analysis(object):
                                               lw=.5, alpha=alpha[0][1], facecolor=color[0][1], step='pre')
 
 
-                    if TD is True :
-                        axs[0].set_ylabel('TD', fontsize=t_label/1.2)
-                    else :
-                        axs[0].set_ylabel('Target Direction', fontsize=t_label/1.2)
+                    if TD is True : axs[0].set_ylabel('TD', fontsize=t_label/1.2)
+                    else : axs[0].set_ylabel('Target Direction', fontsize=t_label/1.2)
                 for s in range(len(sujet)) :
-                    if direction is True :
-                        a = s+1
-                    else :
-                        a = s
+                    if direction is True : a = s+1
+                    else : a = s
                     axs[a].step(range(N_trials), p[:, block, 1]+i_block+ec*i_block, lw=1, c=color[1][0], alpha=alpha[1][0])
                     axs[a].fill_between(range(N_trials), i_block+np.zeros_like(p[:, block, 1])+ec*i_block, i_block+p[:, block, 1]+ec*i_block,
                                               lw=.5, alpha=alpha[1][0], facecolor=color[1][0], step='pre')
@@ -1453,10 +1404,8 @@ class Analysis(object):
         #-------------------------------------------------------------------------------------------------------------
 
         for s in range(len(sujet)) :
-            if direction is True :
-                a = s+1
-            else :
-                a = s
+            if direction is True : a = s+1
+            else : a = s
 
             if len(sujet)==1:
                 results = (self.exp['results']+1)/2 # results est sur [-1,1] on le ramene sur [0,1]
@@ -1481,8 +1430,7 @@ class Analysis(object):
                                       color='r', label='Individual guess')
                     else :
                         axs[a].step(range(N_trials), i_block+results[:, block]+ec*i_block, lw=lw, alpha=1, color='r')
-                if titre is None :
-                    axs[0].set_title('Bet results', fontsize=t_titre, x=0.5, y=y_t)
+                if titre is None : axs[0].set_title('Bet results', fontsize=t_titre, x=0.5, y=y_t)
 
             #------------------------------------------------
             elif mode == 'enregistrement' :
@@ -1498,8 +1446,7 @@ class Analysis(object):
                         #axs[a].step(range(N_trials), i_block+np.array(v_anti[block]+ec*i_block, color='k', lw=lw, alpha=1)
                         ax1.step(range(N_trials), 2*(mini*i_block)+(np.array(v_anti[block])*((np.array(latence[block])-np.array(start_anti[block]))/1000))+ec1*i_block,
                                     color='k', lw=lw, alpha=1)
-                if titre is None :
-                    axs[0].set_title('Eye movements recording results', fontsize=t_titre, x=0.5, y=y_t)
+                if titre is None : axs[0].set_title('Eye movements recording results', fontsize=t_titre, x=0.5, y=y_t)
                 axs[a].set_yticks([])
                 popo = 'left'
             #------------------------------------------------
@@ -1524,8 +1471,7 @@ class Analysis(object):
                         #ax1.step(range(N_trials), i_block+np.array(v_anti[block])+ec1*i_block, color='k', lw=lw, alpha=1)
                         ax1.step(range(N_trials), 2*(mini*i_block)+(np.array(v_anti[block])*((np.array(latence[block])-np.array(start_anti[block]))/1000))+ec1*i_block,
                                  color='k', lw=lw, alpha=1)
-                if titre is None :
-                    axs[0].set_title('Bet + Eye movements results', fontsize=t_titre, x=0.5, y=y_t)
+                if titre is None : axs[0].set_title('Bet + Eye movements results', fontsize=t_titre, x=0.5, y=y_t)
 
                 axs[a].set_ylabel('Bet of probability', fontsize=t_label/1.5, color='r')
                 axs[a].tick_params('y', colors='r')
@@ -1547,31 +1493,23 @@ class Analysis(object):
 
 
             #------------------------------------------------
-            if mode is None and titre is None :
-                axs[0].set_title('Experiment', fontsize=t_titre, x=0.5, y=y_t)
+            if mode is None and titre is None : axs[0].set_title('Experiment', fontsize=t_titre, x=0.5, y=y_t)
             #-------------------------------------------------------------------------------------------------------------
 
-            if titre is not None :
-                axs[0].set_title(titre, fontsize=t_titre, x=0.5, y=y_t)
+            if titre is not None : axs[0].set_title(titre, fontsize=t_titre, x=0.5, y=y_t)
 
         if legends is True :
-            if TD is True :
-                axs[1].legend(fontsize=t_label/1.8, bbox_to_anchor=(0., 1.3, 1, 0.), loc=3, ncol=2, mode="expand", borderaxespad=0.)
-            else :
-                axs[1].legend(fontsize=t_label/1.8, bbox_to_anchor=(0., 2.1, 1, 0.), loc=3, ncol=2, mode="expand", borderaxespad=0.)
+            if TD is True : axs[1].legend(fontsize=t_label/1.8, bbox_to_anchor=(0., 1.3, 1, 0.), loc=3, ncol=2, mode="expand", borderaxespad=0.)
+            else : axs[1].legend(fontsize=t_label/1.8, bbox_to_anchor=(0., 2.1, 1, 0.), loc=3, ncol=2, mode="expand", borderaxespad=0.)
 
         axs[-1].set_xlabel('Trials', fontsize=t_label)
-        try:
-            fig.tight_layout()
-        except:
-            print('tight_layout failed :-(')
+        try: fig.tight_layout()
+        except: print('tight_layout failed :-(')
         plt.subplots_adjust(hspace=0.05)
         #------------------------------------------------
 
-        if return_proba is None :
-            return fig, axs
-        else :
-            return fig, axs, p
+        if return_proba is None : return fig, axs
+        else : return fig, axs, p
 
 
     def plot_bcp(self, show_trial=False, block=0, trial=50, N_scan=100, fixed_window_size=40,
@@ -1585,8 +1523,7 @@ class Analysis(object):
         import bayesianchangepoint as bcp
         from scipy.stats import beta
 
-        if type(mode) is not list :
-            mode = [mode]
+        if type(mode) is not list : mode = [mode]
 
         color=[['k', 'k'], ['r', 'r'], ['k','w']]
         alpha = [[.35,.15],[.35,.15],[1,0]]
@@ -1614,10 +1551,8 @@ class Analysis(object):
             ax1.plot(time, p_low, c='darkred', lw=1.2, alpha=.9, ls='--')
             ax1.fill_between(time, p_sup, p_low, lw=.5, alpha=.11, facecolor='darkred')
 
-            if N_trial < N_trials :
-                extent = (min(time), max(time), np.max(r_bar), np.min(r_bar))
-            else :
-                extent = None
+            if N_trial < N_trials : extent = (min(time), max(time), np.max(r_bar), np.min(r_bar))
+            else : extent = None
 
             eps=1.e-5 # 1.e-12
             #ax2.imshow(np.log(beliefs[:max_run_length, :] + eps), cmap='Greys', extent=extent)
@@ -1666,10 +1601,8 @@ class Analysis(object):
                 for i_scan, h_ in enumerate(hs):
                     p_bar, r_bar, beliefs = bcp.inference(o, h=h_, p0=p0, r0=r0)
                     for i_mode, m in enumerate(mode):
-                        if m=='fixed':
-                            p_hat, r_hat = bcp.readout(p_bar, r_bar, beliefs, mode=m, fixed_window_size=int(1/h_))
-                        else:
-                            p_hat, r_hat = bcp.readout(p_bar, r_bar, beliefs, mode=m, p0=p0)
+                        if m=='fixed': p_hat, r_hat = bcp.readout(p_bar, r_bar, beliefs, mode=m, fixed_window_size=int(1/h_))
+                        else: p_hat, r_hat = bcp.readout(p_bar, r_bar, beliefs, mode=m, p0=p0)
 
                         score[i_mode, i_scan, i_block] = np.mean(np.log2(bcp.likelihood(o[(border+1):], p_hat[border:-1], r_hat[border:-1])))
                         #KL_ = p_hat * np.log2(p_hat) - p_hat * np.log2(p[:, i_block, 1])
@@ -1690,8 +1623,7 @@ class Analysis(object):
                 ax3 = plt.Subplot(fig, gs1[:, 1])
                 fig.add_subplot(ax3)
 
-                if show_title is True :
-                    ax1.set_title('Mode %s Block %s'%(m, (block+1)), x=0.5, y=1.05, fontsize=t_label)
+                if show_title is True : ax1.set_title('Mode %s Block %s'%(m, (block+1)), x=0.5, y=1.05, fontsize=t_label)
 
             if show_trial is True :
                 gs1 = gridspec.GridSpecFromSubplotSpec(2, 1, subplot_spec=gs[x], hspace=0.05)
@@ -1766,18 +1698,12 @@ class Analysis(object):
                 ax2.bar(trial, 140 + (.05*140)+.05*140, bottom=-.05*140, color='firebrick', width=.5, linewidth=0, alpha=1)
 
                 if show_title is True :
-                    if m == 'expectation' :
-                        title = 'expectation $\sum_{r=0}^\infty r \cdot p(r) \cdot \hat{p}(r) $'
-                    elif m == 'max' :
-                        title = '$\hat{p} ( \mathrm{ArgMax}_r (p(r)) )$'
-                    elif m == 'mean' :
-                        title = 'mean equation'
-                    elif m == 'fixed' :
-                        title = 'fixed equation'
-                    elif m == 'fixed-exp' :
-                        title = 'fixed-exp equation'
-                    elif m == 'hindsight' :
-                        title = 'hindsight equation'
+                    if m == 'expectation' : title = 'expectation $\sum_{r=0}^\infty r \cdot p(r) \cdot \hat{p}(r) $'
+                    elif m == 'max' : title = '$\hat{p} ( \mathrm{ArgMax}_r (p(r)) )$'
+                    elif m == 'mean' : title = 'mean equation'
+                    elif m == 'fixed' : title = 'fixed equation'
+                    elif m == 'fixed-exp' : title = 'fixed-exp equation'
+                    elif m == 'hindsight' : title = 'hindsight equation'
                     ax1.set_title('Bayesian change point : %s'%title, x=0.5, y=1.05, fontsize=t_titre)
 
             #---------------------------------------------------------------------------
@@ -1801,8 +1727,7 @@ class Analysis(object):
 
             ax.set_xlabel('r$_{%s}$'%(trial), fontsize=t_label/1.2)
             ax.set_ylabel('p(r) at trial $%s$'%(trial), fontsize=t_label/1.5)
-            if show_title is True :
-                ax.set_title('Belief on r for trial %s'%(trial), x=0.5, y=1., fontsize=t_titre/1.5)
+            if show_title is True : ax.set_title('Belief on r for trial %s'%(trial), x=0.5, y=1., fontsize=t_titre/1.5)
 
             ax.tick_params(labelsize=t_label/1.8, bottom=True, left=True)
 
@@ -1817,7 +1742,6 @@ class Analysis(object):
 
         if fig is not None:
             import matplotlib.pyplot as plt
-            fig_width= fig_width
             fig, ax = plt.subplots(1, 1, figsize=(fig_width, fig_width)) #/(1.6180)))
 
         #colors = ['black','dimgrey','grey','darkgrey','silver','rosybrown','lightcoral','indianred','firebrick','brown','darkred','red']
@@ -1835,29 +1759,23 @@ class Analysis(object):
         xmin, xmax = -0.032, 1.032
 
         if result=='bet' :
-            res = 'results'
-            ymin, ymax = -0.032, 1.032
+            res, ymin, ymax = 'results', -0.032, 1.032
 
             ax.set_ylabel('Probability Bet', fontsize=t_label/1.2)
-            if titre is None :
-                ax.set_title("Probability Bet", fontsize=t_titre/1.2, x=0.5, y=1.05)
+            if titre is None : ax.set_title("Probability Bet", fontsize=t_titre/1.2, x=0.5, y=1.05)
 
 
         elif result=='acceleration' :
-            res = 'aa'
-            ymin, ymax = -21.28, 21.28
+            res, ymin, ymax = 'aa', -21.28, 21.28
 
             ax.set_ylabel('Acceleration of anticipation (°/s$^2$)', fontsize=t_label/1.2)
-            if titre is None :
-                ax.set_title("Acceleration", fontsize=t_titre/1.2, x=0.5, y=1.05)
+            if titre is None : ax.set_title("Acceleration", fontsize=t_titre/1.2, x=0.5, y=1.05)
 
         elif result=='velocity' :
-            res = 'va'
-            ymin, ymax = -10.64, 10.64
+            res, ymin, ymax = 'va', -10.64, 10.64
 
             ax.set_ylabel('Velocity of anticipation (°/s)', fontsize=t_label/1.2)
-            if titre is None :
-                ax.set_title("Velocity", fontsize=t_titre/1.2, x=0.5, y=1.05)
+            if titre is None : ax.set_title("Velocity", fontsize=t_titre/1.2, x=0.5, y=1.05)
 
         full_result = full[res]
 
@@ -1897,17 +1815,14 @@ class Analysis(object):
 
         ax = regress(ax, proba, data, ymin, ymax, t_label, color=color_r)
 
-        if titre is not None :
-            ax.set_title(titre, fontsize=t_titre/1.2, x=0.5, y=1.05)
+        if titre is not None : ax.set_title(titre, fontsize=t_titre/1.2, x=0.5, y=1.05)
         ax.axis([xmin, xmax, ymin, ymax])
 
         ax.tick_params(labelsize=t_label/1.8, bottom=True, left=True)
         #------------------------------------------------
 
-        if fig is not None:
-            return fig, ax
-        else :
-            return ax
+        if fig is not None: return fig, ax
+        else : return ax
 
     def plot_results(self, mode_bcp='mean', show='scatter', mean_kde=True, tau=40., sujet=[6], fig_width=15, t_titre=35, t_label=25, plot='Full', pause=True) :
 
@@ -1928,8 +1843,7 @@ class Analysis(object):
 
             gs1 = gridspec.GridSpec(len(sujet), 1)
             gs1.update(left=0, bottom=(len(sujet))*2/3, right=1, top=len(sujet), hspace=0.05)
-            for s in range(len(sujet)) :
-                axs[s] = plt.subplot(gs1[s])
+            for s in range(len(sujet)) : axs[s] = plt.subplot(gs1[s])
 
             gs2 = gridspec.GridSpec(1, 2)
             gs2.update(left=0, bottom=-1/2+(((len(sujet))*2/3)-0.16), right=1, top=((len(sujet))*2/3)-0.16, wspace=0.2)
@@ -1943,8 +1857,7 @@ class Analysis(object):
             # plt.subplots_adjust(hspace=0.05)
 
         elif plot == 'scatterKDE' :
-            a = 0
-            b = 1
+            a, b = 0, 1
             print('scatterKDE')
             fig, axs = plt.subplots(1, 2, figsize=(fig_width, fig_width/2.))
             # fig.subplots_adjust(left = 0, bottom = 1/2, right = 1, top =1)
@@ -1953,18 +1866,15 @@ class Analysis(object):
 
         if plot in ['Full', 'sujet'] :
             # axs[0].set_title('Results bayesian change point %s'%(mode_bcp), fontsize=t_titre, x=0.5, y=1.3)
-            for s in range(len(sujet)) :
-                axs[s] = results_sujet(self, axs[s], sujet, s, mode_bcp, tau, t_label, pause)
+            for s in range(len(sujet)) : axs[s] = results_sujet(self, axs[s], sujet, s, mode_bcp, tau, t_label, pause)
 
         if plot in ['Full', 'scatterKDE'] :
 
             #------------------------------------------------
             # SCATTER KDE Plot
             #------------------------------------------------
-            if show=='kde' :
-                color_r='r'
-            else :
-                color_r='k'
+            if show=='kde' : color_r='r'
+            else : color_r='k'
 
             opt = {'show':show, 'mode_bcp':mode_bcp, 'mean_kde':mean_kde, 't_titre':t_titre, 't_label':t_label,
                     'pause':pause, 'color_r':color_r}
