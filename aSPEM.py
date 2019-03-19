@@ -1165,14 +1165,14 @@ class Analysis(object):
                                 if show in ['l', 'r+l'] :
                                     velocity_NAN = A.velocity_NAN(arg.data_x, arg.data_y, arg.saccades,
                                                       arg.trackertime, arg.TargetOn,
-                                                      before_sacc=5, after_sacc=15)[0]
+                                                      before_sacc=5, after_sacc=15)
                                     v_l[p_r].append(velocity_NAN[start:start+stop])
 
                             elif arg.dir_target == 1 :
                                 if show in ['r', 'r+l'] :
                                     velocity_NAN = A.velocity_NAN(arg.data_x, arg.data_y, arg.saccades,
                                                       arg.trackertime, arg.TargetOn,
-                                                      before_sacc=5, after_sacc=15)[0]
+                                                      before_sacc=5, after_sacc=15)
                                     v_r[p_r].append(velocity_NAN[start:start+stop])
 
         x=0
