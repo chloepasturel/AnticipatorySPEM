@@ -96,7 +96,7 @@ class aSPEM(object):
             V_X_deg = 15 #20   # deg/s   # 15 for 'enregistrement'
             V_X = px_per_deg * V_X_deg     # pixel/s
 
-            RashBass  = 100  # ms - pour reculer la cible à t=0 de sa vitesse * latence=RashBass
+            RashBass  = 100  # ms - pour reculer la cible à t=0 de sa vitesse * latency=RashBass
 
             saccade_px = .618*screen_height_px
             offset = 0 #.2*screen_height_px
@@ -238,7 +238,7 @@ class aSPEM(object):
             dir_sign = dir_bool * 2 - 1
             while clock.getTime() < self.exp['stim_tau']:
                 escape_possible(self.mode)
-                # la cible à t=0 recule de sa vitesse * latence=RashBass (ici mis en s)
+                # la cible à t=0 recule de sa vitesse * latency=RashBass (ici mis en s)
                 target.setPos(((dir_sign * self.exp['V_X']*clock.getTime())-(dir_sign * self.exp['V_X']*(self.exp['RashBass']/1000)), self.exp['offset']))
                 target.draw()
                 win.flip()
@@ -425,7 +425,7 @@ def results_sujet(self, ax, sujet, s, mode_bcp, tau, t_label, pause):
     # tau = N_trials/5.
     h = 1./tau
     results = (self.PARI[sujet[s]]['results']+1)/2 # results est sur [-1,1] on le ramene sur [0,1]
-    v_anti = self.ENREGISTREMENT[sujet[s]]['v_anti']
+    a_anti = self.ENREGISTREMENT[sujet[s]]['a_anti']
 
     for block in range(N_blocks) :
         #----------------------------------------------------------------------------------
@@ -458,11 +458,11 @@ def results_sujet(self, ax, sujet, s, mode_bcp, tau, t_label, pause):
         # Pour éviter d'avoir 36 légendes
         if block == 0 :
             ax.step(range(N_trials), block+results[:, block]+ec*block, color='r', lw=1.2, label='Individual guess')
-            ax.step(range(N_trials), block+((np.array(v_anti[block])-np.nanmin(v_anti))/(np.nanmax(v_anti)-np.nanmin(v_anti)))+ec*block,
+            ax.step(range(N_trials), block+((np.array(a_anti[block])-np.nanmin(a_anti))/(np.nanmax(a_anti)-np.nanmin(a_anti)))+ec*block,
                         color='k', lw=1.2, label='Eye movements')
         else :
             ax.step(range(N_trials), block+results[:, block]+ec*block, lw=1.2, color='r')
-            ax.step(range(N_trials), block+((np.array(v_anti[block])-np.nanmin(v_anti))/(np.nanmax(v_anti)-np.nanmin(v_anti)))+ec*block,
+            ax.step(range(N_trials), block+((np.array(a_anti[block])-np.nanmin(a_anti))/(np.nanmax(a_anti)-np.nanmin(a_anti)))+ec*block,
                         color='k', lw=1.2)
 
 
@@ -519,9 +519,9 @@ def full_liste(self, modes_bcp=['expectation', 'max', 'mean', 'fixed', 'fixed-ex
     for x in range(len(self.PARI)):
 
         results = (self.PARI[x]['results']+1)/2
-        v_anti = self.ENREGISTREMENT[x]['v_anti']
+        a_anti = self.ENREGISTREMENT[x]['a_anti']
         start_anti = self.ENREGISTREMENT[x]['start_anti']
-        latence = self.ENREGISTREMENT[x]['latence']
+        latency = self.ENREGISTREMENT[x]['latency']
 
         for block in range(N_blocks):
 
@@ -533,8 +533,8 @@ def full_liste(self, modes_bcp=['expectation', 'max', 'mean', 'fixed', 'fixed-ex
             full['proba'][a:b] = p[:, block, 1]
             full['bino'][a:b] = p[:, block, 0]
             full['results'][a:b] = results[:, block]
-            full['aa'][a:b] = v_anti[block]
-            full['va'][a:b] = (np.array(v_anti[block])*((np.array(latence[block])-np.array(start_anti[block]))/1000))
+            full['aa'][a:b] = a_anti[block]
+            full['va'][a:b] = (np.array(a_anti[block])*((np.array(latency[block])-np.array(start_anti[block]))/1000))
 
 
             if modes_bcp is not None :
@@ -662,9 +662,9 @@ class Analysis(object):
         for x in range(len(self.PARI)):
 
             results = (self.PARI[x]['results']+1)/2
-            v_anti = self.ENREGISTREMENT[x]['v_anti']
+            a_anti = self.ENREGISTREMENT[x]['a_anti']
             start_anti = self.ENREGISTREMENT[x]['start_anti']
-            latence = self.ENREGISTREMENT[x]['latence']
+            latency = self.ENREGISTREMENT[x]['latency']
 
             for block in range(N_blocks):
 
@@ -676,8 +676,8 @@ class Analysis(object):
                 full['proba'][a:b] = p[:, block, 1]
                 full['bino'][a:b] = p[:, block, 0]
                 full['results'][a:b] = results[:, block]
-                full['aa'][a:b] = v_anti[block]
-                full['va'][a:b] = (np.array(v_anti[block])*((np.array(latence[block])-np.array(start_anti[block]))/1000))
+                full['aa'][a:b] = a_anti[block]
+                full['va'][a:b] = (np.array(a_anti[block])*((np.array(latency[block])-np.array(start_anti[block]))/1000))
 
 
                 if modes_bcp is not None :
@@ -1022,7 +1022,7 @@ class Analysis(object):
         list_param_enre : list
             list of fit parameters to record
             if None :
-                if equation in ['fct_velocity', 'fct_position'] : ['fit', 'start_anti', 'v_anti', 'latence', 'tau', 'maxi', 'saccades', 'old_anti', 'old_max', 'old_latence']
+                if equation in ['fct_velocity', 'fct_position'] : ['fit', 'start_anti', 'a_anti', 'latency', 'tau', 'maxi', 'saccades', 'old_anti', 'old_max', 'old_latency']
                 if equation is 'fct_saccades' : ['fit', 'T0', 't1', 't2', 'tr', 'x_0', 'x1', 'x2', 'tau']
 
         plot : bool
@@ -1409,17 +1409,17 @@ class Analysis(object):
 
             if len(sujet)==1:
                 results = (self.exp['results']+1)/2 # results est sur [-1,1] on le ramene sur [0,1]
-                v_anti = self.param['v_anti']
+                a_anti = self.param['a_anti']
                 start_anti = self.param['start_anti']
-                latence = self.param['latence']
+                latency = self.param['latency']
                 print('sujet =', self.exp['observer'])
                 y_t = 1.1
             else :
                 p = self.PARI[sujet[s]]['p']
                 results = (self.PARI[sujet[s]]['results']+1)/2 # results est sur [-1,1] on le ramene sur [0,1]
-                v_anti = self.ENREGISTREMENT[sujet[s]]['v_anti']
+                a_anti = self.ENREGISTREMENT[sujet[s]]['a_anti']
                 start_anti = self.ENREGISTREMENT[sujet[s]]['start_anti'] # seconde
-                latence = self.ENREGISTREMENT[sujet[s]]['latence'] # seconde
+                latency = self.ENREGISTREMENT[sujet[s]]['latency'] # seconde
                 print('sujet', sujet[s], '=', self.PARI[sujet[s]]['observer'])
                 y_t = 1.25
             #-------------------------------------------------------------------------------------------------------------
@@ -1439,12 +1439,12 @@ class Analysis(object):
                 ax1 = axs[a].twinx()
                 for i_block, block in enumerate(BLOCK):
                     if i_block == 0 :
-                        #axs[a].step(range(N_trials), i_block+np.array(v_anti[block]+ec*i_block, color='k', lw=lw, alpha=1, label='Eye movement')
-                        ax1.step(range(N_trials), 2*(mini*i_block)+(np.array(v_anti[block])*((np.array(latence[block])-np.array(start_anti[block]))/1000))+ec1*i_block,
+                        #axs[a].step(range(N_trials), i_block+np.array(a_anti[block]+ec*i_block, color='k', lw=lw, alpha=1, label='Eye movement')
+                        ax1.step(range(N_trials), 2*(mini*i_block)+(np.array(a_anti[block])*((np.array(latency[block])-np.array(start_anti[block]))/1000))+ec1*i_block,
                                     color='k', lw=lw, alpha=1, label='Eye movement')
                     else :
-                        #axs[a].step(range(N_trials), i_block+np.array(v_anti[block]+ec*i_block, color='k', lw=lw, alpha=1)
-                        ax1.step(range(N_trials), 2*(mini*i_block)+(np.array(v_anti[block])*((np.array(latence[block])-np.array(start_anti[block]))/1000))+ec1*i_block,
+                        #axs[a].step(range(N_trials), i_block+np.array(a_anti[block]+ec*i_block, color='k', lw=lw, alpha=1)
+                        ax1.step(range(N_trials), 2*(mini*i_block)+(np.array(a_anti[block])*((np.array(latency[block])-np.array(start_anti[block]))/1000))+ec1*i_block,
                                     color='k', lw=lw, alpha=1)
                 if titre is None : axs[0].set_title('Eye movements recording results', fontsize=t_titre, x=0.5, y=y_t)
                 axs[a].set_yticks([])
@@ -1463,13 +1463,13 @@ class Analysis(object):
                     if i_block == 0 :
                         axs[a].step(range(N_trials), i_block+results[:, block]+ec*i_block, lw=lw, alpha=1, color='r', label='Individual guess')
                         axs[a].step(range(1), -1000, color='k', lw=lw, alpha=1, label='Eye movement')
-                        #ax1.step(range(N_trials), i_block+np.array(v_anti[block])+ec1*i_block, color='k', lw=lw, alpha=1, label='Eye movement')
-                        ax1.step(range(N_trials), 2*(mini*i_block)+(np.array(v_anti[block])*((np.array(latence[block])-np.array(start_anti[block]))/1000))+ec1*i_block,
+                        #ax1.step(range(N_trials), i_block+np.array(a_anti[block])+ec1*i_block, color='k', lw=lw, alpha=1, label='Eye movement')
+                        ax1.step(range(N_trials), 2*(mini*i_block)+(np.array(a_anti[block])*((np.array(latency[block])-np.array(start_anti[block]))/1000))+ec1*i_block,
                                  color='k', lw=lw, alpha=1, label='Eye movement')
                     else :
                         axs[a].step(range(N_trials), i_block+results[:, block]+ec*i_block, lw=lw, alpha=1, color='r')
-                        #ax1.step(range(N_trials), i_block+np.array(v_anti[block])+ec1*i_block, color='k', lw=lw, alpha=1)
-                        ax1.step(range(N_trials), 2*(mini*i_block)+(np.array(v_anti[block])*((np.array(latence[block])-np.array(start_anti[block]))/1000))+ec1*i_block,
+                        #ax1.step(range(N_trials), i_block+np.array(a_anti[block])+ec1*i_block, color='k', lw=lw, alpha=1)
+                        ax1.step(range(N_trials), 2*(mini*i_block)+(np.array(a_anti[block])*((np.array(latency[block])-np.array(start_anti[block]))/1000))+ec1*i_block,
                                  color='k', lw=lw, alpha=1)
                 if titre is None : axs[0].set_title('Bet + Eye movements results', fontsize=t_titre, x=0.5, y=y_t)
 
