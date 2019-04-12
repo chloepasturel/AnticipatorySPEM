@@ -572,9 +572,9 @@ def full_liste(self, modes_bcp=['expectation', 'max', 'mean', 'fixed', 'fixed-ex
 class Analysis(object):
     """ docstring for the aSPEM class. """
 
-    def __init__(self, observer=None, mode=None, caracteristique_fit={'fct_fit':'fct_velocity', 'step_fit':2, 'whitening':False}) :
+    def __init__(self, observer=None, mode=None, name_file_fit='fct_velocity_2_step_False_whitening') :
         self.subjects = ['AM','BMC','CS','DC','FM','IP','LB','OP','RS','SR','TN']#,'YK'] # ne plus prendre en conte YK
-        self.caracteristique_fit = caracteristique_fit
+        self.name_file_fit = name_file_fit
         self.mode = mode
         self.observer = observer
         self.init()
@@ -615,7 +615,7 @@ class Analysis(object):
         for x in range(len(liste)) :
             if liste[x][0]=='enregistrement' and liste[x][1] in self.subjects:
                 #a = 'parametre/param_Fit_%s.pkl'%(liste[x][1])
-                a = 'parametre/param_Fit_%s_%s_%s_step_%s_whitening.pkl'%(liste[x][1], self.caracteristique_fit['fct_fit'], self.caracteristique_fit['step_fit'], self.caracteristique_fit['whitening'])
+                a = 'parametre/param_Fit_%s_%s.pkl'%(liste[x][1], self.name_file_fit)
                 try :
                     with open(a, 'rb') as fichier :
                         b = pickle.load(fichier, encoding='latin1')
@@ -1786,7 +1786,7 @@ class Analysis(object):
             alpha=0.2
             for x in range(nb_sujet):
                 s = self.PARI[x]['observer']
-                ax.scatter(full_proba[full.sujet==s], full_result[full.sujet==s], c=(0+(1/nb_sujet)*x, 0, 0, alpha), linewidths=0)
+                ax.scatter(full_proba[full.sujet==s], full_result[full.sujet==s], c=[(0+(1/nb_sujet)*x, 0, 0, alpha)], linewidths=0)
 
         # masque les essais qui où full_result = NAN
         proba = np.ma.masked_array(full_proba.values.tolist(), mask=np.isnan(full_result.values.tolist())).compressed()
