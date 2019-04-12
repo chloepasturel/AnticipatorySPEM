@@ -60,7 +60,7 @@ class aSPEM(object):
         file = self.mode + '_' + self.observer + '_' + self.timeStr + '.pkl'
         if file in os.listdir(datadir) :
             with open(os.path.join(datadir, file), 'rb') as fichier :
-                self.exp = pickle.load(fichier, encoding='latin1')
+                self.param_exp = pickle.load(fichier, encoding='latin1')
 
         else :
             expInfo = {"Sujet":'', "Age":''}
@@ -116,7 +116,7 @@ class aSPEM(object):
             N_frame_stim = int(stim_tau*framerate)
             # ---------------------------------------------------
 
-            self.exp = dict(N_blocks=N_blocks, seed=seed, N_trials=N_trials, p=p, tau=tau,
+            self.param_exp = dict(N_blocks=N_blocks, seed=seed, N_trials=N_trials, p=p, tau=tau,
                             stim_tau =stim_tau,
                             N_frame_stim=N_frame_stim, T=T,
                             datadir=datadir, cachedir=cachedir,
@@ -129,10 +129,10 @@ class aSPEM(object):
 
     def print_protocol(self):
         if True: #try:
-            N_blocks = self.exp['N_blocks']
-            N_trials = self.exp['N_trials']
-            N_frame_stim = self.exp['N_frame_stim']
-            T = self.exp['T']
+            N_blocks = self.param_exp['N_blocks']
+            N_trials = self.param_exp['N_trials']
+            N_frame_stim = self.param_exp['N_frame_stim']
+            T = self.param_exp['T']
             return "TODO"
     #         return """
     # ##########################
@@ -144,7 +144,7 @@ class aSPEM(object):
 
 
     def exp_name(self):
-        return os.path.join(self.exp['datadir'], self.mode + '_' + self.observer + '_' + self.timeStr + '.pkl')
+        return os.path.join(self.param_exp['datadir'], self.mode + '_' + self.observer + '_' + self.timeStr + '.pkl')
 
     def run_experiment(self, verb=True):
 
@@ -156,7 +156,7 @@ class aSPEM(object):
 
         if self.mode=='enregistrement' :
             import EyeTracking as ET
-            ET = ET.EyeTracking(self.exp['screen_width_px'], self.exp['screen_height_px'], self.exp['dot_size'], self.exp['N_trials'], self.observer, self.exp['datadir'], self.timeStr)
+            ET = ET.EyeTracking(self.param_exp['screen_width_px'], self.param_exp['screen_height_px'], self.param_exp['dot_size'], self.param_exp['N_trials'], self.observer, self.param_exp['datadir'], self.timeStr)
 
         #logging.console.setLevel(logging.WARNING)
         #if verb: print('launching experiment')
@@ -164,22 +164,22 @@ class aSPEM(object):
         #if verb: print('go!')
 
         # ---------------------------------------------------
-        win = visual.Window([self.exp['screen_width_px'], self.exp['screen_height_px']], color=(0, 0, 0),
-                            allowGUI=False, fullscr=True, screen=self.exp['screen'], units='pix') # enlever fullscr=True pour écran 2
+        win = visual.Window([self.param_exp['screen_width_px'], self.param_exp['screen_height_px']], color=(0, 0, 0),
+                            allowGUI=False, fullscr=True, screen=self.param_exp['screen'], units='pix') # enlever fullscr=True pour écran 2
 
         win.setRecordFrameIntervals(True)
-        win._refreshThreshold = 1/self.exp['framerate'] + 0.004 # i've got 50Hz monitor and want to allow 4ms tolerance
+        win._refreshThreshold = 1/self.param_exp['framerate'] + 0.004 # i've got 50Hz monitor and want to allow 4ms tolerance
 
         # ---------------------------------------------------
-        if verb: print('FPS = ',  win.getActualFrameRate() , 'framerate=', self.exp['framerate'])
+        if verb: print('FPS = ',  win.getActualFrameRate() , 'framerate=', self.param_exp['framerate'])
 
         # ---------------------------------------------------
-        target = visual.Circle(win, lineColor='white', size=self.exp['dot_size'], lineWidth=2)
-        fixation = visual.GratingStim(win, mask='circle', sf=0, color='white', size=self.exp['dot_size'])
+        target = visual.Circle(win, lineColor='white', size=self.param_exp['dot_size'], lineWidth=2)
+        fixation = visual.GratingStim(win, mask='circle', sf=0, color='white', size=self.param_exp['dot_size'])
         ratingScale = visual.RatingScale(win, scale=None, low=-1, high=1, precision=100, size=.7, stretch=2.5,
                         labels=('Left', 'unsure', 'Right'), tickMarks=[-1, 0., 1], tickHeight=-1.0,
                         marker='triangle', markerColor='black', lineColor='White', showValue=False, singleClick=True,
-                        showAccept=False, pos=(0, -self.exp['screen_height_px']/3)) #size=.4
+                        showAccept=False, pos=(0, -self.param_exp['screen_height_px']/3)) #size=.4
 
         #Bip_pos = sound.Sound('2000', secs=0.05)
         #Bip_neg = sound.Sound('200', secs=0.5) # augmenter les fq
@@ -190,7 +190,7 @@ class aSPEM(object):
                                     font='calibri', height=25,
                                     alignHoriz='center')#, alignVert='top')
 
-        text_score = visual.TextStim(win, font='calibri', height=30, pos=(0, self.exp['screen_height_px']/9))
+        text_score = visual.TextStim(win, font='calibri', height=30, pos=(0, self.param_exp['screen_height_px']/9))
 
         def pause(mode) :
             msg_pause.draw()
@@ -224,7 +224,7 @@ class aSPEM(object):
         # ---------------------------------------------------
         def presentStimulus_fixed(dir_bool):
             dir_sign = dir_bool * 2 - 1
-            target.setPos((dir_sign * (self.exp['saccade_px']), self.exp['offset']))
+            target.setPos((dir_sign * (self.param_exp['saccade_px']), self.param_exp['offset']))
             target.draw()
             win.flip()
             core.wait(0.3)
@@ -236,10 +236,10 @@ class aSPEM(object):
             clock.reset()
             #myMouse.setVisible(0)
             dir_sign = dir_bool * 2 - 1
-            while clock.getTime() < self.exp['stim_tau']:
+            while clock.getTime() < self.param_exp['stim_tau']:
                 escape_possible(self.mode)
                 # la cible à t=0 recule de sa vitesse * latency=RashBass (ici mis en s)
-                target.setPos(((dir_sign * self.exp['V_X']*clock.getTime())-(dir_sign * self.exp['V_X']*(self.exp['RashBass']/1000)), self.exp['offset']))
+                target.setPos(((dir_sign * self.param_exp['V_X']*clock.getTime())-(dir_sign * self.param_exp['V_X']*(self.param_exp['RashBass']/1000)), self.param_exp['offset']))
                 target.draw()
                 win.flip()
                 win.flip()
@@ -249,7 +249,7 @@ class aSPEM(object):
         # ---------------------------------------------------
         # EXPERIMENT
         # ---------------------------------------------------
-        if self.mode == 'pari' : results = np.zeros((self.exp['N_trials'], self.exp['N_blocks'] ))
+        if self.mode == 'pari' : results = np.zeros((self.param_exp['N_trials'], self.param_exp['N_blocks'] ))
 
         if self.mode == 'enregistrement':
             ET.Start_exp()
@@ -263,7 +263,7 @@ class aSPEM(object):
 
         if self.mode == 'pari' : score = 0
 
-        for block in range(self.exp['N_blocks']):
+        for block in range(self.param_exp['N_blocks']):
 
             x = 0
 
@@ -274,7 +274,7 @@ class aSPEM(object):
             pause(self.mode)
 
 
-            for trial in range(self.exp['N_trials']):
+            for trial in range(self.param_exp['N_trials']):
 
                 # ---------------------------------------------------
                 # PAUSE tous les 50 essais
@@ -332,7 +332,7 @@ class aSPEM(object):
                 # Mouvement cible
                 # ---------------------------------------------------
                 escape_possible(self.mode)
-                dir_bool = self.exp['p'][trial, block, 0]
+                dir_bool = self.param_exp['p'][trial, block, 0]
                 if self.mode == 'enregistrement': ET.TargetON()
                 presentStimulus_move(dir_bool)
                 escape_possible(self.mode)
@@ -355,13 +355,13 @@ class aSPEM(object):
                     ret_value = ET.fin_enregistrement()
                     ET.check_trial(ret_value)
 
-        if self.mode == 'pari' : self.exp['results'] = results
+        if self.mode == 'pari' : self.param_exp['results'] = results
 
         if self.mode == 'enregistrement': ET.End_exp()
 
         with open(self.exp_name(), 'wb') as fichier:
             f = pickle.Pickler(fichier)
-            f.dump(self.exp)
+            f.dump(self.param_exp)
 
         win.update()
         core.wait(0.5)
@@ -418,14 +418,14 @@ def results_sujet(self, ax, sujet, s, mode_bcp, tau, t_label, pause):
     ec = 0.2 # pour l'écart entre les différents blocks
 
 
-    print('Subject', sujet[s], '=', self.PARI[sujet[s]]['observer'])
-    N_trials = self.PARI[sujet[s]]['N_trials']
-    N_blocks = self.PARI[sujet[s]]['N_blocks']
-    p = self.PARI[sujet[s]]['p']
+    print('Subject', sujet[s], '=', self.subjects[s])
+    N_trials = self.PARI[self.subjects[s]]['N_trials']
+    N_blocks = self.PARI[self.subjects[s]]['N_blocks']
+    p = self.PARI[self.subjects[s]]['p']
     # tau = N_trials/5.
     h = 1./tau
-    results = (self.PARI[sujet[s]]['results']+1)/2 # results est sur [-1,1] on le ramene sur [0,1]
-    a_anti = self.ENREGISTREMENT[sujet[s]]['a_anti']
+    results = (self.PARI[self.subjects[s]]['results']+1)/2 # results est sur [-1,1] on le ramene sur [0,1]
+    a_anti = self.ENREGISTREMENT[self.subjects[s]]['a_anti']
 
     for block in range(N_blocks) :
         #----------------------------------------------------------------------------------
@@ -439,12 +439,8 @@ def results_sujet(self, ax, sujet, s, mode_bcp, tau, t_label, pause):
             for i_trial in range(liste[a+1]-liste[a]):
                 p_low[i_trial], p_sup[i_trial] = stats.beta.ppf([.05, .95], a=p_hat[i_trial]*r_hat[i_trial], b=(1-p_hat[i_trial])*r_hat[i_trial])
 
-            # Pour éviter d'avoir 36 légendes
-            if block == 0 and a== 0 :
-                ax.plot(np.arange(liste[a], liste[a+1]), block+p_hat+ec*block, c='darkred', alpha=.9, lw=1.5, label='$\hat{p}_{%s}$'%(mode_bcp))
-            else :
-                ax.plot(np.arange(liste[a], liste[a+1]), block+p_hat+ec*block, c='darkred', lw=1.5)
-
+            ax.plot(np.arange(liste[a], liste[a+1]), block+p_hat+ec*block, c='darkred', alpha=.9, lw=1.5,
+                    label='$\hat{p}_{%s}$'%(mode_bcp) if block==0 and a==0 else '')
             ax.plot(np.arange(liste[a], liste[a+1]), block+p_sup+ec*block, c='darkred', ls='--', lw=1.2)
             ax.plot(np.arange(liste[a], liste[a+1]), block+p_low+ec*block, c='darkred', ls= '--', lw=1.2)
             ax.fill_between(np.arange(liste[a], liste[a+1]), block+p_sup+ec*block, block+p_low+ec*block, lw=.5, alpha=.11, facecolor='darkred')
@@ -455,16 +451,10 @@ def results_sujet(self, ax, sujet, s, mode_bcp, tau, t_label, pause):
                             lw=0, alpha=alpha[1][0], facecolor=color[1][0], step='pre')
         ax.fill_between(range(N_trials), block+np.ones_like(p[:, block, 1])+ec*block, block+p[:, block, 1]+ec*block,
                             lw=0, alpha=alpha[1][1], facecolor=color[1][1], step='pre')
-        # Pour éviter d'avoir 36 légendes
-        if block == 0 :
-            ax.step(range(N_trials), block+results[:, block]+ec*block, color='r', lw=1.2, label='Individual guess')
-            ax.step(range(N_trials), block+((np.array(a_anti[block])-np.nanmin(a_anti))/(np.nanmax(a_anti)-np.nanmin(a_anti)))+ec*block,
-                        color='k', lw=1.2, label='Eye movements')
-        else :
-            ax.step(range(N_trials), block+results[:, block]+ec*block, lw=1.2, color='r')
-            ax.step(range(N_trials), block+((np.array(a_anti[block])-np.nanmin(a_anti))/(np.nanmax(a_anti)-np.nanmin(a_anti)))+ec*block,
-                        color='k', lw=1.2)
 
+        ax.step(range(N_trials), block+results[:, block]+ec*block, color='r', lw=1.2, label='Individual guess' if block==0 else '')
+        ax.step(range(N_trials), block+((np.array(a_anti[block])-np.nanmin(a_anti))/(np.nanmax(a_anti)-np.nanmin(a_anti)))+ec*block,
+                    color='k', lw=1.2, label='Eye movements' if block==0 else '')
 
     #------------------------------------------------
     # affiche les numéro des block sur le côté gauche
@@ -492,78 +482,9 @@ def results_sujet(self, ax, sujet, s, mode_bcp, tau, t_label, pause):
     ax.bar(50, 3+ec*3, bottom=-ec/2, color='k', width=.2, linewidth=0)
     ax.bar(100, 3+ec*3, bottom=-ec/2, color='k', width=.2, linewidth=0)
     ax.bar(150, 3+ec*3, bottom=-ec/2, color='k', width=.2, linewidth=0)
-    #ax.bar(49, 3+ec*3, bottom=-ec/2, color='k', width=.2, linewidth=0)
 
     return ax
 
-def full_liste(self, modes_bcp=['expectation', 'max', 'mean', 'fixed', 'fixed-exp', 'hindsight'], pause=True):
-
-    import pandas as pd
-    pd.set_option('mode.chained_assignment', None)
-
-    N_trials = self.exp['N_trials']
-    N_blocks = self.exp['N_blocks']
-
-    p = self.exp['p']
-
-    full = pd.DataFrame(index=np.arange(len(self.PARI)*N_trials*N_blocks),columns=('sujet', 'proba','bino','results','aa','va'))
-
-    if modes_bcp is not None :
-
-        if type(modes_bcp) is not list : modes_bcp = [modes_bcp]
-
-        import bayesianchangepoint as bcp
-        for m in modes_bcp : full['p_hat_%s'%m] = np.arange(len(self.PARI)*N_trials*N_blocks)*np.nan
-
-
-    for x in range(len(self.PARI)):
-
-        results = (self.PARI[x]['results']+1)/2
-        a_anti = self.ENREGISTREMENT[x]['a_anti']
-        start_anti = self.ENREGISTREMENT[x]['start_anti']
-        latency = self.ENREGISTREMENT[x]['latency']
-
-        for block in range(N_blocks):
-
-            nb = x*N_trials*N_blocks
-            a = nb + N_trials*block
-            b = (nb + N_trials*(block+1))
-
-            full['sujet'][a:b] = self.PARI[x]['observer']
-            full['proba'][a:b] = p[:, block, 1]
-            full['bino'][a:b] = p[:, block, 0]
-            full['results'][a:b] = results[:, block]
-            full['aa'][a:b] = a_anti[block]
-            full['va'][a:b] = (np.array(a_anti[block])*((np.array(latency[block])-np.array(start_anti[block]))/1000))
-
-
-            if modes_bcp is not None :
-                tau = N_trials/5.
-                h = 1./tau
-
-
-                p_hat_block = {}
-
-                for m in modes_bcp : p_hat_block[m] = []
-
-                if pause is True :
-                    liste = [0,50,100,150,200]
-                    for s in range(len(liste)-1) :
-                        p_bar, r_bar, beliefs = bcp.inference(p[liste[s]:liste[s+1], block, 0], h=h, p0=.5)
-
-                        for m in modes_bcp :
-                            p_hat, r_hat = bcp.readout(p_bar, r_bar, beliefs, mode=m)
-                            p_hat_block[m].extend(p_hat)
-
-                else :
-                    p_bar, r_bar, beliefs = bcp.inference(p[:, block, 0], h=h, p0=.5)
-                    for m in modes_bcp :
-                        p_hat, r_hat = bcp.readout(p_bar, r_bar, beliefs, mode=m)
-                        p_hat_block[m] = p_hat
-
-                for m in modes_bcp : full['p_hat_%s'%m][a:b] = p_hat_block[m]
-
-    return full
 
 
 
@@ -573,7 +494,7 @@ class Analysis(object):
     """ docstring for the aSPEM class. """
 
     def __init__(self, observer=None, mode=None, name_file_fit='fct_velocity_2_step_False_whitening') :
-        self.subjects = ['AM','BMC','CS','DC','FM','IP','LB','OP','RS','SR','TN']#,'YK'] # ne plus prendre en conte YK
+        self.subjects = ['AM','BMC','CS','DC','FM','IP','LB','OP','RS','SR','TN','YK'] # ne plus prendre en conte YK
         self.name_file_fit = name_file_fit
         self.mode = mode
         self.observer = observer
@@ -598,45 +519,48 @@ class Analysis(object):
         # récuperation de toutes les données
         # ---------------------------------------------------
         import glob
-        liste = []
+        liste = {'pari':{}, 'enregistrement':{}}
         for fname in glob.glob('data/*pkl'):
             a = fname.split('/')[1].split('.')[0].split('_')
-            liste.append(a)
+            liste[a[0]][a[1]] = a[2]+'_'+a[3]
 
-        self.PARI = []
-        for x in range(len(liste)) :
-            if liste[x][0]=='pari' and liste[x][1] in self.subjects:
-                a = 'data/%s_%s_%s_%s.pkl'%(liste[x][0], liste[x][1],liste[x][2],liste[x][3])
+        self.PARI = {}
+        for s in liste['pari'].keys() :
+            if s in self.subjects :
+                a = 'data/pari_%s_%s.pkl'%(s, liste['pari'][s])
                 with open(a, 'rb') as fichier :
                     b = pickle.load(fichier, encoding='latin1')
-                    self.PARI.append(b)
+                    self.PARI[s] = b
 
-        self.ENREGISTREMENT = []
-        for x in range(len(liste)) :
-            if liste[x][0]=='enregistrement' and liste[x][1] in self.subjects:
-                #a = 'parametre/param_Fit_%s.pkl'%(liste[x][1])
-                a = 'parametre/param_Fit_%s_%s.pkl'%(liste[x][1], self.name_file_fit)
+        a = 'parametre/Delete/Delete_list_BadTrials_Full_%s.pkl'%(self.name_file_fit)
+        try :
+            with open(a, 'rb') as fichier :
+                b = pickle.load(fichier, encoding='latin1')
+                self.list_delete = b
+        except :
+            self.list_delete = None
+            print('/!\ Le fichier Delete n\'existe pas pour %s !'%(self.name_file_fit))
+
+        self.ENREGISTREMENT = {}
+        for s in liste['enregistrement'].keys() :
+            if s in self.subjects:
+                a = 'parametre/%s/param_Fit_%s_%s.pkl'%(self.name_file_fit, s, self.name_file_fit)
                 try :
                     with open(a, 'rb') as fichier :
                         b = pickle.load(fichier, encoding='latin1')
-                        self.ENREGISTREMENT.append(b)
+                        self.ENREGISTREMENT[s] = b
                 except :
-                    print('/!\ Le fichier param Fit n\'existe pas pour %s !'%(liste[x][1]))
+                    print('/!\ Le fichier param Fit n\'existe pas pour %s !'%(s))
+
         # ---------------------------------------------------
-        if self.observer is None : self.observer = liste[12][1]
+        if self.observer is None : self.observer =  'OP'
         if self.mode is None : self.mode = 'enregistrement'
 
-        for x in range(len(liste)):
-            if liste[x][1] == self.observer and liste[x][0] == self.mode : self.timeStr = liste[x][2]+'_'+liste[x][3]
+        self.timeStr = liste[self.mode][self.observer]
 
-        if self.mode == 'pari' :
-            for x in range(len(self.PARI)):
-                if self.PARI[x]['observer'] == self.observer : self.exp = self.PARI[x]
-        else :
-            for x in range(len(self.PARI)):
-                if self.PARI[x]['observer'] == self.observer : self.exp = self.PARI[x]
-            for x in range(len(self.ENREGISTREMENT)):
-                if self.ENREGISTREMENT[x]['observer'] == self.observer : self.param = self.ENREGISTREMENT[x]
+        self.param_exp = self.PARI[self.observer]
+        if self.mode == 'enregistrement' : self.param = self.ENREGISTREMENT[self.observer]
+
 
 
     def Full_list(self, modes_bcp=['expectation', 'max', 'mean', 'fixed', 'fixed-exp', 'hindsight'], pause=True):
@@ -644,46 +568,48 @@ class Analysis(object):
         import pandas as pd
         pd.set_option('mode.chained_assignment', None)
 
-        N_trials = self.exp['N_trials']
-        N_blocks = self.exp['N_blocks']
+        N_trials = self.param_exp['N_trials']
+        N_blocks = self.param_exp['N_blocks']
 
-        p = self.exp['p']
+        p = self.param_exp['p']
 
-        full = pd.DataFrame(index=np.arange(len(self.PARI)*N_trials*N_blocks),columns=('sujet', 'proba','bino','results','aa','va'))
+        full = pd.DataFrame(index=np.arange(len(self.subjects)*N_trials*N_blocks),columns=('sujet', 'proba','bino','results','aa','va'))
 
         if modes_bcp is not None :
 
             if type(modes_bcp) is not list : modes_bcp = [modes_bcp]
 
             import bayesianchangepoint as bcp
-            for m in modes_bcp : full['p_hat_%s'%m] = np.arange(len(self.PARI)*N_trials*N_blocks)*np.nan
+            for m in modes_bcp : full['p_hat_%s'%m] = np.arange(len(self.subjects)*N_trials*N_blocks)*np.nan
 
+        for i, suj in enumerate(self.subjects) :
 
-        for x in range(len(self.PARI)):
-
-            results = (self.PARI[x]['results']+1)/2
-            a_anti = self.ENREGISTREMENT[x]['a_anti']
-            start_anti = self.ENREGISTREMENT[x]['start_anti']
-            latency = self.ENREGISTREMENT[x]['latency']
+            results = (self.PARI[suj]['results']+1)/2
+            a_anti = self.ENREGISTREMENT[suj]['a_anti']
+            start_anti = self.ENREGISTREMENT[suj]['start_anti']
+            latency = self.ENREGISTREMENT[suj]['latency']
 
             for block in range(N_blocks):
 
-                nb = x*N_trials*N_blocks
+                nb = i*N_trials*N_blocks
                 a = nb + N_trials*block
                 b = (nb + N_trials*(block+1))
 
-                full['sujet'][a:b] = self.PARI[x]['observer']
+                full['sujet'][a:b] = suj
                 full['proba'][a:b] = p[:, block, 1]
                 full['bino'][a:b] = p[:, block, 0]
                 full['results'][a:b] = results[:, block]
                 full['aa'][a:b] = a_anti[block]
                 full['va'][a:b] = (np.array(a_anti[block])*((np.array(latency[block])-np.array(start_anti[block]))/1000))
 
+                for t in range(N_trials) :
+                    if t in self.list_delete[suj][block] :
+                        full['aa'][a+t] = np.nan
+                        full['va'][a+t] = np.nan
 
                 if modes_bcp is not None :
                     tau = N_trials/5.
                     h = 1./tau
-
 
                     p_hat_block = {}
 
@@ -709,8 +635,7 @@ class Analysis(object):
         return full
 
 
-
-
+    #------------------------------------------------------------------------------------------------------------------------
 
     def plot_equation(self, equation='fct_velocity', fig_width=15, t_titre=35, t_label=20) :
 
@@ -746,7 +671,7 @@ class Analysis(object):
         from ANEMO import read_edf
         #from edfreader import read_edf
         from ANEMO import ANEMO
-        Plot = ANEMO.Plot(self.exp)
+        Plot = ANEMO.Plot(self.param_exp)
 
         resultats = os.path.join('data', self.mode + '_' + self.observer + '_' + self.timeStr + '.asc')
         data = read_edf(resultats, 'TRIALID')
@@ -812,7 +737,7 @@ class Analysis(object):
         from ANEMO import read_edf
         #from edfreader import read_edf
         from ANEMO import ANEMO
-        Plot = ANEMO.Plot(self.exp)
+        Plot = ANEMO.Plot(self.param_exp)
 
         resultats = os.path.join('data', self.mode + '_' + self.observer + '_' + self.timeStr + '.asc')
         data = read_edf(resultats, 'TRIALID')
@@ -871,17 +796,17 @@ class Analysis(object):
         from ANEMO import read_edf
         #from edfreader import read_edf
         from ANEMO import ANEMO
-        Plot = ANEMO.Plot(self.exp)
+        Plot = ANEMO.Plot(self.param_exp)
 
-        resultats = os.path.join(self.exp['datadir'], self.mode + '_' + self.observer + '_' + self.timeStr + '.asc')
+        resultats = os.path.join(self.param_exp['datadir'], self.mode + '_' + self.observer + '_' + self.timeStr + '.asc')
         data = read_edf(resultats, 'TRIALID')
 
         if file_fig is None : file_fig = 'figures/%s_%s'%(show, self.observer)
 
         Plot.plot_Full_data(data, show=show, N_blocks=N_blocks,
-                        N_trials=N_trials,
-                        fig_width=fig_width, t_titre=t_titre, t_label=t_label,
-                        stop_search_misac=stop_search_misac, file_fig=file_fig)
+                            N_trials=N_trials,
+                            fig_width=fig_width, t_titre=t_titre, t_label=t_label,
+                            stop_search_misac=stop_search_misac, file_fig=file_fig)
 
     def plot_fit(self, equation='fct_velocity', trials=0, block=0, N_trials=None,
                         fig_width=15, t_titre=35, t_label=20,
@@ -960,7 +885,7 @@ class Analysis(object):
         from ANEMO import read_edf
         #from edfreader import read_edf
         from ANEMO import ANEMO
-        Plot = ANEMO.Plot(self.exp)
+        Plot = ANEMO.Plot(self.param_exp)
 
         resultats = os.path.join('data', self.mode + '_' + self.observer + '_' + self.timeStr + '.asc')
         data = read_edf(resultats, 'TRIALID')
@@ -1083,7 +1008,7 @@ class Analysis(object):
         import matplotlib.pyplot as plt
         from ANEMO import read_edf
         from ANEMO import ANEMO
-        Fit = ANEMO.Fit(self.exp)
+        Fit = ANEMO.Fit(self.param_exp)
 
         resultats = os.path.join('data', self.mode + '_' + self.observer + '_' + self.timeStr + '.asc')
         data = read_edf(resultats, 'TRIALID')
@@ -1115,16 +1040,17 @@ class Analysis(object):
 
         print('END !!!')
 
+    #------------------------------------------------------------------------------------------------------------------------
 
 
     def Plot_Average_Trace_P_real(self, delta, color, mean=False, pas_tps=10, ax=None, stop=610, show='r+l', title='', fig_width=15, t_titre=0, t_label=30*3) :
 
         from ANEMO import ANEMO
         from ANEMO import read_edf
-        A = ANEMO(self.exp)
-        N_trials = self.exp['N_trials']
-        N_blocks = self.exp['N_blocks']
-        p = self.exp['p']
+        A = ANEMO(self.param_exp)
+        N_trials = self.param_exp['N_trials']
+        N_blocks = self.param_exp['N_blocks']
+        p = self.param_exp['p']
 
         import glob
         timeStr = {}
@@ -1259,11 +1185,11 @@ class Analysis(object):
         import matplotlib.pyplot as plt
         import bayesianchangepoint as bcp
         from scipy import stats
-        N_trials = self.exp['N_trials']
-        N_blocks = self.exp['N_blocks']
+        N_trials = self.param_exp['N_trials']
+        N_blocks = self.param_exp['N_blocks']
         h = 1./tau
         ec = 0.2
-        if p is None : p = self.exp['p']
+        if p is None : p = self.param_exp['p']
         if num_block is None : BLOCK = range(N_blocks)
         else: ec, BLOCK = 0.1, num_block
 
@@ -1408,19 +1334,19 @@ class Analysis(object):
             else : a = s
 
             if len(sujet)==1:
-                results = (self.exp['results']+1)/2 # results est sur [-1,1] on le ramene sur [0,1]
+                results = (self.param_exp['results']+1)/2 # results est sur [-1,1] on le ramene sur [0,1]
                 a_anti = self.param['a_anti']
                 start_anti = self.param['start_anti']
                 latency = self.param['latency']
-                print('sujet =', self.exp['observer'])
+                print('sujet =', self.param_exp['observer'])
                 y_t = 1.1
             else :
-                p = self.PARI[sujet[s]]['p']
-                results = (self.PARI[sujet[s]]['results']+1)/2 # results est sur [-1,1] on le ramene sur [0,1]
-                a_anti = self.ENREGISTREMENT[sujet[s]]['a_anti']
-                start_anti = self.ENREGISTREMENT[sujet[s]]['start_anti'] # seconde
-                latency = self.ENREGISTREMENT[sujet[s]]['latency'] # seconde
-                print('sujet', sujet[s], '=', self.PARI[sujet[s]]['observer'])
+                p = self.PARI[self.subjects[s]]['p']
+                results = (self.PARI[self.subjects[s]]['results']+1)/2 # results est sur [-1,1] on le ramene sur [0,1]
+                a_anti = self.ENREGISTREMENT[self.subjects[s]]['a_anti']
+                start_anti = self.ENREGISTREMENT[self.subjects[s]]['start_anti'] # seconde
+                latency = self.ENREGISTREMENT[self.subjects[s]]['latency'] # seconde
+                print('sujet', sujet[s], '=', self.subjects[s])
                 y_t = 1.25
             #-------------------------------------------------------------------------------------------------------------
             if mode == 'pari' :
@@ -1528,9 +1454,9 @@ class Analysis(object):
         color=[['k', 'k'], ['r', 'r'], ['k','w']]
         alpha = [[.35,.15],[.35,.15],[1,0]]
 
-        N_trials = self.exp['N_trials']
-        N_blocks = self.exp['N_blocks']
-        p = self.exp['p']
+        N_trials = self.param_exp['N_trials']
+        N_blocks = self.param_exp['N_blocks']
+        p = self.param_exp['p']
         tau = N_trials/5.
         h = 1/tau
 
@@ -1745,8 +1671,8 @@ class Analysis(object):
             fig, ax = plt.subplots(1, 1, figsize=(fig_width, fig_width)) #/(1.6180)))
 
         #colors = ['black','dimgrey','grey','darkgrey','silver','rosybrown','lightcoral','indianred','firebrick','brown','darkred','red']
-        nb_sujet = len(self.PARI)
-        full = full_liste(self, modes_bcp=mode_bcp, pause=pause)
+        nb_sujet = len(self.subjects)
+        full = Analysis.Full_list(self, modes_bcp=mode_bcp, pause=pause)
 
         if proba == 'real' :
             ax.set_xlabel('$P_{real}$', fontsize=t_label/1)
@@ -1760,20 +1686,17 @@ class Analysis(object):
 
         if result=='bet' :
             res, ymin, ymax = 'results', -0.032, 1.032
-
             ax.set_ylabel('Probability Bet', fontsize=t_label/1.2)
             if titre is None : ax.set_title("Probability Bet", fontsize=t_titre/1.2, x=0.5, y=1.05)
 
 
         elif result=='acceleration' :
             res, ymin, ymax = 'aa', -21.28, 21.28
-
             ax.set_ylabel('Acceleration of anticipation (°/s$^2$)', fontsize=t_label/1.2)
             if titre is None : ax.set_title("Acceleration", fontsize=t_titre/1.2, x=0.5, y=1.05)
 
         elif result=='velocity' :
             res, ymin, ymax = 'va', -10.64, 10.64
-
             ax.set_ylabel('Velocity of anticipation (°/s)', fontsize=t_label/1.2)
             if titre is None : ax.set_title("Velocity", fontsize=t_titre/1.2, x=0.5, y=1.05)
 
@@ -1785,7 +1708,7 @@ class Analysis(object):
                 ax.scatter(full_proba[full.sujet==s], full_result[full.sujet==s], c=color, alpha=0.5, linewidths=0)'''
             alpha=0.2
             for x in range(nb_sujet):
-                s = self.PARI[x]['observer']
+                s = self.subjects[x]
                 ax.scatter(full_proba[full.sujet==s], full_result[full.sujet==s], c=[(0+(1/nb_sujet)*x, 0, 0, alpha)], linewidths=0)
 
         # masque les essais qui où full_result = NAN
@@ -1831,8 +1754,8 @@ class Analysis(object):
         import bayesianchangepoint as bcp
         from scipy import stats
 
-        nb_sujet = len(self.PARI)
-        #full = full_liste(self, modes_bcp=mode_bcp, pause=True) #(self.PARI, self.ENREGISTREMENT, P_HAT=True)
+        nb_sujet = len(self.subjects)
+        #full = Analysis.Full_list(self, modes_bcp=mode_bcp, pause=True) #(self.PARI, self.ENREGISTREMENT, P_HAT=True)
 
         if plot == 'Full' :
             a = len(sujet)
@@ -1890,12 +1813,12 @@ class Analysis(object):
                     axs[i_layer].set_xticks([])
                 elif i_layer == len(sujet)-1 :
                     axs[i_layer].set_xlabel('Trials', fontsize=t_label)
-                    axs[i_layer].set_xticks([-1, 49, 99, 149])
-                    axs[i_layer].set_xticklabels([0, 50, 100, 150], ha='left',fontsize=t_label/1.8)
+                    axs[i_layer].set_xticks([49, 99, 149])
+                    axs[i_layer].set_xticklabels([50, 100, 150], ha='left',fontsize=t_label/1.8)
 
         if not plot in ['scatterKDE'] :
             axs[0].legend(fontsize=t_label/1.2, bbox_to_anchor=(0., 1.05, 1, 0.), loc=4, ncol=3,
-                  mode="expand", borderaxespad=0.)
+                           mode="expand", borderaxespad=0.)
 
         #------------------------------------------------
 
