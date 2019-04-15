@@ -1720,18 +1720,24 @@ class Analysis(object):
 
             values = np.vstack([proba, data])
             kernel = stats.gaussian_kde(values)
+            # TODO: mettre 300 comme param + utiliser moins de points
             xx, yy = np.mgrid[xmin:xmax:300j, ymin:ymax:300j]
             positions = np.vstack([xx.ravel(), yy.ravel()])
             f = np.reshape(kernel(positions).T, xx.shape)
 
             if mean_kde is True :
-                fmean = []
-                for x in range(len(f)):
-                    fmean.append([])
-                    for y in range(len(f[x])):
-                        fmean[x].append(f[x][y]/np.sum(f[x]))
+                if False:
+                    fmean = []
+                    for x in range(len(f)):
+                        fmean.append([])
+                        for y in range(len(f[x])):
+                            fmean[x].append(f[x][y]/np.sum(f[x]))
+                else:
+                    # TODO : test
+                    fmean = f / f.sum(axis=0)[np.newaxis, :]
+                    # fmean = f / f.sum(axis=1)[:, None]
 
-                ax.contourf(xx, yy, fmean, cmap='Greys')
+                ax.contourf(xx, yy, fmean, cmap='Greys', N=1) # level= .95 * f_men.max()
 
             else :
                 ax.contourf(xx, yy, f, cmap='Greys', N=25)
