@@ -486,15 +486,11 @@ def results_sujet(self, ax, sujet, s, mode_bcp, tau, t_label, pause):
     return ax
 
 
-
-
-
-
 class Analysis(object):
     """ docstring for the aSPEM class. """
 
     def __init__(self, observer=None, mode=None, name_file_fit='fct_velocity_2_step_False_whitening') :
-        self.subjects = ['AM','BMC','CS','DC','FM','IP','LB','OP','RS','SR','TN','YK'] # ne plus prendre en conte YK
+        self.subjects = ['AM','BMC','CS','DC','FM','IP','LB','OP','RS','SR','TN']#,'YK'] # ne plus prendre en conte YK
         self.name_file_fit = name_file_fit
         self.mode = mode
         self.observer = observer
@@ -573,7 +569,7 @@ class Analysis(object):
 
         p = self.param_exp['p']
 
-        full = pd.DataFrame(index=np.arange(len(self.subjects)*N_trials*N_blocks),columns=('sujet', 'proba','bino','results','aa','va'))
+        full = pd.DataFrame(index=np.arange(len(self.subjects)*N_trials*N_blocks), columns=('sujet', 'proba','bino','results','aa','va'))
 
         if modes_bcp is not None :
 
@@ -602,10 +598,9 @@ class Analysis(object):
                 full['aa'][a:b] = a_anti[block]
                 full['va'][a:b] = (np.array(a_anti[block])*((np.array(latency[block])-np.array(start_anti[block]))/1000))
 
-                for t in range(N_trials) :
-                    if t in self.list_delete[suj][block] :
-                        full['aa'][a+t] = np.nan
-                        full['va'][a+t] = np.nan
+                for t in self.list_delete[suj][block] :
+                    full['aa'][a+t] = np.nan
+                    full['va'][a+t] = np.nan
 
                 if modes_bcp is not None :
                     tau = N_trials/5.
@@ -1664,6 +1659,7 @@ class Analysis(object):
 
 
     def comparison(self, ax=None, proba='bcp', result='bet', mode_bcp='mean', show='kde', mean_kde=True,
+                    nb_point_kde=300j, cmap='Greys', alpha=1,
                     t_titre=35, t_label=25, titre=None, pause=True, color_r='r', fig=None, fig_width=15) :
 
         if fig is not None:
@@ -1720,27 +1716,24 @@ class Analysis(object):
 
             values = np.vstack([proba, data])
             kernel = stats.gaussian_kde(values)
-            # TODO: mettre 300 comme param + utiliser moins de points
-            xx, yy = np.mgrid[xmin:xmax:300j, ymin:ymax:300j]
+            xx, yy = np.mgrid[xmin:xmax:nb_point_kde, ymin:ymax:nb_point_kde]
             positions = np.vstack([xx.ravel(), yy.ravel()])
             f = np.reshape(kernel(positions).T, xx.shape)
 
             if mean_kde is True :
-                if False:
-                    fmean = []
-                    for x in range(len(f)):
-                        fmean.append([])
-                        for y in range(len(f[x])):
-                            fmean[x].append(f[x][y]/np.sum(f[x]))
-                else:
-                    # TODO : test
-                    fmean = f / f.sum(axis=0)[np.newaxis, :]
-                    # fmean = f / f.sum(axis=1)[:, None]
+                fmean = f / f.sum(axis=1)[:, np.newaxis]
+                #fmean = f / f.sum(axis=0)[np.newaxis, :]
 
-                ax.contourf(xx, yy, fmean, cmap='Greys', N=1) # level= .95 * f_men.max()
+                #fmean = []
+                #for x in range(len(f)):
+                #    fmean.append([])
+                #    for y in range(len(f[x])):
+                #        fmean[x].append(f[x][y]/np.sum(f[x]))
+
+                ax.contourf(xx, yy, fmean, cmap=cmap, levels=3, alpha=alpha, linewidths=4)
 
             else :
-                ax.contourf(xx, yy, f, cmap='Greys', N=25)
+                ax.contourf(xx, yy, f, cmap=cmap, N=25, alpha=alpha)
 
         ax = regress(ax, proba, data, ymin, ymax, t_label, color=color_r)
 
