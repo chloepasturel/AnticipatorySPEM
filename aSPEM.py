@@ -394,16 +394,22 @@ def mutual_information(hgram):
     nzs = pxy > 0 # Only non-zero pxy values contribute to the sum
     return np.sum(pxy[nzs] * np.log(pxy[nzs] / px_py[nzs]))
 
-def regress(ax, p, data, y1, y2, t_label,color='k', x1=-0.032, x2=1.032) :
+def regress(ax, p, data, y1, y2, t_label,color='k', x1=-0.032, x2=1.032, pos='right') :
     from scipy import stats
     slope, intercept, r_, p_value, std_err = stats.linregress(p, data)
     x_test = np.linspace(np.min(p), np.max(p), 100)
     fitLine = slope * x_test + intercept
-    ax.plot(x_test, fitLine, c=color, linewidth=2)
-    ax.text(x2-(x2-x1)/10,y1+(y2-y1)/10, 'r = %0.3f'%(r_), color=color, fontsize=t_label/1.2, ha='right')
 
     hist, x_edges, y_edges = np.histogram2d(p, data ,bins=20)
-    ax.text(x2-(x2-x1)/10,y1+2*(y2-y1)/10, 'MI = %0.3f'%(mutual_information(hist)), color=color, fontsize=t_label/1.2, ha='right')
+
+    ax.plot(x_test, fitLine, c=color, linewidth=2)
+
+    if pos=='right' : x_pos=x2-(x2-x1)/10
+    else:             x_pos=x1+(x2-x1)/10
+
+
+    ax.text(x_pos, y1+(y2-y1)/10, 'r = %0.3f'%(r_), color=color, fontsize=t_label/1.2, ha=pos)
+    ax.text(x_pos, y1+2*(y2-y1)/10, 'MI = %0.3f'%(mutual_information(hist)), color=color, fontsize=t_label/1.2, ha=pos)
 
     return ax
 
@@ -490,7 +496,7 @@ class Analysis(object):
     """ docstring for the aSPEM class. """
 
     def __init__(self, observer=None, mode=None, name_file_fit='fct_velocity_2_step_False_whitening') :
-        self.subjects = ['AM','BMC','CS','DC','FM','IP','LB','OP','RS','SR','TN']#,'YK'] # ne plus prendre en conte YK
+        self.subjects = ['AM','BMC','CS','DC','FM','IP','LB','OP','RS','SR','TN','YK'] # ne plus prendre en conte YK
         self.name_file_fit = name_file_fit
         self.mode = mode
         self.observer = observer
@@ -628,6 +634,181 @@ class Analysis(object):
                     for m in modes_bcp : full['p_hat_%s'%m][a:b] = p_hat_block[m]
 
         return full
+
+    def Data_Scalling(self, pause=True):
+ 
+        Full = Analysis.Full_list(self, modes_bcp=None, pause=pause)
+        scal_va_sujet, scal_va_full = {}, []
+        scal_bet_sujet, scal_bet_full = {}, []
+
+        va_full, bet_full = [], []
+        for x in self.subjects :
+            bet = list(Full['results'][Full.sujet==x])
+            va = list(Full['va'][Full.sujet==x])
+
+            bet_full.extend(bet)
+            va_full.extend(va)
+
+            scal_bet_sujet[x] = np.sort(bet)
+            scal_va_sujet[x] = np.sort(va)
+
+        scal_va_full = np.sort(va_full)
+        scal_bet_full = np.sort(bet_full)
+
+        new_proba_full = np.linspace(0,1,len(scal_va_full))
+
+        new_va_sujet, new_va_full = {}, {}
+        new_bet_sujet, new_bet_full = {}, {}
+
+
+        for x in self.subjects :
+
+            N_trials = self.param_exp['N_trials']
+            N_blocks = self.param_exp['N_blocks']
+
+            new_proba_sujet = np.linspace(0, 1, len(scal_va_sujet[x]))
+            va_sujet = list(Full['va'][Full.sujet==x])
+            bet_sujet = list(Full['results'][Full.sujet==x])
+
+            nb_trial = 0
+
+            new_va_sujet[x], new_va_full[x] = [], []
+            new_bet_sujet[x], new_bet_full[x] = [], []
+
+            for block in range(N_blocks) :
+                new_va_sujet[x].append([])
+                new_va_full[x].append([])
+ 
+                new_bet_sujet[x].append([])
+                new_bet_full[x].append([])
+
+                va = va_sujet[nb_trial : N_trials + nb_trial*block]
+                bet = bet_sujet[nb_trial : N_trials + nb_trial*block]
+
+                for trial in range(N_trials) :
+                    new_va_sujet[x][block].append(np.mean([new_proba_sujet[t] for t in range(len(scal_va_sujet[x]))
+                                                           if scal_va_sujet[x][t]==va[trial]]))
+
+                    new_va_full[x][block].append(np.mean([new_proba_full[t] for t in range(len(scal_va_full))
+                                                          if scal_va_full[t]==va[trial]]))
+
+                    new_bet_sujet[x][block].append(np.mean([new_proba_sujet[t] for t in range(len(scal_bet_sujet[x]))
+                                                            if scal_bet_sujet[x][t]==bet[trial]]))
+
+                    new_bet_full[x][block].append(np.mean([new_proba_full[t] for t in range(len(scal_bet_full))
+                                                           if scal_bet_full[t]==bet[trial]]))
+
+
+                nb_trial = nb_trial + N_trials
+
+        new_data = {}
+        new_data['new_bet_full'] = new_bet_full
+        new_data['new_bet_sujet'] = new_bet_sujet
+        new_data['new_va_full'] = new_va_full
+        new_data['new_va_sujet'] = new_va_sujet
+        
+        return new_data
+
+    def Find_h(self, new_bet, new_va, modes_bcp='mean') :
+        
+        from lmfit import  Model, Parameters
+        from lmfit import minimize
+        import bayesianchangepoint as bcp
+
+        def fct_BCP(x, tau, pause) :
+            h = 1/tau
+            if pause is True :
+                p_hat = []
+                liste = [0,50,100,150,200]
+                for a in range(len(liste)-1) :
+                    p_bar, r_bar, beliefs = bcp.inference(x[a:a+1], h=h, p0=.5, r0=1.)
+                    p_hat_p, r_hat = bcp.readout(p_bar, r_bar, beliefs, mode=modes_bcp, p0=.5, fixed_window_size=40)
+                    p_hat.extend(p_hat_p)
+            else :
+                p_bar, r_bar, beliefs = bcp.inference(x, h=h, p0=.5, r0=1.)
+                p_hat, r_hat = bcp.readout(p_bar, r_bar, beliefs, mode=modes_bcp, p0=.5, fixed_window_size=40)
+            return p_hat
+
+        def KL_distance(p_data, p_hat):
+            distance = p_hat * np.log2(p_hat) - p_hat * np.log2(p_data + 1.*(p_data==0.))
+            distance += (1-p_hat) * np.log2(1-p_hat) - (1-p_hat) * np.log2(1-p_data + 1.*(p_data==1.))
+            return distance
+
+        def residual(params, x, data):
+            tau = params['tau']
+            pause = params['pause']
+            model = fct_BCP(x, tau, pause)
+            return KL_distance(data, model)
+
+        def fit(h, x, bet, va, pause=False):
+            
+            tau = 1/h
+            x, bet, va = np.array(x), np.array(bet), np.array(va)
+
+            params = Parameters()
+            params.add('tau', value=tau, min=1)
+            params.add('pause', value=pause, vary=False)
+
+            result_res =   minimize(residual, params, args=(x, bet), nan_policy='omit')
+            result_v_ant = minimize(residual, params, args=(x, va), nan_policy='omit')
+            
+            h_bet = 1/result_res.params['tau'].value
+            h_va =  1/result_v_ant.params['tau'].value
+            
+            return h_bet, h_va
+
+        h_bet, h_va = {}, {}
+        for l in ['pause', 'block', 'sujet'] : h_bet[l], h_va[l] = {}, {}
+
+        for x, sujet in enumerate(self.subjects) :
+
+            print(sujet, end=' ')
+
+            prob_sujet, bet_sujet, a_anti_sujet = [], [], []
+
+            p = p = self.param_exp['p']
+            tau = self.param_exp['N_trials']/5.
+            h = 1./tau 
+
+            for l in ['pause', 'block', 'sujet'] : h_bet[l][sujet], h_va[l][sujet] = [], []
+
+            for block in range(self.param_exp['N_blocks']):
+                
+                bet = new_bet[sujet][block]
+                va = new_va[sujet][block]
+
+                prob_block = p[:, block, 0]
+                h_b, h_v = fit(h, prob_block, bet, va, pause=True)
+
+                h_bet['block'][sujet].append(h_b)
+                h_va['block'][sujet].append(h_v)
+
+                prob_sujet.extend(p[:, block, 0])
+                bet_sujet.extend(bet)
+                a_anti_sujet.extend(va)
+                #----------------------------------------------------
+                # Pour chaque pause !
+                #----------------------------------------------------
+                liste = [0,50,100,150,200]
+                for a in range(len(liste)-1) :
+                    va_p = va[liste[a]:liste[a+1]]
+                    bet_p = bet[liste[a]:liste[a+1]]
+                    prob_pause = p[liste[a]:liste[a+1], block, 0]
+
+                    h_b, h_v = fit(h, prob_pause, bet_p, va_p)
+
+                    h_bet['pause'][sujet].append(h_b)
+                    h_va['pause'][sujet].append(h_v)
+
+
+            h_b, h_v = fit(h, prob_sujet, bet_sujet, a_anti_sujet)
+            h_bet['sujet'][sujet].append(h_b)
+            h_va['sujet'][sujet].append(h_v)
+ 
+        return h_bet, h_va
+
+
+
 
 
     #------------------------------------------------------------------------------------------------------------------------
@@ -1659,8 +1840,8 @@ class Analysis(object):
 
 
     def comparison(self, ax=None, proba='bcp', result='bet', mode_bcp='mean', show='kde', mean_kde=True,
-                    nb_point_kde=300j, cmap='Greys', alpha=1,
-                    t_titre=35, t_label=25, titre=None, pause=True, color_r='r', fig=None, fig_width=15) :
+                    nb_point_kde=300j, color_kde='Greys', alpha=1, hatch=None, hatches=None, levels=None,
+                    t_titre=35, t_label=25, titre=None, pause=True, color_r='r', pos_r='right', fig=None, fig_width=15) :
 
         if fig is not None:
             import matplotlib.pyplot as plt
@@ -1721,7 +1902,7 @@ class Analysis(object):
             f = np.reshape(kernel(positions).T, xx.shape)
 
             if mean_kde is True :
-                fmean = f / f.sum(axis=1)[:, np.newaxis]
+                f = f / f.sum(axis=1)[:, np.newaxis]
                 #fmean = f / f.sum(axis=0)[np.newaxis, :]
 
                 #fmean = []
@@ -1730,12 +1911,49 @@ class Analysis(object):
                 #    for y in range(len(f[x])):
                 #        fmean[x].append(f[x][y]/np.sum(f[x]))
 
-                ax.contourf(xx, yy, fmean, cmap=cmap, levels=3, alpha=alpha, linewidths=4)
+            if levels is None : levels = 7
+            if type(levels)==int : level=levels ;  nb_level=levels+2
+            else :
+                nb_level = len(levels)
+                level = [(round(float(x[:-1])*np.max(f)/100, 4) if x[-1]=='%'
+                         else round(float(x)*np.max(f), 4)) if type(x)==str
+                         else x for x in levels]
+
+
+            if hatch is True :
+
+                from matplotlib import rcParams
+                from matplotlib.colors import to_rgba
+                rcParams['hatch.linewidth'] = 1.5
+                rcParams['hatch.color'] = to_rgba(color_kde, alpha=alpha)
+
+                if hatches is None : hatches = [None]*(nb_level-4) + ['/', '/////', '///////////////////////////////////']
+
+                A = ax.contourf(xx, yy, f, levels=level, hatches=hatches, colors='none')
+                ax.contour(xx, yy, f, levels=level, colors=color_kde, alpha=alpha)
+
+                artists, l = A.legend_elements()
+
+                if type(level) == list :
+                    l = ['%s (%s) < kde $\\leq$ %s (%s)'%(levels[x], level[x], levels[x+1], level[x+1])
+                         if type(levels[x])==str else '%s < kde $\\leq$ %s'%(level[x], level[x+1])
+                         for x in range(len(level)-1)]
+
+                else :
+                    l = ['%s < kde $\\leq$ %s'%(l[x][1:].split(' <')[0], l[x][:-1].split('\\leq ')[1])
+                         for x in range(len(l))]
+
+                legend = ax.legend(artists, l, loc='upper %s'%pos_r, fontsize=16, frameon=False,
+                                   title='$\hat{P}_{%s}$'%mode_bcp,title_fontsize=20)
+
+                ax.add_artist(legend)
+                ax.set_xlabel('$\hat{P}$', fontsize=t_label/1)
+
 
             else :
-                ax.contourf(xx, yy, f, cmap=cmap, N=25, alpha=alpha)
+                ax.contourf(xx, yy, f, cmap=color_kde, levels=level, alpha=alpha)
 
-        ax = regress(ax, proba, data, ymin, ymax, t_label, color=color_r)
+        ax = regress(ax, proba, data, ymin, ymax, t_label, color=color_r, pos=pos_r)
 
         if titre is not None : ax.set_title(titre, fontsize=t_titre/1.2, x=0.5, y=1.05)
         ax.axis([xmin, xmax, ymin, ymax])
