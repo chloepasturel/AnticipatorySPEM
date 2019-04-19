@@ -635,13 +635,14 @@ class Analysis(object):
 
         return full
 
-    def Data_Scalling(self, pause=True):
- 
-        Full = Analysis.Full_list(self, modes_bcp=None, pause=pause)
+    def Data_Scalling(self):
+
+        Full = Analysis.Full_list(self, modes_bcp=None)
         scal_va_sujet, scal_va_full = {}, []
         scal_bet_sujet, scal_bet_full = {}, []
 
         va_full, bet_full = [], []
+
         for x in self.subjects :
             bet = list(Full['results'][Full.sujet==x])
             va = list(Full['va'][Full.sujet==x])
@@ -678,7 +679,7 @@ class Analysis(object):
             for block in range(N_blocks) :
                 new_va_sujet[x].append([])
                 new_va_full[x].append([])
- 
+
                 new_bet_sujet[x].append([])
                 new_bet_full[x].append([])
 
@@ -698,7 +699,6 @@ class Analysis(object):
                     new_bet_full[x][block].append(np.mean([new_proba_full[t] for t in range(len(scal_bet_full))
                                                            if scal_bet_full[t]==bet[trial]]))
 
-
                 nb_trial = nb_trial + N_trials
 
         new_data = {}
@@ -706,27 +706,40 @@ class Analysis(object):
         new_data['new_bet_sujet'] = new_bet_sujet
         new_data['new_va_full'] = new_va_full
         new_data['new_va_sujet'] = new_va_sujet
-        
+
         return new_data
 
     def Find_h(self, new_bet, new_va, modes_bcp='mean') :
-        
+
         from lmfit import  Model, Parameters
         from lmfit import minimize
         import bayesianchangepoint as bcp
 
-        def fct_BCP(x, tau, pause) :
+        def fct_BCP(x, tau, sujet, block) :
+
             h = 1/tau
-            if pause is True :
-                p_hat = []
+            p_hat = np.zeros(len(x))
+
+            if sujet==True :
+                for b in range(self.param_exp['N_blocks']):
+                    nb = self.param_exp['N_trials']*b
+                    liste = [0,50,100,150,200]
+                    for a in range(len(liste)-1) :
+                        p_bar, r_bar, beliefs = bcp.inference(x[nb+liste[a]:nb+liste[a+1]], h=h, p0=.5, r0=1.)
+                        p_hat_p, r_hat = bcp.readout(p_bar, r_bar, beliefs, mode=modes_bcp, p0=.5, fixed_window_size=40)
+                        p_hat[nb+liste[a]:nb+liste[a+1]] = p_hat_p
+
+            elif block==True :
                 liste = [0,50,100,150,200]
                 for a in range(len(liste)-1) :
-                    p_bar, r_bar, beliefs = bcp.inference(x[a:a+1], h=h, p0=.5, r0=1.)
+                    p_bar, r_bar, beliefs = bcp.inference(x[liste[a]:liste[a+1]], h=h, p0=.5, r0=1.)
                     p_hat_p, r_hat = bcp.readout(p_bar, r_bar, beliefs, mode=modes_bcp, p0=.5, fixed_window_size=40)
-                    p_hat.extend(p_hat_p)
+                    p_hat[liste[a]:liste[a+1]] = p_hat_p
+
             else :
                 p_bar, r_bar, beliefs = bcp.inference(x, h=h, p0=.5, r0=1.)
                 p_hat, r_hat = bcp.readout(p_bar, r_bar, beliefs, mode=modes_bcp, p0=.5, fixed_window_size=40)
+
             return p_hat
 
         def KL_distance(p_data, p_hat):
@@ -736,25 +749,27 @@ class Analysis(object):
 
         def residual(params, x, data):
             tau = params['tau']
-            pause = params['pause']
-            model = fct_BCP(x, tau, pause)
+            sujet = params['sujet']
+            block = params['block']
+            model = fct_BCP(x, tau, sujet, block)
             return KL_distance(data, model)
 
-        def fit(h, x, bet, va, pause=False):
-            
+        def fit(h, x, bet, va, sujet=False, block=False):
+
             tau = 1/h
             x, bet, va = np.array(x), np.array(bet), np.array(va)
 
             params = Parameters()
             params.add('tau', value=tau, min=1)
-            params.add('pause', value=pause, vary=False)
+            params.add('sujet', value=sujet, vary=False)
+            params.add('block', value=block, vary=False)
 
             result_res =   minimize(residual, params, args=(x, bet), nan_policy='omit')
             result_v_ant = minimize(residual, params, args=(x, va), nan_policy='omit')
-            
+
             h_bet = 1/result_res.params['tau'].value
             h_va =  1/result_v_ant.params['tau'].value
-            
+
             return h_bet, h_va
 
         h_bet, h_va = {}, {}
@@ -768,17 +783,20 @@ class Analysis(object):
 
             p = p = self.param_exp['p']
             tau = self.param_exp['N_trials']/5.
-            h = 1./tau 
+            h = 1./tau
 
             for l in ['pause', 'block', 'sujet'] : h_bet[l][sujet], h_va[l][sujet] = [], []
 
+            #----------------------------------------------------
+            # BLOCK
+            #----------------------------------------------------
             for block in range(self.param_exp['N_blocks']):
-                
+
                 bet = new_bet[sujet][block]
                 va = new_va[sujet][block]
 
                 prob_block = p[:, block, 0]
-                h_b, h_v = fit(h, prob_block, bet, va, pause=True)
+                h_b, h_v = fit(h, prob_block, bet, va, block=True)
 
                 h_bet['block'][sujet].append(h_b)
                 h_va['block'][sujet].append(h_v)
@@ -786,8 +804,9 @@ class Analysis(object):
                 prob_sujet.extend(p[:, block, 0])
                 bet_sujet.extend(bet)
                 a_anti_sujet.extend(va)
+
                 #----------------------------------------------------
-                # Pour chaque pause !
+                # PAUSE
                 #----------------------------------------------------
                 liste = [0,50,100,150,200]
                 for a in range(len(liste)-1) :
@@ -800,11 +819,13 @@ class Analysis(object):
                     h_bet['pause'][sujet].append(h_b)
                     h_va['pause'][sujet].append(h_v)
 
-
-            h_b, h_v = fit(h, prob_sujet, bet_sujet, a_anti_sujet)
+            #----------------------------------------------------
+            # SUJET
+            #----------------------------------------------------
+            h_b, h_v = fit(h, prob_sujet, bet_sujet, a_anti_sujet, sujet=True)
             h_bet['sujet'][sujet].append(h_b)
             h_va['sujet'][sujet].append(h_v)
- 
+
         return h_bet, h_va
 
 
