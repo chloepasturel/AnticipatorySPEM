@@ -1860,8 +1860,8 @@ class Analysis(object):
         return fig
 
 
-    def comparison(self, ax=None, proba='bcp', result='bet', mode_bcp='mean', show='kde', mean_kde=True,
-                    nb_point_kde=300j, color_kde='Greys', alpha=1, hatch=None, hatches=None, levels=None,
+    def comparison(self, ax=None, proba='bcp', result='bet', mode_bcp='mean', show='kde', conditional_kde=True,
+                    nb_point_kde=300j, color_kde='Greys', alpha=1, hatch=None, hatches=None, hatch_symbol = '/', levels=None,
                     t_titre=35, t_label=25, titre=None, pause=True, color_r='r', pos_r='right', fig=None, fig_width=15) :
 
         if fig is not None:
@@ -1922,9 +1922,9 @@ class Analysis(object):
             positions = np.vstack([xx.ravel(), yy.ravel()])
             f = np.reshape(kernel(positions).T, xx.shape)
 
-            if mean_kde is True :
+            if conditional_kde is True :
+                #print(f.sum(axis=0))
                 f = f / f.sum(axis=1)[:, np.newaxis]
-                #fmean = f / f.sum(axis=0)[np.newaxis, :]
 
                 #fmean = []
                 #for x in range(len(f)):
@@ -1948,7 +1948,7 @@ class Analysis(object):
                 rcParams['hatch.linewidth'] = 1.5
                 rcParams['hatch.color'] = to_rgba(color_kde, alpha=alpha)
 
-                if hatches is None : hatches = [None]*(nb_level-4) + ['/', '/////', '///////////////////////////////////']
+                if hatches is None : hatches = [None]*(nb_level-4) + [hatch_symbol, hatch_symbol*5, hatch_symbol*100]
 
                 A = ax.contourf(xx, yy, f, levels=level, hatches=hatches, colors='none')
                 ax.contour(xx, yy, f, levels=level, colors=color_kde, alpha=alpha)
@@ -1985,7 +1985,7 @@ class Analysis(object):
         if fig is not None: return fig, ax
         else : return ax
 
-    def plot_results(self, mode_bcp='mean', show='scatter', mean_kde=True, tau=40., sujet=[6], fig_width=15, t_titre=35, t_label=25, plot='Full', pause=True) :
+    def plot_results(self, mode_bcp='mean', show='scatter', conditional_kde=True, tau=40., sujet=[6], fig_width=15, t_titre=35, t_label=25, plot='Full', pause=True) :
 
         import matplotlib.pyplot as plt
         import matplotlib.gridspec as gridspec
@@ -2037,7 +2037,7 @@ class Analysis(object):
             if show=='kde' : color_r='r'
             else : color_r='k'
 
-            opt = {'show':show, 'mode_bcp':mode_bcp, 'mean_kde':mean_kde, 't_titre':t_titre, 't_label':t_label,
+            opt = {'show':show, 'mode_bcp':mode_bcp, 'conditional_kde':conditional_kde, 't_titre':t_titre, 't_label':t_label,
                     'pause':pause, 'color_r':color_r}
             axs[a] = Analysis.comparison(self, ax=axs[a], result='bet', **opt)
             axs[b] = Analysis.comparison(self, ax=axs[b], result='velocity', **opt)
