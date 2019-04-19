@@ -394,7 +394,7 @@ def mutual_information(hgram):
     nzs = pxy > 0 # Only non-zero pxy values contribute to the sum
     return np.sum(pxy[nzs] * np.log(pxy[nzs] / px_py[nzs]))
 
-def regress(ax, p, data, y1, y2, t_label,color='k', x1=-0.032, x2=1.032, pos='right') :
+def regress(ax, p, data, y1, y2, t_label,color='k', x1=-0.032, x2=1.032, pos='right', line=True) :
     from scipy import stats
     slope, intercept, r_, p_value, std_err = stats.linregress(p, data)
     x_test = np.linspace(np.min(p), np.max(p), 100)
@@ -402,7 +402,7 @@ def regress(ax, p, data, y1, y2, t_label,color='k', x1=-0.032, x2=1.032, pos='ri
 
     hist, x_edges, y_edges = np.histogram2d(p, data ,bins=20)
 
-    ax.plot(x_test, fitLine, c=color, linewidth=2)
+    if line is True : ax.plot(x_test, fitLine, c=color, linewidth=2)
 
     if pos=='right' : x_pos=x2-(x2-x1)/10
     else:             x_pos=x1+(x2-x1)/10
@@ -1862,7 +1862,7 @@ class Analysis(object):
 
     def comparison(self, ax=None, proba='bcp', result='bet', mode_bcp='mean', show='kde', conditional_kde=True,
                     nb_point_kde=300j, color_kde='Greys', alpha=1, hatch=None, hatches=None, hatch_symbol = '/', levels=None,
-                    t_titre=35, t_label=25, titre=None, pause=True, color_r='r', pos_r='right', fig=None, fig_width=15) :
+                    t_titre=35, t_label=25, titre=None, pause=True, color_r='r', pos_r='right', line_r=True, fig=None, fig_width=15) :
 
         if fig is not None:
             import matplotlib.pyplot as plt
@@ -1956,7 +1956,10 @@ class Analysis(object):
                 artists, l = A.legend_elements()
 
                 if type(level) == list :
-                    l = ['%s (%s) < kde $\\leq$ %s (%s)'%(levels[x], level[x], levels[x+1], level[x+1])
+                    #l = ['%s (%s) < kde $\\leq$ %s (%s)'%(levels[x], level[x], levels[x+1], level[x+1])
+                    #     if type(levels[x])==str else '%s < kde $\\leq$ %s'%(level[x], level[x+1])
+                    #     for x in range(len(level)-1)]
+                    l = ['%s < kde $\\leq$ %s'%(levels[x], levels[x+1])
                          if type(levels[x])==str else '%s < kde $\\leq$ %s'%(level[x], level[x+1])
                          for x in range(len(level)-1)]
 
@@ -1964,7 +1967,7 @@ class Analysis(object):
                     l = ['%s < kde $\\leq$ %s'%(l[x][1:].split(' <')[0], l[x][:-1].split('\\leq ')[1])
                          for x in range(len(l))]
 
-                legend = ax.legend(artists, l, loc='upper %s'%pos_r, fontsize=16, frameon=False,
+                legend = ax.legend(artists, l, loc='upper %s'%pos_r, fontsize=16, frameon=True, framealpha=0.5,
                                    title='$\hat{P}_{%s}$'%mode_bcp,title_fontsize=20)
 
                 ax.add_artist(legend)
@@ -1974,7 +1977,7 @@ class Analysis(object):
             else :
                 ax.contourf(xx, yy, f, cmap=color_kde, levels=level, alpha=alpha)
 
-        ax = regress(ax, proba, data, ymin, ymax, t_label, color=color_r, pos=pos_r)
+        ax = regress(ax, proba, data, ymin, ymax, t_label, color=color_r, pos=pos_r, line=line_r)
 
         if titre is not None : ax.set_title(titre, fontsize=t_titre/1.2, x=0.5, y=1.05)
         ax.axis([xmin, xmax, ymin, ymax])
