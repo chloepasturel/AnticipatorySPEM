@@ -1418,10 +1418,6 @@ class Analysis(object):
                 else :
                     fig, axs = plt.subplots(len(sujet), 1, figsize=(fig_width, ((len(sujet)+1)*fig_width/3)/(1.6180)))
 
-        #color = [['r', 'b'], ['orange', 'g'], ['k','w']]
-        #alpha = [[.2,.2],[.2,.2],[.2,.2]]
-        #lw=1
-
 
         for i_layer in range(len(axs)):
             #------------------------------------------------
@@ -1433,7 +1429,6 @@ class Analysis(object):
                 axs[i_layer].bar(3*pause-1, len(BLOCK)+ec*len(BLOCK), bottom=-ec/2, color='k', width=.5, linewidth=0)
 
             if num_block is None :
-
                 #------------------------------------------------
                 # affiche les numéro des block sur le côté gauche
                 #------------------------------------------------
@@ -1483,7 +1478,6 @@ class Analysis(object):
             #else :
             #    axs[1].legend(fontsize=t_label/1.3, bbox_to_anchor=(0., 2.1, 1, 0.), loc=3, ncol=2, mode="expand", borderaxespad=0.)
         ###################################################################################################################################
-
 
         if TD is True : 
             td_label = 'TD'
