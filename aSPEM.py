@@ -1377,7 +1377,7 @@ class Analysis(object):
 
     def plot_experiment(self, sujet=[0], mode_bcp='expectation', tau=40, direction=True, p=None, num_block=None, mode=None,
                         fig=None, axs=None, fig_width=15, titre=None, t_titre=35, t_label=25, return_proba=None, color=[['k', 'k'], ['r', 'r'], ['k','w']],
-                        alpha = [[.35,.15],[.35,.15],[1,0]], lw = 1.3, legends=False, TD=False):
+                        alpha = [[.35,.15],[.35,.15],[1,0]], lw = 1.3, legends=False, TD=False, pause=50):
 
         import matplotlib.pyplot as plt
         import bayesianchangepoint as bcp
@@ -1427,9 +1427,10 @@ class Analysis(object):
             #------------------------------------------------
             # Barre Pause
             #------------------------------------------------
-            axs[i_layer].bar(49, len(BLOCK)+ec*len(BLOCK), bottom=-ec/2, color='k', width=.5, linewidth=0)
-            axs[i_layer].bar(99, len(BLOCK)+ec*len(BLOCK), bottom=-ec/2, color='k', width=.5, linewidth=0)
-            axs[i_layer].bar(149, len(BLOCK)+ec*len(BLOCK), bottom=-ec/2, color='k', width=.5, linewidth=0)
+            if pause >0:
+                axs[i_layer].bar(1*pause-1, len(BLOCK)+ec*len(BLOCK), bottom=-ec/2, color='k', width=.5, linewidth=0)
+                axs[i_layer].bar(2*pause-1, len(BLOCK)+ec*len(BLOCK), bottom=-ec/2, color='k', width=.5, linewidth=0)
+                axs[i_layer].bar(3*pause-1, len(BLOCK)+ec*len(BLOCK), bottom=-ec/2, color='k', width=.5, linewidth=0)
 
             if num_block is None :
 
@@ -1454,7 +1455,7 @@ class Analysis(object):
             axs[i_layer].set_yticks(y_ticks[:len(BLOCK)*2])
             axs[i_layer].yaxis.set_label_coords(-0.05, 0.5)
             axs[i_layer].yaxis.set_tick_params(direction='out')
-            axs[i_layer].yaxis.set_ticks_position('left')
+            axs[i_layer].yaxis.set_ticks_position('right')
 
             axs[i_layer].set_xlim(-1, N_trials)
             if i_layer==(len(axs)-1) :
@@ -1484,10 +1485,13 @@ class Analysis(object):
         ###################################################################################################################################
 
 
-
+        if TD is True : 
+            td_label = 'TD'
+        else:
+            td_label = 'Target Direction'
         for i_block, block in enumerate(BLOCK):
             if len(sujet)==1 :
-                for i_layer, label in enumerate(['Target Direction', 'Probability', 'Switch']) :
+                for i_layer, label in enumerate([td_label, 'Probability', 'Switch']) :
                     if label == 'Switch' : axs[i_layer].step(range(N_trials), p[:, block, i_layer]+i_block+ec*i_block, lw=1, c=color[i_layer][0], alpha=alpha[i_layer][0])
                     axs[i_layer].fill_between(range(N_trials), i_block+np.zeros_like(p[:, block, i_layer])+ec*i_block, i_block+p[:, block, i_layer]+ec*i_block,
                                               lw=.5, alpha=alpha[i_layer][0], facecolor=color[i_layer][0], step='pre')
@@ -1508,8 +1512,7 @@ class Analysis(object):
                                               lw=.5, alpha=alpha[0][1], facecolor=color[0][1], step='pre')
 
 
-                    if TD is True : axs[0].set_ylabel('TD', fontsize=t_label/1.2)
-                    else : axs[0].set_ylabel('Target Direction', fontsize=t_label/1.2)
+                    axs[0].set_ylabel(td_label, fontsize=t_label/1.2)
                 for s in range(len(sujet)) :
                     if direction is True : a = s+1
                     else : a = s
