@@ -1392,7 +1392,7 @@ class Analysis(object):
 
 
         if fig is None:
-            fig_width= fig_width
+            # fig_width= fig_width
             if len(sujet)==1 :
                 fig, axs = plt.subplots(3, 1, figsize=(fig_width, fig_width/1.6180))
             else :
@@ -1633,7 +1633,8 @@ class Analysis(object):
 
 
     def plot_bcp(self, show_trial=False, block=0, trial=50, N_scan=100, fixed_window_size=40,
-                pause=None, mode=['expectation', 'max', 'mean', 'fixed', 'fixed-exp', 'hindsight'], max_run_length=150,
+                pause=None, mode=['expectation', 'max', 'mean', 'fixed', 'fixed-exp', 'hindsight'],
+                mode_compare=None, max_run_length=150,
                  fig_width=15, t_titre=35, t_label=20, show_title=True):
 
         '''plot='normal' -> bcp, 'detail' -> bcp2'''
@@ -1656,7 +1657,6 @@ class Analysis(object):
 
         p0, r0 =  0.5, 1.0
 
-
         def plot_result_bcp(ax1, ax2, mode, observation, time) :
 
             p_bar, r_bar, beliefs = bcp.inference(observation, h=h, p0=p0, r0=r0)
@@ -1666,10 +1666,11 @@ class Analysis(object):
 
             for i_trial in range(N_trial):
                 p_low[i_trial], p_sup[i_trial] = beta.ppf([.05, .95], a=p_hat[i_trial]*r_hat[i_trial], b=(1-p_hat[i_trial])*r_hat[i_trial])
-            ax1.plot(time, p_hat, c='darkred',  lw=1.5, alpha=.9)
-            ax1.plot(time, p_sup, c='darkred', lw=1.2, alpha=.9, ls='--')
-            ax1.plot(time, p_low, c='darkred', lw=1.2, alpha=.9, ls='--')
+            ax1.plot(time, p_hat, c='darkblue',  lw=1.5, alpha=.9, label='$\hat{x}_1$')
+            ax1.plot(time, p_sup, c='darkblue', lw=1.2, alpha=.9, ls='--', label='CI')
+            ax1.plot(time, p_low, c='darkblue', lw=1.2, alpha=.9, ls='--')
             ax1.fill_between(time, p_sup, p_low, lw=.5, alpha=.11, facecolor='darkred')
+            
 
             if N_trial < N_trials : extent = (min(time), max(time), np.max(r_bar), np.min(r_bar))
             else : extent = None
@@ -1686,27 +1687,29 @@ class Analysis(object):
             else:
                 ax2.imshow(np.log(beliefs[:max_run_length, :] + eps), cmap='Greys', extent=extent)
 
-            ax2.plot(time, r_hat, c='r', lw=1.5, alpha=.9)
-
+            ax2.plot(time, r_hat, c='b', lw=1.5, alpha=.9, label='predicted run-length')
+            ax2.set_ylim(0, max_run_length)
             return (ax1, ax2)
 
 
 
         height_ratios = np.ones(len(mode))
 
+  
         if show_trial is True :
 
             print('Block', block)
 
             height_ratios = np.append(height_ratios, 1/4)
-            nb_fig = len(mode)+1
             figsize=(fig_width, (nb_fig)*(fig_width)/(2*(1.6180)))
-
-
-        if show_trial is False :
-
+            nb_fig = len(mode)+1
+        else:
             nb_fig = len(mode)
 
+
+        if N_scan>0: #show_trial is False :
+
+            
             #---------------------------------------------------------------------------
             # SCORE
             #---------------------------------------------------------------------------
@@ -1729,13 +1732,15 @@ class Analysis(object):
                         #KL_ += (1-p_hat) * np.log2(1-p_hat) - (1-p_hat) * np.log2(1-p[:, i_block, 1])
                         #KL[i_mode, i_scan, i_block] = np.mean(KL_)
             #---------------------------------------------------------------------------
+        else:
+            figsize=(fig_width, nb_fig*(fig_width)/1.6180)
 
 
         fig = plt.figure(figsize=figsize)#, sharex=True)
         gs = gridspec.GridSpec(nb_fig, 1, height_ratios=height_ratios, hspace=0.5)
 
         for x, m in enumerate(mode) :
-            if show_trial is False :
+            if N_scan>0: #show_trial is False :
                 gs1 = gridspec.GridSpecFromSubplotSpec(2, 2, subplot_spec=gs[x], width_ratios=[2,(1.6180)/2],
                                                         wspace=0.3, hspace=0.05)
                 ax1 = plt.Subplot(fig, gs1[0, 0])
@@ -1745,7 +1750,7 @@ class Analysis(object):
 
                 if show_title is True : ax1.set_title('Mode %s Block %s'%(m, (block+1)), x=0.5, y=1.05, fontsize=t_label)
 
-            if show_trial is True :
+            else: #if show_trial is True :
                 gs1 = gridspec.GridSpecFromSubplotSpec(2, 1, subplot_spec=gs[x], hspace=0.05)
                 ax1 = plt.Subplot(fig, gs1[0])
                 ax2 = plt.Subplot(fig, gs1[1])
@@ -1758,11 +1763,25 @@ class Analysis(object):
             #---------------------------------------------------------------------------
             o = p[:, block, 0]
             p_true = p[:, block, 1]
+            time = np.arange(N_trials)
             ax1.step(range(N_trials), o, lw=1, alpha=.15, c='k')
-            ax1.step(range(N_trials), p_true, lw=1, alpha=.13, c='k')
+            ax1.plot(np.arange(N_trials)-.5, o, 'k.', ms=2, label='TD')
+            ax1.step(range(N_trials), p_true, lw=1, alpha=.9, c='r', label=r'$x_1$')
             ax1.fill_between(range(N_trials), np.zeros_like(o), o, lw=0, alpha=alpha[0][1], facecolor=color[0][0], step='pre')
             ax1.fill_between(range(N_trials), np.zeros_like(p_true), p_true, lw=0, alpha=alpha[1][1], facecolor=color[1][0], step='pre')
 
+            if not mode_compare is None:
+                p_bar, r_bar, beliefs = bcp.inference(o, h=h, p0=p0, r0=r0)
+                p_hat, r_hat = bcp.readout(p_bar, r_bar, beliefs, mode=mode_compare, fixed_window_size=fixed_window_size, p0=p0)
+                p_low, p_sup = np.zeros_like(p_hat), np.zeros_like(p_hat)
+                N_r, N_trial = beliefs.shape
+
+                for i_trial in range(N_trial):
+                    p_low[i_trial], p_sup[i_trial] = beta.ppf([.05, .95], a=p_hat[i_trial]*r_hat[i_trial], b=(1-p_hat[i_trial])*r_hat[i_trial])
+                ax1.plot(time, p_hat, c='k',  lw=1.5, alpha=.7, label=mode_compare)
+                ax1.plot(time, p_sup, c='k', lw=1.2, alpha=.7, ls='--')#, label='CI')
+                ax1.plot(time, p_low, c='k', lw=1.2, alpha=.7, ls='--')
+                            
             #---------------------------------------------------------------------------
             # P_HAT
             #---------------------------------------------------------------------------
@@ -1778,11 +1797,13 @@ class Analysis(object):
 
             else :
                 ax1, ax2 = plot_result_bcp(ax1, ax2, m, o, range(N_trials))
-
+                
+            ax1.legend(loc=(.25, .3))#'best')
+            # ax2.legend('best')
             #---------------------------------------------------------------------------
             # affiche SCORE
             #---------------------------------------------------------------------------
-            if show_trial is False :
+            if N_scan>0: #show_trial is False :
                 ax3.plot(hs, np.mean(score[x, ...], axis=1), c='r', label=m)
                 ax3.fill_between(hs,np.std(score[x, ...], axis=1)+np.nanmean(score[x, ...], axis=1), -np.std(score[x, ...], axis=1)+np.nanmean(score[x, ...], axis=1),
                                     lw=.5, alpha=.2, facecolor='r', step='mid')
@@ -1806,24 +1827,24 @@ class Analysis(object):
                 a.set_ylim(-.05*size, size + (.05*size))
                 a.set_yticks(np.arange(0, size + (.05*size), size/2))
 
-            ax1.set_ylabel('$\hat{P}$ +/- CI', fontsize=t_label/1.5)
+            ax1.set_ylabel('Probability', fontsize=t_label/1.5)
             ax1.set_xticks([])
 
-            ax2.set_ylabel('belief on r=p(r)', fontsize=t_label/1.5)
+            ax2.set_ylabel('Run-length', fontsize=t_label/1.5) #belief on r=p(r)
             ax2.set_xlabel('Trials', fontsize=t_label/1.2);
             ax2.set_xticks([0, 50, 100, 150, 200])
 
-
+            if m == 'expectation' : title = 'expectation $\sum_{r=0}^\infty r \cdot p(r) \cdot \hat{p}(r) $'
+            elif m == 'max' : title = '$\hat{p} ( \mathrm{ArgMax}_r (p(r)) )$'
+            elif m == 'mean' : title = 'mean equation'
+            elif m == 'fixed' : title = 'fixed equation'
+            elif m == 'fixed-exp' : title = 'fixed-exp equation'
+            elif m == 'hindsight' : title = 'hindsight equation'
             if show_trial is True:
                 ax2.bar(trial, 140 + (.05*140)+.05*140, bottom=-.05*140, color='firebrick', width=.5, linewidth=0, alpha=1)
 
                 if show_title is True :
-                    if m == 'expectation' : title = 'expectation $\sum_{r=0}^\infty r \cdot p(r) \cdot \hat{p}(r) $'
-                    elif m == 'max' : title = '$\hat{p} ( \mathrm{ArgMax}_r (p(r)) )$'
-                    elif m == 'mean' : title = 'mean equation'
-                    elif m == 'fixed' : title = 'fixed equation'
-                    elif m == 'fixed-exp' : title = 'fixed-exp equation'
-                    elif m == 'hindsight' : title = 'hindsight equation'
+
                     ax1.set_title('Bayesian change point : %s'%title, x=0.5, y=1.05, fontsize=t_titre)
 
             #---------------------------------------------------------------------------
@@ -1854,7 +1875,10 @@ class Analysis(object):
         gs.tight_layout(fig)
         plt.show()
 
-        return fig
+        if N_scan>0: #show_trial is False :
+            return fig, ax1, ax2, ax3
+        else:
+            return fig, ax1, ax2
 
 
     def comparison(self, ax=None, proba='bcp', result='bet', mode_bcp='mean', show='kde', conditional_kde=True,
