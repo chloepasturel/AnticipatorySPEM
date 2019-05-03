@@ -1377,7 +1377,7 @@ class Analysis(object):
 
     def plot_experiment(self, sujet=[0], mode_bcp='expectation', tau=40, direction=True, p=None, num_block=None, mode=None,
                         fig=None, axs=None, fig_width=15, titre=None, t_titre=35, t_label=25, return_proba=None, color=[['k', 'k'], ['r', 'r'], ['k','w']],
-                        alpha = [[.35,.15],[.35,.15],[1,0]], lw = 1.3, legends=False, TD=False, pause=50):
+                        alpha = [[.35,.15],[.35,.15],[1,0]], lw = 1.3, legends=False, TD=False, pause=50, ec = 0.2):
 
         import matplotlib.pyplot as plt
         import bayesianchangepoint as bcp
@@ -1385,7 +1385,7 @@ class Analysis(object):
         N_trials = self.param_exp['N_trials']
         N_blocks = self.param_exp['N_blocks']
         h = 1./tau
-        ec = 0.2
+        
         if p is None : p = self.param_exp['p']
         if num_block is None : BLOCK = range(N_blocks)
         else: ec, BLOCK = 0.1, num_block
