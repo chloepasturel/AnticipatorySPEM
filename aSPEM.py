@@ -458,9 +458,9 @@ def results_sujet(self, ax, sujet, s, mode_bcp, tau, t_label, pause):
         ax.fill_between(range(N_trials), block+np.ones_like(p[:, block, 1])+ec*block, block+p[:, block, 1]+ec*block,
                             lw=0, alpha=alpha[1][1], facecolor=color[1][1], step='pre')
 
-        ax.step(range(N_trials), block+results[:, block]+ec*block, color='r', lw=1.2, label='Individual guess' if block==0 else '')
         ax.step(range(N_trials), block+((np.array(a_anti[block])-np.nanmin(a_anti))/(np.nanmax(a_anti)-np.nanmin(a_anti)))+ec*block,
                     color='k', lw=1.2, label='Eye movements' if block==0 else '')
+        ax.step(range(N_trials), block+results[:, block]+ec*block, color='r', lw=1.2, label='Individual guess' if block==0 else '')
 
     #------------------------------------------------
     # affiche les numéro des block sur le côté gauche
@@ -1581,8 +1581,8 @@ class Analysis(object):
                 ax1 = axs[a].twinx()
                 for i_block, block in enumerate(BLOCK):
                     if i_block == 0 :
-                        axs[a].step(range(N_trials), i_block+results[:, block]+ec*i_block, lw=lw, alpha=1, color='r', label='Individual guess')
                         axs[a].step(range(1), -1000, color='k', lw=lw, alpha=1, label='Eye movement')
+                        axs[a].step(range(N_trials), i_block+results[:, block]+ec*i_block, lw=lw, alpha=1, color='r', label='Individual guess')
                         #ax1.step(range(N_trials), i_block+np.array(a_anti[block])+ec1*i_block, color='k', lw=lw, alpha=1, label='Eye movement')
                         ax1.step(range(N_trials), 2*(mini*i_block)+(np.array(a_anti[block])*((np.array(latency[block])-np.array(start_anti[block]))/1000))+ec1*i_block,
                                  color='k', lw=lw, alpha=1, label='Eye movement')
@@ -1593,7 +1593,7 @@ class Analysis(object):
                                  color='k', lw=lw, alpha=1)
                 if titre is None : axs[0].set_title('Bet + Eye movements results', fontsize=t_titre, x=0.5, y=y_t)
 
-                axs[a].set_ylabel('Bet of probability', fontsize=t_label/1.5, color='r')
+                axs[a].set_ylabel('Bet score', fontsize=t_label/1.5, color='r')
                 axs[a].tick_params('y', colors='r')
                 axs[a].yaxis.set_label_coords(-0.03, 0.5)
                 popo = 'right'
