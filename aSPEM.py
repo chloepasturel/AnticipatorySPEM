@@ -942,7 +942,7 @@ class Analysis(object):
         fig, axs = Plot.plot_data(data, show=show, trials=trials, block=block,
                                     N_trials=N_trials,
                                     fig_width=fig_width, t_titre=t_titre, t_label=t_label,
-                                    stop_search_misac=stop_search_misac, name_trial_show=name_trial_show, before_sacc=before_sacc, after_sacc=after_sacc)
+                                    stop_search_misac=stop_search_misac, show_num_trial=name_trial_show, before_sacc=before_sacc, after_sacc=after_sacc)
 
         return fig, axs
 
@@ -1385,7 +1385,7 @@ class Analysis(object):
         N_trials = self.param_exp['N_trials']
         N_blocks = self.param_exp['N_blocks']
         h = 1./tau
-        
+
         if p is None : p = self.param_exp['p']
         if num_block is None : BLOCK = range(N_blocks)
         else: ec, BLOCK = 0.1, num_block
@@ -1479,7 +1479,7 @@ class Analysis(object):
             #    axs[1].legend(fontsize=t_label/1.3, bbox_to_anchor=(0., 2.1, 1, 0.), loc=3, ncol=2, mode="expand", borderaxespad=0.)
         ###################################################################################################################################
 
-        if TD is True : 
+        if TD is True :
             td_label = 'TD'
         else:
             td_label = 'Target Direction'
@@ -1670,7 +1670,7 @@ class Analysis(object):
             ax1.plot(time, p_sup, c='darkblue', lw=1.2, alpha=.9, ls='--', label='CI')
             ax1.plot(time, p_low, c='darkblue', lw=1.2, alpha=.9, ls='--')
             ax1.fill_between(time, p_sup, p_low, lw=.5, alpha=.11, facecolor='darkred')
-            
+
 
             if N_trial < N_trials : extent = (min(time), max(time), np.max(r_bar), np.min(r_bar))
             else : extent = None
@@ -1695,7 +1695,7 @@ class Analysis(object):
 
         height_ratios = np.ones(len(mode))
 
-  
+
         if show_trial is True :
 
             print('Block', block)
@@ -1709,7 +1709,7 @@ class Analysis(object):
 
         if N_scan>0: #show_trial is False :
 
-            
+
             #---------------------------------------------------------------------------
             # SCORE
             #---------------------------------------------------------------------------
@@ -1781,7 +1781,7 @@ class Analysis(object):
                 ax1.plot(time, p_hat, c='k',  lw=1.5, alpha=.7, label=mode_compare)
                 ax1.plot(time, p_sup, c='k', lw=1.2, alpha=.7, ls='--')#, label='CI')
                 ax1.plot(time, p_low, c='k', lw=1.2, alpha=.7, ls='--')
-                            
+
             #---------------------------------------------------------------------------
             # P_HAT
             #---------------------------------------------------------------------------
@@ -1797,7 +1797,7 @@ class Analysis(object):
 
             else :
                 ax1, ax2 = plot_result_bcp(ax1, ax2, m, o, range(N_trials))
-                
+
             ax1.legend(loc=(.25, .3))#'best')
             # ax2.legend('best')
             #---------------------------------------------------------------------------
