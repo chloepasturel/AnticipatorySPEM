@@ -1706,7 +1706,7 @@ class Analysis(object):
             ax1.plot(time, p_hat, c='darkblue',  lw=1.5, alpha=.9, label='$\hat{x}_1$')
             ax1.plot(time, p_sup, c='darkblue', lw=1.2, alpha=.9, ls='--', label='CI')
             ax1.plot(time, p_low, c='darkblue', lw=1.2, alpha=.9, ls='--')
-            ax1.fill_between(time, p_sup, p_low, lw=.5, alpha=.11, facecolor='darkred')
+            ax1.fill_between(time, p_sup, p_low, lw=.5, alpha=.11, facecolor='darkblue')
 
 
             if N_trial < N_trials : extent = (min(time), max(time), np.max(r_bar), np.min(r_bar))
@@ -1815,7 +1815,7 @@ class Analysis(object):
 
                 for i_trial in range(N_trial):
                     p_low[i_trial], p_sup[i_trial] = beta.ppf([.05, .95], a=p_hat[i_trial]*r_hat[i_trial], b=(1-p_hat[i_trial])*r_hat[i_trial])
-                ax1.plot(time, p_hat, c='k',  lw=1.5, alpha=.7, label=mode_compare)
+                ax1.plot(time, p_hat, c='k',  lw=1.5, alpha=.7, label=r'$\bar{x}_1$') #mode_compare)
                 ax1.plot(time, p_sup, c='k', lw=1.2, alpha=.7, ls='--')#, label='CI')
                 ax1.plot(time, p_low, c='k', lw=1.2, alpha=.7, ls='--')
 
@@ -1868,7 +1868,7 @@ class Analysis(object):
             ax1.set_xticks([])
 
             ax2.set_ylabel('Run-length', fontsize=t_label/1.5) #belief on r=p(r)
-            ax2.set_xlabel('Trials', fontsize=t_label/1.2);
+            ax2.set_xlabel('Trial #', fontsize=t_label/1.5);
             ax2.set_xticks([0, 50, 100, 150, 200])
 
             if m == 'expectation' : title = 'expectation $\sum_{r=0}^\infty r \cdot p(r) \cdot \hat{p}(r) $'
