@@ -27,7 +27,7 @@ def binomial_motion(N_trials, N_blocks, tau, seed, Jeffreys=True, N_layer=3):
         if Jeffreys: p_random = beta.rvs(a=.5, b=.5, size=N_blocks)
         else: p_random = np.random.rand(1, N_blocks)
         p[trial, :, 1] = (1 - p[trial, :, 2])*p[trial-1, :, 1] + p[trial, :, 2] * p_random # probability
-        p[trial, :, 0] =  p[trial, :, 1] > np.random.rand(1, N_blocks) # binomial
+        p[trial, :, 0] =  p[trial, :, 1] > np.random.rand(1, N_blocks) # Bernouilli trial
 
     return (trials, p)
 
