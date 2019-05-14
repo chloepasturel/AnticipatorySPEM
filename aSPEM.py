@@ -1375,8 +1375,9 @@ class Analysis(object):
 
 
 
-    def plot_experiment(self, sujet=[0], mode_bcp='expectation', tau=40, direction=True, p=None, num_block=None, mode=None,
+    def plot_experiment(self, sujet=[0], mode_bcp=None, tau=40, direction=True, p=None, num_block=None, mode=None,
                         fig=None, axs=None, fig_width=15, titre=None, t_titre=35, t_label=25, return_proba=None, color=[['k', 'k'], ['r', 'r'], ['k','w']],
+                        color_bcp='darkgreen',
                         alpha = [[.35,.15],[.35,.15],[1,0]], lw = 1.3, legends=False, TD=False, pause=50, ec = 0.2):
 
         import matplotlib.pyplot as plt
@@ -1390,7 +1391,7 @@ class Analysis(object):
         if num_block is None : BLOCK = range(N_blocks)
         else: ec, BLOCK = 0.1, num_block
 
-
+        ncol_leg = 2
         def plot_result_bcp(ax1, mode, observation, time, n_trial, name=True) :
 
             from scipy.stats import beta
@@ -1400,10 +1401,10 @@ class Analysis(object):
 
             for i_trial in range(n_trial):
                 p_low[i_trial], p_sup[i_trial] = beta.ppf([.05, .95], a=p_hat[i_trial]*r_hat[i_trial], b=(1-p_hat[i_trial])*r_hat[i_trial])
-            ax1.plot(time, p_hat, c='darkblue',  lw=1.5, alpha=.9, label='$\hat{x}_1$' if name is True else '')
-            ax1.plot(time, p_sup, c='darkblue', lw=1.2, alpha=.9, ls='--', label='CI' if name is True else '')
-            ax1.plot(time, p_low, c='darkblue', lw=1.2, alpha=.9, ls='--')
-            ax1.fill_between(time, p_sup, p_low, lw=.5, alpha=.11, facecolor='darkblue')
+            ax1.plot(time, p_hat, c=color_bcp,  lw=1.5, alpha=.9, label='$\hat{x}_1$' if name is True else '')
+            ax1.plot(time, p_sup, c=color_bcp, lw=1.2, alpha=.9, ls='--', label='CI' if name is True else '')
+            ax1.plot(time, p_low, c=color_bcp, lw=1.2, alpha=.9, ls='--')
+            ax1.fill_between(time, p_sup, p_low, lw=.5, alpha=.2, facecolor=color_bcp)
 
             return ax1
 
@@ -1629,6 +1630,7 @@ class Analysis(object):
                 ax1.yaxis.set_ticks_position(popo)
 
             if mode_bcp is not None :
+                ncol_leg = 4
                 fixed_window_size=40
                 p0, r0 =  0.5, 1.0
                 p = self.PARI[self.subjects[s]]['p']
@@ -1653,8 +1655,8 @@ class Analysis(object):
             if titre is not None : axs[0].set_title(titre, fontsize=t_titre, x=0.5, y=y_t)
 
         if legends is True :
-            if TD is True : axs[1].legend(fontsize=t_label/1.8, bbox_to_anchor=(0., 1.3, 1, 0.), loc=3, ncol=2, mode="expand", borderaxespad=0.)
-            else : axs[1].legend(fontsize=t_label/1.8, bbox_to_anchor=(0., 2.1, 1, 0.), loc=3, ncol=2, mode="expand", borderaxespad=0.)
+            if TD is True : axs[1].legend(fontsize=t_label/1.8, bbox_to_anchor=(0., 1.3, 1, 0.), loc=3, ncol=ncol_leg, mode="expand", borderaxespad=0.)
+            else : axs[1].legend(fontsize=t_label/1.8, bbox_to_anchor=(0., 2.1, 1, 0.), loc=3, ncol=ncol_leg, mode="expand", borderaxespad=0.)
 
         axs[-1].set_xlabel('Trials', fontsize=t_label)
         try: fig.tight_layout()
@@ -1671,7 +1673,8 @@ class Analysis(object):
 
     def plot_bcp(self, show_trial=False, block=0, trial=50, N_scan=100, fixed_window_size=40,
                 pause=None, mode=['expectation', 'max', 'mean', 'fixed', 'fixed-exp', 'hindsight'],
-                mode_compare=None, max_run_length=150,
+                mode_compare=None, max_run_length=150, c_mode='g', c_compare='r',
+                color=[['k', 'k'], ['r', 'r'], ['k','w']], alpha = [[.35,.15],[.35,.15],[1,0]],
                  fig_width=15, t_titre=35, t_label=20, show_title=True):
 
         '''plot='normal' -> bcp, 'detail' -> bcp2'''
@@ -1683,8 +1686,7 @@ class Analysis(object):
 
         if type(mode) is not list : mode = [mode]
 
-        color=[['k', 'k'], ['r', 'r'], ['k','w']]
-        alpha = [[.35,.15],[.35,.15],[1,0]]
+
 
         N_trials = self.param_exp['N_trials']
         N_blocks = self.param_exp['N_blocks']
@@ -1694,7 +1696,7 @@ class Analysis(object):
 
         p0, r0 =  0.5, 1.0
 
-        def plot_result_bcp(ax1, ax2, mode, observation, time) :
+        def plot_result_bcp(ax1, ax2, mode, observation, time, c, label) :
 
             p_bar, r_bar, beliefs = bcp.inference(observation, h=h, p0=p0, r0=r0)
             p_hat, r_hat = bcp.readout(p_bar, r_bar, beliefs, mode=mode, fixed_window_size=fixed_window_size, p0=p0)
@@ -1703,31 +1705,33 @@ class Analysis(object):
 
             for i_trial in range(N_trial):
                 p_low[i_trial], p_sup[i_trial] = beta.ppf([.05, .95], a=p_hat[i_trial]*r_hat[i_trial], b=(1-p_hat[i_trial])*r_hat[i_trial])
-            ax1.plot(time, p_hat, c='darkblue',  lw=1.5, alpha=.9, label='$\hat{x}_1$')
-            ax1.plot(time, p_sup, c='darkblue', lw=1.2, alpha=.9, ls='--', label='CI')
-            ax1.plot(time, p_low, c='darkblue', lw=1.2, alpha=.9, ls='--')
-            ax1.fill_between(time, p_sup, p_low, lw=.5, alpha=.11, facecolor='darkblue')
+            ax1.plot(time, p_hat, c=c,  lw=1.5, alpha=.9, label=label)
+            ax1.plot(time, p_sup, c=c, lw=1.2, alpha=.9, ls='--', label='CI '+label)
+            ax1.plot(time, p_low, c=c, lw=1.2, alpha=.9, ls='--')
+            ax1.fill_between(time, p_sup, p_low, lw=.5, alpha=.11, facecolor=c)
 
 
-            if N_trial < N_trials : extent = (min(time), max(time), np.max(r_bar), np.min(r_bar))
-            else : extent = None
+            if ax2 is not None :
+                if N_trial < N_trials : extent = (min(time), max(time), np.max(r_bar), np.min(r_bar))
+                else : extent = None
 
-            eps=1.e-5 # 1.e-12
-            #ax2.imshow(np.log(beliefs[:max_run_length, :] + eps), cmap='Greys', extent=extent)
-            if mode == 'fixed':
-                ax2.imshow(np.log(beliefs[:max_run_length, :]*0. + eps), cmap='Greys', extent=extent)
-            elif mode == 'fixed-exp':
-                beliefs_ = np.exp(-np.arange(N_r) / fixed_window_size)
-                beliefs_ /= beliefs_.sum()
-                beliefs_ = beliefs_[:, None]
-                ax2.imshow(np.log((beliefs_*np.ones(N_trial))[:max_run_length, :] + eps), cmap='Greys', extent=extent)
-            else:
-                ax2.imshow(np.log(beliefs[:max_run_length, :] + eps), cmap='Greys', extent=extent)
+                eps=1.e-5 # 1.e-12
+                #ax2.imshow(np.log(beliefs[:max_run_length, :] + eps), cmap='Greys', extent=extent)
+                if mode == 'fixed':
+                    ax2.imshow(np.log(beliefs[:max_run_length, :]*0. + eps), cmap='Greys', extent=extent)
+                elif mode == 'fixed-exp':
+                    beliefs_ = np.exp(-np.arange(N_r) / fixed_window_size)
+                    beliefs_ /= beliefs_.sum()
+                    beliefs_ = beliefs_[:, None]
+                    ax2.imshow(np.log((beliefs_*np.ones(N_trial))[:max_run_length, :] + eps), cmap='Greys', extent=extent)
+                else:
+                    ax2.imshow(np.log(beliefs[:max_run_length, :] + eps), cmap='Greys', extent=extent)
 
-            ax2.plot(time, r_hat, c='b', lw=1.5, alpha=.9, label='predicted run-length')
-            ax2.set_ylim(0, max_run_length)
-            return (ax1, ax2)
-
+                ax2.plot(time, r_hat, c=c, lw=1.5, alpha=.9, label='predicted run-length')
+                ax2.set_ylim(0, max_run_length)
+                return (ax1, ax2)
+            else :
+                return ax1
 
 
         height_ratios = np.ones(len(mode))
@@ -1745,7 +1749,6 @@ class Analysis(object):
 
 
         if N_scan>0: #show_trial is False :
-
 
             #---------------------------------------------------------------------------
             # SCORE
@@ -1803,21 +1806,9 @@ class Analysis(object):
             time = np.arange(N_trials)
             ax1.step(range(N_trials), o, lw=1, alpha=.15, c='k')
             ax1.plot(np.arange(N_trials)-.5, o, 'k.', ms=2, label='TD')
-            ax1.step(range(N_trials), p_true, lw=1, alpha=.9, c='r', label=r'$x_1$')
+            ax1.step(range(N_trials), p_true, lw=1, alpha=.9, c=color[1][0], label=r'$x_1$')
             ax1.fill_between(range(N_trials), np.zeros_like(o), o, lw=0, alpha=alpha[0][1], facecolor=color[0][0], step='pre')
             ax1.fill_between(range(N_trials), np.zeros_like(p_true), p_true, lw=0, alpha=alpha[1][1], facecolor=color[1][0], step='pre')
-
-            if not mode_compare is None:
-                p_bar, r_bar, beliefs = bcp.inference(o, h=h, p0=p0, r0=r0)
-                p_hat, r_hat = bcp.readout(p_bar, r_bar, beliefs, mode=mode_compare, fixed_window_size=fixed_window_size, p0=p0)
-                p_low, p_sup = np.zeros_like(p_hat), np.zeros_like(p_hat)
-                N_r, N_trial = beliefs.shape
-
-                for i_trial in range(N_trial):
-                    p_low[i_trial], p_sup[i_trial] = beta.ppf([.05, .95], a=p_hat[i_trial]*r_hat[i_trial], b=(1-p_hat[i_trial])*r_hat[i_trial])
-                ax1.plot(time, p_hat, c='k',  lw=1.5, alpha=.7, label=r'$\bar{x}_1$') #mode_compare)
-                ax1.plot(time, p_sup, c='k', lw=1.2, alpha=.7, ls='--')#, label='CI')
-                ax1.plot(time, p_low, c='k', lw=1.2, alpha=.7, ls='--')
 
             #---------------------------------------------------------------------------
             # P_HAT
@@ -1825,7 +1816,10 @@ class Analysis(object):
             if pause is not None :
                 liste = [0,50,100,150,200]
                 for a in range(len(liste)-1) :
-                    ax1, ax2 = plot_result_bcp(ax1, ax2, m, p[liste[a]:liste[a+1], block, 0], np.arange(liste[a], liste[a+1]))
+                    ax1, ax2 = plot_result_bcp(ax1, ax2, m, p[liste[a]:liste[a+1], block, 0], np.arange(liste[a], liste[a+1]), c=c_mode, label='$\hat{x}_1$')
+                    if not mode_compare is None:
+                        ax1 = plot_result_bcp(ax1, None, mode_compare, p[liste[a]:liste[a+1], block, 0], np.arange(liste[a], liste[a+1]), c=c_compare, label=r'$\bar{x}_1$')
+
 
                 for a in [ax1, ax2]:
                     a.bar(50, 140 + 2*(.05*140), bottom=-.05*140, color='k', width=.5, linewidth=0)
@@ -1833,9 +1827,11 @@ class Analysis(object):
                     a.bar(150, 140 + 2*(.05*140), bottom=-.05*140, color='k', width=.5, linewidth=0)
 
             else :
-                ax1, ax2 = plot_result_bcp(ax1, ax2, m, o, range(N_trials))
+                ax1, ax2 = plot_result_bcp(ax1, ax2, m, o, range(N_trials), c=c_mode, label='$\hat{x}_1$')
+                if not mode_compare is None:
+                    ax1 = plot_result_bcp(ax1, None, mode_compare, o, range(N_trials), c=c_compare, label=r'$\bar{x}_1$')
 
-            ax1.legend(loc=(.25, .3))#'best')
+            ax1.legend(loc=(0.15, 0.55), ncol=2)#'best')
             # ax2.legend('best')
             #---------------------------------------------------------------------------
             # affiche SCORE
