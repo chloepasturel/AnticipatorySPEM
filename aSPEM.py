@@ -1391,6 +1391,23 @@ class Analysis(object):
         else: ec, BLOCK = 0.1, num_block
 
 
+        def plot_result_bcp(ax1, mode, observation, time, n_trial, name=True) :
+
+            from scipy.stats import beta
+            p_bar, r_bar, beliefs = bcp.inference(observation, h=h, p0=p0, r0=r0)
+            p_hat, r_hat = bcp.readout(p_bar, r_bar, beliefs, mode=mode, fixed_window_size=fixed_window_size, p0=p0)
+            p_low, p_sup = np.zeros_like(p_hat), np.zeros_like(p_hat)
+
+            for i_trial in range(n_trial):
+                p_low[i_trial], p_sup[i_trial] = beta.ppf([.05, .95], a=p_hat[i_trial]*r_hat[i_trial], b=(1-p_hat[i_trial])*r_hat[i_trial])
+            ax1.plot(time, p_hat, c='darkblue',  lw=1.5, alpha=.9, label='$\hat{x}_1$' if name is True else '')
+            ax1.plot(time, p_sup, c='darkblue', lw=1.2, alpha=.9, ls='--', label='CI' if name is True else '')
+            ax1.plot(time, p_low, c='darkblue', lw=1.2, alpha=.9, ls='--')
+            ax1.fill_between(time, p_sup, p_low, lw=.5, alpha=.11, facecolor='darkblue')
+
+            return ax1
+
+
         if fig is None:
             # fig_width= fig_width
             if len(sujet)==1 :
@@ -1611,6 +1628,23 @@ class Analysis(object):
                 ax1.yaxis.set_tick_params(colors='k', direction='out')
                 ax1.yaxis.set_ticks_position(popo)
 
+            if mode_bcp is not None :
+                fixed_window_size=40
+                p0, r0 =  0.5, 1.0
+                p = self.PARI[self.subjects[s]]['p']
+                if pause is not None :
+                    liste = [0,50,100,150,200]
+                    for pause in range(len(liste)-1) :
+                        if pause==0 and s==0 : name=True
+                        else :                 name=False
+                        n_trial = liste[pause+1]-liste[pause]
+                        axs[a] = plot_result_bcp(axs[a], mode_bcp, p[liste[pause]:liste[pause+1], block, 0],
+                                                 np.arange(liste[pause], liste[pause+1]), n_trial, name=name)
+                else :
+                    if s==0 : name=True
+                    else :    name=False
+                    axs[a] = plot_result_bcp(axs[a], mode_bcp, p[:, block, 0],
+                                             np.arange(N_trials), N_trials, name=name)
 
             #------------------------------------------------
             if mode is None and titre is None : axs[0].set_title('Experiment', fontsize=t_titre, x=0.5, y=y_t)
@@ -1627,6 +1661,9 @@ class Analysis(object):
         except: print('tight_layout failed :-(')
         plt.subplots_adjust(hspace=0.05)
         #------------------------------------------------
+
+
+
 
         if return_proba is None : return fig, axs
         else : return fig, axs, p
