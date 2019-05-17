@@ -404,12 +404,13 @@ def regress(ax, p, data, y1, y2, t_label,color='k', x1=-0.032, x2=1.032, pos='ri
 
     if line is True : ax.plot(x_test, fitLine, c=color, linewidth=2)
 
-    if pos=='right' : x_pos=x2-(x2-x1)/10
-    else:             x_pos=x1+(x2-x1)/10
+    if pos[-5:]=='right' : x_pos=x2-(x2-x1)/10 ; h_pos='right'
+    else:                  x_pos=x1+(x2-x1)/10 ; h_pos='left'
+    if pos[:5]=='upper' : y_pos_r=y2-(y2-y1)/10 ; y_pos_m=y2-2*(y2-y1)/10
+    else:                 y_pos_r=y1+(y2-y1)/10 ; y_pos_m=y1+2*(y2-y1)/10
 
-
-    ax.text(x_pos, y1+(y2-y1)/10, 'r = %0.3f'%(r_), color=color, fontsize=t_label/1.2, ha=pos)
-    ax.text(x_pos, y1+2*(y2-y1)/10, 'MI = %0.3f'%(mutual_information(hist)), color=color, fontsize=t_label/1.2, ha=pos)
+    ax.text(x_pos, y_pos_r, 'r = %0.3f'%(r_), color=color, fontsize=t_label/1.2, ha=h_pos)
+    ax.text(x_pos, y_pos_m, 'MI = %0.3f'%(mutual_information(hist)), color=color, fontsize=t_label/1.2, ha=h_pos)
 
     return ax
 
@@ -2020,7 +2021,7 @@ class Analysis(object):
                 rcParams['hatch.linewidth'] = 1.5
                 rcParams['hatch.color'] = to_rgba(color_kde, alpha=alpha)
 
-                if hatches is None : hatches = [None]*(nb_level-4) + [hatch_symbol, hatch_symbol*5, hatch_symbol*100]
+                if hatches is None : hatches = [None]*(nb_level-4) + [hatch_symbol, hatch_symbol*3, hatch_symbol*100]
 
                 A = ax.contourf(xx, yy, f, levels=level, hatches=hatches, colors='none')
                 ax.contour(xx, yy, f, levels=level, colors=color_kde, alpha=alpha)
@@ -2039,8 +2040,10 @@ class Analysis(object):
                     l = ['%s < kde $\\leq$ %s'%(l[x][1:].split(' <')[0], l[x][:-1].split('\\leq ')[1])
                          for x in range(len(l))]
 
-                legend = ax.legend(artists, l, loc='upper %s'%pos_r, fontsize=16, frameon=True, framealpha=0.5,
-                                   title='$\hat{P}_{%s}$'%mode_bcp,title_fontsize=20)
+                hist, x_edges, y_edges = np.histogram2d(proba, data ,bins=20)
+
+                legend = ax.legend(artists, l, loc='%s'%pos_r, fontsize=t_label/1.8, frameon=True, framealpha=0.5,
+                                   title='$\hat{P}_{%s}$, MI = %0.3f'%(mode_bcp, mutual_information(hist)), title_fontsize=t_label/1.8)
 
                 ax.add_artist(legend)
                 ax.set_xlabel('$\hat{P}$', fontsize=t_label/1)
@@ -2049,7 +2052,8 @@ class Analysis(object):
             else :
                 ax.contourf(xx, yy, f, cmap=color_kde, levels=level, alpha=alpha)
 
-        ax = regress(ax, proba, data, ymin, ymax, t_label, color=color_r, pos=pos_r, line=line_r)
+        if hatch is not True :
+            ax = regress(ax, proba, data, ymin, ymax, t_label, color=color_r, pos=pos_r, line=line_r)
 
         if titre is not None : ax.set_title(titre, fontsize=t_titre/1.2, x=0.5, y=1.05)
         ax.axis([xmin, xmax, ymin, ymax])
