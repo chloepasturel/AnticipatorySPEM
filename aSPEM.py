@@ -1429,41 +1429,41 @@ class Analysis(object):
 
 
         if fig is None:
-            # fig_width= fig_width
+            mini_TD = False
             if len(sujet)==1 :
-                fig, axs = plt.subplots(3, 1, figsize=(fig_width, fig_width/1.6180))
+                if TD is True : mini_TD=True ; nb_ax=2
+                else : fig, axs = plt.subplots(3, 1, figsize=(fig_width, fig_width/1.6180))
+
             else :
                 if direction is True :
-                    if TD is True :
-                        import matplotlib.gridspec as gridspec
-                        #------------------------------------------------
-                        fig, axs = plt.subplots(len(sujet)+1, 1, figsize=(fig_width, ((len(sujet)+0.5)*fig_width/3)/(1.6180)))
-
-                        gs1 = gridspec.GridSpec(1, 1)
-                        gs1.update(left=0+0.072, bottom=0.85, right=1-0.04, top=1.-0.1, hspace=0.05)
-                        axs[0] = plt.subplot(gs1[0])
-
-                        gs2 = gridspec.GridSpec(len(sujet), 1)
-                        gs2.update(left=0+0.072, bottom=0+0.1, right=1-0.04, top=0.85-0.03, hspace=0.05)
-                        for s0 in range(len(sujet)):
-                            s = s0+1
-                            axs[s] = plt.subplot(gs2[s0])
-
-                    #------------------------------------------------
-                    else :
-                        fig, axs = plt.subplots(len(sujet)+1, 1, figsize=(fig_width, ((len(sujet)+1)*fig_width/3)/(1.6180)))
+                    if TD is True : mini_TD=True ; nb_ax=len(sujet)
+                    else : fig, axs = plt.subplots(len(sujet)+1, 1, figsize=(fig_width, ((len(sujet)+1)*fig_width/3)/(1.6180)))
                 else :
                     fig, axs = plt.subplots(len(sujet), 1, figsize=(fig_width, ((len(sujet)+1)*fig_width/3)/(1.6180)))
 
+            if mini_TD is True :
+                import matplotlib.gridspec as gridspec
+                #------------------------------------------------
+                fig, axs = plt.subplots(nb_ax+1, 1, figsize=(fig_width, ((nb_ax+0.5)*fig_width/3)/(1.6180)))
+
+                gs1 = gridspec.GridSpec(1, 1)
+                gs1.update(left=0+0.072, bottom=0.85, right=1-0.04, top=1.-0.1, hspace=0.05)
+                axs[0] = plt.subplot(gs1[0])
+
+                if len(BLOCK)==1 : axs[0].plot(np.arange(1, N_trials)-.5, p[1:, BLOCK[0], 0], 'k.', ms=4)
+                for card in ['bottom', 'top', 'left']: axs[0].spines[card].set_visible(False)
+                axs[0].spines['right'].set_bounds(0, 1)
+
+                gs2 = gridspec.GridSpec(nb_ax, 1)
+                gs2.update(left=0+0.072, bottom=0+0.1, right=1-0.04, top=0.85-0.03, hspace=0.05)
+                for s in range(nb_ax): axs[s+1] = plt.subplot(gs2[s])
 
         for i_layer in range(len(axs)):
             #------------------------------------------------
             # Barre Pause
             #------------------------------------------------
-            if pause >0:
-                axs[i_layer].bar(1*pause-1, len(BLOCK)+ec*len(BLOCK), bottom=-ec/2, color='k', width=.5, linewidth=0)
-                axs[i_layer].bar(2*pause-1, len(BLOCK)+ec*len(BLOCK), bottom=-ec/2, color='k', width=.5, linewidth=0)
-                axs[i_layer].bar(3*pause-1, len(BLOCK)+ec*len(BLOCK), bottom=-ec/2, color='k', width=.5, linewidth=0)
+            if pause > 0:
+                for num_pause in range(1,4) : axs[i_layer].bar(num_pause*pause-1, len(BLOCK)+ec*len(BLOCK), bottom=-ec/2, color='k', width=.5, linewidth=0)
 
             if num_block is None :
                 #------------------------------------------------
@@ -1510,16 +1510,13 @@ class Analysis(object):
             if direction is True :
                 y_ticks=[0, 1, 1+ec, 2+ec, 2+ec*2, 3+ec*2]
                 axs[0].set_yticks(y_ticks[:len(BLOCK)*2])
-
                 axs[0].set_yticklabels(['left','right']*len(BLOCK),fontsize=t_label/1.8)
             #else :
             #    axs[1].legend(fontsize=t_label/1.3, bbox_to_anchor=(0., 2.1, 1, 0.), loc=3, ncol=2, mode="expand", borderaxespad=0.)
         ###################################################################################################################################
 
-        if TD is True :
-            td_label = 'TD'
-        else:
-            td_label = 'Target Direction'
+        if TD is True : td_label = 'TD'
+        else:           td_label = 'Target Direction'
         for i_block, block in enumerate(BLOCK):
             if len(sujet)==1 :
                 for i_layer, label in enumerate([td_label, 'Probability', 'Switch']) :
@@ -1541,8 +1538,6 @@ class Analysis(object):
                     axs[0].fill_between(range(N_trials), i_block+np.ones_like(p[:, block, 0])+ec*i_block,
                                               i_block+p[:, block, 0]+ec*i_block,
                                               lw=.5, alpha=alpha[0][1], facecolor=color[0][1], step='pre')
-
-
                     axs[0].set_ylabel(td_label, fontsize=t_label/1.2)
                 for s in range(len(sujet)) :
                     if direction is True : a = s+1
@@ -1554,89 +1549,56 @@ class Analysis(object):
                                               lw=.5, alpha=alpha[1][1], facecolor=color[1][1], step='pre')
 
                     axs[a].plot(range(N_trials), 0.5*np.ones(N_trials)+i_block+ec*i_block, lw=1.5, c='k', alpha=0.5)
-                    #axs[a].set_yticklabels(['0','1','0','1','0','1'],fontsize=t_label/2)
-                    #axs[a].set_ylabel('Subject %s'%(sujet[s]), fontsize=t_label)
-                    #axs[a].set_ylabel('Subject %s'%(s), fontsize=t_label)
                     axs[a].text(-0.055, 0.5, 'Subject %s'%(s), fontsize=t_label/1.2, rotation=90, transform=axs[a].transAxes, ha='right', va='center')
         #-------------------------------------------------------------------------------------------------------------
 
         for s in range(len(sujet)) :
             if direction is True : a = s+1
-            else : a = s
+            else :                 a = s
 
             if len(sujet)==1:
                 results = (self.param_exp['results']+1)/2 # results est sur [-1,1] on le ramene sur [0,1]
-                a_anti = self.param['a_anti']
-                start_anti = self.param['start_anti']
-                latency = self.param['latency']
+                a_anti, start_anti, latency = self.param['a_anti'], self.param['start_anti'], self.param['latency']
                 print('sujet =', self.param_exp['observer'])
                 y_t = 1.1
             else :
-                p = self.PARI[self.subjects[s]]['p']
-                results = (self.PARI[self.subjects[s]]['results']+1)/2 # results est sur [-1,1] on le ramene sur [0,1]
-                a_anti = self.ENREGISTREMENT[self.subjects[s]]['a_anti']
-                start_anti = self.ENREGISTREMENT[self.subjects[s]]['start_anti'] # seconde
-                latency = self.ENREGISTREMENT[self.subjects[s]]['latency'] # seconde
-                print('sujet', sujet[s], '=', self.subjects[s])
+                suj = sujet[s]
+                p = self.PARI[self.subjects[suj]]['p']
+                results = (self.PARI[self.subjects[suj]]['results']+1)/2 # results est sur [-1,1] on le ramene sur [0,1]
+                a_anti, start_anti, latency = self.ENREGISTREMENT[self.subjects[suj]]['a_anti'], self.ENREGISTREMENT[self.subjects[suj]]['start_anti'], self.ENREGISTREMENT[self.subjects[suj]]['latency']
+                print('sujet', suj, '=', self.subjects[suj])
                 y_t = 1.25
             #-------------------------------------------------------------------------------------------------------------
-            if mode == 'pari' :
-                for i_block, block in enumerate(BLOCK):
-                    if i_block == 0 :
-                        axs[a].step(range(N_trials), i_block+results[:, block]+ec*i_block, lw=lw, alpha=1,
-                                      color='r', label='Individual guess')
-                    else :
-                        axs[a].step(range(N_trials), i_block+results[:, block]+ec*i_block, lw=lw, alpha=1, color='r')
-                if titre is None : axs[0].set_title('Bet results', fontsize=t_titre, x=0.5, y=y_t)
+            mini = 8
+            ec1 = ec*mini*2
 
-            #------------------------------------------------
-            elif mode == 'enregistrement' :
-                mini = 8
-                ec1 = ec*mini*2
-                ax1 = axs[a].twinx()
-                for i_block, block in enumerate(BLOCK):
-                    if i_block == 0 :
-                        #axs[a].step(range(N_trials), i_block+np.array(a_anti[block]+ec*i_block, color='k', lw=lw, alpha=1, label='Eye movement')
-                        ax1.step(range(N_trials), 2*(mini*i_block)+(np.array(a_anti[block])*((np.array(latency[block])-np.array(start_anti[block]))/1000))+ec1*i_block,
-                                    color='k', lw=lw, alpha=1, label='Eye movement')
-                    else :
-                        #axs[a].step(range(N_trials), i_block+np.array(a_anti[block]+ec*i_block, color='k', lw=lw, alpha=1)
-                        ax1.step(range(N_trials), 2*(mini*i_block)+(np.array(a_anti[block])*((np.array(latency[block])-np.array(start_anti[block]))/1000))+ec1*i_block,
-                                    color='k', lw=lw, alpha=1)
-                if titre is None : axs[0].set_title('Eye movements recording results', fontsize=t_titre, x=0.5, y=y_t)
-                axs[a].set_yticks([])
-                popo = 'left'
-            #------------------------------------------------
-            elif mode=='deux':
-                mini = 8
-                ec1 = ec*mini*2
+            if titre is None :
+                if mode == 'pari' :             axs[0].set_title('Bet results', fontsize=t_titre, x=0.5, y=y_t)
+                elif mode == 'enregistrement' : axs[0].set_title('Eye movements recording results', fontsize=t_titre, x=0.5, y=y_t)
+                elif mode=='deux':              axs[0].set_title('Bet + Eye movements results', fontsize=t_titre, x=0.5, y=y_t)
 
+            if mode in ['pari', 'deux'] :
+
+                for i_block, block in enumerate(BLOCK):
+                    axs[a].step(range(N_trials), i_block+results[:, block]+ec*i_block, lw=lw, alpha=1, color='r', label='Individual guess'  if i_block==0 else '')
+
+                axs[a].yaxis.set_ticks_position('left')
                 y_ticks=[0, 0.5, 1, 1+ec, 1.5+ec, 2+ec, 2+ec*2, 2.5+ec*2, 3+ec*2]
                 axs[a].set_yticks(y_ticks[:len(BLOCK)*3])
                 axs[a].set_yticklabels(['0', '0.5', '1']*len(BLOCK),fontsize=t_label/2)
 
-                ax1 = axs[a].twinx()
-                for i_block, block in enumerate(BLOCK):
-                    if i_block == 0 :
-                        axs[a].step(range(1), -1000, color='k', lw=lw, alpha=1, label='Eye movement')
-                        axs[a].step(range(N_trials), i_block+results[:, block]+ec*i_block, lw=lw, alpha=1, color='r', label='Individual guess')
-                        #ax1.step(range(N_trials), i_block+np.array(a_anti[block])+ec1*i_block, color='k', lw=lw, alpha=1, label='Eye movement')
-                        ax1.step(range(N_trials), 2*(mini*i_block)+(np.array(a_anti[block])*((np.array(latency[block])-np.array(start_anti[block]))/1000))+ec1*i_block,
-                                 color='k', lw=lw, alpha=1, label='Eye movement')
-                    else :
-                        axs[a].step(range(N_trials), i_block+results[:, block]+ec*i_block, lw=lw, alpha=1, color='r')
-                        #ax1.step(range(N_trials), i_block+np.array(a_anti[block])+ec1*i_block, color='k', lw=lw, alpha=1)
-                        ax1.step(range(N_trials), 2*(mini*i_block)+(np.array(a_anti[block])*((np.array(latency[block])-np.array(start_anti[block]))/1000))+ec1*i_block,
-                                 color='k', lw=lw, alpha=1)
-                if titre is None : axs[0].set_title('Bet + Eye movements results', fontsize=t_titre, x=0.5, y=y_t)
-
                 axs[a].set_ylabel('Bet score', fontsize=t_label/1.5, color='r')
                 axs[a].tick_params('y', colors='r')
                 axs[a].yaxis.set_label_coords(-0.03, 0.5)
-                popo = 'right'
-                ax1.set_ylabel('Velocity of eye °/s', rotation=-90,fontsize=t_label/1.5)
 
             if mode in ['enregistrement', 'deux'] :
+
+                ax1 = axs[a].twinx()
+                for i_block, block in enumerate(BLOCK):
+                    axs[a].step(range(1), -1000, color='k', lw=lw, alpha=1, label='Eye movement'  if i_block==0 else '')
+                    ax1.step(range(N_trials), 2*(mini*i_block)+(np.array(a_anti[block])*((np.array(latency[block])-np.array(start_anti[block]))/1000))+ec1*i_block,
+                                color='k', lw=lw, alpha=1, label='Eye movement' if i_block==0 else '')
+
                 ax1.set_ylim(-mini-(ec1/2), len(BLOCK)*mini + ec1*len(BLOCK)-(ec1/2))
                 y_ticks=[-mini, 0, mini,
                          mini+ec1, 2*mini+ec1, 3*mini+ec1,
@@ -1646,11 +1608,14 @@ class Analysis(object):
                 ax1.set_yticklabels(['-%s'%mini, '0', '%s'%mini]*len(BLOCK),fontsize=t_label/2)
                 ax1.yaxis.set_label_coords(1.043, 0.5)
                 ax1.yaxis.set_tick_params(colors='k', direction='out')
-                ax1.yaxis.set_ticks_position(popo)
+                ax1.yaxis.set_ticks_position('right')
+                ax1.set_ylabel('Velocity of eye °/s', rotation=-90,fontsize=t_label/1.5)
+                #if mode == 'enregistrement' : axs[a].set_yticks([])
+
 
             if mode_bcp is not None :
                 ncol_leg = 4
-                fixed_window_size=40
+                fixed_window_size = 40
                 p0, r0 =  0.5, 1.0
                 p = self.PARI[self.subjects[s]]['p']
                 if pause is not None :
@@ -1664,8 +1629,7 @@ class Analysis(object):
                 else :
                     if s==0 : name=True
                     else :    name=False
-                    axs[a] = plot_result_bcp(axs[a], mode_bcp, p[:, block, 0],
-                                             np.arange(N_trials), N_trials, name=name)
+                    axs[a] = plot_result_bcp(axs[a], mode_bcp, p[:, block, 0], np.arange(N_trials), N_trials, name=name)
 
             #------------------------------------------------
             if mode is None and titre is None : axs[0].set_title('Experiment', fontsize=t_titre, x=0.5, y=y_t)
@@ -1675,16 +1639,13 @@ class Analysis(object):
 
         if legends is True :
             if TD is True : axs[1].legend(fontsize=t_label/1.8, bbox_to_anchor=(0., 1.3, 1, 0.), loc=3, ncol=ncol_leg, mode="expand", borderaxespad=0.)
-            else : axs[1].legend(fontsize=t_label/1.8, bbox_to_anchor=(0., 2.1, 1, 0.), loc=3, ncol=ncol_leg, mode="expand", borderaxespad=0.)
+            else :          axs[1].legend(fontsize=t_label/1.8, bbox_to_anchor=(0., 2.1, 1, 0.), loc=3, ncol=ncol_leg, mode="expand", borderaxespad=0.)
 
         axs[-1].set_xlabel('Trials', fontsize=t_label)
         try: fig.tight_layout()
         except: print('tight_layout failed :-(')
         plt.subplots_adjust(hspace=0.05)
         #------------------------------------------------
-
-
-
 
         if return_proba is None : return fig, axs
         else : return fig, axs, p
