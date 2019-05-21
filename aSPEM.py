@@ -414,44 +414,28 @@ def regress(ax, p, data, y1, y2, t_label,color='k', x1=-0.032, x2=1.032, pos='ri
 
     return ax
 
-def results_sujet(self, ax, sujet, s, mode_bcp, tau, t_label, pause):
+def results_sujet(self, ax, sujet, s, mode_bcp, tau, t_label, pause, color = [['k', 'k'], ['r', 'r'], ['k','w']], alpha = [[.35,.15],[.35,.15],[1,0]], color_bcp='darkred'):
 
     import bayesianchangepoint as bcp
     from scipy import stats
 
-    color = [['k', 'k'], ['r', 'r'], ['k','w']]
-    alpha = [[.35,.15],[.35,.15],[1,0]]
+
+
     lw = 1.3
     ec = 0.2 # pour l'écart entre les différents blocks
 
+    suj = sujet[s]
 
-    print('Subject', sujet[s], '=', self.subjects[s])
-    N_trials = self.PARI[self.subjects[s]]['N_trials']
-    N_blocks = self.PARI[self.subjects[s]]['N_blocks']
-    p = self.PARI[self.subjects[s]]['p']
+    print('Subject', suj, '=', self.subjects[suj])
+    N_trials = self.PARI[self.subjects[suj]]['N_trials']
+    N_blocks = self.PARI[self.subjects[suj]]['N_blocks']
+    p = self.PARI[self.subjects[suj]]['p']
     # tau = N_trials/5.
     h = 1./tau
-    results = (self.PARI[self.subjects[s]]['results']+1)/2 # results est sur [-1,1] on le ramene sur [0,1]
-    a_anti = self.ENREGISTREMENT[self.subjects[s]]['a_anti']
+    results = (self.PARI[self.subjects[suj]]['results']+1)/2 # results est sur [-1,1] on le ramene sur [0,1]
+    a_anti = self.ENREGISTREMENT[self.subjects[suj]]['a_anti']
 
     for block in range(N_blocks) :
-        #----------------------------------------------------------------------------------
-        if pause is True : liste = [0,50,100,150,200]
-        else : liste = [0, 200]
-
-        for a in range(len(liste)-1) :
-            p_bar, r, beliefs = bcp.inference(p[liste[a]:liste[a+1], block, 0], h=h, p0=.5)
-            p_hat, r_hat = bcp.readout(p_bar, r, beliefs,mode=mode_bcp)
-            p_low, p_sup = np.zeros_like(p_hat), np.zeros_like(p_hat)
-            for i_trial in range(liste[a+1]-liste[a]):
-                p_low[i_trial], p_sup[i_trial] = stats.beta.ppf([.05, .95], a=p_hat[i_trial]*r_hat[i_trial], b=(1-p_hat[i_trial])*r_hat[i_trial])
-
-            ax.plot(np.arange(liste[a], liste[a+1]), block+p_hat+ec*block, c='darkred', alpha=.9, lw=1.5,
-                    label='$\hat{p}_{%s}$'%(mode_bcp) if block==0 and a==0 else '')
-            ax.plot(np.arange(liste[a], liste[a+1]), block+p_sup+ec*block, c='darkred', ls='--', lw=1.2)
-            ax.plot(np.arange(liste[a], liste[a+1]), block+p_low+ec*block, c='darkred', ls= '--', lw=1.2)
-            ax.fill_between(np.arange(liste[a], liste[a+1]), block+p_sup+ec*block, block+p_low+ec*block, lw=.5, alpha=.11, facecolor='darkred')
-
         #----------------------------------------------------------------------------------
         ax.step(range(N_trials), block+p[:, block, 1]+ec*block, lw=1, alpha=alpha[1][0], c=color[1][0])
         ax.fill_between(range(N_trials), block+np.zeros_like(p[:, block, 1])+ec*block, block+p[:, block, 1]+ec*block,
@@ -462,6 +446,23 @@ def results_sujet(self, ax, sujet, s, mode_bcp, tau, t_label, pause):
         ax.step(range(N_trials), block+((np.array(a_anti[block])-np.nanmin(a_anti))/(np.nanmax(a_anti)-np.nanmin(a_anti)))+ec*block,
                     color='k', lw=1.2, label='Eye movements' if block==0 else '')
         ax.step(range(N_trials), block+results[:, block]+ec*block, color='r', lw=1.2, label='Individual guess' if block==0 else '')
+        #----------------------------------------------------------------------------------
+
+        if pause is True : liste = [0,50,100,150,200]
+        else : liste = [0, 200]
+
+        for a in range(len(liste)-1) :
+            p_bar, r, beliefs = bcp.inference(p[liste[a]:liste[a+1], block, 0], h=h, p0=.5)
+            p_hat, r_hat = bcp.readout(p_bar, r, beliefs,mode=mode_bcp)
+            p_low, p_sup = np.zeros_like(p_hat), np.zeros_like(p_hat)
+            for i_trial in range(liste[a+1]-liste[a]):
+                p_low[i_trial], p_sup[i_trial] = stats.beta.ppf([.05, .95], a=p_hat[i_trial]*r_hat[i_trial], b=(1-p_hat[i_trial])*r_hat[i_trial])
+
+            ax.plot(np.arange(liste[a], liste[a+1]), block+p_hat+ec*block, c=color_bcp, alpha=.9, lw=1.5,
+                    label='$\hat{x}_1$' if block==0 and a==0 else '')
+            ax.plot(np.arange(liste[a], liste[a+1]), block+p_sup+ec*block, c=color_bcp, ls='--', lw=1.2, label='CI' if block==0 and a==0 else '')
+            ax.plot(np.arange(liste[a], liste[a+1]), block+p_low+ec*block, c=color_bcp, ls= '--', lw=1.2)
+            ax.fill_between(np.arange(liste[a], liste[a+1]), block+p_sup+ec*block, block+p_low+ec*block, lw=.5, alpha=.11, facecolor=color_bcp)
 
     #------------------------------------------------
     # affiche les numéro des block sur le côté gauche
@@ -476,9 +477,9 @@ def results_sujet(self, ax, sujet, s, mode_bcp, tau, t_label, pause):
 
     #------------------------------------------------
     ax.set_yticks([0, 1, 1+ec, 2+ec, 2+ec*2, 3+ec*2])
-    ax.set_yticklabels(['0','1','0','1','0','1'],fontsize=t_label/2)
+    ax.set_yticklabels(['0','1','0','1','0','1'],fontsize=t_label/1.8)
     ax.yaxis.set_label_coords(-0.02, 0.5)
-    ax.set_ylabel('Subject %s'%(sujet[s]), fontsize=t_label)
+    ax.set_ylabel('Subject %s'%(suj), fontsize=t_label)
     ax.set_ylim(-(ec/2), N_blocks +ec*3-(ec/2))
     ax.set_xlim(0, N_trials)
     #------------------------------------------------
@@ -566,7 +567,7 @@ class Analysis(object):
 
 
 
-    def Full_list(self, modes_bcp=['expectation', 'max', 'mean', 'fixed', 'fixed-exp', 'hindsight'], pause=True):
+    def Full_list(self, modes_bcp=['expectation', 'max', 'mean', 'fixed', 'leaky', 'hindsight'], pause=True):
 
         import pandas as pd
         pd.set_option('mode.chained_assignment', None)
@@ -1396,7 +1397,7 @@ class Analysis(object):
 
     def plot_experiment(self, sujet=[0], mode_bcp=None, tau=40, direction=True, p=None, num_block=None, mode=None,
                         fig=None, axs=None, fig_width=15, titre=None, t_titre=35, t_label=25, return_proba=None, color=[['k', 'k'], ['r', 'r'], ['k','w']],
-                        color_bcp='darkgreen',
+                        color_bcp='darkgreen', name_bcp='$\hat{x}_1$',
                         alpha = [[.35,.15],[.35,.15],[1,0]], lw = 1.3, legends=False, TD=False, pause=50, ec = 0.2):
 
         import matplotlib.pyplot as plt
@@ -1411,7 +1412,7 @@ class Analysis(object):
         else: ec, BLOCK = 0.1, num_block
 
         ncol_leg = 2
-        def plot_result_bcp(ax1, mode, observation, time, n_trial, name=True) :
+        def plot_result_bcp(ax1, mode, observation, time, n_trial, name_bcp, name=True) :
 
             from scipy.stats import beta
             p_bar, r_bar, beliefs = bcp.inference(observation, h=h, p0=p0, r0=r0)
@@ -1420,7 +1421,7 @@ class Analysis(object):
 
             for i_trial in range(n_trial):
                 p_low[i_trial], p_sup[i_trial] = beta.ppf([.05, .95], a=p_hat[i_trial]*r_hat[i_trial], b=(1-p_hat[i_trial])*r_hat[i_trial])
-            ax1.plot(time, p_hat, c=color_bcp,  lw=1.5, alpha=.9, label='$\hat{x}_1$' if name is True else '')
+            ax1.plot(time, p_hat, c=color_bcp, lw=1.5, alpha=.9, label=name_bcp if name is True else '')
             ax1.plot(time, p_sup, c=color_bcp, lw=1.2, alpha=.9, ls='--', label='CI' if name is True else '')
             ax1.plot(time, p_low, c=color_bcp, lw=1.2, alpha=.9, ls='--')
             ax1.fill_between(time, p_sup, p_low, lw=.5, alpha=.2, facecolor=color_bcp)
@@ -1556,18 +1557,14 @@ class Analysis(object):
             if direction is True : a = s+1
             else :                 a = s
 
-            if len(sujet)==1:
-                results = (self.param_exp['results']+1)/2 # results est sur [-1,1] on le ramene sur [0,1]
-                a_anti, start_anti, latency = self.param['a_anti'], self.param['start_anti'], self.param['latency']
-                print('sujet =', self.param_exp['observer'])
-                y_t = 1.1
-            else :
-                suj = sujet[s]
-                p = self.PARI[self.subjects[suj]]['p']
-                results = (self.PARI[self.subjects[suj]]['results']+1)/2 # results est sur [-1,1] on le ramene sur [0,1]
-                a_anti, start_anti, latency = self.ENREGISTREMENT[self.subjects[suj]]['a_anti'], self.ENREGISTREMENT[self.subjects[suj]]['start_anti'], self.ENREGISTREMENT[self.subjects[suj]]['latency']
-                print('sujet', suj, '=', self.subjects[suj])
-                y_t = 1.25
+            if len(sujet)==1: y_t = 1.1
+            else :            y_t = 1.25
+            suj = sujet[s]
+            p = self.PARI[self.subjects[suj]]['p']
+            results = (self.PARI[self.subjects[suj]]['results']+1)/2 # results est sur [-1,1] on le ramene sur [0,1]
+            a_anti, start_anti, latency = self.ENREGISTREMENT[self.subjects[suj]]['a_anti'], self.ENREGISTREMENT[self.subjects[suj]]['start_anti'], self.ENREGISTREMENT[self.subjects[suj]]['latency']
+            print('sujet', suj, '=', self.subjects[suj])
+
             #-------------------------------------------------------------------------------------------------------------
             mini = 8
             ec1 = ec*mini*2
@@ -1625,11 +1622,11 @@ class Analysis(object):
                         else :                 name=False
                         n_trial = liste[pause+1]-liste[pause]
                         axs[a] = plot_result_bcp(axs[a], mode_bcp, p[liste[pause]:liste[pause+1], block, 0],
-                                                 np.arange(liste[pause], liste[pause+1]), n_trial, name=name)
+                                                 np.arange(liste[pause], liste[pause+1]), n_trial, name_bcp, name=name)
                 else :
                     if s==0 : name=True
                     else :    name=False
-                    axs[a] = plot_result_bcp(axs[a], mode_bcp, p[:, block, 0], np.arange(N_trials), N_trials, name=name)
+                    axs[a] = plot_result_bcp(axs[a], mode_bcp, p[:, block, 0], np.arange(N_trials), N_trials, name_bcp, name=name)
 
             #------------------------------------------------
             if mode is None and titre is None : axs[0].set_title('Experiment', fontsize=t_titre, x=0.5, y=y_t)
@@ -1652,7 +1649,7 @@ class Analysis(object):
 
 
     def plot_bcp(self, show_trial=False, block=0, trial=50, N_scan=100, fixed_window_size=40,
-                pause=None, mode=['expectation', 'max', 'mean', 'fixed', 'fixed-exp', 'hindsight'],
+                pause=None, mode=['expectation', 'max', 'mean', 'fixed', 'leaky', 'hindsight'],
                 mode_compare=None, max_run_length=150, c_mode='g', c_compare='r',
                 color=[['k', 'k'], ['r', 'r'], ['k','w']], alpha = [[.35,.15],[.35,.15],[1,0]],
                  fig_width=15, t_titre=35, t_label=20, show_title=True):
@@ -1699,7 +1696,7 @@ class Analysis(object):
                 #ax2.imshow(np.log(beliefs[:max_run_length, :] + eps), cmap='Greys', extent=extent)
                 if mode == 'fixed':
                     ax2.imshow(np.log(beliefs[:max_run_length, :]*0. + eps), cmap='Greys', extent=extent)
-                elif mode == 'fixed-exp':
+                elif mode == 'leaky':
                     beliefs_ = np.exp(-np.arange(N_r) / fixed_window_size)
                     beliefs_ /= beliefs_.sum()
                     beliefs_ = beliefs_[:, None]
@@ -1851,7 +1848,7 @@ class Analysis(object):
             elif m == 'max' : title = '$\hat{p} ( \mathrm{ArgMax}_r (p(r)) )$'
             elif m == 'mean' : title = 'mean equation'
             elif m == 'fixed' : title = 'fixed equation'
-            elif m == 'fixed-exp' : title = 'fixed-exp equation'
+            elif m == 'leaky' : title = 'leaky equation'
             elif m == 'hindsight' : title = 'hindsight equation'
             if show_trial is True:
                 ax2.bar(trial, 140 + (.05*140)+.05*140, bottom=-.05*140, color='firebrick', width=.5, linewidth=0, alpha=1)
@@ -2025,7 +2022,8 @@ class Analysis(object):
         if fig is not None: return fig, ax
         else : return ax
 
-    def plot_results(self, mode_bcp='mean', show='scatter', conditional_kde=True, tau=40., sujet=[6], fig_width=15, t_titre=35, t_label=25, plot='Full', pause=True) :
+    def plot_results(self, mode_bcp='mean', show='scatter', conditional_kde=True, tau=40., sujet=[6], fig_width=15, t_titre=35, t_label=25, plot='Full', pause=True,
+                      color = [['k', 'k'], ['r', 'r'], ['k','w']], alpha = [[.35,.15],[.35,.15],[1,0]], color_bcp='darkred') :
 
         import matplotlib.pyplot as plt
         import matplotlib.gridspec as gridspec
@@ -2067,7 +2065,7 @@ class Analysis(object):
 
         if plot in ['Full', 'sujet'] :
             # axs[0].set_title('Results bayesian change point %s'%(mode_bcp), fontsize=t_titre, x=0.5, y=1.3)
-            for s in range(len(sujet)) : axs[s] = results_sujet(self, axs[s], sujet, s, mode_bcp, tau, t_label, pause)
+            for s in range(len(sujet)) : axs[s] = results_sujet(self, axs[s], sujet, s, mode_bcp, tau, t_label, pause, color, alpha, color_bcp)
 
         if plot in ['Full', 'scatterKDE'] :
 
@@ -2095,7 +2093,7 @@ class Analysis(object):
                     axs[i_layer].set_xticklabels([50, 100, 150], ha='left',fontsize=t_label/1.8)
 
         if not plot in ['scatterKDE'] :
-            axs[0].legend(fontsize=t_label/1.2, bbox_to_anchor=(0., 1.05, 1, 0.), loc=4, ncol=3,
+            axs[0].legend(fontsize=t_label/1.8, bbox_to_anchor=(0., 1.05, 1, 0.), loc=4, ncol=4,
                            mode="expand", borderaxespad=0.)
 
         #------------------------------------------------
