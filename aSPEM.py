@@ -1649,7 +1649,7 @@ class Analysis(object):
         else : return fig, axs, p
 
 
-    def plot_bcp(self, show_trial=False, block=0, trial=50, N_scan=100, fixed_window_size=40,
+    def plot_bcp(self, show_trial=False, block=0, trial=50, N_scan=100, fixed_window_size=40, label_bcp=r'$\hat{x}_1$', label_comp_bcp=r'$\bar{x}_1$',
                 pause=None, mode=['expectation', 'max', 'mean', 'fixed', 'leaky', 'hindsight'],
                 mode_compare=None, max_run_length=150, c_mode='g', c_compare='r', TD=False,
                 color=[['k', 'k'], ['r', 'r'], ['k','w']], alpha = [[.35,.15],[.35,.15],[1,0]],
@@ -1674,7 +1674,7 @@ class Analysis(object):
 
         p0, r0 =  0.5, 1.0
 
-        def plot_result_bcp(ax1, ax2, mode, observation, time, c, label) :
+        def plot_result_bcp(ax1, ax2, mode, observation, time, c, label, name=True) :
 
             p_bar, r_bar, beliefs = bcp.inference(observation, h=h, p0=p0, r0=r0)
             p_hat, r_hat = bcp.readout(p_bar, r_bar, beliefs, mode=mode, fixed_window_size=fixed_window_size, p0=p0)
@@ -1683,8 +1683,8 @@ class Analysis(object):
 
             for i_trial in range(N_trial):
                 p_low[i_trial], p_sup[i_trial] = beta.ppf([.05, .95], a=p_hat[i_trial]*r_hat[i_trial], b=(1-p_hat[i_trial])*r_hat[i_trial])
-            ax1.plot(time, p_hat, c=c,  lw=1.5, alpha=.9, label=label)
-            if leg_up is None : ax1.plot(time, p_sup, c=c, lw=1.2, alpha=.9, ls='--', label='CI '+label)
+            ax1.plot(time, p_hat, c=c,  lw=1.5, alpha=.9, label=label if name is True else '')
+            if leg_up is None : ax1.plot(time, p_sup, c=c, lw=1.2, alpha=.9, ls='--', label='CI '+label if name is True else '')
             else :              ax1.plot(time, p_sup, c=c, lw=1.2, alpha=.9, ls='--')#, label='CI '+label)
             ax1.plot(time, p_low, c=c, lw=1.2, alpha=.9, ls='--')
             ax1.fill_between(time, p_sup, p_low, lw=.5, alpha=.11, facecolor=c)
@@ -1816,11 +1816,12 @@ class Analysis(object):
             #---------------------------------------------------------------------------
             if pause is not None :
                 liste = [0,50,100,150,200]
+                name=True
                 for a in range(len(liste)-1) :
-                    ax1, ax2 = plot_result_bcp(ax1, ax2, m, p[liste[a]:liste[a+1], block, 0], np.arange(liste[a], liste[a+1]), c=c_mode, label='$\hat{x}_1$')
+                    ax1, ax2 = plot_result_bcp(ax1, ax2, m, p[liste[a]:liste[a+1], block, 0], np.arange(liste[a], liste[a+1]), c=c_mode, label=label_bcp, name=name)
                     if not mode_compare is None:
-                        ax1 = plot_result_bcp(ax1, None, mode_compare, p[liste[a]:liste[a+1], block, 0], np.arange(liste[a], liste[a+1]), c=c_compare, label=r'$\bar{x}_1$')
-
+                        ax1 = plot_result_bcp(ax1, None, mode_compare, p[liste[a]:liste[a+1], block, 0], np.arange(liste[a], liste[a+1]), c=c_compare, label=label_comp_bcp, name=name)
+                    name=False
                 for a in [ax1, ax2]:
                     a.bar(50, 140 + 2*(.05*140), bottom=-.05*140, color='k', width=.5, linewidth=0)
                     a.bar(100, 140 + 2*(.05*140), bottom=-.05*140, color='k', width=.5, linewidth=0)
