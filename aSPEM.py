@@ -1634,8 +1634,9 @@ class Analysis(object):
 
             if titre is not None : axs[0].set_title(titre, fontsize=t_titre, x=0.5, y=y_t)
 
+
         if legends is True :
-            if TD is True : axs[1].legend(fontsize=t_label/1.8, bbox_to_anchor=(0., 1.3, 1, 0.), loc=3, ncol=ncol_leg, mode="expand", borderaxespad=0.)
+            if TD is True : axs[1].legend(fontsize=t_label/1.8, bbox_to_anchor=(0., 1.2, 1, 0.), loc=3, ncol=ncol_leg, mode="expand", borderaxespad=0.)
             else :          axs[1].legend(fontsize=t_label/1.8, bbox_to_anchor=(0., 2.1, 1, 0.), loc=3, ncol=ncol_leg, mode="expand", borderaxespad=0.)
 
         axs[-1].set_xlabel('Trials', fontsize=t_label)
@@ -1650,9 +1651,9 @@ class Analysis(object):
 
     def plot_bcp(self, show_trial=False, block=0, trial=50, N_scan=100, fixed_window_size=40,
                 pause=None, mode=['expectation', 'max', 'mean', 'fixed', 'leaky', 'hindsight'],
-                mode_compare=None, max_run_length=150, c_mode='g', c_compare='r',
+                mode_compare=None, max_run_length=150, c_mode='g', c_compare='r', TD=False,
                 color=[['k', 'k'], ['r', 'r'], ['k','w']], alpha = [[.35,.15],[.35,.15],[1,0]],
-                 fig_width=15, t_titre=35, t_label=20, show_title=True):
+                fig_width=15, t_titre=35, t_label=20, show_title=True, leg_up=None):
 
         '''plot='normal' -> bcp, 'detail' -> bcp2'''
 
@@ -1683,10 +1684,10 @@ class Analysis(object):
             for i_trial in range(N_trial):
                 p_low[i_trial], p_sup[i_trial] = beta.ppf([.05, .95], a=p_hat[i_trial]*r_hat[i_trial], b=(1-p_hat[i_trial])*r_hat[i_trial])
             ax1.plot(time, p_hat, c=c,  lw=1.5, alpha=.9, label=label)
-            ax1.plot(time, p_sup, c=c, lw=1.2, alpha=.9, ls='--', label='CI '+label)
+            if leg_up is None : ax1.plot(time, p_sup, c=c, lw=1.2, alpha=.9, ls='--', label='CI '+label)
+            else :              ax1.plot(time, p_sup, c=c, lw=1.2, alpha=.9, ls='--')#, label='CI '+label)
             ax1.plot(time, p_low, c=c, lw=1.2, alpha=.9, ls='--')
             ax1.fill_between(time, p_sup, p_low, lw=.5, alpha=.11, facecolor=c)
-
 
             if ax2 is not None :
                 if N_trial < N_trials : extent = (min(time), max(time), np.max(r_bar), np.min(r_bar))
@@ -1706,7 +1707,9 @@ class Analysis(object):
 
                 ax2.plot(time, r_hat, c=c, lw=1.5, alpha=.9, label='predicted run-length')
                 ax2.set_ylim(0, max_run_length)
+
                 return (ax1, ax2)
+
             else :
                 return ax1
 
@@ -1715,12 +1718,11 @@ class Analysis(object):
 
 
         if show_trial is True :
-
             print('Block', block)
-
             height_ratios = np.append(height_ratios, 1/4)
-            figsize=(fig_width, (nb_fig)*(fig_width)/(2*(1.6180)))
             nb_fig = len(mode)+1
+            figsize=(fig_width, (nb_fig)*(fig_width)/(2*(1.6180)))
+
         else:
             nb_fig = len(mode)
 
@@ -1758,8 +1760,7 @@ class Analysis(object):
 
         for x, m in enumerate(mode) :
             if N_scan>0: #show_trial is False :
-                gs1 = gridspec.GridSpecFromSubplotSpec(2, 2, subplot_spec=gs[x], width_ratios=[2,(1.6180)/2],
-                                                        wspace=0.3, hspace=0.05)
+                gs1 = gridspec.GridSpecFromSubplotSpec(2, 2, subplot_spec=gs[x], width_ratios=[2,(1.6180)/2], wspace=0.3, hspace=0.05)
                 ax1 = plt.Subplot(fig, gs1[0, 0])
                 ax2 = plt.Subplot(fig, gs1[1, 0])
                 ax3 = plt.Subplot(fig, gs1[:, 1])
@@ -1773,6 +1774,20 @@ class Analysis(object):
                 ax2 = plt.Subplot(fig, gs1[1])
 
 
+                if TD is True :
+                    gs0 = gridspec.GridSpec(1, 1)
+                    gs0.update(left=0+0.02, bottom=0.85, right=1+0.02, top=1.-0.1, hspace=0.05)
+                    ax0 = plt.Subplot(fig, gs0[0]) #plt.subplot(gs1[0])
+                    fig.add_subplot(ax0)
+
+                    for card in ['bottom', 'top', 'left']: ax0.spines[card].set_visible(False)
+                    ax0.spines['right'].set_bounds(0, 1)
+                    ax0.set_xticks(())
+                    ax0.yaxis.set_ticks_position('right')
+                    ax0.set_yticks([0,1])
+                    ax0.set_yticklabels(['left', 'right'], fontsize=t_label/1.8)
+
+
             fig.add_subplot(ax1)
             fig.add_subplot(ax2)
             #---------------------------------------------------------------------------
@@ -1781,10 +1796,19 @@ class Analysis(object):
             o = p[:, block, 0]
             p_true = p[:, block, 1]
             time = np.arange(N_trials)
-            ax1.step(range(N_trials), o, lw=1, alpha=.15, c='k')
-            ax1.plot(np.arange(N_trials)-.5, o, 'k.', ms=2, label='TD')
+
+            if TD is True :
+                ax0.set_ylabel('TD', fontsize=t_label/1.2)
+                ax0.plot(np.arange(N_trials)-.5, o, 'k.', ms=2, label='TD')
+                ax0.step(range(N_trials), o, lw=1, alpha=.15, c='k')
+                ax0.fill_between(range(N_trials), np.zeros_like(o), o, lw=0, alpha=alpha[0][1], facecolor=color[0][0], step='pre')
+
+            else :
+                ax1.plot(np.arange(N_trials)-.5, o, 'k.', ms=2, label='TD')
+                ax1.step(range(N_trials), o, lw=1, alpha=.15, c='k')
+                ax1.fill_between(range(N_trials), np.zeros_like(o), o, lw=0, alpha=alpha[0][1], facecolor=color[0][0], step='pre')
+
             ax1.step(range(N_trials), p_true, lw=1, alpha=.9, c=color[1][0], label=r'$x_1$')
-            ax1.fill_between(range(N_trials), np.zeros_like(o), o, lw=0, alpha=alpha[0][1], facecolor=color[0][0], step='pre')
             ax1.fill_between(range(N_trials), np.zeros_like(p_true), p_true, lw=0, alpha=alpha[1][1], facecolor=color[1][0], step='pre')
 
             #---------------------------------------------------------------------------
@@ -1797,7 +1821,6 @@ class Analysis(object):
                     if not mode_compare is None:
                         ax1 = plot_result_bcp(ax1, None, mode_compare, p[liste[a]:liste[a+1], block, 0], np.arange(liste[a], liste[a+1]), c=c_compare, label=r'$\bar{x}_1$')
 
-
                 for a in [ax1, ax2]:
                     a.bar(50, 140 + 2*(.05*140), bottom=-.05*140, color='k', width=.5, linewidth=0)
                     a.bar(100, 140 + 2*(.05*140), bottom=-.05*140, color='k', width=.5, linewidth=0)
@@ -1808,7 +1831,12 @@ class Analysis(object):
                 if not mode_compare is None:
                     ax1 = plot_result_bcp(ax1, None, mode_compare, o, range(N_trials), c=c_compare, label=r'$\bar{x}_1$')
 
-            ax1.legend(loc=(0.15, 0.55), ncol=2)#'best')
+
+            if leg_up is True :
+                if TD is True : ax1.legend(fontsize=t_label/1.8, bbox_to_anchor=(0., 1.3, 1, 0.), loc=3, ncol=3, mode="expand", borderaxespad=0.)
+                else :          ax1.legend(fontsize=t_label/1.8, bbox_to_anchor=(0., 2.1, 1, 0.), loc=3, ncol=3, mode="expand", borderaxespad=0.)
+            else :
+                ax1.legend(loc=(0.15, 0.55), ncol=2)#'best')
             # ax2.legend('best')
             #---------------------------------------------------------------------------
             # affiche SCORE
