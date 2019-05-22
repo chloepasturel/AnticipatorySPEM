@@ -1464,8 +1464,9 @@ class Analysis(object):
             #------------------------------------------------
             # Barre Pause
             #------------------------------------------------
-            if pause > 0:
-                for num_pause in range(1,4) : axs[i_layer].bar(num_pause*pause-1, len(BLOCK)+ec*len(BLOCK), bottom=-ec/2, color='k', width=.5, linewidth=0)
+            if pause is not None :
+                if pause > 0:
+                    for num_pause in range(1,4) : axs[i_layer].bar(num_pause*pause-1, len(BLOCK)+ec*len(BLOCK), bottom=-ec/2, color='k', width=.5, linewidth=0)
 
             if num_block is None :
                 #------------------------------------------------
