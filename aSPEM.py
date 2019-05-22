@@ -448,21 +448,22 @@ def results_sujet(self, ax, sujet, s, mode_bcp, tau, t_label, pause, color = [['
         ax.step(range(N_trials), block+results[:, block]+ec*block, color='r', lw=1.2, label='Individual guess' if block==0 else '')
         #----------------------------------------------------------------------------------
 
-        if pause is True : liste = [0,50,100,150,200]
-        else : liste = [0, 200]
+        if mode_bcp is not None :
+            if pause is True : liste = [0,50,100,150,200]
+            else : liste = [0, 200]
 
-        for a in range(len(liste)-1) :
-            p_bar, r, beliefs = bcp.inference(p[liste[a]:liste[a+1], block, 0], h=h, p0=.5)
-            p_hat, r_hat = bcp.readout(p_bar, r, beliefs,mode=mode_bcp)
-            p_low, p_sup = np.zeros_like(p_hat), np.zeros_like(p_hat)
-            for i_trial in range(liste[a+1]-liste[a]):
-                p_low[i_trial], p_sup[i_trial] = stats.beta.ppf([.05, .95], a=p_hat[i_trial]*r_hat[i_trial], b=(1-p_hat[i_trial])*r_hat[i_trial])
+            for a in range(len(liste)-1) :
+                p_bar, r, beliefs = bcp.inference(p[liste[a]:liste[a+1], block, 0], h=h, p0=.5)
+                p_hat, r_hat = bcp.readout(p_bar, r, beliefs,mode=mode_bcp)
+                p_low, p_sup = np.zeros_like(p_hat), np.zeros_like(p_hat)
+                for i_trial in range(liste[a+1]-liste[a]):
+                    p_low[i_trial], p_sup[i_trial] = stats.beta.ppf([.05, .95], a=p_hat[i_trial]*r_hat[i_trial], b=(1-p_hat[i_trial])*r_hat[i_trial])
 
-            ax.plot(np.arange(liste[a], liste[a+1]), block+p_hat+ec*block, c=color_bcp, alpha=.9, lw=1.5,
-                    label='$\hat{x}_1$' if block==0 and a==0 else '')
-            ax.plot(np.arange(liste[a], liste[a+1]), block+p_sup+ec*block, c=color_bcp, ls='--', lw=1.2, label='CI' if block==0 and a==0 else '')
-            ax.plot(np.arange(liste[a], liste[a+1]), block+p_low+ec*block, c=color_bcp, ls= '--', lw=1.2)
-            ax.fill_between(np.arange(liste[a], liste[a+1]), block+p_sup+ec*block, block+p_low+ec*block, lw=.5, alpha=.11, facecolor=color_bcp)
+                ax.plot(np.arange(liste[a], liste[a+1]), block+p_hat+ec*block, c=color_bcp, alpha=.9, lw=1.5,
+                        label='$\hat{x}_1$' if block==0 and a==0 else '')
+                ax.plot(np.arange(liste[a], liste[a+1]), block+p_sup+ec*block, c=color_bcp, ls='--', lw=1.2, label='CI' if block==0 and a==0 else '')
+                ax.plot(np.arange(liste[a], liste[a+1]), block+p_low+ec*block, c=color_bcp, ls= '--', lw=1.2)
+                ax.fill_between(np.arange(liste[a], liste[a+1]), block+p_sup+ec*block, block+p_low+ec*block, lw=.5, alpha=.11, facecolor=color_bcp)
 
     #------------------------------------------------
     # affiche les numéro des block sur le côté gauche
@@ -1636,7 +1637,7 @@ class Analysis(object):
 
 
         if legends is True :
-            if TD is True : axs[1].legend(fontsize=t_label/1.8, bbox_to_anchor=(0., 1.2, 1, 0.), loc=3, ncol=ncol_leg, mode="expand", borderaxespad=0.)
+            if TD is True : axs[1].legend(fontsize=t_label/1.8, bbox_to_anchor=(0., 1.3, 1, 0.), loc=3, ncol=ncol_leg, mode="expand", borderaxespad=0.)
             else :          axs[1].legend(fontsize=t_label/1.8, bbox_to_anchor=(0., 2.1, 1, 0.), loc=3, ncol=ncol_leg, mode="expand", borderaxespad=0.)
 
         axs[-1].set_xlabel('Trials', fontsize=t_label)
