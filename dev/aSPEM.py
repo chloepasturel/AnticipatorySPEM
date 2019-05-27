@@ -21,14 +21,13 @@ def binomial_motion(N_trials, N_blocks, tau, seed, Jeffreys=True, N_layer=3):
 
     trials = np.arange(N_trials)
     p = np.random.rand(N_trials, N_blocks, N_layer)
+
     for trial in trials:
         p[trial, :, 2] = np.random.rand(1, N_blocks) < 1/tau # switch
-        if Jeffreys: # /!\ REDEMANDER à laurent
-            p_random = beta.rvs(a=.5, b=.5, size=N_blocks)
-        else:
-            p_random = np.random.rand(1, N_blocks)
+        if Jeffreys: p_random = beta.rvs(a=.5, b=.5, size=N_blocks)
+        else: p_random = np.random.rand(1, N_blocks)
         p[trial, :, 1] = (1 - p[trial, :, 2])*p[trial-1, :, 1] + p[trial, :, 2] * p_random # probability
-        p[trial, :, 0] =  p[trial, :, 1] > np.random.rand(1, N_blocks) # binomial
+        p[trial, :, 0] =  p[trial, :, 1] > np.random.rand(1, N_blocks) # Bernouilli trial
 
     return (trials, p)
 
@@ -55,15 +54,13 @@ class aSPEM(object):
         datadir = 'data'
         import os
         for dir_ in [datadir, cachedir] :
-            try:
-                os.mkdir(dir_)
-            except:
-                pass
+            try: os.mkdir(dir_)
+            except: pass
 
         file = self.mode + '_' + self.observer + '_' + self.timeStr + '.pkl'
         if file in os.listdir(datadir) :
             with open(os.path.join(datadir, file), 'rb') as fichier :
-                self.exp = pickle.load(fichier, encoding='latin1')
+                self.param_exp = pickle.load(fichier, encoding='latin1')
 
         else :
             expInfo = {"Sujet":'', "Age":''}
@@ -119,7 +116,7 @@ class aSPEM(object):
             N_frame_stim = int(stim_tau*framerate)
             # ---------------------------------------------------
 
-            self.exp = dict(N_blocks=N_blocks, seed=seed, N_trials=N_trials, p=p, tau=tau,
+            self.param_exp = dict(N_blocks=N_blocks, seed=seed, N_trials=N_trials, p=p, tau=tau,
                             stim_tau =stim_tau,
                             N_frame_stim=N_frame_stim, T=T,
                             datadir=datadir, cachedir=cachedir,
@@ -132,10 +129,10 @@ class aSPEM(object):
 
     def print_protocol(self):
         if True: #try:
-            N_blocks = self.exp['N_blocks']
-            N_trials = self.exp['N_trials']
-            N_frame_stim = self.exp['N_frame_stim']
-            T = self.exp['T']
+            N_blocks = self.param_exp['N_blocks']
+            N_trials = self.param_exp['N_trials']
+            N_frame_stim = self.param_exp['N_frame_stim']
+            T = self.param_exp['T']
             return "TODO"
     #         return """
     # ##########################
@@ -147,7 +144,7 @@ class aSPEM(object):
 
 
     def exp_name(self):
-        return os.path.join(self.exp['datadir'], self.mode + '_' + self.observer + '_' + self.timeStr + '.pkl')
+        return os.path.join(self.param_exp['datadir'], self.mode + '_' + self.observer + '_' + self.timeStr + '.pkl')
 
     def run_experiment(self, verb=True):
 
@@ -159,7 +156,7 @@ class aSPEM(object):
 
         if self.mode=='enregistrement' :
             import EyeTracking as ET
-            ET = ET.EyeTracking(self.exp['screen_width_px'], self.exp['screen_height_px'], self.exp['dot_size'], self.exp['N_trials'], self.observer, self.exp['datadir'], self.timeStr)
+            ET = ET.EyeTracking(self.param_exp['screen_width_px'], self.param_exp['screen_height_px'], self.param_exp['dot_size'], self.param_exp['N_trials'], self.observer, self.param_exp['datadir'], self.timeStr)
 
         #logging.console.setLevel(logging.WARNING)
         #if verb: print('launching experiment')
@@ -167,22 +164,22 @@ class aSPEM(object):
         #if verb: print('go!')
 
         # ---------------------------------------------------
-        win = visual.Window([self.exp['screen_width_px'], self.exp['screen_height_px']], color=(0, 0, 0),
-                            allowGUI=False, fullscr=True, screen=self.exp['screen'], units='pix') # enlever fullscr=True pour écran 2
+        win = visual.Window([self.param_exp['screen_width_px'], self.param_exp['screen_height_px']], color=(0, 0, 0),
+                            allowGUI=False, fullscr=True, screen=self.param_exp['screen'], units='pix') # enlever fullscr=True pour écran 2
 
         win.setRecordFrameIntervals(True)
-        win._refreshThreshold = 1/self.exp['framerate'] + 0.004 # i've got 50Hz monitor and want to allow 4ms tolerance
+        win._refreshThreshold = 1/self.param_exp['framerate'] + 0.004 # i've got 50Hz monitor and want to allow 4ms tolerance
 
         # ---------------------------------------------------
-        if verb: print('FPS = ',  win.getActualFrameRate() , 'framerate=', self.exp['framerate'])
+        if verb: print('FPS = ',  win.getActualFrameRate() , 'framerate=', self.param_exp['framerate'])
 
         # ---------------------------------------------------
-        target = visual.Circle(win, lineColor='white', size=self.exp['dot_size'], lineWidth=2)
-        fixation = visual.GratingStim(win, mask='circle', sf=0, color='white', size=self.exp['dot_size'])
+        target = visual.Circle(win, lineColor='white', size=self.param_exp['dot_size'], lineWidth=2)
+        fixation = visual.GratingStim(win, mask='circle', sf=0, color='white', size=self.param_exp['dot_size'])
         ratingScale = visual.RatingScale(win, scale=None, low=-1, high=1, precision=100, size=.7, stretch=2.5,
                         labels=('Left', 'unsure', 'Right'), tickMarks=[-1, 0., 1], tickHeight=-1.0,
                         marker='triangle', markerColor='black', lineColor='White', showValue=False, singleClick=True,
-                        showAccept=False, pos=(0, -self.exp['screen_height_px']/3)) #size=.4
+                        showAccept=False, pos=(0, -self.param_exp['screen_height_px']/3)) #size=.4
 
         #Bip_pos = sound.Sound('2000', secs=0.05)
         #Bip_neg = sound.Sound('200', secs=0.5) # augmenter les fq
@@ -193,7 +190,7 @@ class aSPEM(object):
                                     font='calibri', height=25,
                                     alignHoriz='center')#, alignVert='top')
 
-        text_score = visual.TextStim(win, font='calibri', height=30, pos=(0, self.exp['screen_height_px']/9))
+        text_score = visual.TextStim(win, font='calibri', height=30, pos=(0, self.param_exp['screen_height_px']/9))
 
         def pause(mode) :
             msg_pause.draw()
@@ -227,7 +224,7 @@ class aSPEM(object):
         # ---------------------------------------------------
         def presentStimulus_fixed(dir_bool):
             dir_sign = dir_bool * 2 - 1
-            target.setPos((dir_sign * (self.exp['saccade_px']), self.exp['offset']))
+            target.setPos((dir_sign * (self.param_exp['saccade_px']), self.param_exp['offset']))
             target.draw()
             win.flip()
             core.wait(0.3)
@@ -239,10 +236,10 @@ class aSPEM(object):
             clock.reset()
             #myMouse.setVisible(0)
             dir_sign = dir_bool * 2 - 1
-            while clock.getTime() < self.exp['stim_tau']:
+            while clock.getTime() < self.param_exp['stim_tau']:
                 escape_possible(self.mode)
                 # la cible à t=0 recule de sa vitesse * latency=RashBass (ici mis en s)
-                target.setPos(((dir_sign * self.exp['V_X']*clock.getTime())-(dir_sign * self.exp['V_X']*(self.exp['RashBass']/1000)), self.exp['offset']))
+                target.setPos(((dir_sign * self.param_exp['V_X']*clock.getTime())-(dir_sign * self.param_exp['V_X']*(self.param_exp['RashBass']/1000)), self.param_exp['offset']))
                 target.draw()
                 win.flip()
                 win.flip()
@@ -252,8 +249,7 @@ class aSPEM(object):
         # ---------------------------------------------------
         # EXPERIMENT
         # ---------------------------------------------------
-        if self.mode == 'pari' :
-            results = np.zeros((self.exp['N_trials'], self.exp['N_blocks'] ))
+        if self.mode == 'pari' : results = np.zeros((self.param_exp['N_trials'], self.param_exp['N_blocks'] ))
 
         if self.mode == 'enregistrement':
             ET.Start_exp()
@@ -265,10 +261,9 @@ class aSPEM(object):
             win.winHandle.set_visible(True) # remis pour voir si ça enléve l'écran blanc juste après calibration
             win.winHandle.set_fullscreen(True)
 
-        if self.mode == 'pari' :
-            score = 0
+        if self.mode == 'pari' : score = 0
 
-        for block in range(self.exp['N_blocks']):
+        for block in range(self.param_exp['N_blocks']):
 
             x = 0
 
@@ -279,7 +274,7 @@ class aSPEM(object):
             pause(self.mode)
 
 
-            for trial in range(self.exp['N_trials']):
+            for trial in range(self.param_exp['N_trials']):
 
                 # ---------------------------------------------------
                 # PAUSE tous les 50 essais
@@ -330,17 +325,15 @@ class aSPEM(object):
                 # ---------------------------------------------------
                 win.flip()
                 escape_possible(self.mode)
-                if self.mode == 'enregistrement':
-                    ET.StimulusOFF()
+                if self.mode == 'enregistrement': ET.StimulusOFF()
                 core.wait(0.3)
 
                 # ---------------------------------------------------
                 # Mouvement cible
                 # ---------------------------------------------------
                 escape_possible(self.mode)
-                dir_bool = self.exp['p'][trial, block, 0]
-                if self.mode == 'enregistrement':
-                    ET.TargetON()
+                dir_bool = self.param_exp['p'][trial, block, 0]
+                if self.mode == 'enregistrement': ET.TargetON()
                 presentStimulus_move(dir_bool)
                 escape_possible(self.mode)
                 win.flip()
@@ -362,15 +355,13 @@ class aSPEM(object):
                     ret_value = ET.fin_enregistrement()
                     ET.check_trial(ret_value)
 
-        if self.mode == 'pari' :
-            self.exp['results'] = results
+        if self.mode == 'pari' : self.param_exp['results'] = results
 
-        if self.mode == 'enregistrement':
-            ET.End_exp()
+        if self.mode == 'enregistrement': ET.End_exp()
 
         with open(self.exp_name(), 'wb') as fichier:
             f = pickle.Pickler(fichier)
-            f.dump(self.exp)
+            f.dump(self.param_exp)
 
         win.update()
         core.wait(0.5)
@@ -403,86 +394,84 @@ def mutual_information(hgram):
     nzs = pxy > 0 # Only non-zero pxy values contribute to the sum
     return np.sum(pxy[nzs] * np.log(pxy[nzs] / px_py[nzs]))
 
-def regress(ax, p, data, y1, y2, t_label,color='k', x1=-0.032, x2=1.032) :
+def regress(ax, p, data, y1, y2, t_label,color='k', x1=-0.032, x2=1.032, pos='right', line=True, text=True, return_r_mi=False) :
     from scipy import stats
     slope, intercept, r_, p_value, std_err = stats.linregress(p, data)
     x_test = np.linspace(np.min(p), np.max(p), 100)
     fitLine = slope * x_test + intercept
-    ax.plot(x_test, fitLine, c=color, linewidth=2)
-    ax.text(x2-(x2-x1)/10,y1+(y2-y1)/10, 'r = %0.3f'%(r_), color=color, fontsize=t_label/1.2, ha='right')
 
     hist, x_edges, y_edges = np.histogram2d(p, data ,bins=20)
-    ax.text(x2-(x2-x1)/10,y1+2*(y2-y1)/10, 'MI = %0.3f'%(mutual_information(hist)), color=color, fontsize=t_label/1.2, ha='right')
 
-    return ax
+    if line is True : ax.plot(x_test, fitLine, c=color, linewidth=2)
 
-def results_sujet(self, ax, sujet, s, mode_bcp, tau, t_label, pause):
+    if pos[-5:]=='right' : x_pos=x2-(x2-x1)/10 ; h_pos='right'
+    else:                  x_pos=x1+(x2-x1)/10 ; h_pos='left'
+    if pos[:5]=='upper' : y_pos_r=y2-(y2-y1)/10 ; y_pos_m=y2-2*(y2-y1)/10
+    else:                 y_pos_r=y1+(y2-y1)/10 ; y_pos_m=y1+2*(y2-y1)/10
+
+    if text is True :
+        ax.text(x_pos, y_pos_r, 'r = %0.3f'%(r_), color=color, fontsize=t_label/1.2, ha=h_pos)
+        ax.text(x_pos, y_pos_m, 'MI = %0.3f'%(mutual_information(hist)), color=color, fontsize=t_label/1.2, ha=h_pos)
+
+    if return_r_mi is True : return ax, r_, mutual_information(hist)
+    else :                   return ax
+
+def results_sujet(self, ax, sujet, s, mode_bcp, tau, t_label, pause, color = [['k', 'k'], ['r', 'r'], ['k','w']], alpha = [[.35,.15],[.35,.15],[1,0]], color_bcp='darkred'):
 
     import bayesianchangepoint as bcp
     from scipy import stats
 
-    color = [['k', 'k'], ['r', 'r'], ['k','w']]
-    alpha = [[.35,.15],[.35,.15],[1,0]]
+
+
     lw = 1.3
     ec = 0.2 # pour l'écart entre les différents blocks
 
+    suj = sujet[s]
 
-    print('Subject', sujet[s], '=', self.PARI[sujet[s]]['observer'])
-    N_trials = self.PARI[sujet[s]]['N_trials']
-    N_blocks = self.PARI[sujet[s]]['N_blocks']
-    p = self.PARI[sujet[s]]['p']
+    print('Subject', suj, '=', self.subjects[suj])
+    N_trials = self.PARI[self.subjects[suj]]['N_trials']
+    N_blocks = self.PARI[self.subjects[suj]]['N_blocks']
+    p = self.PARI[self.subjects[suj]]['p']
     # tau = N_trials/5.
     h = 1./tau
-    results = (self.PARI[sujet[s]]['results']+1)/2 # results est sur [-1,1] on le ramene sur [0,1]
-    a_anti = self.ENREGISTREMENT[sujet[s]]['a_anti']
+    results = (self.PARI[self.subjects[suj]]['results']+1)/2 # results est sur [-1,1] on le ramene sur [0,1]
+    a_anti = self.ENREGISTREMENT[self.subjects[suj]]['a_anti']
 
     for block in range(N_blocks) :
-        #----------------------------------------------------------------------------------
-        if pause is True :
-            liste = [0,50,100,150,200]
-        else :
-            liste = [0, 200]
-
-        for a in range(len(liste)-1) :
-            p_bar, r, beliefs = bcp.inference(p[liste[a]:liste[a+1], block, 0], h=h, p0=.5)
-            p_hat, r_hat = bcp.readout(p_bar, r, beliefs,mode=mode_bcp)
-            p_low, p_sup = np.zeros_like(p_hat), np.zeros_like(p_hat)
-            for i_trial in range(liste[a+1]-liste[a]):
-                p_low[i_trial], p_sup[i_trial] = stats.beta.ppf([.05, .95], a=p_hat[i_trial]*r_hat[i_trial], b=(1-p_hat[i_trial])*r_hat[i_trial])
-
-            # Pour éviter d'avoir 36 légendes
-            if block == 0 and a== 0 :
-                ax.plot(np.arange(liste[a], liste[a+1]), block+p_hat+ec*block, c='darkred', alpha=.9, lw=1.5, label='$\hat{p}_{%s}$'%(mode_bcp))
-            else :
-                ax.plot(np.arange(liste[a], liste[a+1]), block+p_hat+ec*block, c='darkred', lw=1.5)
-
-            ax.plot(np.arange(liste[a], liste[a+1]), block+p_sup+ec*block, c='darkred', ls='--', lw=1.2)
-            ax.plot(np.arange(liste[a], liste[a+1]), block+p_low+ec*block, c='darkred', ls= '--', lw=1.2)
-            ax.fill_between(np.arange(liste[a], liste[a+1]), block+p_sup+ec*block, block+p_low+ec*block, lw=.5, alpha=.11, facecolor='darkred')
-
         #----------------------------------------------------------------------------------
         ax.step(range(N_trials), block+p[:, block, 1]+ec*block, lw=1, alpha=alpha[1][0], c=color[1][0])
         ax.fill_between(range(N_trials), block+np.zeros_like(p[:, block, 1])+ec*block, block+p[:, block, 1]+ec*block,
                             lw=0, alpha=alpha[1][0], facecolor=color[1][0], step='pre')
         ax.fill_between(range(N_trials), block+np.ones_like(p[:, block, 1])+ec*block, block+p[:, block, 1]+ec*block,
                             lw=0, alpha=alpha[1][1], facecolor=color[1][1], step='pre')
-        # Pour éviter d'avoir 36 légendes
-        if block == 0 :
-            ax.step(range(N_trials), block+results[:, block]+ec*block, color='r', lw=1.2, label='Individual guess')
-            ax.step(range(N_trials), block+((np.array(a_anti[block])-np.nanmin(a_anti))/(np.nanmax(a_anti)-np.nanmin(a_anti)))+ec*block,
-                        color='k', lw=1.2, label='Eye movements')
-        else :
-            ax.step(range(N_trials), block+results[:, block]+ec*block, lw=1.2, color='r')
-            ax.step(range(N_trials), block+((np.array(a_anti[block])-np.nanmin(a_anti))/(np.nanmax(a_anti)-np.nanmin(a_anti)))+ec*block,
-                        color='k', lw=1.2)
 
+        ax.step(range(N_trials), block+((np.array(a_anti[block])-np.nanmin(a_anti))/(np.nanmax(a_anti)-np.nanmin(a_anti)))+ec*block,
+                    color='k', lw=1.2, label='Eye movements' if block==0 else '')
+        ax.step(range(N_trials), block+results[:, block]+ec*block, color='r', lw=1.2, label='Individual guess' if block==0 else '')
+        #----------------------------------------------------------------------------------
+
+        if mode_bcp is not None :
+            if pause is True : liste = [0,50,100,150,200]
+            else : liste = [0, 200]
+
+            for a in range(len(liste)-1) :
+                p_bar, r, beliefs = bcp.inference(p[liste[a]:liste[a+1], block, 0], h=h, p0=.5)
+                p_hat, r_hat = bcp.readout(p_bar, r, beliefs,mode=mode_bcp)
+                p_low, p_sup = np.zeros_like(p_hat), np.zeros_like(p_hat)
+                for i_trial in range(liste[a+1]-liste[a]):
+                    p_low[i_trial], p_sup[i_trial] = stats.beta.ppf([.05, .95], a=p_hat[i_trial]*r_hat[i_trial], b=(1-p_hat[i_trial])*r_hat[i_trial])
+
+                ax.plot(np.arange(liste[a], liste[a+1]), block+p_hat+ec*block, c=color_bcp, alpha=.9, lw=1.5,
+                        label='$\hat{x}_1$' if block==0 and a==0 else '')
+                ax.plot(np.arange(liste[a], liste[a+1]), block+p_sup+ec*block, c=color_bcp, ls='--', lw=1.2, label='CI' if block==0 and a==0 else '')
+                ax.plot(np.arange(liste[a], liste[a+1]), block+p_low+ec*block, c=color_bcp, ls= '--', lw=1.2)
+                ax.fill_between(np.arange(liste[a], liste[a+1]), block+p_sup+ec*block, block+p_low+ec*block, lw=.5, alpha=.11, facecolor=color_bcp)
 
     #------------------------------------------------
     # affiche les numéro des block sur le côté gauche
     #------------------------------------------------
     ax_block = ax.twinx()
-    if s == 0 :
-        ax_block.set_ylabel('Block', fontsize=t_label/1.5, rotation='horizontal', ha='left', va='bottom')
+    if s == 0 : ax_block.set_ylabel('Block', fontsize=t_label/1.5, rotation='horizontal', ha='left', va='bottom')
     ax_block.yaxis.set_label_coords(1.01, 1.08)
     ax_block.set_ylim(0, N_blocks)
     ax_block.set_yticks(np.arange(N_blocks)+0.5)
@@ -491,9 +480,9 @@ def results_sujet(self, ax, sujet, s, mode_bcp, tau, t_label, pause):
 
     #------------------------------------------------
     ax.set_yticks([0, 1, 1+ec, 2+ec, 2+ec*2, 3+ec*2])
-    ax.set_yticklabels(['0','1','0','1','0','1'],fontsize=t_label/2)
+    ax.set_yticklabels(['0','1','0','1','0','1'],fontsize=t_label/1.8)
     ax.yaxis.set_label_coords(-0.02, 0.5)
-    ax.set_ylabel('Subject %s'%(sujet[s]), fontsize=t_label)
+    ax.set_ylabel('Subject %s'%(suj), fontsize=t_label)
     ax.set_ylim(-(ec/2), N_blocks +ec*3-(ec/2))
     ax.set_xlim(0, N_trials)
     #------------------------------------------------
@@ -504,93 +493,16 @@ def results_sujet(self, ax, sujet, s, mode_bcp, tau, t_label, pause):
     ax.bar(50, 3+ec*3, bottom=-ec/2, color='k', width=.2, linewidth=0)
     ax.bar(100, 3+ec*3, bottom=-ec/2, color='k', width=.2, linewidth=0)
     ax.bar(150, 3+ec*3, bottom=-ec/2, color='k', width=.2, linewidth=0)
-    #ax.bar(49, 3+ec*3, bottom=-ec/2, color='k', width=.2, linewidth=0)
 
     return ax
-
-'''
-def full_liste(self, modes_bcp=['expectation', 'max', 'mean', 'fixed', 'fixed-exp', 'hindsight'], pause=True):
-
-    import pandas as pd
-    pd.set_option('mode.chained_assignment', None)
-
-    N_trials = self.exp['N_trials']
-    N_blocks = self.exp['N_blocks']
-
-    p = self.exp['p']
-
-    full = pd.DataFrame(index=np.arange(len(self.PARI)*N_trials*N_blocks),columns=('sujet', 'proba','bino','results','aa','va'))
-
-    if modes_bcp is not None :
-
-        if type(modes_bcp) is not list : modes_bcp = [modes_bcp]
-
-        import bayesianchangepoint as bcp
-        for m in modes_bcp :
-            full['p_hat_%s'%m] = np.arange(len(self.PARI)*N_trials*N_blocks)*np.nan
-
-
-    for x in range(len(self.PARI)):
-
-        results = (self.PARI[x]['results']+1)/2
-        a_anti = self.ENREGISTREMENT[x]['a_anti']
-        start_anti = self.ENREGISTREMENT[x]['start_anti']
-        latency = self.ENREGISTREMENT[x]['latency']
-
-        for block in range(N_blocks):
-
-            nb = x*N_trials*N_blocks
-            a = nb + N_trials*block
-            b = (nb + N_trials*(block+1))
-
-            full['sujet'][a:b] = self.PARI[x]['observer']
-            full['proba'][a:b] = p[:, block, 1]
-            full['bino'][a:b] = p[:, block, 0]
-            full['results'][a:b] = results[:, block]
-            full['aa'][a:b] = a_anti[block]
-            full['va'][a:b] = (np.array(a_anti[block])*((np.array(latency[block])-np.array(start_anti[block]))/1000))
-
-
-            if modes_bcp is not None :
-                tau = N_trials/5.
-                h = 1./tau
-
-
-                p_hat_block = {}
-
-                for m in modes_bcp :
-                    p_hat_block[m] = []
-
-                if pause is True :
-                    liste = [0,50,100,150,200]
-                    for s in range(len(liste)-1) :
-                        p_bar, r_bar, beliefs = bcp.inference(p[liste[s]:liste[s+1], block, 0], h=h, p0=.5)
-
-                        for m in modes_bcp :
-                            p_hat, r_hat = bcp.readout(p_bar, r_bar, beliefs, mode=m)
-                            p_hat_block[m].extend(p_hat)
-
-                else :
-                    p_bar, r_bar, beliefs = bcp.inference(p[:, block, 0], h=h, p0=.5)
-                    for m in modes_bcp :
-                        p_hat, r_hat = bcp.readout(p_bar, r_bar, beliefs, mode=m)
-                        p_hat_block[m] = p_hat
-
-                for m in modes_bcp :
-                    full['p_hat_%s'%m][a:b] = p_hat_block[m]
-
-    return full
-'''
-
-
 
 
 class Analysis(object):
     """ docstring for the aSPEM class. """
 
-    def __init__(self, observer=None, mode=None, caracteristique_fit={'fct_fit':'fct_velocity', 'step_fit':2, 'whitening':False}) :
+    def __init__(self, observer=None, mode=None, name_file_fit='fct_velocity_2_step_False_whitening') :
         self.subjects = ['AM','BMC','CS','DC','FM','IP','LB','OP','RS','SR','TN','YK'] # ne plus prendre en conte YK
-        self.caracteristique_fit = caracteristique_fit
+        self.name_file_fit = name_file_fit
         self.mode = mode
         self.observer = observer
         self.init()
@@ -607,138 +519,343 @@ class Analysis(object):
         datadir = 'data'
         import os
         for dir_ in [datadir, cachedir] :
-            try:
-                os.mkdir(dir_)
-            except:
-                pass
+            try: os.mkdir(dir_)
+            except: pass
 
         # ---------------------------------------------------
         # récuperation de toutes les données
         # ---------------------------------------------------
         import glob
-        liste = []
+        liste = {'pari':{}, 'enregistrement':{}}
         for fname in glob.glob('data/*pkl'):
             a = fname.split('/')[1].split('.')[0].split('_')
-            liste.append(a)
+            liste[a[0]][a[1]] = a[2]+'_'+a[3]
 
-        self.PARI = []
-        for x in range(len(liste)) :
-            if liste[x][0]=='pari' and liste[x][1] in self.subjects:
-                a = 'data/%s_%s_%s_%s.pkl'%(liste[x][0], liste[x][1],liste[x][2],liste[x][3])
+        self.PARI = {}
+        for s in liste['pari'].keys() :
+            if s in self.subjects :
+                a = 'data/pari_%s_%s.pkl'%(s, liste['pari'][s])
                 with open(a, 'rb') as fichier :
                     b = pickle.load(fichier, encoding='latin1')
-                    self.PARI.append(b)
+                    self.PARI[s] = b
 
-        self.ENREGISTREMENT = []
-        for x in range(len(liste)) :
-            if liste[x][0]=='enregistrement' and liste[x][1] in self.subjects:
-                #a = 'parametre/param_Fit_%s.pkl'%(liste[x][1])
-                a = 'parametre/param_Fit_%s_%s_%s_step_%s_whitening.pkl'%(liste[x][1], self.caracteristique_fit['fct_fit'], self.caracteristique_fit['step_fit'], self.caracteristique_fit['whitening'])
+        a = 'parametre/Delete/Delete_list_BadTrials_Full_%s.pkl'%(self.name_file_fit)
+        try :
+            with open(a, 'rb') as fichier :
+                b = pickle.load(fichier, encoding='latin1')
+                self.list_delete = b
+        except :
+            self.list_delete = None
+            print('/!\ Le fichier Delete n\'existe pas pour %s !'%(self.name_file_fit))
+
+        self.ENREGISTREMENT = {}
+        for s in liste['enregistrement'].keys() :
+            if s in self.subjects:
+                a = 'parametre/%s/param_Fit_%s_%s.pkl'%(self.name_file_fit, s, self.name_file_fit)
                 try :
                     with open(a, 'rb') as fichier :
                         b = pickle.load(fichier, encoding='latin1')
-                        self.ENREGISTREMENT.append(b)
+                        self.ENREGISTREMENT[s] = b
                 except :
-                    print('/!\ Le fichier param Fit n\'existe pas pour %s !'%(liste[x][1]))
+                    print('/!\ Le fichier param Fit n\'existe pas pour %s !'%(s))
+
         # ---------------------------------------------------
-        if self.observer is None :
-            self.observer = liste[12][1]
-        if self.mode is None :
-            self.mode = 'enregistrement'
+        if self.observer is None : self.observer =  'OP'
+        if self.mode is None : self.mode = 'enregistrement'
 
-        for x in range(len(liste)):
-            if liste[x][1] == self.observer and liste[x][0] == self.mode :
-                self.timeStr = liste[x][2]+'_'+liste[x][3]
+        self.timeStr = liste[self.mode][self.observer]
 
-        if self.mode == 'pari' :
-            for x in range(len(self.PARI)):
-                if self.PARI[x]['observer'] == self.observer :
-                    self.exp = self.PARI[x]
-        else :
-            for x in range(len(self.PARI)):
-                if self.PARI[x]['observer'] == self.observer :
-                    self.exp = self.PARI[x]
-            for x in range(len(self.ENREGISTREMENT)):
-                if self.ENREGISTREMENT[x]['observer'] == self.observer :
-                    self.param = self.ENREGISTREMENT[x]
+        self.param_exp = self.PARI[self.observer]
+        if self.mode == 'enregistrement' : self.param = self.ENREGISTREMENT[self.observer]
 
 
-    def Full_list(self, modes_bcp=['expectation', 'max', 'mean', 'fixed', 'fixed-exp', 'hindsight'], pause=True):
+
+    def Full_list(self, modes_bcp=['expectation', 'max', 'mean', 'fixed', 'leaky', 'hindsight'], pause=True):
 
         import pandas as pd
         pd.set_option('mode.chained_assignment', None)
 
-        N_trials = self.exp['N_trials']
-        N_blocks = self.exp['N_blocks']
+        N_trials = self.param_exp['N_trials']
+        N_blocks = self.param_exp['N_blocks']
 
-        p = self.exp['p']
+        p = self.param_exp['p']
 
-        full = pd.DataFrame(index=np.arange(len(self.PARI)*N_trials*N_blocks),columns=('sujet', 'proba','bino','results','aa','va'))
+        full = pd.DataFrame(index=np.arange(len(self.subjects)*N_trials*N_blocks), columns=('sujet', 'proba','bino','results','aa','va'))
 
         if modes_bcp is not None :
 
             if type(modes_bcp) is not list : modes_bcp = [modes_bcp]
 
             import bayesianchangepoint as bcp
-            for m in modes_bcp :
-                full['p_hat_%s'%m] = np.arange(len(self.PARI)*N_trials*N_blocks)*np.nan
+            for m in modes_bcp : full['p_hat_%s'%m] = np.arange(len(self.subjects)*N_trials*N_blocks)*np.nan
 
-        for x in range(len(self.PARI)):
-            for y in range(len(self.ENREGISTREMENT)) :
+        for i, suj in enumerate(self.subjects) :
 
-                if self.PARI[x]['observer'] == self.ENREGISTREMENT[y]['observer'] :
+            results = (self.PARI[suj]['results']+1)/2
+            a_anti = self.ENREGISTREMENT[suj]['a_anti']
+            start_anti = self.ENREGISTREMENT[suj]['start_anti']
+            latency = self.ENREGISTREMENT[suj]['latency']
 
-                    results = (self.PARI[x]['results']+1)/2
-                    a_anti = self.ENREGISTREMENT[y]['a_anti']
-                    start_anti = self.ENREGISTREMENT[y]['start_anti']
-                    latency = self.ENREGISTREMENT[y]['latency']
+            for block in range(N_blocks):
 
-                    for block in range(N_blocks):
+                nb = i*N_trials*N_blocks
+                a = nb + N_trials*block
+                b = (nb + N_trials*(block+1))
 
-                        nb = x*N_trials*N_blocks
-                        a = nb + N_trials*block
-                        b = (nb + N_trials*(block+1))
+                full['sujet'][a:b] = suj
+                full['proba'][a:b] = p[:, block, 1]
+                full['bino'][a:b] = p[:, block, 0]
+                full['results'][a:b] = results[:, block]
+                full['aa'][a:b] = a_anti[block]
+                full['va'][a:b] = (np.array(a_anti[block])*((np.array(latency[block])-np.array(start_anti[block]))/1000))
 
-                        full['sujet'][a:b] = self.PARI[x]['observer']
-                        full['proba'][a:b] = p[:, block, 1]
-                        full['bino'][a:b] = p[:, block, 0]
-                        full['results'][a:b] = results[:, block]
-                        full['aa'][a:b] = a_anti[block]
-                        full['va'][a:b] = (np.array(a_anti[block])*((np.array(latency[block])-np.array(start_anti[block]))/1000))
+                for t in self.list_delete[suj][block] :
+                    full['aa'][a+t] = np.nan
+                    full['va'][a+t] = np.nan
 
+                if modes_bcp is not None :
+                    tau = N_trials/5.
+                    h = 1./tau
 
-                        if modes_bcp is not None :
-                            tau = N_trials/5.
-                            h = 1./tau
+                    p_hat_block = {}
 
-                            p_hat_block = {}
+                    for m in modes_bcp : p_hat_block[m] = []
 
-                            for m in modes_bcp :
-                                p_hat_block[m] = []
-
-                            if pause is True :
-                                liste = [0,50,100,150,200]
-                                for s in range(len(liste)-1) :
-                                    p_bar, r_bar, beliefs = bcp.inference(p[liste[s]:liste[s+1], block, 0], h=h, p0=.5)
-
-                                    for m in modes_bcp :
-                                        p_hat, r_hat = bcp.readout(p_bar, r_bar, beliefs, mode=m)
-                                        p_hat_block[m].extend(p_hat)
-
-                            else :
-                                p_bar, r_bar, beliefs = bcp.inference(p[:, block, 0], h=h, p0=.5)
-                                for m in modes_bcp :
-                                    p_hat, r_hat = bcp.readout(p_bar, r_bar, beliefs, mode=m)
-                                    p_hat_block[m] = p_hat
+                    if pause is True :
+                        liste = [0,50,100,150,200]
+                        for s in range(len(liste)-1) :
+                            p_bar, r_bar, beliefs = bcp.inference(p[liste[s]:liste[s+1], block, 0], h=h, p0=.5)
 
                             for m in modes_bcp :
-                                full['p_hat_%s'%m][a:b] = p_hat_block[m]
+                                p_hat, r_hat = bcp.readout(p_bar, r_bar, beliefs, mode=m)
+                                p_hat_block[m].extend(p_hat)
+
+                    else :
+                        p_bar, r_bar, beliefs = bcp.inference(p[:, block, 0], h=h, p0=.5)
+                        for m in modes_bcp :
+                            p_hat, r_hat = bcp.readout(p_bar, r_bar, beliefs, mode=m)
+                            p_hat_block[m] = p_hat
+
+                    for m in modes_bcp : full['p_hat_%s'%m][a:b] = p_hat_block[m]
 
         return full
 
+    def Data_Scalling(self):
+
+        Full = Analysis.Full_list(self, modes_bcp=None)
+        scal_va_sujet, scal_va_full = {}, []
+        scal_bet_sujet, scal_bet_full = {}, []
+
+        va_full, bet_full = [], []
+
+        for x in self.subjects :
+            bet = list(Full['results'][Full.sujet==x])
+            va = list(Full['va'][Full.sujet==x])
+
+            bet_full.extend(bet)
+            va_full.extend(va)
+
+            scal_bet_sujet[x] = np.sort(bet)
+            scal_va_sujet[x] = np.sort(va)
+
+        scal_va_full = np.sort(va_full)
+        scal_bet_full = np.sort(bet_full)
+
+        new_proba_full = np.linspace(0,1,len(scal_va_full))
+
+        new_va_sujet, new_va_full = {}, {}
+        new_bet_sujet, new_bet_full = {}, {}
+
+
+        for x in self.subjects :
+
+            N_trials = self.param_exp['N_trials']
+            N_blocks = self.param_exp['N_blocks']
+
+            new_proba_sujet = np.linspace(0, 1, len(scal_va_sujet[x]))
+            va_sujet = list(Full['va'][Full.sujet==x])
+            bet_sujet = list(Full['results'][Full.sujet==x])
+
+            nb_trial = 0
+
+            new_va_sujet[x], new_va_full[x] = [], []
+            new_bet_sujet[x], new_bet_full[x] = [], []
+
+            for block in range(N_blocks) :
+                new_va_sujet[x].append([])
+                new_va_full[x].append([])
+
+                new_bet_sujet[x].append([])
+                new_bet_full[x].append([])
+
+                va = va_sujet[nb_trial : N_trials + nb_trial*block]
+                bet = bet_sujet[nb_trial : N_trials + nb_trial*block]
+
+                for trial in range(N_trials) :
+                    new_va_sujet[x][block].append(np.mean([new_proba_sujet[t] for t in range(len(scal_va_sujet[x]))
+                                                           if scal_va_sujet[x][t]==va[trial]]))
+
+                    new_va_full[x][block].append(np.mean([new_proba_full[t] for t in range(len(scal_va_full))
+                                                          if scal_va_full[t]==va[trial]]))
+
+                    new_bet_sujet[x][block].append(np.mean([new_proba_sujet[t] for t in range(len(scal_bet_sujet[x]))
+                                                            if scal_bet_sujet[x][t]==bet[trial]]))
+
+                    new_bet_full[x][block].append(np.mean([new_proba_full[t] for t in range(len(scal_bet_full))
+                                                           if scal_bet_full[t]==bet[trial]]))
+
+                nb_trial = nb_trial + N_trials
+
+        new_data = {}
+        new_data['new_bet_full'] = new_bet_full
+        new_data['new_bet_sujet'] = new_bet_sujet
+        new_data['new_va_full'] = new_va_full
+        new_data['new_va_sujet'] = new_va_sujet
+
+        return new_data
+
+    def Find_h(self, new_bet, new_va, modes_bcp='mean') :
+
+        from lmfit import  Model, Parameters
+        from lmfit import minimize
+        import bayesianchangepoint as bcp
+
+        def fct_BCP(x, tau, sujet, block, cent) :
+
+            h = 1/tau
+            p_hat = np.zeros(len(x))
+
+            if sujet==True :
+                for b in range(self.param_exp['N_blocks']):
+                    nb = self.param_exp['N_trials']*b
+                    liste = [0,50,100,150,200]
+                    for a in range(len(liste)-1) :
+                        p_bar, r_bar, beliefs = bcp.inference(x[nb+liste[a]:nb+liste[a+1]], h=h, p0=.5, r0=1.)
+                        p_hat_p, r_hat = bcp.readout(p_bar, r_bar, beliefs, mode=modes_bcp, p0=.5, fixed_window_size=40)
+                        p_hat[nb+liste[a]:nb+liste[a+1]] = p_hat_p
+
+            elif block==True :
+                liste = [0,50,100,150,200]
+                for a in range(len(liste)-1) :
+                    p_bar, r_bar, beliefs = bcp.inference(x[liste[a]:liste[a+1]], h=h, p0=.5, r0=1.)
+                    p_hat_p, r_hat = bcp.readout(p_bar, r_bar, beliefs, mode=modes_bcp, p0=.5, fixed_window_size=40)
+                    p_hat[liste[a]:liste[a+1]] = p_hat_p
+
+            elif cent==True :
+                liste = [0,50,100]
+                for a in range(len(liste)-1) :
+                    p_bar, r_bar, beliefs = bcp.inference(x[liste[a]:liste[a+1]], h=h, p0=.5, r0=1.)
+                    p_hat_p, r_hat = bcp.readout(p_bar, r_bar, beliefs, mode=modes_bcp, p0=.5, fixed_window_size=40)
+                    p_hat[liste[a]:liste[a+1]] = p_hat_p
+
+            else :
+                p_bar, r_bar, beliefs = bcp.inference(x, h=h, p0=.5, r0=1.)
+                p_hat, r_hat = bcp.readout(p_bar, r_bar, beliefs, mode=modes_bcp, p0=.5, fixed_window_size=40)
+
+            return p_hat
+
+        def KL_distance(p_data, p_hat):
+            distance = p_hat * np.log2(p_hat) - p_hat * np.log2(p_data + 1.*(p_data==0.))
+            distance += (1-p_hat) * np.log2(1-p_hat) - (1-p_hat) * np.log2(1-p_data + 1.*(p_data==1.))
+            return distance
+
+        def residual(params, x, data):
+            tau = params['tau']
+            sujet = params['sujet']
+            block = params['block']
+            cent = params['cent']
+            model = fct_BCP(x, tau, sujet, block, cent)
+            return KL_distance(data, model)
+
+        def fit(h, x, bet, va, sujet=False, block=False, cent=False):
+
+            tau = 1/h
+            x, bet, va = np.array(x), np.array(bet), np.array(va)
+
+            params = Parameters()
+            params.add('tau', value=tau, min=1)
+            params.add('sujet', value=sujet, vary=False)
+            params.add('block', value=block, vary=False)
+            params.add('cent', value=cent, vary=False)
+
+            result_res =   minimize(residual, params, args=(x, bet), nan_policy='omit')
+            result_v_ant = minimize(residual, params, args=(x, va), nan_policy='omit')
+
+            h_bet = 1/result_res.params['tau'].value
+            h_va =  1/result_v_ant.params['tau'].value
+
+            return h_bet, h_va
+
+        h_bet, h_va = {}, {}
+        for l in ['pause', 'block', 'sujet', '100'] : h_bet[l], h_va[l] = {}, {}
+
+        for x, sujet in enumerate(self.subjects) :
+
+            print(sujet, end=' ')
+
+            prob_sujet, bet_sujet, a_anti_sujet = [], [], []
+
+            p = p = self.param_exp['p']
+            tau = self.param_exp['N_trials']/5.
+            h = 1./tau
+
+            for l in ['pause', 'block', 'sujet', '100'] : h_bet[l][sujet], h_va[l][sujet] = [], []
+
+            #----------------------------------------------------
+            # BLOCK
+            #----------------------------------------------------
+            for block in range(self.param_exp['N_blocks']):
+
+                bet = new_bet[sujet][block]
+                va = new_va[sujet][block]
+
+                prob_block = p[:, block, 0]
+                h_b, h_v = fit(h, prob_block, bet, va, block=True)
+
+                h_bet['block'][sujet].append(h_b)
+                h_va['block'][sujet].append(h_v)
+
+                prob_sujet.extend(p[:, block, 0])
+                bet_sujet.extend(bet)
+                a_anti_sujet.extend(va)
+
+                #----------------------------------------------------
+                # PAUSE
+                #----------------------------------------------------
+                liste = [0,50,100,150,200]
+                for a in range(len(liste)-1) :
+                    va_p = va[liste[a]:liste[a+1]]
+                    bet_p = bet[liste[a]:liste[a+1]]
+                    prob_pause = p[liste[a]:liste[a+1], block, 0]
+
+                    h_b, h_v = fit(h, prob_pause, bet_p, va_p)
+
+                    h_bet['pause'][sujet].append(h_b)
+                    h_va['pause'][sujet].append(h_v)
+
+            #----------------------------------------------------
+            # SUJET
+            #----------------------------------------------------
+            h_b, h_v = fit(h, prob_sujet, bet_sujet, a_anti_sujet, sujet=True)
+            h_bet['sujet'][sujet].append(h_b)
+            h_va['sujet'][sujet].append(h_v)
+
+
+            #----------------------------------------------------
+            # 100 Trials
+            #----------------------------------------------------
+            for a in range(0, self.param_exp['N_blocks']*self.param_exp['N_trials']-50, 50) :
+                h_b, h_v = fit(h, prob_sujet[a:a+100], bet_sujet[a:a+100], a_anti_sujet[a:a+100], cent=True)
+                h_bet['100'][sujet].append(h_b)
+                h_va['100'][sujet].append(h_v)
+
+        return h_bet, h_va
 
 
 
+
+
+    #------------------------------------------------------------------------------------------------------------------------
 
     def plot_equation(self, equation='fct_velocity', fig_width=15, t_titre=35, t_label=20) :
 
@@ -774,7 +891,7 @@ class Analysis(object):
         from ANEMO import read_edf
         #from edfreader import read_edf
         from ANEMO import ANEMO
-        Plot = ANEMO.Plot(self.exp)
+        Plot = ANEMO.Plot(self.param_exp)
 
         resultats = os.path.join('data', self.mode + '_' + self.observer + '_' + self.timeStr + '.asc')
         data = read_edf(resultats, 'TRIALID')
@@ -840,7 +957,7 @@ class Analysis(object):
         from ANEMO import read_edf
         #from edfreader import read_edf
         from ANEMO import ANEMO
-        Plot = ANEMO.Plot(self.exp)
+        Plot = ANEMO.Plot(self.param_exp)
 
         resultats = os.path.join('data', self.mode + '_' + self.observer + '_' + self.timeStr + '.asc')
         data = read_edf(resultats, 'TRIALID')
@@ -848,7 +965,7 @@ class Analysis(object):
         fig, axs = Plot.plot_data(data, show=show, trials=trials, block=block,
                                     N_trials=N_trials,
                                     fig_width=fig_width, t_titre=t_titre, t_label=t_label,
-                                    stop_search_misac=stop_search_misac, name_trial_show=name_trial_show, before_sacc=before_sacc, after_sacc=after_sacc)
+                                    stop_search_misac=stop_search_misac, show_num_trial=name_trial_show, before_sacc=before_sacc, after_sacc=after_sacc)
 
         return fig, axs
 
@@ -899,18 +1016,17 @@ class Analysis(object):
         from ANEMO import read_edf
         #from edfreader import read_edf
         from ANEMO import ANEMO
-        Plot = ANEMO.Plot(self.exp)
+        Plot = ANEMO.Plot(self.param_exp)
 
-        resultats = os.path.join(self.exp['datadir'], self.mode + '_' + self.observer + '_' + self.timeStr + '.asc')
+        resultats = os.path.join(self.param_exp['datadir'], self.mode + '_' + self.observer + '_' + self.timeStr + '.asc')
         data = read_edf(resultats, 'TRIALID')
 
-        if file_fig is None :
-            file_fig = 'figures/%s_%s'%(show, self.observer)
+        if file_fig is None : file_fig = 'figures/%s_%s'%(show, self.observer)
 
         Plot.plot_Full_data(data, show=show, N_blocks=N_blocks,
-                        N_trials=N_trials,
-                        fig_width=fig_width, t_titre=t_titre, t_label=t_label,
-                        stop_search_misac=stop_search_misac, file_fig=file_fig)
+                            N_trials=N_trials,
+                            fig_width=fig_width, t_titre=t_titre, t_label=t_label,
+                            stop_search_misac=stop_search_misac, file_fig=file_fig)
 
     def plot_fit(self, equation='fct_velocity', trials=0, block=0, N_trials=None,
                         fig_width=15, t_titre=35, t_label=20,
@@ -989,7 +1105,7 @@ class Analysis(object):
         from ANEMO import read_edf
         #from edfreader import read_edf
         from ANEMO import ANEMO
-        Plot = ANEMO.Plot(self.exp)
+        Plot = ANEMO.Plot(self.param_exp)
 
         resultats = os.path.join('data', self.mode + '_' + self.observer + '_' + self.timeStr + '.asc')
         data = read_edf(resultats, 'TRIALID')
@@ -1112,15 +1228,14 @@ class Analysis(object):
         import matplotlib.pyplot as plt
         from ANEMO import read_edf
         from ANEMO import ANEMO
-        Fit = ANEMO.Fit(self.exp)
+        Fit = ANEMO.Fit(self.param_exp)
 
         resultats = os.path.join('data', self.mode + '_' + self.observer + '_' + self.timeStr + '.asc')
         data = read_edf(resultats, 'TRIALID')
 
         if plot is True :
             if file_fig is None :
-                if not os.path.exists('figures/Fit_%s'%equation):
-                    os.makedirs('figures/Fit_%s'%equation)
+                if not os.path.exists('figures/Fit_%s'%equation): os.makedirs('figures/Fit_%s'%equation)
                 file_fig='figures/Fit_%s/Fit_%s_%s_%s_step_%s_whitening'%(equation, self.observer, equation, step_fit, do_whitening)
 
         param = Fit.Fit_full(data, equation=equation, fitted_data=fitted_data,
@@ -1145,23 +1260,23 @@ class Analysis(object):
 
         print('END !!!')
 
+    #------------------------------------------------------------------------------------------------------------------------
 
 
     def Plot_Average_Trace_P_real(self, delta, color, mean=False, pas_tps=10, ax=None, stop=610, show='r+l', title='', fig_width=15, t_titre=0, t_label=30*3) :
 
         from ANEMO import ANEMO
         from ANEMO import read_edf
-        A = ANEMO(self.exp)
-        N_trials = self.exp['N_trials']
-        N_blocks = self.exp['N_blocks']
-        p = self.exp['p']
+        A = ANEMO(self.param_exp)
+        N_trials = self.param_exp['N_trials']
+        N_blocks = self.param_exp['N_blocks']
+        p = self.param_exp['p']
 
         import glob
         timeStr = {}
         for fname in glob.glob('data/*pkl'):
             a = fname.split('/')[1].split('.')[0].split('_')
-            if a[1] in self.subjects and a[0] == self.mode :
-                timeStr[a[1]] = a[2]+'_'+a[3]
+            if a[1] in self.subjects and a[0] == self.mode : timeStr[a[1]] = a[2]+'_'+a[3]
 
 
 
@@ -1175,8 +1290,7 @@ class Analysis(object):
         for p_r in PROBA :
             v_r[p_r], v_l[p_r] = [], []
 
-        if mean is not True :
-            pas_tps = 1
+        if mean is not True : pas_tps = 1
 
         for x in range(len(self.subjects)) :
 
@@ -1197,14 +1311,14 @@ class Analysis(object):
                                 if show in ['l', 'r+l'] :
                                     velocity_NAN = A.velocity_NAN(arg.data_x, arg.data_y, arg.saccades,
                                                       arg.trackertime, arg.TargetOn,
-                                                      before_sacc=5, after_sacc=15)[0]
+                                                      before_sacc=5, after_sacc=15)
                                     v_l[p_r].append(velocity_NAN[start:start+stop])
 
                             elif arg.dir_target == 1 :
                                 if show in ['r', 'r+l'] :
                                     velocity_NAN = A.velocity_NAN(arg.data_x, arg.data_y, arg.saccades,
                                                       arg.trackertime, arg.TargetOn,
-                                                      before_sacc=5, after_sacc=15)[0]
+                                                      before_sacc=5, after_sacc=15)
                                     v_r[p_r].append(velocity_NAN[start:start+stop])
 
         x=0
@@ -1215,15 +1329,13 @@ class Analysis(object):
             for tps in range(stop) :
                 if show in ['r', 'r+l'] :
                     liste_r = []
-                    for a in range(len(v_r[p_r])) :
-                        liste_r.append(v_r[p_r][a][tps])
+                    for a in range(len(v_r[p_r])) : liste_r.append(v_r[p_r][a][tps])
                     mean_v_r.append(np.nanmean(liste_r))
                     std_v_r.append(np.nanstd(liste_r))
 
                 if show in ['l', 'r+l'] :
                     liste_l = []
-                    for b in range(len(v_l[p_r])) :
-                        liste_l.append(v_l[p_r][b][tps])
+                    for b in range(len(v_l[p_r])) : liste_l.append(v_l[p_r][b][tps])
                     mean_v_l.append(np.nanmean(liste_l))
                     std_v_l.append(np.nanstd(liste_l))
 
@@ -1231,10 +1343,8 @@ class Analysis(object):
                 mean_m_r, mean_m_l = [], []
                 std_m_r, std_m_l = [], []
 
-                if show == 'r' :
-                    len_mean = len(mean_v_r)
-                else :
-                    len_mean = len(mean_v_l)
+                if show == 'r' : len_mean = len(mean_v_r)
+                else : len_mean = len(mean_v_l)
 
                 for t in np.arange(0,len_mean ,pas_tps) :
                     if show in ['r', 'r+l'] :
@@ -1245,10 +1355,8 @@ class Analysis(object):
                         mean_m_l.append(np.nanmean(mean_v_l[t:t+pas_tps]))
 
             else :
-                if show in ['r', 'r+l'] :
-                    mean_m_r, std_m_r  = mean_v_r, std_v_r
-                if show in ['l', 'r+l'] :
-                    mean_m_l, std_m_l = mean_v_l, std_v_l
+                if show in ['r', 'r+l'] : mean_m_r, std_m_r  = mean_v_r, std_v_r
+                if show in ['l', 'r+l'] : mean_m_l, std_m_l = mean_v_l, std_v_l
 
             if show in ['r', 'r+l'] :
                 mean_r, std_r = np.asarray(mean_m_r), np.asarray(std_m_r)
@@ -1256,22 +1364,17 @@ class Analysis(object):
                 ax.fill_between(range(int(stop/pas_tps)), mean_r+std_r, mean_r-std_r, facecolor=color[x], alpha=0.05)
 
             if show in ['l', 'r+l'] :
-                if show == 'l' :
-                    label_l = ' p = %.1f - %.1f'%(p_r, p_r+delta)
-                else :
-                    label_l = None
+                if show == 'l' : label_l = ' p = %.1f - %.1f'%(p_r, p_r+delta)
+                else : label_l = None
                 mean_l, std_l = np.asarray(mean_m_l), np.asarray(std_m_l)
                 ax.plot(mean_l, c=color[x], lw=2.5, alpha=1, label=label_l)
                 ax.fill_between(range(int(stop/pas_tps)), mean_l+std_l, mean_l-std_l, facecolor=color[x], alpha=0.05)
 
             x=x+1
 
-        if show == 'r' :
-            min_y, max_y = -11.28, 21.28
-        if show == 'l' :
-            min_y, max_y =  -21.28, 11.28
-        if show == 'r+l' :
-            min_y, max_y = -21.28, 21.28
+        if show == 'r' : min_y, max_y = -11.28, 21.28
+        if show == 'l' : min_y, max_y =  -21.28, 11.28
+        if show == 'r+l' : min_y, max_y = -21.28, 21.28
 
         ax.axis([0, (stop/pas_tps)-pas_tps, min_y, max_y])
 
@@ -1295,68 +1398,79 @@ class Analysis(object):
 
 
 
-    def plot_experiment(self, sujet=[0], mode_bcp='expectation', tau=40, direction=True, p=None, num_block=None, mode=None,
+    def plot_experiment(self, sujet=[0], mode_bcp=None, tau=40, direction=True, p=None, num_block=None, mode=None,
                         fig=None, axs=None, fig_width=15, titre=None, t_titre=35, t_label=25, return_proba=None, color=[['k', 'k'], ['r', 'r'], ['k','w']],
-                        alpha = [[.35,.15],[.35,.15],[1,0]], lw = 1.3, legends=False, TD=False):
+                        color_bcp='darkgreen', name_bcp='$\hat{x}_1$', print_suj=False,
+                        alpha = [[.35,.15],[.35,.15],[1,0]], lw = 1.3, legends=False, TD=False, pause=50, ec = 0.2):
 
         import matplotlib.pyplot as plt
         import bayesianchangepoint as bcp
         from scipy import stats
-        N_trials = self.exp['N_trials']
-        N_blocks = self.exp['N_blocks']
+        N_trials = self.param_exp['N_trials']
+        N_blocks = self.param_exp['N_blocks']
         h = 1./tau
-        ec = 0.2
-        if p is None :
-            p = self.exp['p']
-        if num_block is None :
-            BLOCK = range(N_blocks)
-        else:
-            ec=0.1
-            BLOCK = num_block
+
+        if p is None : p = self.param_exp['p']
+        if num_block is None : BLOCK = range(N_blocks)
+        else: ec, BLOCK = 0.1, num_block
+
+        ncol_leg = 2
+        def plot_result_bcp(ax1, mode, observation, time, n_trial, name_bcp, name=True) :
+
+            from scipy.stats import beta
+            p_bar, r_bar, beliefs = bcp.inference(observation, h=h, p0=p0, r0=r0)
+            p_hat, r_hat = bcp.readout(p_bar, r_bar, beliefs, mode=mode, fixed_window_size=fixed_window_size, p0=p0)
+            p_low, p_sup = np.zeros_like(p_hat), np.zeros_like(p_hat)
+
+            for i_trial in range(n_trial):
+                p_low[i_trial], p_sup[i_trial] = beta.ppf([.05, .95], a=p_hat[i_trial]*r_hat[i_trial], b=(1-p_hat[i_trial])*r_hat[i_trial])
+            ax1.plot(time, p_hat, c=color_bcp, lw=1.5, alpha=.9, label=name_bcp if name is True else '')
+            ax1.plot(time, p_sup, c=color_bcp, lw=1.2, alpha=.9, ls='--', label='CI' if name is True else '')
+            ax1.plot(time, p_low, c=color_bcp, lw=1.2, alpha=.9, ls='--')
+            ax1.fill_between(time, p_sup, p_low, lw=.5, alpha=.2, facecolor=color_bcp)
+
+            return ax1
 
 
         if fig is None:
-            fig_width= fig_width
+            mini_TD = False
             if len(sujet)==1 :
-                fig, axs = plt.subplots(3, 1, figsize=(fig_width, fig_width/1.6180))
+                if TD is True : mini_TD=True ; nb_ax=2
+                else : fig, axs = plt.subplots(3, 1, figsize=(fig_width, fig_width/1.6180))
+
             else :
                 if direction is True :
-                    if TD is True :
-                        import matplotlib.gridspec as gridspec
-                        #------------------------------------------------
-                        fig, axs = plt.subplots(len(sujet)+1, 1, figsize=(fig_width, ((len(sujet)+0.5)*fig_width/3)/(1.6180)))
-
-                        gs1 = gridspec.GridSpec(1, 1)
-                        gs1.update(left=0+0.072, bottom=0.85, right=1-0.04, top=1.-0.1, hspace=0.05)
-                        axs[0] = plt.subplot(gs1[0])
-
-                        gs2 = gridspec.GridSpec(len(sujet), 1)
-                        gs2.update(left=0+0.072, bottom=0+0.1, right=1-0.04, top=0.85-0.03, hspace=0.05)
-                        for s0 in range(len(sujet)):
-                            s = s0+1
-                            axs[s] = plt.subplot(gs2[s0])
-
-                    #------------------------------------------------
-                    else :
-                        fig, axs = plt.subplots(len(sujet)+1, 1, figsize=(fig_width, ((len(sujet)+1)*fig_width/3)/(1.6180)))
+                    if TD is True : mini_TD=True ; nb_ax=len(sujet)
+                    else : fig, axs = plt.subplots(len(sujet)+1, 1, figsize=(fig_width, ((len(sujet)+1)*fig_width/3)/(1.6180)))
                 else :
                     fig, axs = plt.subplots(len(sujet), 1, figsize=(fig_width, ((len(sujet)+1)*fig_width/3)/(1.6180)))
 
-        #color = [['r', 'b'], ['orange', 'g'], ['k','w']]
-        #alpha = [[.2,.2],[.2,.2],[.2,.2]]
-        #lw=1
+            if mini_TD is True :
+                import matplotlib.gridspec as gridspec
+                #------------------------------------------------
+                fig, axs = plt.subplots(nb_ax+1, 1, figsize=(fig_width, ((nb_ax+0.5)*fig_width/3)/(1.6180)))
 
+                gs1 = gridspec.GridSpec(1, 1)
+                gs1.update(left=0+0.072, bottom=0.85, right=1-0.04, top=1.-0.1, hspace=0.05)
+                axs[0] = plt.subplot(gs1[0])
+
+                if len(BLOCK)==1 : axs[0].plot(np.arange(1, N_trials)-.5, p[1:, BLOCK[0], 0], 'k.', ms=4)
+                for card in ['bottom', 'top', 'left']: axs[0].spines[card].set_visible(False)
+                axs[0].spines['right'].set_bounds(0, 1)
+
+                gs2 = gridspec.GridSpec(nb_ax, 1)
+                gs2.update(left=0+0.072, bottom=0+0.1, right=1-0.04, top=0.85-0.03, hspace=0.05)
+                for s in range(nb_ax): axs[s+1] = plt.subplot(gs2[s])
 
         for i_layer in range(len(axs)):
             #------------------------------------------------
             # Barre Pause
             #------------------------------------------------
-            axs[i_layer].bar(49, len(BLOCK)+ec*len(BLOCK), bottom=-ec/2, color='k', width=.5, linewidth=0)
-            axs[i_layer].bar(99, len(BLOCK)+ec*len(BLOCK), bottom=-ec/2, color='k', width=.5, linewidth=0)
-            axs[i_layer].bar(149, len(BLOCK)+ec*len(BLOCK), bottom=-ec/2, color='k', width=.5, linewidth=0)
+            if pause is not None :
+                if pause > 0:
+                    for num_pause in range(1,4) : axs[i_layer].bar(num_pause*pause-1, len(BLOCK)+ec*len(BLOCK), bottom=-ec/2, color='k', width=.5, linewidth=0)
 
             if num_block is None :
-
                 #------------------------------------------------
                 # affiche les numéro des block sur le côté gauche
                 #------------------------------------------------
@@ -1378,7 +1492,7 @@ class Analysis(object):
             axs[i_layer].set_yticks(y_ticks[:len(BLOCK)*2])
             axs[i_layer].yaxis.set_label_coords(-0.05, 0.5)
             axs[i_layer].yaxis.set_tick_params(direction='out')
-            axs[i_layer].yaxis.set_ticks_position('left')
+            axs[i_layer].yaxis.set_ticks_position('right')
 
             axs[i_layer].set_xlim(-1, N_trials)
             if i_layer==(len(axs)-1) :
@@ -1401,17 +1515,16 @@ class Analysis(object):
             if direction is True :
                 y_ticks=[0, 1, 1+ec, 2+ec, 2+ec*2, 3+ec*2]
                 axs[0].set_yticks(y_ticks[:len(BLOCK)*2])
-
                 axs[0].set_yticklabels(['left','right']*len(BLOCK),fontsize=t_label/1.8)
             #else :
             #    axs[1].legend(fontsize=t_label/1.3, bbox_to_anchor=(0., 2.1, 1, 0.), loc=3, ncol=2, mode="expand", borderaxespad=0.)
         ###################################################################################################################################
 
-
-
+        if TD is True : td_label = 'TD'
+        else:           td_label = 'Target Direction'
         for i_block, block in enumerate(BLOCK):
             if len(sujet)==1 :
-                for i_layer, label in enumerate(['Target Direction', 'Probability', 'Switch']) :
+                for i_layer, label in enumerate([td_label, 'Probability', 'Switch']) :
                     if label == 'Switch' : axs[i_layer].step(range(N_trials), p[:, block, i_layer]+i_block+ec*i_block, lw=1, c=color[i_layer][0], alpha=alpha[i_layer][0])
                     axs[i_layer].fill_between(range(N_trials), i_block+np.zeros_like(p[:, block, i_layer])+ec*i_block, i_block+p[:, block, i_layer]+ec*i_block,
                                               lw=.5, alpha=alpha[i_layer][0], facecolor=color[i_layer][0], step='pre')
@@ -1430,17 +1543,10 @@ class Analysis(object):
                     axs[0].fill_between(range(N_trials), i_block+np.ones_like(p[:, block, 0])+ec*i_block,
                                               i_block+p[:, block, 0]+ec*i_block,
                                               lw=.5, alpha=alpha[0][1], facecolor=color[0][1], step='pre')
-
-
-                    if TD is True :
-                        axs[0].set_ylabel('TD', fontsize=t_label/1.2)
-                    else :
-                        axs[0].set_ylabel('Target Direction', fontsize=t_label/1.2)
+                    axs[0].set_ylabel(td_label, fontsize=t_label/1.2)
                 for s in range(len(sujet)) :
-                    if direction is True :
-                        a = s+1
-                    else :
-                        a = s
+                    if direction is True : a = s+1
+                    else : a = s
                     axs[a].step(range(N_trials), p[:, block, 1]+i_block+ec*i_block, lw=1, c=color[1][0], alpha=alpha[1][0])
                     axs[a].fill_between(range(N_trials), i_block+np.zeros_like(p[:, block, 1])+ec*i_block, i_block+p[:, block, 1]+ec*i_block,
                                               lw=.5, alpha=alpha[1][0], facecolor=color[1][0], step='pre')
@@ -1448,94 +1554,52 @@ class Analysis(object):
                                               lw=.5, alpha=alpha[1][1], facecolor=color[1][1], step='pre')
 
                     axs[a].plot(range(N_trials), 0.5*np.ones(N_trials)+i_block+ec*i_block, lw=1.5, c='k', alpha=0.5)
-                    #axs[a].set_yticklabels(['0','1','0','1','0','1'],fontsize=t_label/2)
-                    #axs[a].set_ylabel('Subject %s'%(sujet[s]), fontsize=t_label)
-                    #axs[a].set_ylabel('Subject %s'%(s), fontsize=t_label)
                     axs[a].text(-0.055, 0.5, 'Subject %s'%(s), fontsize=t_label/1.2, rotation=90, transform=axs[a].transAxes, ha='right', va='center')
         #-------------------------------------------------------------------------------------------------------------
 
         for s in range(len(sujet)) :
-            if direction is True :
-                a = s+1
-            else :
-                a = s
+            if direction is True : a = s+1
+            else :                 a = s
 
-            if len(sujet)==1:
-                results = (self.exp['results']+1)/2 # results est sur [-1,1] on le ramene sur [0,1]
-                a_anti = self.param['a_anti']
-                start_anti = self.param['start_anti']
-                latency = self.param['latency']
-                print('sujet =', self.exp['observer'])
-                y_t = 1.1
-            else :
-                p = self.PARI[sujet[s]]['p']
-                results = (self.PARI[sujet[s]]['results']+1)/2 # results est sur [-1,1] on le ramene sur [0,1]
-                a_anti = self.ENREGISTREMENT[sujet[s]]['a_anti']
-                start_anti = self.ENREGISTREMENT[sujet[s]]['start_anti'] # seconde
-                latency = self.ENREGISTREMENT[sujet[s]]['latency'] # seconde
-                print('sujet', sujet[s], '=', self.PARI[sujet[s]]['observer'])
-                y_t = 1.25
+            if len(sujet)==1: y_t = 1.1
+            else :            y_t = 1.25
+            suj = sujet[s]
+            p = self.PARI[self.subjects[suj]]['p']
+            results = (self.PARI[self.subjects[suj]]['results']+1)/2 # results est sur [-1,1] on le ramene sur [0,1]
+            a_anti, start_anti, latency = self.ENREGISTREMENT[self.subjects[suj]]['a_anti'], self.ENREGISTREMENT[self.subjects[suj]]['start_anti'], self.ENREGISTREMENT[self.subjects[suj]]['latency']
+            if print_suj is True : print('sujet', suj, '=', self.subjects[suj])
+
             #-------------------------------------------------------------------------------------------------------------
-            if mode == 'pari' :
-                for i_block, block in enumerate(BLOCK):
-                    if i_block == 0 :
-                        axs[a].step(range(N_trials), i_block+results[:, block]+ec*i_block, lw=lw, alpha=1,
-                                      color='r', label='Individual guess')
-                    else :
-                        axs[a].step(range(N_trials), i_block+results[:, block]+ec*i_block, lw=lw, alpha=1, color='r')
-                if titre is None :
-                    axs[0].set_title('Bet results', fontsize=t_titre, x=0.5, y=y_t)
+            mini = 8
+            ec1 = ec*mini*2
 
-            #------------------------------------------------
-            elif mode == 'enregistrement' :
-                mini = 8
-                ec1 = ec*mini*2
-                ax1 = axs[a].twinx()
-                for i_block, block in enumerate(BLOCK):
-                    if i_block == 0 :
-                        #axs[a].step(range(N_trials), i_block+np.array(a_anti[block]+ec*i_block, color='k', lw=lw, alpha=1, label='Eye movement')
-                        ax1.step(range(N_trials), 2*(mini*i_block)+(np.array(a_anti[block])*((np.array(latency[block])-np.array(start_anti[block]))/1000))+ec1*i_block,
-                                    color='k', lw=lw, alpha=1, label='Eye movement')
-                    else :
-                        #axs[a].step(range(N_trials), i_block+np.array(a_anti[block]+ec*i_block, color='k', lw=lw, alpha=1)
-                        ax1.step(range(N_trials), 2*(mini*i_block)+(np.array(a_anti[block])*((np.array(latency[block])-np.array(start_anti[block]))/1000))+ec1*i_block,
-                                    color='k', lw=lw, alpha=1)
-                if titre is None :
-                    axs[0].set_title('Eye movements recording results', fontsize=t_titre, x=0.5, y=y_t)
-                axs[a].set_yticks([])
-                popo = 'left'
-            #------------------------------------------------
-            elif mode=='deux':
-                mini = 8
-                ec1 = ec*mini*2
+            if titre is None :
+                if mode == 'pari' :             axs[0].set_title('Bet results', fontsize=t_titre, x=0.5, y=y_t)
+                elif mode == 'enregistrement' : axs[0].set_title('Eye movements recording results', fontsize=t_titre, x=0.5, y=y_t)
+                elif mode=='deux':              axs[0].set_title('Bet + Eye movements results', fontsize=t_titre, x=0.5, y=y_t)
 
+            if mode in ['pari', 'deux'] :
+
+                for i_block, block in enumerate(BLOCK):
+                    axs[a].step(range(N_trials), i_block+results[:, block]+ec*i_block, lw=lw, alpha=1, color='r', label='Individual guess'  if i_block==0 else '')
+
+                axs[a].yaxis.set_ticks_position('left')
                 y_ticks=[0, 0.5, 1, 1+ec, 1.5+ec, 2+ec, 2+ec*2, 2.5+ec*2, 3+ec*2]
                 axs[a].set_yticks(y_ticks[:len(BLOCK)*3])
                 axs[a].set_yticklabels(['0', '0.5', '1']*len(BLOCK),fontsize=t_label/2)
 
-                ax1 = axs[a].twinx()
-                for i_block, block in enumerate(BLOCK):
-                    if i_block == 0 :
-                        axs[a].step(range(N_trials), i_block+results[:, block]+ec*i_block, lw=lw, alpha=1, color='r', label='Individual guess')
-                        axs[a].step(range(1), -1000, color='k', lw=lw, alpha=1, label='Eye movement')
-                        #ax1.step(range(N_trials), i_block+np.array(a_anti[block])+ec1*i_block, color='k', lw=lw, alpha=1, label='Eye movement')
-                        ax1.step(range(N_trials), 2*(mini*i_block)+(np.array(a_anti[block])*((np.array(latency[block])-np.array(start_anti[block]))/1000))+ec1*i_block,
-                                 color='k', lw=lw, alpha=1, label='Eye movement')
-                    else :
-                        axs[a].step(range(N_trials), i_block+results[:, block]+ec*i_block, lw=lw, alpha=1, color='r')
-                        #ax1.step(range(N_trials), i_block+np.array(a_anti[block])+ec1*i_block, color='k', lw=lw, alpha=1)
-                        ax1.step(range(N_trials), 2*(mini*i_block)+(np.array(a_anti[block])*((np.array(latency[block])-np.array(start_anti[block]))/1000))+ec1*i_block,
-                                 color='k', lw=lw, alpha=1)
-                if titre is None :
-                    axs[0].set_title('Bet + Eye movements results', fontsize=t_titre, x=0.5, y=y_t)
-
-                axs[a].set_ylabel('Bet of probability', fontsize=t_label/1.5, color='r')
+                axs[a].set_ylabel('Bet score', fontsize=t_label/1.5, color='r')
                 axs[a].tick_params('y', colors='r')
                 axs[a].yaxis.set_label_coords(-0.03, 0.5)
-                popo = 'right'
-                ax1.set_ylabel('Velocity of eye °/s', rotation=-90,fontsize=t_label/1.5)
 
             if mode in ['enregistrement', 'deux'] :
+
+                ax1 = axs[a].twinx()
+                for i_block, block in enumerate(BLOCK):
+                    axs[a].step(range(1), -1000, color='k', lw=lw, alpha=1, label='Eye movement'  if i_block==0 else '')
+                    ax1.step(range(N_trials), 2*(mini*i_block)+(np.array(a_anti[block])*((np.array(latency[block])-np.array(start_anti[block]))/1000))+ec1*i_block,
+                                color='k', lw=lw, alpha=1, label='Eye movement' if i_block==0 else '')
+
                 ax1.set_ylim(-mini-(ec1/2), len(BLOCK)*mini + ec1*len(BLOCK)-(ec1/2))
                 y_ticks=[-mini, 0, mini,
                          mini+ec1, 2*mini+ec1, 3*mini+ec1,
@@ -1545,40 +1609,55 @@ class Analysis(object):
                 ax1.set_yticklabels(['-%s'%mini, '0', '%s'%mini]*len(BLOCK),fontsize=t_label/2)
                 ax1.yaxis.set_label_coords(1.043, 0.5)
                 ax1.yaxis.set_tick_params(colors='k', direction='out')
-                ax1.yaxis.set_ticks_position(popo)
+                ax1.yaxis.set_ticks_position('right')
+                ax1.set_ylabel('Velocity of eye °/s', rotation=-90,fontsize=t_label/1.5)
+                #if mode == 'enregistrement' : axs[a].set_yticks([])
 
+
+            if mode_bcp is not None :
+                ncol_leg = 4
+                fixed_window_size = 40
+                p0, r0 =  0.5, 1.0
+                p = self.PARI[self.subjects[s]]['p']
+                if pause is not None :
+                    liste = [0,50,100,150,200]
+                    for pause in range(len(liste)-1) :
+                        if pause==0 and s==0 : name=True
+                        else :                 name=False
+                        n_trial = liste[pause+1]-liste[pause]
+                        axs[a] = plot_result_bcp(axs[a], mode_bcp, p[liste[pause]:liste[pause+1], block, 0],
+                                                 np.arange(liste[pause], liste[pause+1]), n_trial, name_bcp, name=name)
+                else :
+                    if s==0 : name=True
+                    else :    name=False
+                    axs[a] = plot_result_bcp(axs[a], mode_bcp, p[:, block, 0], np.arange(N_trials), N_trials, name_bcp, name=name)
 
             #------------------------------------------------
-            if mode is None and titre is None :
-                axs[0].set_title('Experiment', fontsize=t_titre, x=0.5, y=y_t)
+            if mode is None and titre is None : axs[0].set_title('Experiment', fontsize=t_titre, x=0.5, y=y_t)
             #-------------------------------------------------------------------------------------------------------------
 
-            if titre is not None :
-                axs[0].set_title(titre, fontsize=t_titre, x=0.5, y=y_t)
+            if titre is not None : axs[0].set_title(titre, fontsize=t_titre, x=0.5, y=y_t)
+
 
         if legends is True :
-            if TD is True :
-                axs[1].legend(fontsize=t_label/1.8, bbox_to_anchor=(0., 1.3, 1, 0.), loc=3, ncol=2, mode="expand", borderaxespad=0.)
-            else :
-                axs[1].legend(fontsize=t_label/1.8, bbox_to_anchor=(0., 2.1, 1, 0.), loc=3, ncol=2, mode="expand", borderaxespad=0.)
+            if TD is True : axs[1].legend(fontsize=t_label/1.8, bbox_to_anchor=(0., 1.3, 1, 0.), loc=3, ncol=ncol_leg, mode="expand", borderaxespad=0.)
+            else :          axs[1].legend(fontsize=t_label/1.8, bbox_to_anchor=(0., 2.1, 1, 0.), loc=3, ncol=ncol_leg, mode="expand", borderaxespad=0.)
 
         axs[-1].set_xlabel('Trials', fontsize=t_label)
-        try:
-            fig.tight_layout()
-        except:
-            print('tight_layout failed :-(')
+        try: fig.tight_layout()
+        except: print('tight_layout failed :-(')
         plt.subplots_adjust(hspace=0.05)
         #------------------------------------------------
 
-        if return_proba is None :
-            return fig, axs
-        else :
-            return fig, axs, p
+        if return_proba is None : return fig, axs
+        else : return fig, axs, p
 
 
-    def plot_bcp(self, show_trial=False, block=0, trial=50, N_scan=100, fixed_window_size=40,
-                pause=None, mode=['expectation', 'max', 'mean', 'fixed', 'fixed-exp', 'hindsight'], max_run_length=150,
-                 fig_width=15, t_titre=35, t_label=20, show_title=True):
+    def plot_bcp(self, show_trial=False, block=0, trial=50, N_scan=100, fixed_window_size=40, label_bcp=r'$\hat{x}_1$', label_comp_bcp=r'$\bar{x}_1$',
+                pause=None, mode=['expectation', 'max', 'mean', 'fixed', 'leaky', 'hindsight'],
+                mode_compare=None, max_run_length=150, c_mode='g', c_compare='r', TD=False,
+                color=[['k', 'k'], ['r', 'r'], ['k','w']], alpha = [[.35,.15],[.35,.15],[1,0]],
+                fig_width=15, t_titre=35, t_label=20, show_title=True, leg_up=None):
 
         '''plot='normal' -> bcp, 'detail' -> bcp2'''
 
@@ -1587,22 +1666,19 @@ class Analysis(object):
         import bayesianchangepoint as bcp
         from scipy.stats import beta
 
-        if type(mode) is not list :
-            mode = [mode]
+        if type(mode) is not list : mode = [mode]
 
-        color=[['k', 'k'], ['r', 'r'], ['k','w']]
-        alpha = [[.35,.15],[.35,.15],[1,0]]
 
-        N_trials = self.exp['N_trials']
-        N_blocks = self.exp['N_blocks']
-        p = self.exp['p']
+
+        N_trials = self.param_exp['N_trials']
+        N_blocks = self.param_exp['N_blocks']
+        p = self.param_exp['p']
         tau = N_trials/5.
         h = 1/tau
 
         p0, r0 =  0.5, 1.0
 
-
-        def plot_result_bcp(ax1, ax2, mode, observation, time) :
+        def plot_result_bcp(ax1, ax2, mode, observation, time, c, label, name=True) :
 
             p_bar, r_bar, beliefs = bcp.inference(observation, h=h, p0=p0, r0=r0)
             p_hat, r_hat = bcp.readout(p_bar, r_bar, beliefs, mode=mode, fixed_window_size=fixed_window_size, p0=p0)
@@ -1611,48 +1687,51 @@ class Analysis(object):
 
             for i_trial in range(N_trial):
                 p_low[i_trial], p_sup[i_trial] = beta.ppf([.05, .95], a=p_hat[i_trial]*r_hat[i_trial], b=(1-p_hat[i_trial])*r_hat[i_trial])
-            ax1.plot(time, p_hat, c='darkred',  lw=1.5, alpha=.9)
-            ax1.plot(time, p_sup, c='darkred', lw=1.2, alpha=.9, ls='--')
-            ax1.plot(time, p_low, c='darkred', lw=1.2, alpha=.9, ls='--')
-            ax1.fill_between(time, p_sup, p_low, lw=.5, alpha=.11, facecolor='darkred')
+            ax1.plot(time, p_hat, c=c,  lw=1.5, alpha=.9, label=label if name is True else '')
+            if leg_up is None : ax1.plot(time, p_sup, c=c, lw=1.2, alpha=.9, ls='--', label='CI '+label if name is True else '')
+            else :              ax1.plot(time, p_sup, c=c, lw=1.2, alpha=.9, ls='--')#, label='CI '+label)
+            ax1.plot(time, p_low, c=c, lw=1.2, alpha=.9, ls='--')
+            ax1.fill_between(time, p_sup, p_low, lw=.5, alpha=.11, facecolor=c)
 
-            if N_trial < N_trials :
-                extent = (min(time), max(time), np.max(r_bar), np.min(r_bar))
+            if ax2 is not None :
+                if N_trial < N_trials : extent = (min(time), max(time), np.max(r_bar), np.min(r_bar))
+                else : extent = None
+
+                eps=1.e-5 # 1.e-12
+                #ax2.imshow(np.log(beliefs[:max_run_length, :] + eps), cmap='Greys', extent=extent)
+                if mode == 'fixed':
+                    ax2.imshow(np.log(beliefs[:max_run_length, :]*0. + eps), cmap='Greys', extent=extent)
+                elif mode == 'leaky':
+                    beliefs_ = np.exp(-np.arange(N_r) / fixed_window_size)
+                    beliefs_ /= beliefs_.sum()
+                    beliefs_ = beliefs_[:, None]
+                    ax2.imshow(np.log((beliefs_*np.ones(N_trial))[:max_run_length, :] + eps), cmap='Greys', extent=extent)
+                else:
+                    ax2.imshow(np.log(beliefs[:max_run_length, :] + eps), cmap='Greys', extent=extent)
+
+                ax2.plot(time, r_hat, c=c, lw=1.5, alpha=.9, label='predicted run-length')
+                ax2.set_ylim(0, max_run_length)
+
+                return (ax1, ax2)
+
             else :
-                extent = None
-
-            eps=1.e-5 # 1.e-12
-            #ax2.imshow(np.log(beliefs[:max_run_length, :] + eps), cmap='Greys', extent=extent)
-            if mode == 'fixed':
-                ax2.imshow(np.log(beliefs[:max_run_length, :]*0. + eps), cmap='Greys', extent=extent)
-            elif mode == 'fixed-exp':
-                beliefs_ = np.exp(-np.arange(N_r) / fixed_window_size)
-                beliefs_ /= beliefs_.sum()
-                beliefs_ = beliefs_[:, None]
-                ax2.imshow(np.log((beliefs_*np.ones(N_trial))[:max_run_length, :] + eps), cmap='Greys', extent=extent)
-            else:
-                ax2.imshow(np.log(beliefs[:max_run_length, :] + eps), cmap='Greys', extent=extent)
-
-            ax2.plot(time, r_hat, c='r', lw=1.5, alpha=.9)
-
-            return (ax1, ax2)
-
+                return ax1
 
 
         height_ratios = np.ones(len(mode))
 
+
         if show_trial is True :
-
             print('Block', block)
-
             height_ratios = np.append(height_ratios, 1/4)
             nb_fig = len(mode)+1
             figsize=(fig_width, (nb_fig)*(fig_width)/(2*(1.6180)))
 
-
-        if show_trial is False :
-
+        else:
             nb_fig = len(mode)
+
+
+        if N_scan>0: #show_trial is False :
 
             #---------------------------------------------------------------------------
             # SCORE
@@ -1668,37 +1747,49 @@ class Analysis(object):
                 for i_scan, h_ in enumerate(hs):
                     p_bar, r_bar, beliefs = bcp.inference(o, h=h_, p0=p0, r0=r0)
                     for i_mode, m in enumerate(mode):
-                        if m=='fixed':
-                            p_hat, r_hat = bcp.readout(p_bar, r_bar, beliefs, mode=m, fixed_window_size=int(1/h_))
-                        else:
-                            p_hat, r_hat = bcp.readout(p_bar, r_bar, beliefs, mode=m, p0=p0)
+                        if m=='fixed': p_hat, r_hat = bcp.readout(p_bar, r_bar, beliefs, mode=m, fixed_window_size=int(1/h_))
+                        else: p_hat, r_hat = bcp.readout(p_bar, r_bar, beliefs, mode=m, p0=p0)
 
                         score[i_mode, i_scan, i_block] = np.mean(np.log2(bcp.likelihood(o[(border+1):], p_hat[border:-1], r_hat[border:-1])))
                         #KL_ = p_hat * np.log2(p_hat) - p_hat * np.log2(p[:, i_block, 1])
                         #KL_ += (1-p_hat) * np.log2(1-p_hat) - (1-p_hat) * np.log2(1-p[:, i_block, 1])
                         #KL[i_mode, i_scan, i_block] = np.mean(KL_)
             #---------------------------------------------------------------------------
+        else:
+            figsize=(fig_width, nb_fig*(fig_width)/1.6180)
 
 
         fig = plt.figure(figsize=figsize)#, sharex=True)
         gs = gridspec.GridSpec(nb_fig, 1, height_ratios=height_ratios, hspace=0.5)
 
         for x, m in enumerate(mode) :
-            if show_trial is False :
-                gs1 = gridspec.GridSpecFromSubplotSpec(2, 2, subplot_spec=gs[x], width_ratios=[2,(1.6180)/2],
-                                                        wspace=0.3, hspace=0.05)
+            if N_scan>0: #show_trial is False :
+                gs1 = gridspec.GridSpecFromSubplotSpec(2, 2, subplot_spec=gs[x], width_ratios=[2,(1.6180)/2], wspace=0.3, hspace=0.05)
                 ax1 = plt.Subplot(fig, gs1[0, 0])
                 ax2 = plt.Subplot(fig, gs1[1, 0])
                 ax3 = plt.Subplot(fig, gs1[:, 1])
                 fig.add_subplot(ax3)
 
-                if show_title is True :
-                    ax1.set_title('Mode %s Block %s'%(m, (block+1)), x=0.5, y=1.05, fontsize=t_label)
+                if show_title is True : ax1.set_title('Mode %s Block %s'%(m, (block+1)), x=0.5, y=1.05, fontsize=t_label)
 
-            if show_trial is True :
+            else: #if show_trial is True :
                 gs1 = gridspec.GridSpecFromSubplotSpec(2, 1, subplot_spec=gs[x], hspace=0.05)
                 ax1 = plt.Subplot(fig, gs1[0])
                 ax2 = plt.Subplot(fig, gs1[1])
+
+
+                if TD is True :
+                    gs0 = gridspec.GridSpec(1, 1)
+                    gs0.update(left=0+0.02, bottom=0.85, right=1+0.02, top=1.-0.1, hspace=0.05)
+                    ax0 = plt.Subplot(fig, gs0[0]) #plt.subplot(gs1[0])
+                    fig.add_subplot(ax0)
+
+                    for card in ['bottom', 'top', 'left']: ax0.spines[card].set_visible(False)
+                    ax0.spines['right'].set_bounds(0, 1)
+                    ax0.set_xticks(())
+                    ax0.yaxis.set_ticks_position('right')
+                    ax0.set_yticks([0,1])
+                    ax0.set_yticklabels(['left', 'right'], fontsize=t_label/1.8)
 
 
             fig.add_subplot(ax1)
@@ -1708,9 +1799,20 @@ class Analysis(object):
             #---------------------------------------------------------------------------
             o = p[:, block, 0]
             p_true = p[:, block, 1]
-            ax1.step(range(N_trials), o, lw=1, alpha=.15, c='k')
-            ax1.step(range(N_trials), p_true, lw=1, alpha=.13, c='k')
-            ax1.fill_between(range(N_trials), np.zeros_like(o), o, lw=0, alpha=alpha[0][1], facecolor=color[0][0], step='pre')
+            time = np.arange(N_trials)
+
+            if TD is True :
+                ax0.set_ylabel('TD', fontsize=t_label/1.2)
+                ax0.plot(np.arange(N_trials)-.5, o, 'k.', ms=2, label='TD')
+                ax0.step(range(N_trials), o, lw=1, alpha=.15, c='k')
+                ax0.fill_between(range(N_trials), np.zeros_like(o), o, lw=0, alpha=alpha[0][1], facecolor=color[0][0], step='pre')
+
+            else :
+                ax1.plot(np.arange(N_trials)-.5, o, 'k.', ms=2, label='TD')
+                ax1.step(range(N_trials), o, lw=1, alpha=.15, c='k')
+                ax1.fill_between(range(N_trials), np.zeros_like(o), o, lw=0, alpha=alpha[0][1], facecolor=color[0][0], step='pre')
+
+            ax1.step(range(N_trials), p_true, lw=1, alpha=.9, c=color[1][0], label=r'$x_1$')
             ax1.fill_between(range(N_trials), np.zeros_like(p_true), p_true, lw=0, alpha=alpha[1][1], facecolor=color[1][0], step='pre')
 
             #---------------------------------------------------------------------------
@@ -1718,21 +1820,33 @@ class Analysis(object):
             #---------------------------------------------------------------------------
             if pause is not None :
                 liste = [0,50,100,150,200]
+                name=True
                 for a in range(len(liste)-1) :
-                    ax1, ax2 = plot_result_bcp(ax1, ax2, m, p[liste[a]:liste[a+1], block, 0], np.arange(liste[a], liste[a+1]))
-
+                    ax1, ax2 = plot_result_bcp(ax1, ax2, m, p[liste[a]:liste[a+1], block, 0], np.arange(liste[a], liste[a+1]), c=c_mode, label=label_bcp, name=name)
+                    if not mode_compare is None:
+                        ax1 = plot_result_bcp(ax1, None, mode_compare, p[liste[a]:liste[a+1], block, 0], np.arange(liste[a], liste[a+1]), c=c_compare, label=label_comp_bcp, name=name)
+                    name=False
                 for a in [ax1, ax2]:
                     a.bar(50, 140 + 2*(.05*140), bottom=-.05*140, color='k', width=.5, linewidth=0)
                     a.bar(100, 140 + 2*(.05*140), bottom=-.05*140, color='k', width=.5, linewidth=0)
                     a.bar(150, 140 + 2*(.05*140), bottom=-.05*140, color='k', width=.5, linewidth=0)
 
             else :
-                ax1, ax2 = plot_result_bcp(ax1, ax2, m, o, range(N_trials))
+                ax1, ax2 = plot_result_bcp(ax1, ax2, m, o, range(N_trials), c=c_mode, label='$\hat{x}_1$')
+                if not mode_compare is None:
+                    ax1 = plot_result_bcp(ax1, None, mode_compare, o, range(N_trials), c=c_compare, label=r'$\bar{x}_1$')
 
+
+            if leg_up is True :
+                if TD is True : ax1.legend(fontsize=t_label/1.8, bbox_to_anchor=(0., 1.3, 1, 0.), loc=3, ncol=3, mode="expand", borderaxespad=0.)
+                else :          ax1.legend(fontsize=t_label/1.8, bbox_to_anchor=(0., 2.1, 1, 0.), loc=3, ncol=3, mode="expand", borderaxespad=0.)
+            else :
+                ax1.legend(loc=(0.15, 0.55), ncol=2)#'best')
+            # ax2.legend('best')
             #---------------------------------------------------------------------------
             # affiche SCORE
             #---------------------------------------------------------------------------
-            if show_trial is False :
+            if N_scan>0: #show_trial is False :
                 ax3.plot(hs, np.mean(score[x, ...], axis=1), c='r', label=m)
                 ax3.fill_between(hs,np.std(score[x, ...], axis=1)+np.nanmean(score[x, ...], axis=1), -np.std(score[x, ...], axis=1)+np.nanmean(score[x, ...], axis=1),
                                     lw=.5, alpha=.2, facecolor='r', step='mid')
@@ -1756,30 +1870,24 @@ class Analysis(object):
                 a.set_ylim(-.05*size, size + (.05*size))
                 a.set_yticks(np.arange(0, size + (.05*size), size/2))
 
-            ax1.set_ylabel('$\hat{P}$ +/- CI', fontsize=t_label/1.5)
+            ax1.set_ylabel('Probability', fontsize=t_label/1.5)
             ax1.set_xticks([])
 
-            ax2.set_ylabel('belief on r=p(r)', fontsize=t_label/1.5)
-            ax2.set_xlabel('Trials', fontsize=t_label/1.2);
+            ax2.set_ylabel('Run-length', fontsize=t_label/1.5) #belief on r=p(r)
+            ax2.set_xlabel('Trial #', fontsize=t_label/1.5);
             ax2.set_xticks([0, 50, 100, 150, 200])
 
-
+            if m == 'expectation' : title = 'expectation $\sum_{r=0}^\infty r \cdot p(r) \cdot \hat{p}(r) $'
+            elif m == 'max' : title = '$\hat{p} ( \mathrm{ArgMax}_r (p(r)) )$'
+            elif m == 'mean' : title = 'mean equation'
+            elif m == 'fixed' : title = 'fixed equation'
+            elif m == 'leaky' : title = 'leaky equation'
+            elif m == 'hindsight' : title = 'hindsight equation'
             if show_trial is True:
                 ax2.bar(trial, 140 + (.05*140)+.05*140, bottom=-.05*140, color='firebrick', width=.5, linewidth=0, alpha=1)
 
                 if show_title is True :
-                    if m == 'expectation' :
-                        title = 'expectation $\sum_{r=0}^\infty r \cdot p(r) \cdot \hat{p}(r) $'
-                    elif m == 'max' :
-                        title = '$\hat{p} ( \mathrm{ArgMax}_r (p(r)) )$'
-                    elif m == 'mean' :
-                        title = 'mean equation'
-                    elif m == 'fixed' :
-                        title = 'fixed equation'
-                    elif m == 'fixed-exp' :
-                        title = 'fixed-exp equation'
-                    elif m == 'hindsight' :
-                        title = 'hindsight equation'
+
                     ax1.set_title('Bayesian change point : %s'%title, x=0.5, y=1.05, fontsize=t_titre)
 
             #---------------------------------------------------------------------------
@@ -1803,27 +1911,29 @@ class Analysis(object):
 
             ax.set_xlabel('r$_{%s}$'%(trial), fontsize=t_label/1.2)
             ax.set_ylabel('p(r) at trial $%s$'%(trial), fontsize=t_label/1.5)
-            if show_title is True :
-                ax.set_title('Belief on r for trial %s'%(trial), x=0.5, y=1., fontsize=t_titre/1.5)
+            if show_title is True : ax.set_title('Belief on r for trial %s'%(trial), x=0.5, y=1., fontsize=t_titre/1.5)
 
             ax.tick_params(labelsize=t_label/1.8, bottom=True, left=True)
 
         gs.tight_layout(fig)
         plt.show()
 
-        return fig
+        if N_scan>0: #show_trial is False :
+            return fig, ax1, ax2, ax3
+        else:
+            return fig, ax1, ax2
 
 
-    def comparison(self, ax=None, proba='bcp', result='bet', mode_bcp='mean', show='kde', mean_kde=True,
-                    t_titre=35, t_label=25, titre=None, pause=True, color_r='r', fig=None, fig_width=15) :
+    def comparison(self, ax=None, proba='bcp', result='bet', mode_bcp='mean', show='kde', conditional_kde=True,
+                    nb_point_kde=300j, color_kde='Greys', alpha=1, hatch=None, hatches=None, hatch_symbol = '/', levels=None,
+                    t_titre=35, t_label=25, titre=None, pause=True, color_r='r', pos_r='right', line_r=True, fig=None, fig_width=15) :
 
         if fig is not None:
             import matplotlib.pyplot as plt
-            fig_width= fig_width
             fig, ax = plt.subplots(1, 1, figsize=(fig_width, fig_width)) #/(1.6180)))
 
         #colors = ['black','dimgrey','grey','darkgrey','silver','rosybrown','lightcoral','indianred','firebrick','brown','darkred','red']
-        nb_sujet = len(self.PARI)
+        nb_sujet = len(self.subjects)
         full = Analysis.Full_list(self, modes_bcp=mode_bcp, pause=pause)
 
         if proba == 'real' :
@@ -1837,26 +1947,20 @@ class Analysis(object):
         xmin, xmax = -0.032, 1.032
 
         if result=='bet' :
-            res = 'results'
-            ymin, ymax = -0.032, 1.032
+            res, ymin, ymax = 'results', -0.032, 1.032
             ax.set_ylabel('Probability Bet', fontsize=t_label/1.2)
-            if titre is None :
-                ax.set_title("Probability Bet", fontsize=t_titre/1.2, x=0.5, y=1.05)
+            if titre is None : ax.set_title("Probability Bet", fontsize=t_titre/1.2, x=0.5, y=1.05)
 
 
         elif result=='acceleration' :
-            res = 'aa'
-            ymin, ymax = -21.28, 21.28
+            res, ymin, ymax = 'aa', -21.28, 21.28
             ax.set_ylabel('Acceleration of anticipation (°/s$^2$)', fontsize=t_label/1.2)
-            if titre is None :
-                ax.set_title("Acceleration", fontsize=t_titre/1.2, x=0.5, y=1.05)
+            if titre is None : ax.set_title("Acceleration", fontsize=t_titre/1.2, x=0.5, y=1.05)
 
         elif result=='velocity' :
-            res = 'va'
-            ymin, ymax = -10.64, 10.64
+            res, ymin, ymax = 'va', -10.64, 10.64
             ax.set_ylabel('Velocity of anticipation (°/s)', fontsize=t_label/1.2)
-            if titre is None :
-                ax.set_title("Velocity", fontsize=t_titre/1.2, x=0.5, y=1.05)
+            if titre is None : ax.set_title("Velocity", fontsize=t_titre/1.2, x=0.5, y=1.05)
 
         full_result = full[res]
 
@@ -1866,8 +1970,8 @@ class Analysis(object):
                 ax.scatter(full_proba[full.sujet==s], full_result[full.sujet==s], c=color, alpha=0.5, linewidths=0)'''
             alpha=0.2
             for x in range(nb_sujet):
-                s = self.PARI[x]['observer']
-                ax.scatter(full_proba[full.sujet==s], full_result[full.sujet==s], c=(0+(1/nb_sujet)*x, 0, 0, alpha), linewidths=0)
+                s = self.subjects[x]
+                ax.scatter(full_proba[full.sujet==s], full_result[full.sujet==s], c=[(0+(1/nb_sujet)*x, 0, 0, alpha)], linewidths=0)
 
         # masque les essais qui où full_result = NAN
         proba = np.ma.masked_array(full_proba.values.tolist(), mask=np.isnan(full_result.values.tolist())).compressed()
@@ -1878,44 +1982,88 @@ class Analysis(object):
 
             values = np.vstack([proba, data])
             kernel = stats.gaussian_kde(values)
-            xx, yy = np.mgrid[xmin:xmax:300j, ymin:ymax:300j]
+            xx, yy = np.mgrid[xmin:xmax:nb_point_kde, ymin:ymax:nb_point_kde]
             positions = np.vstack([xx.ravel(), yy.ravel()])
             f = np.reshape(kernel(positions).T, xx.shape)
 
-            if mean_kde is True :
-                fmean = []
-                for x in range(len(f)):
-                    fmean.append([])
-                    for y in range(len(f[x])):
-                        fmean[x].append(f[x][y]/np.sum(f[x]))
+            if conditional_kde is True :
+                #print(f.sum(axis=0))
+                f = f / f.sum(axis=1)[:, np.newaxis]
 
-                ax.contourf(xx, yy, fmean, cmap='Greys')
+                #fmean = []
+                #for x in range(len(f)):
+                #    fmean.append([])
+                #    for y in range(len(f[x])):
+                #        fmean[x].append(f[x][y]/np.sum(f[x]))
+
+            if levels is None : levels = 7
+            if type(levels)==int : level=levels ;  nb_level=levels+2
+            else :
+                nb_level = len(levels)
+                level = [(round(float(x[:-1])*np.max(f)/100, 4) if x[-1]=='%'
+                         else round(float(x)*np.max(f), 4)) if type(x)==str
+                         else x for x in levels]
+
+
+            if hatch is True :
+
+                from matplotlib import rcParams
+                from matplotlib.colors import to_rgba
+                rcParams['hatch.linewidth'] = 1.5
+                rcParams['hatch.color'] = to_rgba(color_kde, alpha=alpha)
+
+                if hatches is None : hatches = [None]*(nb_level-4) + [hatch_symbol, hatch_symbol*3, hatch_symbol*100]
+
+                A = ax.contourf(xx, yy, f, levels=level, hatches=hatches, colors='none')
+                ax.contour(xx, yy, f, levels=level, colors=color_kde, alpha=alpha)
+
+                artists, l = A.legend_elements()
+
+                if type(level) == list :
+                    #l = ['%s (%s) < kde $\\leq$ %s (%s)'%(levels[x], level[x], levels[x+1], level[x+1])
+                    #     if type(levels[x])==str else '%s < kde $\\leq$ %s'%(level[x], level[x+1])
+                    #     for x in range(len(level)-1)]
+                    l = ['%s < kde $\\leq$ %s'%(levels[x], levels[x+1])
+                         if type(levels[x])==str else '%s < kde $\\leq$ %s'%(level[x], level[x+1])
+                         for x in range(len(level)-1)]
+
+                else :
+                    l = ['%s < kde $\\leq$ %s'%(l[x][1:].split(' <')[0], l[x][:-1].split('\\leq ')[1])
+                         for x in range(len(l))]
+
+                hist, x_edges, y_edges = np.histogram2d(proba, data ,bins=20)
+
+                legend = ax.legend(artists, l, loc='%s'%pos_r, fontsize=t_label/1.8, frameon=True, framealpha=0.5,
+                                   title='$\hat{P}_{%s}$, MI = %0.3f'%(mode_bcp, mutual_information(hist)), title_fontsize=t_label/1.8)
+
+                ax.add_artist(legend)
+                ax.set_xlabel('$\hat{P}$', fontsize=t_label/1)
+
 
             else :
-                ax.contourf(xx, yy, f, cmap='Greys', N=25)
+                ax.contourf(xx, yy, f, cmap=color_kde, levels=level, alpha=alpha)
 
-        ax = regress(ax, proba, data, ymin, ymax, t_label, color=color_r)
+        if hatch is not True :
+            ax = regress(ax, proba, data, ymin, ymax, t_label, color=color_r, pos=pos_r, line=line_r)
 
-        if titre is not None :
-            ax.set_title(titre, fontsize=t_titre/1.2, x=0.5, y=1.05)
+        if titre is not None : ax.set_title(titre, fontsize=t_titre/1.2, x=0.5, y=1.05)
         ax.axis([xmin, xmax, ymin, ymax])
 
         ax.tick_params(labelsize=t_label/1.8, bottom=True, left=True)
         #------------------------------------------------
 
-        if fig is not None:
-            return fig, ax
-        else :
-            return ax
+        if fig is not None: return fig, ax
+        else : return ax
 
-    def plot_results(self, mode_bcp='mean', show='scatter', mean_kde=True, tau=40., sujet=[6], fig_width=15, t_titre=35, t_label=25, plot='Full', pause=True) :
+    def plot_results(self, mode_bcp='mean', show='scatter', conditional_kde=True, tau=40., sujet=[6], fig_width=15, t_titre=35, t_label=25, plot='Full', pause=True,
+                      color = [['k', 'k'], ['r', 'r'], ['k','w']], alpha = [[.35,.15],[.35,.15],[1,0]], color_bcp='darkred') :
 
         import matplotlib.pyplot as plt
         import matplotlib.gridspec as gridspec
         import bayesianchangepoint as bcp
         from scipy import stats
 
-        nb_sujet = len(self.PARI)
+        nb_sujet = len(self.subjects)
         #full = Analysis.Full_list(self, modes_bcp=mode_bcp, pause=True) #(self.PARI, self.ENREGISTREMENT, P_HAT=True)
 
         if plot == 'Full' :
@@ -1927,8 +2075,7 @@ class Analysis(object):
 
             gs1 = gridspec.GridSpec(len(sujet), 1)
             gs1.update(left=0, bottom=(len(sujet))*2/3, right=1, top=len(sujet), hspace=0.05)
-            for s in range(len(sujet)) :
-                axs[s] = plt.subplot(gs1[s])
+            for s in range(len(sujet)) : axs[s] = plt.subplot(gs1[s])
 
             gs2 = gridspec.GridSpec(1, 2)
             gs2.update(left=0, bottom=-1/2+(((len(sujet))*2/3)-0.16), right=1, top=((len(sujet))*2/3)-0.16, wspace=0.2)
@@ -1942,8 +2089,7 @@ class Analysis(object):
             # plt.subplots_adjust(hspace=0.05)
 
         elif plot == 'scatterKDE' :
-            a = 0
-            b = 1
+            a, b = 0, 1
             print('scatterKDE')
             fig, axs = plt.subplots(1, 2, figsize=(fig_width, fig_width/2.))
             # fig.subplots_adjust(left = 0, bottom = 1/2, right = 1, top =1)
@@ -1952,20 +2098,17 @@ class Analysis(object):
 
         if plot in ['Full', 'sujet'] :
             # axs[0].set_title('Results bayesian change point %s'%(mode_bcp), fontsize=t_titre, x=0.5, y=1.3)
-            for s in range(len(sujet)) :
-                axs[s] = results_sujet(self, axs[s], sujet, s, mode_bcp, tau, t_label, pause)
+            for s in range(len(sujet)) : axs[s] = results_sujet(self, axs[s], sujet, s, mode_bcp, tau, t_label, pause, color, alpha, color_bcp)
 
         if plot in ['Full', 'scatterKDE'] :
 
             #------------------------------------------------
             # SCATTER KDE Plot
             #------------------------------------------------
-            if show=='kde' :
-                color_r='r'
-            else :
-                color_r='k'
+            if show=='kde' : color_r='r'
+            else : color_r='k'
 
-            opt = {'show':show, 'mode_bcp':mode_bcp, 'mean_kde':mean_kde, 't_titre':t_titre, 't_label':t_label,
+            opt = {'show':show, 'mode_bcp':mode_bcp, 'conditional_kde':conditional_kde, 't_titre':t_titre, 't_label':t_label,
                     'pause':pause, 'color_r':color_r}
             axs[a] = Analysis.comparison(self, ax=axs[a], result='bet', **opt)
             axs[b] = Analysis.comparison(self, ax=axs[b], result='velocity', **opt)
@@ -1979,17 +2122,97 @@ class Analysis(object):
                     axs[i_layer].set_xticks([])
                 elif i_layer == len(sujet)-1 :
                     axs[i_layer].set_xlabel('Trials', fontsize=t_label)
-                    axs[i_layer].set_xticks([-1, 49, 99, 149])
-                    axs[i_layer].set_xticklabels([0, 50, 100, 150], ha='left',fontsize=t_label/1.8)
+                    axs[i_layer].set_xticks([49, 99, 149])
+                    axs[i_layer].set_xticklabels([50, 100, 150], ha='left',fontsize=t_label/1.8)
 
         if not plot in ['scatterKDE'] :
-            axs[0].legend(fontsize=t_label/1.2, bbox_to_anchor=(0., 1.05, 1, 0.), loc=4, ncol=3,
-                  mode="expand", borderaxespad=0.)
+            axs[0].legend(fontsize=t_label/1.8, bbox_to_anchor=(0., 1.05, 1, 0.), loc=4, ncol=4,
+                           mode="expand", borderaxespad=0.)
 
         #------------------------------------------------
 
         return fig, axs
 
+
+    def comparison_line(self, ax=None, result='bet', mode_bcp=['real', 'leaky', 'mean'], bins=[0,0.2,0.4,0.6,0.8,1],
+                        alpha=1, t_titre=35, t_label=25, titre=None, pause=True, color_r=['k', 'tab:orange', 'g'],
+                        fig=None, fig_width=15) :
+
+        if fig is None:
+            import matplotlib.pyplot as plt
+            fig, ax = plt.subplots(1, 1, figsize=(fig_width, fig_width)) #/(1.6180)))
+
+        nb_sujet = len(self.subjects)
+
+        modes_bcp, name_mode = [],[]
+        for mode in mode_bcp :
+            if mode is not 'real' :
+                modes_bcp.append(mode)
+                name_mode.append('$\hat{P}_{%s}$'%(mode))
+            else : name_mode.append('$P_{real}$')
+        full = Analysis.Full_list(self, modes_bcp=modes_bcp, pause=pause)
+
+        xmin, xmax = -0.032, 1.032
+
+        if result=='bet' :
+            res, ymin, ymax = 'results', -0.032, 1.032
+            ax.set_ylabel('Probability Bet', fontsize=t_label/1.2)
+            if titre is None : ax.set_title("Probability Bet", fontsize=t_titre/1.2, x=0.5, y=1.05)
+
+        elif result=='acceleration' :
+            res, ymin, ymax = 'aa', -21.28, 21.28
+            ax.set_ylabel('Acceleration of anticipation (°/s$^2$)', fontsize=t_label/1.2)
+            if titre is None : ax.set_title("Acceleration", fontsize=t_titre/1.2, x=0.5, y=1.05)
+
+        elif result=='velocity' :
+            res, ymin, ymax = 'va', -10.64, 10.64
+            ax.set_ylabel('Velocity of anticipation (°/s)', fontsize=t_label/1.2)
+            if titre is None : ax.set_title("Velocity", fontsize=t_titre/1.2, x=0.5, y=1.05)
+
+        full_result = full[res]
+
+        ax.set_position([0,0,1,1])
+        a1 = fig.add_axes([0.05, 0.7, 0.25,0.25])
+        a2 = fig.add_axes([0.7, 0.05, 0.25, 0.25])
+        a1.set_title("r", fontsize=t_label/1.8)
+        a2.set_title("MI", fontsize=t_label/1.8)
+
+
+        for a in [a1, a2] :
+            a.set_yticks([0,0.5,1.])
+            a.set_ylim(0,0.9)
+            a.set_xticks([0,1,2])
+            a.set_xticklabels(name_mode)
+            a.tick_params(labelsize=t_label/2.7)
+            for card in ['top', 'right']: a.spines[card].set_visible(False)
+
+        for i, mode in enumerate(mode_bcp) :
+            if mode == 'real' : proba = 'proba'
+            else :              proba = 'p_hat_'+mode
+            full_proba = full[proba]
+
+            proba = np.ma.masked_array(full_proba.values.tolist(), mask=np.isnan(full_result.values.tolist())).compressed()
+            data = np.ma.masked_array(full_result.values.tolist(), mask=np.isnan(full_result.values.tolist())).compressed()
+
+            for b in range(len(bins)-1) :
+                d = [data[x] for x in range(len(proba)) if proba[x]>=bins[b] and proba[x]<bins[b+1]]
+
+                ax.errorbar((bins[b+1]+bins[b])/2, np.mean(d), yerr=np.std(d),
+                            color=color_r[i], capsize=10, markersize=10, marker='o')
+
+            ax, r_, mi = regress(ax, proba, data, ymin, ymax, t_label, color=color_r[i], text=False, return_r_mi=True)
+            a1.bar(i, r_, color=color_r[i])
+            a2.bar(i, mi, color=color_r[i])
+
+
+        if titre is not None : ax.set_title(titre, fontsize=t_titre/1.2, x=0.5, y=1.05)
+        ax.axis([xmin, xmax, ymin, ymax])
+        ax.set_xlabel('$\hat{P}$', fontsize=t_label/1)
+        ax.tick_params(labelsize=t_label/1.8, bottom=True, left=True)
+        #------------------------------------------------
+
+        if fig is None: return fig, ax
+        else : return ax
 
 
 

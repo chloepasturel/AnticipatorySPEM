@@ -394,7 +394,7 @@ def mutual_information(hgram):
     nzs = pxy > 0 # Only non-zero pxy values contribute to the sum
     return np.sum(pxy[nzs] * np.log(pxy[nzs] / px_py[nzs]))
 
-def regress(ax, p, data, y1, y2, t_label,color='k', x1=-0.032, x2=1.032, pos='right', line=True) :
+def regress(ax, p, data, y1, y2, t_label,color='k', x1=-0.032, x2=1.032, pos='right', line=True, text=True, return_r_mi=False) :
     from scipy import stats
     slope, intercept, r_, p_value, std_err = stats.linregress(p, data)
     x_test = np.linspace(np.min(p), np.max(p), 100)
@@ -409,10 +409,12 @@ def regress(ax, p, data, y1, y2, t_label,color='k', x1=-0.032, x2=1.032, pos='ri
     if pos[:5]=='upper' : y_pos_r=y2-(y2-y1)/10 ; y_pos_m=y2-2*(y2-y1)/10
     else:                 y_pos_r=y1+(y2-y1)/10 ; y_pos_m=y1+2*(y2-y1)/10
 
-    ax.text(x_pos, y_pos_r, 'r = %0.3f'%(r_), color=color, fontsize=t_label/1.2, ha=h_pos)
-    ax.text(x_pos, y_pos_m, 'MI = %0.3f'%(mutual_information(hist)), color=color, fontsize=t_label/1.2, ha=h_pos)
+    if text is True :
+        ax.text(x_pos, y_pos_r, 'r = %0.3f'%(r_), color=color, fontsize=t_label/1.2, ha=h_pos)
+        ax.text(x_pos, y_pos_m, 'MI = %0.3f'%(mutual_information(hist)), color=color, fontsize=t_label/1.2, ha=h_pos)
 
-    return ax
+    if return_r_mi is True : return ax, r_, mutual_information(hist)
+    else :                   return ax
 
 def results_sujet(self, ax, sujet, s, mode_bcp, tau, t_label, pause, color = [['k', 'k'], ['r', 'r'], ['k','w']], alpha = [[.35,.15],[.35,.15],[1,0]], color_bcp='darkred'):
 
@@ -1398,7 +1400,7 @@ class Analysis(object):
 
     def plot_experiment(self, sujet=[0], mode_bcp=None, tau=40, direction=True, p=None, num_block=None, mode=None,
                         fig=None, axs=None, fig_width=15, titre=None, t_titre=35, t_label=25, return_proba=None, color=[['k', 'k'], ['r', 'r'], ['k','w']],
-                        color_bcp='darkgreen', name_bcp='$\hat{x}_1$',
+                        color_bcp='darkgreen', name_bcp='$\hat{x}_1$', print_suj=False,
                         alpha = [[.35,.15],[.35,.15],[1,0]], lw = 1.3, legends=False, TD=False, pause=50, ec = 0.2):
 
         import matplotlib.pyplot as plt
@@ -1565,7 +1567,7 @@ class Analysis(object):
             p = self.PARI[self.subjects[suj]]['p']
             results = (self.PARI[self.subjects[suj]]['results']+1)/2 # results est sur [-1,1] on le ramene sur [0,1]
             a_anti, start_anti, latency = self.ENREGISTREMENT[self.subjects[suj]]['a_anti'], self.ENREGISTREMENT[self.subjects[suj]]['start_anti'], self.ENREGISTREMENT[self.subjects[suj]]['latency']
-            print('sujet', suj, '=', self.subjects[suj])
+            if print_suj is True : print('sujet', suj, '=', self.subjects[suj])
 
             #-------------------------------------------------------------------------------------------------------------
             mini = 8
@@ -2131,6 +2133,86 @@ class Analysis(object):
 
         return fig, axs
 
+
+    def comparison_line(self, ax=None, result='bet', mode_bcp=['real', 'leaky', 'mean'], bins=[0,0.2,0.4,0.6,0.8,1],
+                        alpha=1, t_titre=35, t_label=25, titre=None, pause=True, color_r=['k', 'tab:orange', 'g'],
+                        fig=None, fig_width=15) :
+
+        if fig is None:
+            import matplotlib.pyplot as plt
+            fig, ax = plt.subplots(1, 1, figsize=(fig_width, fig_width)) #/(1.6180)))
+
+        nb_sujet = len(self.subjects)
+
+        modes_bcp, name_mode = [],[]
+        for mode in mode_bcp :
+            if mode is not 'real' :
+                modes_bcp.append(mode)
+                name_mode.append('$\hat{P}_{%s}$'%(mode))
+            else : name_mode.append('$P_{real}$')
+        full = Analysis.Full_list(self, modes_bcp=modes_bcp, pause=pause)
+
+        xmin, xmax = -0.032, 1.032
+
+        if result=='bet' :
+            res, ymin, ymax = 'results', -0.032, 1.032
+            ax.set_ylabel('Probability Bet', fontsize=t_label/1.2)
+            if titre is None : ax.set_title("Probability Bet", fontsize=t_titre/1.2, x=0.5, y=1.05)
+
+        elif result=='acceleration' :
+            res, ymin, ymax = 'aa', -21.28, 21.28
+            ax.set_ylabel('Acceleration of anticipation (°/s$^2$)', fontsize=t_label/1.2)
+            if titre is None : ax.set_title("Acceleration", fontsize=t_titre/1.2, x=0.5, y=1.05)
+
+        elif result=='velocity' :
+            res, ymin, ymax = 'va', -10.64, 10.64
+            ax.set_ylabel('Velocity of anticipation (°/s)', fontsize=t_label/1.2)
+            if titre is None : ax.set_title("Velocity", fontsize=t_titre/1.2, x=0.5, y=1.05)
+
+        full_result = full[res]
+
+        ax.set_position([0,0,1,1])
+        a1 = fig.add_axes([0.05, 0.7, 0.25,0.25])
+        a2 = fig.add_axes([0.7, 0.05, 0.25, 0.25])
+        a1.set_title("r", fontsize=t_label/1.8)
+        a2.set_title("MI", fontsize=t_label/1.8)
+
+
+        for a in [a1, a2] :
+            a.set_yticks([0,0.5,1.])
+            a.set_ylim(0,0.9)
+            a.set_xticks([0,1,2])
+            a.set_xticklabels(name_mode)
+            a.tick_params(labelsize=t_label/2.7)
+            for card in ['top', 'right']: a.spines[card].set_visible(False)
+
+        for i, mode in enumerate(mode_bcp) :
+            if mode == 'real' : proba = 'proba'
+            else :              proba = 'p_hat_'+mode
+            full_proba = full[proba]
+
+            proba = np.ma.masked_array(full_proba.values.tolist(), mask=np.isnan(full_result.values.tolist())).compressed()
+            data = np.ma.masked_array(full_result.values.tolist(), mask=np.isnan(full_result.values.tolist())).compressed()
+
+            for b in range(len(bins)-1) :
+                d = [data[x] for x in range(len(proba)) if proba[x]>=bins[b] and proba[x]<bins[b+1]]
+
+                ax.errorbar((bins[b+1]+bins[b])/2, np.mean(d), yerr=np.std(d),
+                            color=color_r[i], capsize=10, markersize=10, marker='o')
+
+            ax, r_, mi = regress(ax, proba, data, ymin, ymax, t_label, color=color_r[i], text=False, return_r_mi=True)
+            a1.bar(i, r_, color=color_r[i])
+            a2.bar(i, mi, color=color_r[i])
+
+
+        if titre is not None : ax.set_title(titre, fontsize=t_titre/1.2, x=0.5, y=1.05)
+        ax.axis([xmin, xmax, ymin, ymax])
+        ax.set_xlabel('$\hat{P}$', fontsize=t_label/1)
+        ax.tick_params(labelsize=t_label/1.8, bottom=True, left=True)
+        #------------------------------------------------
+
+        if fig is None: return fig, ax
+        else : return ax
 
 
 
