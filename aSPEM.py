@@ -721,28 +721,28 @@ class Analysis(object):
         import bayesianchangepoint as bcp
 
         def fct_BCP(x, tau, fixed_window, sujet, block, cent) :
-
+            # TODO merge des blocks puis  range(0, 600, 50) pour les pauses plus param = taille de window
             h = 1/tau
             p_hat = np.zeros(len(x))
 
             if sujet==True :
                 for b in range(self.param_exp['N_blocks']):
                     nb = self.param_exp['N_trials']*b
-                    liste = [0,50,100,150,200]
+                    liste = [0, 50, 100, 150, 200] 
                     for a in range(len(liste)-1) :
                         p_bar, r_bar, beliefs = bcp.inference(x[nb+liste[a]:nb+liste[a+1]], h=h, p0=.5, r0=1.)
                         p_hat_p, r_hat = bcp.readout(p_bar, r_bar, beliefs, mode=modes_bcp, p0=.5, fixed_window_size=fixed_window)
                         p_hat[nb+liste[a]:nb+liste[a+1]] = p_hat_p
 
             elif block==True :
-                liste = [0,50,100,150,200]
+                liste = [0, 50, 100, 150, 200]
                 for a in range(len(liste)-1) :
                     p_bar, r_bar, beliefs = bcp.inference(x[liste[a]:liste[a+1]], h=h, p0=.5, r0=1.)
                     p_hat_p, r_hat = bcp.readout(p_bar, r_bar, beliefs, mode=modes_bcp, p0=.5, fixed_window_size=fixed_window)
                     p_hat[liste[a]:liste[a+1]] = p_hat_p
 
             elif cent==True :
-                liste = [0,50,100]
+                liste = [0, 50, 100]
                 for a in range(len(liste)-1) :
                     p_bar, r_bar, beliefs = bcp.inference(x[liste[a]:liste[a+1]], h=h, p0=.5, r0=1.)
                     p_hat_p, r_hat = bcp.readout(p_bar, r_bar, beliefs, mode=modes_bcp, p0=.5, fixed_window_size=fixed_window)
