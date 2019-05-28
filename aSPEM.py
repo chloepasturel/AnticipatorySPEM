@@ -728,7 +728,7 @@ class Analysis(object):
             if sujet==True :
                 for b in range(self.param_exp['N_blocks']):
                     nb = self.param_exp['N_trials']*b
-                    liste = [0, 50, 100, 150, 200] 
+                    liste = [0, 50, 100, 150, 200]
                     for a in range(len(liste)-1) :
                         p_bar, r_bar, beliefs = bcp.inference(x[nb+liste[a]:nb+liste[a+1]], h=h, p0=.5, r0=1.)
                         p_hat_p, r_hat = bcp.readout(p_bar, r_bar, beliefs, mode=modes_bcp, p0=.5, fixed_window_size=fixed_window)
@@ -1838,9 +1838,9 @@ class Analysis(object):
                     a.bar(150, 140 + 2*(.05*140), bottom=-.05*140, color='k', width=.5, linewidth=0)
 
             else :
-                ax1, ax2 = plot_result_bcp(ax1, ax2, m, o, range(N_trials), c=c_mode, label='$\hat{x}_1$')
+                ax1, ax2 = plot_result_bcp(ax1, ax2, m, o, range(N_trials), c=c_mode, label=label_bcp)
                 if not mode_compare is None:
-                    ax1 = plot_result_bcp(ax1, None, mode_compare, o, range(N_trials), c=c_compare, label=r'$\bar{x}_1$')
+                    ax1 = plot_result_bcp(ax1, None, mode_compare, o, range(N_trials), c=c_compare, label=label_comp_bcp)
 
 
             if leg_up is True :
