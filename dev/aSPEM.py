@@ -720,7 +720,7 @@ class Analysis(object):
         from lmfit import minimize
         import bayesianchangepoint as bcp
 
-        def fct_BCP(x, tau, sujet, block, cent) :
+        def fct_BCP(x, tau, fixed_window, sujet, block, cent) :
 
             h = 1/tau
             p_hat = np.zeros(len(x))
@@ -731,26 +731,26 @@ class Analysis(object):
                     liste = [0,50,100,150,200]
                     for a in range(len(liste)-1) :
                         p_bar, r_bar, beliefs = bcp.inference(x[nb+liste[a]:nb+liste[a+1]], h=h, p0=.5, r0=1.)
-                        p_hat_p, r_hat = bcp.readout(p_bar, r_bar, beliefs, mode=modes_bcp, p0=.5, fixed_window_size=40)
+                        p_hat_p, r_hat = bcp.readout(p_bar, r_bar, beliefs, mode=modes_bcp, p0=.5, fixed_window_size=fixed_window)
                         p_hat[nb+liste[a]:nb+liste[a+1]] = p_hat_p
 
             elif block==True :
                 liste = [0,50,100,150,200]
                 for a in range(len(liste)-1) :
                     p_bar, r_bar, beliefs = bcp.inference(x[liste[a]:liste[a+1]], h=h, p0=.5, r0=1.)
-                    p_hat_p, r_hat = bcp.readout(p_bar, r_bar, beliefs, mode=modes_bcp, p0=.5, fixed_window_size=40)
+                    p_hat_p, r_hat = bcp.readout(p_bar, r_bar, beliefs, mode=modes_bcp, p0=.5, fixed_window_size=fixed_window)
                     p_hat[liste[a]:liste[a+1]] = p_hat_p
 
             elif cent==True :
                 liste = [0,50,100]
                 for a in range(len(liste)-1) :
                     p_bar, r_bar, beliefs = bcp.inference(x[liste[a]:liste[a+1]], h=h, p0=.5, r0=1.)
-                    p_hat_p, r_hat = bcp.readout(p_bar, r_bar, beliefs, mode=modes_bcp, p0=.5, fixed_window_size=40)
+                    p_hat_p, r_hat = bcp.readout(p_bar, r_bar, beliefs, mode=modes_bcp, p0=.5, fixed_window_size=fixed_window)
                     p_hat[liste[a]:liste[a+1]] = p_hat_p
 
             else :
                 p_bar, r_bar, beliefs = bcp.inference(x, h=h, p0=.5, r0=1.)
-                p_hat, r_hat = bcp.readout(p_bar, r_bar, beliefs, mode=modes_bcp, p0=.5, fixed_window_size=40)
+                p_hat, r_hat = bcp.readout(p_bar, r_bar, beliefs, mode=modes_bcp, p0=.5, fixed_window_size=fixed_window)
 
             return p_hat
 
@@ -760,11 +760,7 @@ class Analysis(object):
             return distance
 
         def residual(params, x, data):
-            tau = params['tau']
-            sujet = params['sujet']
-            block = params['block']
-            cent = params['cent']
-            model = fct_BCP(x, tau, sujet, block, cent)
+            model = fct_BCP(x, params['tau'], params['fixed_window'], params['sujet'], params['block'], params['cent'])
             return KL_distance(data, model)
 
         def fit(h, x, bet, va, sujet=False, block=False, cent=False):
@@ -773,7 +769,13 @@ class Analysis(object):
             x, bet, va = np.array(x), np.array(bet), np.array(va)
 
             params = Parameters()
-            params.add('tau', value=tau, min=1)
+            if modes_bcp in ['leaky', 'fixed'] :
+                params.add('tau', value=tau, vary=False)
+                params.add('fixed_window', value=tau, min=1)
+            else :
+                params.add('tau', value=tau, min=1)
+                params.add('fixed_window', value=tau, vary=False)
+
             params.add('sujet', value=sujet, vary=False)
             params.add('block', value=block, vary=False)
             params.add('cent', value=cent, vary=False)
@@ -781,8 +783,12 @@ class Analysis(object):
             result_res =   minimize(residual, params, args=(x, bet), nan_policy='omit')
             result_v_ant = minimize(residual, params, args=(x, va), nan_policy='omit')
 
-            h_bet = 1/result_res.params['tau'].value
-            h_va =  1/result_v_ant.params['tau'].value
+            if modes_bcp in ['leaky', 'fixed'] :
+                h_bet = 1/result_res.params['fixed_window'].value
+                h_va =  1/result_v_ant.params['fixed_window'].value
+            else :
+                h_bet = 1/result_res.params['tau'].value
+                h_va =  1/result_v_ant.params['tau'].value
 
             return h_bet, h_va
 
