@@ -394,7 +394,7 @@ def mutual_information(hgram):
     nzs = pxy > 0 # Only non-zero pxy values contribute to the sum
     return np.sum(pxy[nzs] * np.log(pxy[nzs] / px_py[nzs]))
 
-def regress(ax, p, data, y1, y2, t_label,color='k', x1=-0.032, x2=1.032, pos='right', line=True, text=True, return_r_mi=False) :
+def regress(ax, p, data, y1, y2, t_label,color='k', x1=-0.032, x2=1.032, pos='right', line=True, text=True, return_r_mi=False, lw=2) :
     from scipy import stats
     slope, intercept, r_, p_value, std_err = stats.linregress(p, data)
     x_test = np.linspace(np.min(p), np.max(p), 100)
@@ -402,7 +402,7 @@ def regress(ax, p, data, y1, y2, t_label,color='k', x1=-0.032, x2=1.032, pos='ri
 
     hist, x_edges, y_edges = np.histogram2d(p, data ,bins=20)
 
-    if line is True : ax.plot(x_test, fitLine, c=color, linewidth=2)
+    if line is True : ax.plot(x_test, fitLine, c=color, linewidth=lw)
 
     if pos[-5:]=='right' : x_pos=x2-(x2-x1)/10 ; h_pos='right'
     else:                  x_pos=x1+(x2-x1)/10 ; h_pos='left'
@@ -1684,7 +1684,7 @@ class Analysis(object):
 
         p0, r0 =  0.5, 1.0
 
-        def plot_result_bcp(ax1, ax2, mode, observation, time, c, label, name=True) :
+        def plot_result_bcp(ax1, ax2, mode, observation, time, c, label, name=True, show_run_lengths=True, show_r_hat=True) :
 
             p_bar, r_bar, beliefs = bcp.inference(observation, h=h, p0=p0, r0=r0)
             p_hat, r_hat = bcp.readout(p_bar, r_bar, beliefs, mode=mode, fixed_window_size=fixed_window_size, p0=p0)
@@ -1700,23 +1700,26 @@ class Analysis(object):
             ax1.fill_between(time, p_sup, p_low, lw=.5, alpha=.11, facecolor=c)
 
             if ax2 is not None :
-                if N_trial < N_trials : extent = (min(time), max(time), np.max(r_bar), np.min(r_bar))
-                else : extent = None
 
-                eps=1.e-5 # 1.e-12
-                #ax2.imshow(np.log(beliefs[:max_run_length, :] + eps), cmap='Greys', extent=extent)
-                if mode == 'fixed':
-                    ax2.imshow(np.log(beliefs[:max_run_length, :]*0. + eps), cmap='Greys', extent=extent)
-                elif mode == 'leaky':
-                    beliefs_ = np.exp(-np.arange(N_r) / fixed_window_size)
-                    beliefs_ /= beliefs_.sum()
-                    beliefs_ = beliefs_[:, None]
-                    ax2.imshow(np.log((beliefs_*np.ones(N_trial))[:max_run_length, :] + eps), cmap='Greys', extent=extent)
-                else:
-                    ax2.imshow(np.log(beliefs[:max_run_length, :] + eps), cmap='Greys', extent=extent)
+                if show_run_lengths is True :
+                    if N_trial < N_trials : extent = (min(time), max(time), np.max(r_bar), np.min(r_bar))
+                    else : extent = None
 
-                ax2.plot(time, r_hat, c=c, lw=1.5, alpha=.9, label='predicted run-length')
-                ax2.set_ylim(0, max_run_length)
+                    eps=1.e-5 # 1.e-12
+                    #ax2.imshow(np.log(beliefs[:max_run_length, :] + eps), cmap='Greys', extent=extent)
+                    if mode == 'fixed':
+                        ax2.imshow(np.log(beliefs[:max_run_length, :]*0. + eps), cmap='Greys', extent=extent)
+                    elif mode == 'leaky':
+                        beliefs_ = np.exp(-np.arange(N_r) / fixed_window_size)
+                        beliefs_ /= beliefs_.sum()
+                        beliefs_ = beliefs_[:, None]
+                        ax2.imshow(np.log((beliefs_*np.ones(N_trial))[:max_run_length, :] + eps), cmap='Greys', extent=extent)
+                    else:
+                        ax2.imshow(np.log(beliefs[:max_run_length, :] + eps), cmap='Greys', extent=extent)
+                    ax2.set_ylim(0, max_run_length)
+                if show_r_hat is True :
+                    ax2.plot(time, r_hat, c=c, lw=1.5, alpha=.9, label='predicted run-length')
+
 
                 return (ax1, ax2)
 
@@ -1830,7 +1833,8 @@ class Analysis(object):
                 for a in range(len(liste)-1) :
                     ax1, ax2 = plot_result_bcp(ax1, ax2, m, p[liste[a]:liste[a+1], block, 0], np.arange(liste[a], liste[a+1]), c=c_mode, label=label_bcp, name=name)
                     if not mode_compare is None:
-                        ax1 = plot_result_bcp(ax1, None, mode_compare, p[liste[a]:liste[a+1], block, 0], np.arange(liste[a], liste[a+1]), c=c_compare, label=label_comp_bcp, name=name)
+                        ax1, ax2 = plot_result_bcp(ax1, ax2, mode_compare, p[liste[a]:liste[a+1], block, 0], np.arange(liste[a], liste[a+1]),
+                                              c=c_compare, label=label_comp_bcp, name=name, show_run_lengths=False)
                     name=False
                 for a in [ax1, ax2]:
                     a.bar(50, 140 + 2*(.05*140), bottom=-.05*140, color='k', width=.5, linewidth=0)
@@ -1840,7 +1844,7 @@ class Analysis(object):
             else :
                 ax1, ax2 = plot_result_bcp(ax1, ax2, m, o, range(N_trials), c=c_mode, label=label_bcp)
                 if not mode_compare is None:
-                    ax1 = plot_result_bcp(ax1, None, mode_compare, o, range(N_trials), c=c_compare, label=label_comp_bcp)
+                    ax1, ax2 = plot_result_bcp(ax1, ax2, mode_compare, o, range(N_trials), c=c_compare, label=label_comp_bcp, show_run_lengths=False)
 
 
             if leg_up is True :
@@ -2141,8 +2145,8 @@ class Analysis(object):
 
 
     def comparison_line(self, ax=None, result='bet', mode_bcp=['real', 'leaky', 'mean'], bins=[0,0.2,0.4,0.6,0.8,1],
-                        alpha=1, t_titre=35, t_label=25, titre=None, pause=True, color_r=['k', 'tab:orange', 'g'],
-                        fig=None, fig_width=15) :
+                        alpha=1, t_titre=35, t_label=25, titre=None, pause=True, color_r=['b', 'tab:orange', 'g'],
+                        fig=None, fig_width=15, offset=0.01, lw_r=2) :
 
         if fig is None:
             import matplotlib.pyplot as plt
@@ -2186,11 +2190,13 @@ class Analysis(object):
 
         for a in [a1, a2] :
             a.set_yticks([0,0.5,1.])
-            a.set_ylim(0,0.9)
+            a.set_ylim(0,1.1)
             a.set_xticks([0,1,2])
-            a.set_xticklabels(name_mode)
+            a.set_xticklabels([]) #a.set_xticklabels(name_mode)
             a.tick_params(labelsize=t_label/2.7)
             for card in ['top', 'right']: a.spines[card].set_visible(False)
+
+        x_bin = np.linspace(-offset, offset, len(mode_bcp))
 
         for i, mode in enumerate(mode_bcp) :
             if mode == 'real' : proba = 'proba'
@@ -2200,15 +2206,21 @@ class Analysis(object):
             proba = np.ma.masked_array(full_proba.values.tolist(), mask=np.isnan(full_result.values.tolist())).compressed()
             data = np.ma.masked_array(full_result.values.tolist(), mask=np.isnan(full_result.values.tolist())).compressed()
 
+
             for b in range(len(bins)-1) :
                 d = [data[x] for x in range(len(proba)) if proba[x]>=bins[b] and proba[x]<bins[b+1]]
 
-                ax.errorbar((bins[b+1]+bins[b])/2, np.mean(d), yerr=np.std(d),
+                ax.errorbar((bins[b+1]+bins[b])/2+x_bin[i], np.mean(d), yerr=np.std(d),
                             color=color_r[i], capsize=10, markersize=10, marker='o')
 
-            ax, r_, mi = regress(ax, proba, data, ymin, ymax, t_label, color=color_r[i], text=False, return_r_mi=True)
-            a1.bar(i, r_, color=color_r[i])
-            a2.bar(i, mi, color=color_r[i])
+            ax, r_, mi = regress(ax, proba, data, ymin, ymax, t_label, color=color_r[i], text=False, return_r_mi=True,lw=lw_r)
+            a1.bar(i, r_, color=color_r[i], alpha=0.5)
+            a2.bar(i, mi, color=color_r[i], alpha=0.5)
+            a1.text(i, r_-0.1*r_, '%.3f'%r_, color=color_r[i], alpha=1, ha="center", va="top", fontsize=t_label/2.7)
+            a2.text(i, mi-0.1*mi, '%.3f'%mi, color=color_r[i], alpha=1, ha="center", va="top", fontsize=t_label/2.7)
+
+            a1.text(i, 0-0.05, name_mode[i], color=color_r[i], alpha=1, ha="center", va="top", fontsize=t_label/2.4)
+            a2.text(i, 0-0.05, name_mode[i], color=color_r[i], alpha=1, ha="center", va="top", fontsize=t_label/2.4)
 
 
         if titre is not None : ax.set_title(titre, fontsize=t_titre/1.2, x=0.5, y=1.05)
