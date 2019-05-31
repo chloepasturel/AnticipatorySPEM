@@ -394,7 +394,7 @@ def mutual_information(hgram):
     nzs = pxy > 0 # Only non-zero pxy values contribute to the sum
     return np.sum(pxy[nzs] * np.log(pxy[nzs] / px_py[nzs]))
 
-def regress(ax, p, data, y1, y2, t_label,color='k', x1=-0.032, x2=1.032, pos='right', line=True, text=True, return_r_mi=False, lw=2) :
+def regress(ax, p, data, y1=0, y2=1, t_label=10, color='k', x1=-0.032, x2=1.032, pos='right', line=True, text=True, return_r_mi=False, lw=2) :
     from scipy import stats
     slope, intercept, r_, p_value, std_err = stats.linregress(p, data)
     x_test = np.linspace(np.min(p), np.max(p), 100)
@@ -2183,14 +2183,17 @@ class Analysis(object):
 
         ax.set_position([0,0,1,1])
         a1 = fig.add_axes([0.05, 0.7, 0.25,0.25])
-        a2 = fig.add_axes([0.7, 0.05, 0.25, 0.25])
+        a2 = fig.add_axes([0.73, 0.07, 0.25, 0.25])
         a1.set_title("r", fontsize=t_label/1.8)
         a2.set_title("MI", fontsize=t_label/1.8)
+        a1.set_yticks([0, 0.5, 1.])
+        a1.set_ylim(0, 1.6)
 
+        a2.set_yticks([0, 0.5, 1., 1.5, 2.])
+        a2.set_ylim(0, 2.3)
+            
 
         for a in [a1, a2] :
-            a.set_yticks([0,0.5,1.])
-            a.set_ylim(0,1.1)
             a.set_xticks([0,1,2])
             a.set_xticklabels([]) #a.set_xticklabels(name_mode)
             a.tick_params(labelsize=t_label/2.7)
@@ -2198,6 +2201,7 @@ class Analysis(object):
 
         x_bin = np.linspace(-offset, offset, len(mode_bcp))
 
+        R_i, MI_i = [], []
         for i, mode in enumerate(mode_bcp) :
             if mode == 'real' : proba = 'proba'
             else :              proba = 'p_hat_'+mode
@@ -2209,20 +2213,63 @@ class Analysis(object):
 
             for b in range(len(bins)-1) :
                 d = [data[x] for x in range(len(proba)) if proba[x]>=bins[b] and proba[x]<bins[b+1]]
-
-                ax.errorbar((bins[b+1]+bins[b])/2+x_bin[i], np.mean(d), yerr=np.std(d),
-                            color=color_r[i], capsize=10, markersize=10, marker='o')
+                yerr_l, yerr_s = np.percentile(d, [15, 75])
+                ax.errorbar((bins[b+1]+bins[b])/2+x_bin[i], yerr_l, yerr=[[0], [yerr_s-yerr_l]], color=color_r[i], capsize=10)
+                ax.scatter((bins[b+1]+bins[b])/2+x_bin[i], np.mean(d), color=color_r[i], s=100, marker='o')
+                #ax.errorbar((bins[b+1]+bins[b])/2+x_bin[i], np.mean(d), yerr=np.std(d), color=color_r[i], capsize=10, markersize=10, marker='o')
 
             ax, r_, mi = regress(ax, proba, data, ymin, ymax, t_label, color=color_r[i], text=False, return_r_mi=True,lw=lw_r)
-            a1.bar(i, r_, color=color_r[i], alpha=0.5)
-            a2.bar(i, mi, color=color_r[i], alpha=0.5)
-            a1.text(i, r_-0.1*r_, '%.3f'%r_, color=color_r[i], alpha=1, ha="center", va="top", fontsize=t_label/2.7)
-            a2.text(i, mi-0.1*mi, '%.3f'%mi, color=color_r[i], alpha=1, ha="center", va="top", fontsize=t_label/2.7)
+            a1.bar(i, r_, color=color_r[i], width=0.9, alpha=0.4)
+            a2.bar(i, mi, color=color_r[i], width=0.9, alpha=0.4)
+            a1.text(i, 0+0.05, '%.3f'%r_, color=color_r[i], alpha=1, ha="center", va="bottom", fontsize=t_label/2.7, weight='bold')
+            a2.text(i, 0+0.05, '%.3f'%mi, color=color_r[i], alpha=1, ha="center", va="bottom", fontsize=t_label/2.7, weight='bold')
 
-            a1.text(i, 0-0.05, name_mode[i], color=color_r[i], alpha=1, ha="center", va="top", fontsize=t_label/2.4)
-            a2.text(i, 0-0.05, name_mode[i], color=color_r[i], alpha=1, ha="center", va="top", fontsize=t_label/2.4)
+            a1.text(i, 0-0.05, name_mode[i], color=color_r[i], alpha=1, ha="center", va="top", fontsize=t_label/2, weight='bold')
+            a2.text(i, 0-0.05, name_mode[i], color=color_r[i], alpha=1, ha="center", va="top", fontsize=t_label/2, weight='bold')
 
-
+            R_s, MI_s = [], []
+            for s in self.subjects:
+                proba_s = np.ma.masked_array(full_proba[full.sujet==s].values.tolist(), mask=np.isnan(full_result[full.sujet==s].values.tolist())).compressed()
+                data_s = np.ma.masked_array(full_result[full.sujet==s].values.tolist(), mask=np.isnan(full_result[full.sujet==s].values.tolist())).compressed()
+                ax, r_s, mi_s = regress(ax, proba_s, data_s, line=False, text=False, return_r_mi=True)
+                R_s.append(r_s)
+                MI_s.append(mi_s)
+                a1.scatter(i, r_s, c=color_r[i], linewidths=0, marker='_', s=5500)
+                a2.scatter(i, mi_s, c=color_r[i], linewidths=0, marker='_', s=5500)
+            
+            #yerr_l, yerr_s = np.percentile(R_s, [5, 95])
+            #a1.errorbar(i, yerr_l, yerr=[[0], [yerr_s-yerr_l]], color='k', capsize=10)
+            #yerr_l, yerr_s = np.percentile(MI_s, [15, 75])
+            #a2.errorbar(i, yerr_l, yerr=[[0], [yerr_s-yerr_l]], color='k', capsize=10)
+            
+            R_i.append(R_s)
+            MI_i.append(MI_s)
+        
+        from scipy.stats import wilcoxon
+        
+        for i  in range(len(mode_bcp)) :
+            for j  in range(i+1, len(mode_bcp)) :
+                    
+                print(mode_bcp[i], mode_bcp[j])
+                a = (j-i)*0.1
+                x_1, x_2 = i-a, j+a
+                if i==1 : x_1 = i+a
+                if j==1 : x_2 = j-a
+                
+                w_r = wilcoxon(R_i[i], R_i[j]) ; print('r =', w_r)
+                if w_r.pvalue < 0.05 :
+                    a1.hlines(np.max(R_i)+((j-i)*0.2), x_1, x_2)
+                    #a1.vlines(x_1, np.max(R_i[i])+0.25, np.max(R_i)+((j-i)*0.25))
+                    #a1.vlines(x_2, np.max(R_i[j])+0.25, np.max(R_i)+((j-i)*0.25))
+                    a1.text((x_1+x_2)/2, np.max(R_i)+((j-i)*0.2), '**' if w_r.pvalue<0.01 else '*', fontsize=t_label/2.1, ha='center')
+                
+                w_mi = wilcoxon(MI_i[i], MI_i[j]) ; print('mi =', w_mi, '\n')
+                if w_mi.pvalue < 0.05 :
+                    a2.hlines(np.max(MI_i)+((j-i)*0.3), x_1, x_2)
+                    #a2.vlines(x_1, np.max(MI_i[i])+0.25, np.max(MI_i)+((j-i)*0.3))
+                    #a2.vlines(x_2, np.max(MI_i[j])+0.25, np.max(MI_i)+((j-i)*0.3))
+                    a2.text((x_1+x_2)/2, np.max(MI_i)+((j-i)*0.3), '**'  if w_mi.pvalue<0.01 else '*', fontsize=t_label/1.8, ha='center')
+ 
         if titre is not None : ax.set_title(titre, fontsize=t_titre/1.2, x=0.5, y=1.05)
         ax.axis([xmin, xmax, ymin, ymax])
         ax.set_xlabel('$\hat{P}$', fontsize=t_label/1)
