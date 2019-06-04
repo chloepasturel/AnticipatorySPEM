@@ -393,20 +393,24 @@ def mutual_information(p, data, base=2):
     """
     #import math
 
-    x = np.round(data, decimals=base) #p
-    y = np.round(p, decimals=base) #data
+    x = np.round(p, decimals=base)
+    y = np.round(data, decimals=base)
+
+    #if min(data)<0 : y = np.round(data, decimals=base-1)
+    #else :           y = np.round(data, decimals=base)
+
     support_x = set(x)
     support_y = set(y)
 
-    summation = 0.0
+    summation = 0.00
     for value_x in support_x:
         for value_y in support_y:
-            px = np.shape(np.where(x==value_x))[1] / len(x)
-            py = np.shape(np.where(y==value_y))[1] / len(x)
+            px = np.shape(np.where(x==value_x))[1] / len(x) #px = sum(x==value_x) / len(x)
+            py = np.shape(np.where(y==value_y))[1] / len(x) #py = sum(y==value_y) / len(y)
             pxy = len(np.where(np.in1d(np.where(x==value_x)[0],
-                               np.where(y==value_y)[0])==True)[0]) / len(x)
-            if pxy > 0.0:
-                summation += pxy * np.log2(pxy / (px*py))
+                                       np.where(y==value_y)[0])==True)[0]) / len(x)
+            if pxy>0.00: summation += pxy * np.log2(pxy / (px*py))
+
     return summation
 
     #def mutual_information(hgram):
@@ -430,6 +434,9 @@ def regress(ax, p, data, y1=0, y2=1, t_label=10, color='k', x1=-0.032, x2=1.032,
 
     #hist, x_edges, y_edges = np.histogram2d(p, data, bins=20)
     #hist, x_edges, y_edges = np.histogram2d(p, data, bins=len(data)/30)
+    # mi =mutual_information(hist)
+    mi = mutual_information(p, data)
+
 
     if line is True : ax.plot(x_test, fitLine, c=color, linewidth=lw)
 
@@ -440,14 +447,9 @@ def regress(ax, p, data, y1=0, y2=1, t_label=10, color='k', x1=-0.032, x2=1.032,
 
     if text is True :
         ax.text(x_pos, y_pos_r, 'r = %0.3f'%(r_), color=color, fontsize=t_label/1.2, ha=h_pos)
-        ax.text(x_pos, y_pos_m, 'MI = %0.3f'%(mutual_information(hist)), color=color, fontsize=t_label/1.2, ha=h_pos)
+        ax.text(x_pos, y_pos_m, 'MI = %0.3f'%(mi), color=color, fontsize=t_label/1.2, ha=h_pos)
 
-    #from sklearn.metrics import mutual_info_score
-    #mi = mutual_info_score(p, data)
-
-    mi = mutual_information(p, data, log_base=10, debug=False)
-
-    if return_r_mi is True : return ax, r_, mi #mutual_information(hist)
+    if return_r_mi is True : return ax, r_, mi
     else :                   return ax
 
 def results_sujet(self, ax, sujet, s, mode_bcp, tau, t_label, pause, color = [['k', 'k'], ['r', 'r'], ['k','w']], alpha = [[.35,.15],[.35,.15],[1,0]], color_bcp='darkred'):
@@ -2215,17 +2217,17 @@ class Analysis(object):
 
         full_result = full[res]
 
-        a1 = fig.add_axes([0, 0, 0.25,0.25])
-        a2 = fig.add_axes([1, 1, 0.25, 0.25])
+        a1 = fig.add_axes([0, 1, 0.25,0.25])
+        a2 = fig.add_axes([1, 0, 0.25, 0.25])
         a1.set_title("r", fontsize=t_label/1.8)
         a2.set_title("MI", fontsize=t_label/1.8)
         a1.set_yticks([0, 0.5, 1.])
         a1.set_ylim(0, 1.5)
         a1.spines['left'].set_bounds(0, 1)
 
-        a2.set_yticks([0, 1, 2, 3])
-        a2.set_ylim(0, 4.5)
-        a2.spines['left'].set_bounds(0, 3)
+        a2.set_yticks([0., 2.5, 5.])
+        a2.set_ylim(0, 7.5)
+        a2.spines['left'].set_bounds(0, 5)
 
 
         for a in [a1, a2] :
@@ -2296,10 +2298,10 @@ class Analysis(object):
 
                 w_mi = wilcoxon(MI_i[i], MI_i[j]) ; print('mi =', w_mi, '\n')
                 if w_mi.pvalue < 0.05 :
-                    a2.hlines(2.7+((j-i)*0.6), x_1, x_2)
+                    a2.hlines(4.5+((j-i)*1), x_1, x_2)
                     #a2.vlines(x_1, np.max(MI_i[i])+0.25, np.max(MI_i)+((j-i)*0.3))
                     #a2.vlines(x_2, np.max(MI_i[j])+0.25, np.max(MI_i)+((j-i)*0.3))
-                    a2.text((x_1+x_2)/2, 2.7+((j-i)*0.6), '**'  if w_mi.pvalue<0.01 else '*', fontsize=t_label/1.8, ha='center')
+                    a2.text((x_1+x_2)/2, 4.5+((j-i)*1), '**'  if w_mi.pvalue<0.01 else '*', fontsize=t_label/1.8, ha='center')
 
         if titre is not None : ax.set_title(titre, fontsize=t_titre/1.2, x=0.5, y=1.05)
         ax.axis([xmin, xmax, ymin, ymax])
