@@ -2181,17 +2181,18 @@ class Analysis(object):
 
         full_result = full[res]
 
-        ax.set_position([0,0,1,1])
-        a1 = fig.add_axes([0.05, 0.7, 0.25,0.25])
-        a2 = fig.add_axes([0.73, 0.07, 0.25, 0.25])
+        a1 = fig.add_axes([0, 0, 0.25,0.25])
+        a2 = fig.add_axes([1, 1, 0.25, 0.25])
         a1.set_title("r", fontsize=t_label/1.8)
         a2.set_title("MI", fontsize=t_label/1.8)
         a1.set_yticks([0, 0.5, 1.])
-        a1.set_ylim(0, 1.6)
+        a1.set_ylim(0, 1.5)
+        a1.spines['left'].set_bounds(0, 1)
 
-        a2.set_yticks([0, 0.5, 1., 1.5, 2.])
-        a2.set_ylim(0, 2.3)
-            
+        a2.set_yticks([0, 0.5, 1., 1.5])
+        a2.set_ylim(0, 2.25)
+        a2.spines['left'].set_bounds(0, 1.5)
+
 
         for a in [a1, a2] :
             a.set_xticks([0,1,2])
@@ -2210,7 +2211,6 @@ class Analysis(object):
             proba = np.ma.masked_array(full_proba.values.tolist(), mask=np.isnan(full_result.values.tolist())).compressed()
             data = np.ma.masked_array(full_result.values.tolist(), mask=np.isnan(full_result.values.tolist())).compressed()
 
-
             for b in range(len(bins)-1) :
                 d = [data[x] for x in range(len(proba)) if proba[x]>=bins[b] and proba[x]<bins[b+1]]
                 yerr_l, yerr_s = np.percentile(d, [15, 75])
@@ -2228,53 +2228,57 @@ class Analysis(object):
             a2.text(i, 0-0.05, name_mode[i], color=color_r[i], alpha=1, ha="center", va="top", fontsize=t_label/2, weight='bold')
 
             R_s, MI_s = [], []
-            for s in self.subjects:
+            for j, s in enumerate(self.subjects):
                 proba_s = np.ma.masked_array(full_proba[full.sujet==s].values.tolist(), mask=np.isnan(full_result[full.sujet==s].values.tolist())).compressed()
                 data_s = np.ma.masked_array(full_result[full.sujet==s].values.tolist(), mask=np.isnan(full_result[full.sujet==s].values.tolist())).compressed()
                 ax, r_s, mi_s = regress(ax, proba_s, data_s, line=False, text=False, return_r_mi=True)
                 R_s.append(r_s)
                 MI_s.append(mi_s)
-                a1.scatter(i, r_s, c=color_r[i], linewidths=0, marker='_', s=5500)
-                a2.scatter(i, mi_s, c=color_r[i], linewidths=0, marker='_', s=5500)
-            
-            #yerr_l, yerr_s = np.percentile(R_s, [5, 95])
-            #a1.errorbar(i, yerr_l, yerr=[[0], [yerr_s-yerr_l]], color='k', capsize=10)
-            #yerr_l, yerr_s = np.percentile(MI_s, [15, 75])
-            #a2.errorbar(i, yerr_l, yerr=[[0], [yerr_s-yerr_l]], color='k', capsize=10)
-            
+                #a1.scatter(i, r_s, c=color_r[i], linewidths=0, marker='_', s=5500)
+                #a2.scatter(i, mi_s, c=color_r[i], linewidths=0, marker='_', s=5500)
+                a1.scatter(i-0.4+(0.8*(j/(len(self.subjects)-1))), r_s, c=color_r[i], linewidths=0, marker='o', s=50)
+                a2.scatter(i-0.4+(0.8*(j/(len(self.subjects)-1))), mi_s, c=color_r[i], linewidths=0, marker='o', s=50)
+
             R_i.append(R_s)
             MI_i.append(MI_s)
-        
+
         from scipy.stats import wilcoxon
-        
+
         for i  in range(len(mode_bcp)) :
             for j  in range(i+1, len(mode_bcp)) :
-                    
+
                 print(mode_bcp[i], mode_bcp[j])
                 a = (j-i)*0.1
                 x_1, x_2 = i-a, j+a
                 if i==1 : x_1 = i+a
                 if j==1 : x_2 = j-a
-                
+
                 w_r = wilcoxon(R_i[i], R_i[j]) ; print('r =', w_r)
                 if w_r.pvalue < 0.05 :
-                    a1.hlines(np.max(R_i)+((j-i)*0.2), x_1, x_2)
+                    a1.hlines(0.9+((j-i)*0.2), x_1, x_2)
                     #a1.vlines(x_1, np.max(R_i[i])+0.25, np.max(R_i)+((j-i)*0.25))
                     #a1.vlines(x_2, np.max(R_i[j])+0.25, np.max(R_i)+((j-i)*0.25))
-                    a1.text((x_1+x_2)/2, np.max(R_i)+((j-i)*0.2), '**' if w_r.pvalue<0.01 else '*', fontsize=t_label/2.1, ha='center')
-                
+                    a1.text((x_1+x_2)/2, 0.9+((j-i)*0.2), '**' if w_r.pvalue<0.01 else '*', fontsize=t_label/2.1, ha='center')
+
                 w_mi = wilcoxon(MI_i[i], MI_i[j]) ; print('mi =', w_mi, '\n')
                 if w_mi.pvalue < 0.05 :
-                    a2.hlines(np.max(MI_i)+((j-i)*0.3), x_1, x_2)
+                    a2.hlines(1.35+((j-i)*0.27), x_1, x_2)
                     #a2.vlines(x_1, np.max(MI_i[i])+0.25, np.max(MI_i)+((j-i)*0.3))
                     #a2.vlines(x_2, np.max(MI_i[j])+0.25, np.max(MI_i)+((j-i)*0.3))
-                    a2.text((x_1+x_2)/2, np.max(MI_i)+((j-i)*0.3), '**'  if w_mi.pvalue<0.01 else '*', fontsize=t_label/1.8, ha='center')
- 
+                    a2.text((x_1+x_2)/2, 1.35+((j-i)*0.27), '**'  if w_mi.pvalue<0.01 else '*', fontsize=t_label/1.8, ha='center')
+
         if titre is not None : ax.set_title(titre, fontsize=t_titre/1.2, x=0.5, y=1.05)
         ax.axis([xmin, xmax, ymin, ymax])
         ax.set_xlabel('$\hat{P}$', fontsize=t_label/1)
         ax.tick_params(labelsize=t_label/1.8, bottom=True, left=True)
         #------------------------------------------------
+        fig.tight_layout()
+
+        ax_pos = ax.get_position().bounds
+        a1.set_position([ax_pos[0]+0.05, ax_pos[3]-0.17, 0.25,0.25])
+        a2.set_position([ax_pos[0]+ax_pos[2]-0.27, ax_pos[1]+0.055, 0.25, 0.25])
+
+
 
         if fig is None: return fig, ax
         else : return ax
