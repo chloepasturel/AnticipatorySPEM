@@ -400,7 +400,7 @@ def regress(ax, p, data, y1=0, y2=1, t_label=10, color='k', x1=-0.032, x2=1.032,
     x_test = np.linspace(np.min(p), np.max(p), 100)
     fitLine = slope * x_test + intercept
 
-    hist, x_edges, y_edges = np.histogram2d(p, data ,bins=20)
+    hist, x_edges, y_edges = np.histogram2d(p, data, bins=20)
 
     if line is True : ax.plot(x_test, fitLine, c=color, linewidth=lw)
 
