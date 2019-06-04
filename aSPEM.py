@@ -381,18 +381,46 @@ class aSPEM(object):
 #############################################################################
 
 
+def mutual_information(p, data, log_base=10, debug=False):
+    """
+    Script to calculate Mutual Information between two discrete random variables
+    Roberto maestre - rmaestre@gmail.com
+    Bojan Mihaljevic - boki.mihaljevic@gmail.com
 
-def mutual_information(hgram):
-    """ Mutual information for joint histogram
-    https://matthew-brett.github.io/teaching/mutual_information.html"""
-    # Convert bins counts to probability values
-    pxy = hgram / float(np.sum(hgram))
-    px = np.sum(pxy, axis=1) # marginal for x over y
-    py = np.sum(pxy, axis=0) # marginal for y over x
-    px_py = px[:, None] * py[None, :] # Broadcast to multiply marginals
-    # Now we can do the calculation using the pxy, px_py 2D arrays
-    nzs = pxy > 0 # Only non-zero pxy values contribute to the sum
-    return np.sum(pxy[nzs] * np.log(pxy[nzs] / px_py[nzs]))
+    Calculate and return Mutual information between two random variables
+    https://github.com/rmaestre/Mutual-Information/blob/master/it_tool.py
+    https://fr.wikipedia.org/wiki/Information_mutuelle
+    """
+    import math
+
+    x = np.round(data, 3) #p
+    y = np.round(p, 3) #data
+    values_x = set(x)
+    values_y = set(y)
+
+    summation = 0.0
+    for value_x in values_x:
+        for value_y in values_y:
+            px = np.shape(np.where(x==value_x))[1] / len(x)
+            py = np.shape(np.where(y==value_y))[1] / len(x)
+            pxy = len(np.where(np.in1d(np.where(x==value_x)[0],
+                               np.where(y==value_y)[0])==True)[0]) / len(x)
+            if pxy > 0.0:
+                summation += pxy * math.log((pxy / (px*py)), log_base)
+    return summation
+
+    #def mutual_information(hgram):
+    #   """ Mutual information for joint histogram
+    #   https://matthew-brett.github.io/teaching/mutual_information.html"""
+    #   # Convert bins counts to probability values
+    #   pxy = hgram / float(np.sum(hgram))
+    #   px = np.sum(pxy, axis=1) # marginal for x over y
+    #   py = np.sum(pxy, axis=0) # marginal for y over x
+    #   px_py = px[:, None] * py[None, :] # Broadcast to multiply marginals
+    #   # Now we can do the calculation using the pxy, px_py 2D arrays
+    #   nzs = pxy > 0 # Only non-zero pxy values contribute to the sum
+    #   return np.sum(pxy[nzs] * np.log(pxy[nzs] / px_py[nzs]))
+
 
 def regress(ax, p, data, y1=0, y2=1, t_label=10, color='k', x1=-0.032, x2=1.032, pos='right', line=True, text=True, return_r_mi=False, lw=2) :
     from scipy import stats
@@ -400,7 +428,8 @@ def regress(ax, p, data, y1=0, y2=1, t_label=10, color='k', x1=-0.032, x2=1.032,
     x_test = np.linspace(np.min(p), np.max(p), 100)
     fitLine = slope * x_test + intercept
 
-    hist, x_edges, y_edges = np.histogram2d(p, data, bins=20)
+    #hist, x_edges, y_edges = np.histogram2d(p, data, bins=20)
+    #hist, x_edges, y_edges = np.histogram2d(p, data, bins=len(data)/30)
 
     if line is True : ax.plot(x_test, fitLine, c=color, linewidth=lw)
 
@@ -413,7 +442,12 @@ def regress(ax, p, data, y1=0, y2=1, t_label=10, color='k', x1=-0.032, x2=1.032,
         ax.text(x_pos, y_pos_r, 'r = %0.3f'%(r_), color=color, fontsize=t_label/1.2, ha=h_pos)
         ax.text(x_pos, y_pos_m, 'MI = %0.3f'%(mutual_information(hist)), color=color, fontsize=t_label/1.2, ha=h_pos)
 
-    if return_r_mi is True : return ax, r_, mutual_information(hist)
+    #from sklearn.metrics import mutual_info_score
+    #mi = mutual_info_score(p, data)
+
+    mi = mutual_information(p, data, log_base=10, debug=False)
+
+    if return_r_mi is True : return ax, r_, mi #mutual_information(hist)
     else :                   return ax
 
 def results_sujet(self, ax, sujet, s, mode_bcp, tau, t_label, pause, color = [['k', 'k'], ['r', 'r'], ['k','w']], alpha = [[.35,.15],[.35,.15],[1,0]], color_bcp='darkred'):
@@ -2189,9 +2223,9 @@ class Analysis(object):
         a1.set_ylim(0, 1.5)
         a1.spines['left'].set_bounds(0, 1)
 
-        a2.set_yticks([0, 0.5, 1., 1.5])
-        a2.set_ylim(0, 2.25)
-        a2.spines['left'].set_bounds(0, 1.5)
+        a2.set_yticks([0, 1, 2, 3])
+        a2.set_ylim(0, 4.5)
+        a2.spines['left'].set_bounds(0, 3)
 
 
         for a in [a1, a2] :
@@ -2213,7 +2247,7 @@ class Analysis(object):
 
             for b in range(len(bins)-1) :
                 d = [data[x] for x in range(len(proba)) if proba[x]>=bins[b] and proba[x]<bins[b+1]]
-                yerr_l, yerr_s = np.percentile(d, [15, 75])
+                yerr_l, yerr_s = np.percentile(d, [25, 75])
                 ax.errorbar((bins[b+1]+bins[b])/2+x_bin[i], yerr_l, yerr=[[0], [yerr_s-yerr_l]], color=color_r[i], capsize=10)
                 ax.scatter((bins[b+1]+bins[b])/2+x_bin[i], np.mean(d), color=color_r[i], s=100, marker='o')
                 #ax.errorbar((bins[b+1]+bins[b])/2+x_bin[i], np.mean(d), yerr=np.std(d), color=color_r[i], capsize=10, markersize=10, marker='o')
@@ -2262,10 +2296,10 @@ class Analysis(object):
 
                 w_mi = wilcoxon(MI_i[i], MI_i[j]) ; print('mi =', w_mi, '\n')
                 if w_mi.pvalue < 0.05 :
-                    a2.hlines(1.35+((j-i)*0.27), x_1, x_2)
+                    a2.hlines(2.7+((j-i)*0.6), x_1, x_2)
                     #a2.vlines(x_1, np.max(MI_i[i])+0.25, np.max(MI_i)+((j-i)*0.3))
                     #a2.vlines(x_2, np.max(MI_i[j])+0.25, np.max(MI_i)+((j-i)*0.3))
-                    a2.text((x_1+x_2)/2, 1.35+((j-i)*0.27), '**'  if w_mi.pvalue<0.01 else '*', fontsize=t_label/1.8, ha='center')
+                    a2.text((x_1+x_2)/2, 2.7+((j-i)*0.6), '**'  if w_mi.pvalue<0.01 else '*', fontsize=t_label/1.8, ha='center')
 
         if titre is not None : ax.set_title(titre, fontsize=t_titre/1.2, x=0.5, y=1.05)
         ax.axis([xmin, xmax, ymin, ymax])
