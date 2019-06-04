@@ -381,7 +381,7 @@ class aSPEM(object):
 #############################################################################
 
 
-def mutual_information(p, data, log_base=10, debug=False):
+def mutual_information(p, data, base=2):
     """
     Script to calculate Mutual Information between two discrete random variables
     Roberto maestre - rmaestre@gmail.com
@@ -391,22 +391,22 @@ def mutual_information(p, data, log_base=10, debug=False):
     https://github.com/rmaestre/Mutual-Information/blob/master/it_tool.py
     https://fr.wikipedia.org/wiki/Information_mutuelle
     """
-    import math
+    #import math
 
-    x = np.round(data, 3) #p
-    y = np.round(p, 3) #data
-    values_x = set(x)
-    values_y = set(y)
+    x = np.round(data, decimals=base) #p
+    y = np.round(p, decimals=base) #data
+    support_x = set(x)
+    support_y = set(y)
 
     summation = 0.0
-    for value_x in values_x:
-        for value_y in values_y:
+    for value_x in support_x:
+        for value_y in support_y:
             px = np.shape(np.where(x==value_x))[1] / len(x)
             py = np.shape(np.where(y==value_y))[1] / len(x)
             pxy = len(np.where(np.in1d(np.where(x==value_x)[0],
                                np.where(y==value_y)[0])==True)[0]) / len(x)
             if pxy > 0.0:
-                summation += pxy * math.log((pxy / (px*py)), log_base)
+                summation += pxy * np.log2(pxy / (px*py))
     return summation
 
     #def mutual_information(hgram):
