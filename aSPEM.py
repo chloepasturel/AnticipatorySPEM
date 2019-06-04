@@ -2077,10 +2077,10 @@ class Analysis(object):
                     l = ['%s < kde $\\leq$ %s'%(l[x][1:].split(' <')[0], l[x][:-1].split('\\leq ')[1])
                          for x in range(len(l))]
 
-                hist, x_edges, y_edges = np.histogram2d(proba, data ,bins=20)
+                #hist, x_edges, y_edges = np.histogram2d(proba, data ,bins=20)
 
                 legend = ax.legend(artists, l, loc='%s'%pos_r, fontsize=t_label/1.8, frameon=True, framealpha=0.5,
-                                   title='$\hat{P}_{%s}$, MI = %0.3f'%(mode_bcp, mutual_information(hist)), title_fontsize=t_label/1.8)
+                                   title='$\hat{P}_{%s}$, MI = %0.3f'%(mode_bcp, mutual_information(proba, data)), title_fontsize=t_label/1.8)
 
                 ax.add_artist(legend)
                 ax.set_xlabel('$\hat{P}$', fontsize=t_label/1)
