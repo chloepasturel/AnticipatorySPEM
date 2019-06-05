@@ -381,7 +381,7 @@ class aSPEM(object):
 #############################################################################
 
 
-def mutual_information(p, data, base=2):
+def mutual_information(p, data, base=3):
     """
     Script to calculate Mutual Information between two discrete random variables
     Roberto maestre - rmaestre@gmail.com
@@ -393,23 +393,43 @@ def mutual_information(p, data, base=2):
     """
     #import math
 
-    x = np.round(p, decimals=base)
-    y = np.round(data, decimals=base)
-
+    #x = np.round(p, decimals=base)
+    ##y = np.round(data, decimals=base)
+    #
     #if min(data)<0 : y = np.round(data, decimals=base-1)
     #else :           y = np.round(data, decimals=base)
+    #
+    #support_x = set(x)
+    #support_y = set(y)
 
-    support_x = set(x)
-    support_y = set(y)
+    #summation = 0.00
+    #for value_x in support_x:
+    #    for value_y in support_y:
+    #        px = np.shape(np.where(x==value_x))[1] / len(x) #px = sum(x==value_x) / len(x)
+    #        py = np.shape(np.where(y==value_y))[1] / len(x) #py = sum(y==value_y) / len(y)
+    #        pxy = len(np.where(np.in1d(np.where(x==value_x)[0],
+    #                                   np.where(y==value_y)[0])==True)[0]) / len(x)
+    #        if pxy>0.00: summation += pxy * np.log2(pxy / (px*py))
+
+
+    x = p
+    y = data
+
+    support_x = np.linspace(min(x), max(x), 20)#len(x)/6)
+    support_y = np.linspace(min(y), max(y), len(y)/30)
 
     summation = 0.00
-    for value_x in support_x:
-        for value_y in support_y:
-            px = np.shape(np.where(x==value_x))[1] / len(x) #px = sum(x==value_x) / len(x)
-            py = np.shape(np.where(y==value_y))[1] / len(x) #py = sum(y==value_y) / len(y)
-            pxy = len(np.where(np.in1d(np.where(x==value_x)[0],
-                                       np.where(y==value_y)[0])==True)[0]) / len(x)
+    for a in range(len(support_x)-1):
+        for b in range(len(support_y)-1):
+            ind_x = np.where((x>=support_x[a]) & (x<=support_x[a+1]))[0]
+            ind_y = np.where((y>=support_y[b]) & (y<=support_y[b+1]))[0]
+
+            px = len(ind_x) / len(x) #px = sum(x==value_x) / len(x)
+            py = len(ind_y) / len(x) #py = sum(y==value_y) / len(y)
+            pxy = len(np.where(np.in1d(ind_x, ind_y)==True)[0]) / len(x)
+
             if pxy>0.00: summation += pxy * np.log2(pxy / (px*py))
+
 
     return summation
 
@@ -2225,9 +2245,9 @@ class Analysis(object):
         a1.set_ylim(0, 1.5)
         a1.spines['left'].set_bounds(0, 1)
 
-        a2.set_yticks([0., 2.5, 5.])
-        a2.set_ylim(0, 7.5)
-        a2.spines['left'].set_bounds(0, 5)
+        a2.set_yticks([0., 1, 2])
+        a2.set_ylim(0, 3)
+        a2.spines['left'].set_bounds(0, 2)
 
 
         for a in [a1, a2] :
@@ -2298,10 +2318,10 @@ class Analysis(object):
 
                 w_mi = wilcoxon(MI_i[i], MI_i[j]) ; print('mi =', w_mi, '\n')
                 if w_mi.pvalue < 0.05 :
-                    a2.hlines(4.5+((j-i)*1), x_1, x_2)
+                    a2.hlines(1.8+((j-i)*0.4), x_1, x_2)
                     #a2.vlines(x_1, np.max(MI_i[i])+0.25, np.max(MI_i)+((j-i)*0.3))
                     #a2.vlines(x_2, np.max(MI_i[j])+0.25, np.max(MI_i)+((j-i)*0.3))
-                    a2.text((x_1+x_2)/2, 4.5+((j-i)*1), '**'  if w_mi.pvalue<0.01 else '*', fontsize=t_label/1.8, ha='center')
+                    a2.text((x_1+x_2)/2, 1.8+((j-i)*0.4), '**'  if w_mi.pvalue<0.01 else '*', fontsize=t_label/1.8, ha='center')
 
         if titre is not None : ax.set_title(titre, fontsize=t_titre/1.2, x=0.5, y=1.05)
         ax.axis([xmin, xmax, ymin, ymax])
