@@ -381,7 +381,7 @@ class aSPEM(object):
 #############################################################################
 
 
-def mutual_information(p, data, base=3):
+def mutual_information(p, data, bin_p=20, bin_data=30):
     """
     Script to calculate Mutual Information between two discrete random variables
     Roberto maestre - rmaestre@gmail.com
@@ -415,8 +415,8 @@ def mutual_information(p, data, base=3):
     x = p
     y = data
 
-    support_x = np.linspace(min(x), max(x), 20)#len(x)/6)
-    support_y = np.linspace(min(y), max(y), len(y)/30)
+    support_x = np.linspace(min(x), max(x), bin_p)#len(x)/6)
+    support_y = np.linspace(min(y), max(y), int(len(y)/bin_data))
 
     summation = 0.00
     for a in range(len(support_x)-1):
