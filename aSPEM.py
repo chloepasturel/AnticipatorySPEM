@@ -1513,8 +1513,8 @@ class Analysis(object):
                 axs[0] = plt.subplot(gs1[0])
 
                 if len(BLOCK)==1 : axs[0].plot(np.arange(1, N_trials)-.5, p[1:, BLOCK[0], 0], 'k.', ms=4)
-                for card in ['bottom', 'top', 'left']: axs[0].spines[card].set_visible(False)
-                axs[0].spines['right'].set_bounds(0, 1)
+                for card in ['bottom', 'top', 'right']: axs[0].spines[card].set_visible(False)
+                axs[0].spines['left'].set_bounds(0, 1)
 
                 gs2 = gridspec.GridSpec(nb_ax, 1)
                 gs2.update(left=0+0.072, bottom=0+0.1, right=1-0.04, top=0.85-0.03, hspace=0.05)
@@ -1559,6 +1559,7 @@ class Analysis(object):
                 axs[i_layer].xaxis.set_ticks_position('bottom')
             else :
                 axs[i_layer].set_xticks([])
+        axs[0].yaxis.set_ticks_position('left')
         #------------------------------------------------
         # cosmétique
         #------------------------------------------------
@@ -1605,7 +1606,7 @@ class Analysis(object):
                 for s in range(len(sujet)) :
                     if direction is True : a = s+1
                     else : a = s
-                    axs[a].step(range(N_trials), p[:, block, 1]+i_block+ec*i_block, lw=lw, c=color[1][0], alpha=alpha[1][0], label='$P_{real}$')
+                    axs[a].step(range(N_trials), p[:, block, 1]+i_block+ec*i_block, lw=lw, c=color[1][0], alpha=1, label='$P_{real}$')
                     axs[a].fill_between(range(N_trials), i_block+np.zeros_like(p[:, block, 1])+ec*i_block, i_block+p[:, block, 1]+ec*i_block,
                                               lw=.5, alpha=alpha[1][0], facecolor=color[1][0], step='pre')
                     axs[a].fill_between(range(N_trials), i_block+np.ones_like(p[:, block, 1])+ec*i_block, i_block+p[:, block, 1]+ec*i_block,
@@ -1713,7 +1714,7 @@ class Analysis(object):
 
     def plot_bcp(self, show_trial=False, block=0, trial=50, N_scan=100, fixed_window_size=40, label_bcp=r'$P_{BBCP}$', label_comp_bcp=r'$P_{leaky}$',
                 pause=None, mode=['expectation', 'max', 'mean', 'fixed', 'leaky', 'hindsight'],
-                mode_compare=None, max_run_length=150, c_mode='g', c_compare='r', TD=False,
+                mode_compare=None, max_run_length=150, c_mode='g', c_compare='r', TD=False, lw=2,
                 color=[['k', 'k'], ['r', 'r'], ['k','w']], alpha = [[.35,.15],[.35,.15],[1,0]],
                 fig_width=15, t_titre=35, t_label=20, show_title=True, leg_up=None):
 
@@ -1725,8 +1726,6 @@ class Analysis(object):
         from scipy.stats import beta
 
         if type(mode) is not list : mode = [mode]
-
-
 
         N_trials = self.param_exp['N_trials']
         N_blocks = self.param_exp['N_blocks']
@@ -1745,10 +1744,9 @@ class Analysis(object):
 
             for i_trial in range(N_trial):
                 p_low[i_trial], p_sup[i_trial] = beta.ppf([.05, .95], a=p_hat[i_trial]*r_hat[i_trial], b=(1-p_hat[i_trial])*r_hat[i_trial])
-            ax1.plot(time, p_hat, c=c,  lw=1.5, alpha=.9, label=label if name is True else '')
-            if leg_up is None : ax1.plot(time, p_sup, c=c, lw=1.2, alpha=.9, ls='--')#, label='CI '+label if name is True else '')
-            else :              ax1.plot(time, p_sup, c=c, lw=1.2, alpha=.9, ls='--')#, label='CI '+label)
-            ax1.plot(time, p_low, c=c, lw=1.2, alpha=.9, ls='--')
+            ax1.plot(time, p_hat, c=c,  lw=lw, alpha=.9, label=label if name is True else '')
+            ax1.plot(time, p_sup, c=c, lw=lw, alpha=.9, ls='--')#, label='CI '+label if name is True else '')
+            ax1.plot(time, p_low, c=c, lw=lw, alpha=.9, ls='--')
             ax1.fill_between(time, p_sup, p_low, lw=.5, alpha=.11, facecolor=c)
 
             if ax2 is not None :
@@ -1770,7 +1768,7 @@ class Analysis(object):
                         ax2.imshow(np.log(beliefs[:max_run_length, :] + eps), cmap='Greys', extent=extent)
                     ax2.set_ylim(0, max_run_length)
                 if show_r_hat is True :
-                    ax2.plot(time, r_hat, c=c, lw=1.5, alpha=.9, label='predicted run-length')
+                    ax2.plot(time, r_hat, c=c, lw=lw, alpha=.9, label='predicted run-length')
 
 
                 return (ax1, ax2)
@@ -1838,19 +1836,21 @@ class Analysis(object):
                 ax1 = plt.Subplot(fig, gs1[0])
                 ax2 = plt.Subplot(fig, gs1[1])
 
-
                 if TD is True :
                     gs0 = gridspec.GridSpec(1, 1)
-                    gs0.update(left=0+0.025, bottom=0.85, right=1+0.015, top=1.-0.1, hspace=0.05)
+                    gs0.update(left=0, bottom=0.85, right=1, top=1.-0.1, hspace=0.05)
                     ax0 = plt.Subplot(fig, gs0[0]) #plt.subplot(gs1[0])
                     fig.add_subplot(ax0)
 
-                    for card in ['bottom', 'top', 'left']: ax0.spines[card].set_visible(False)
-                    ax0.spines['right'].set_bounds(0, 1)
+                    for card in ['bottom', 'top', 'right']: ax0.spines[card].set_visible(False)
+                    ax0.spines['left'].set_bounds(0, 1)
                     ax0.set_xticks(())
-                    ax0.yaxis.set_ticks_position('right')
+                    ax0.set_xlim(-1, 200)
+                    #ax0.yaxis.set_ticks_position('right')
                     ax0.set_yticks([0,1])
                     ax0.set_yticklabels(['left', 'right'], fontsize=t_label/1.8)
+                    
+                    a0_pos = ax0.get_position().bounds
 
 
             fig.add_subplot(ax1)
@@ -1871,14 +1871,14 @@ class Analysis(object):
 
             else :
                 ax1.plot(np.arange(N_trials)-.5, o, 'k.', ms=4, label='TD')
-                ax1.step(range(N_trials), o, lw=1, alpha=.15, c='k')
+                ax1.step(range(N_trials), o, lw=lw, alpha=.15, c='k')
                 ax1.fill_between(range(N_trials), np.zeros_like(o), o, lw=0, alpha=alpha[0][1], facecolor=color[0][0], step='pre')
 
-            ax1.step(range(N_trials), p_true, lw=1.5, alpha=alpha[1][0], c=color[1][0], label=r'$P_{real}$')
+            ax1.step(range(N_trials), p_true, lw=lw, alpha=1, c=color[1][0], label=r'$P_{real}$')
             ax1.fill_between(range(N_trials), np.zeros_like(p_true), p_true, lw=0, alpha=alpha[1][0], facecolor=color[1][0], step='pre')
             ax1.fill_between(range(N_trials), np.ones_like(p_true), p_true, lw=0, alpha=alpha[1][1], facecolor=color[1][1], step='pre')
 
-            ax2.plot(np.arange(N_trials), np.ones_like(o)*40, c=color[1][0], alpha=0.7, lw=1.5)
+            ax2.plot(np.arange(N_trials), np.ones_like(o)*40, c=color[1][0], alpha=0.7, lw=lw)
 
             #---------------------------------------------------------------------------
             # P_HAT
@@ -1904,7 +1904,7 @@ class Analysis(object):
 
 
             if leg_up is True :
-                if TD is True : ax1.legend(fontsize=t_label/1.8, bbox_to_anchor=(0., 1.3, 1, 0.), loc=3, ncol=3, mode="expand", borderaxespad=0.)
+                if TD is True : ax1.legend(fontsize=t_label/1.8, bbox_to_anchor=(0., 1.25, 1, 0.), loc=3, ncol=3, mode="expand", borderaxespad=0.)
                 else :          ax1.legend(fontsize=t_label/1.8, bbox_to_anchor=(0., 2.1, 1, 0.), loc=3, ncol=3, mode="expand", borderaxespad=0.)
             else :              ax1.legend(loc=(0.15, 0.55), ncol=2)#'best')
             # ax2.legend('best')
@@ -1934,6 +1934,8 @@ class Analysis(object):
                 a.set_xlim(-1, N_trials)
                 a.set_ylim(-.05*size, size + (.05*size))
                 a.set_yticks(np.arange(0, size + (.05*size), size/2))
+
+
 
             ax1.set_ylabel('Probability', fontsize=t_label/1.5)
             ax1.set_xticks([])
@@ -1978,7 +1980,13 @@ class Analysis(object):
             ax.tick_params(labelsize=t_label/1.8, bottom=True, left=True)
 
         gs.tight_layout(fig)
+        if TD is True :
+            a1_pos = ax1.get_position().bounds
+            ax0.set_position([a1_pos[0], a1_pos[1]+a1_pos[3]+0.02, a1_pos[2], a0_pos[3]])
+
         plt.show()
+
+
 
         if N_scan>0: #show_trial is False :
             return fig, ax1, ax2, ax3
@@ -2269,7 +2277,7 @@ class Analysis(object):
                 d = [data[x] for x in range(len(proba)) if proba[x]>=bins[b] and proba[x]<bins[b+1]]
                 yerr_l, yerr_s = np.percentile(d, [25, 75])
                 ax.errorbar((bins[b+1]+bins[b])/2+x_bin[i], yerr_l, yerr=[[0], [yerr_s-yerr_l]], color=color_r[i], capsize=10)
-                ax.scatter((bins[b+1]+bins[b])/2+x_bin[i], np.mean(d), color=color_r[i], s=100, marker='o')
+                ax.scatter((bins[b+1]+bins[b])/2+x_bin[i], np.median(d), color=color_r[i], s=100, marker='o')
                 #ax.errorbar((bins[b+1]+bins[b])/2+x_bin[i], np.mean(d), yerr=np.std(d), color=color_r[i], capsize=10, markersize=10, marker='o')
 
             ax, r_, mi = regress(ax, proba, data, ymin, ymax, t_label, color=color_r[i], text=False, return_r_mi=True,lw=lw_r)
