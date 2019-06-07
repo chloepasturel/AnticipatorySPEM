@@ -1849,7 +1849,7 @@ class Analysis(object):
                     #ax0.yaxis.set_ticks_position('right')
                     ax0.set_yticks([0,1])
                     ax0.set_yticklabels(['left', 'right'], fontsize=t_label/1.8)
-                    
+
                     a0_pos = ax0.get_position().bounds
 
 
@@ -2301,6 +2301,9 @@ class Analysis(object):
                 a1.scatter(i-0.4+(0.8*(j/(len(self.subjects)-1))), r_s, c=color_r[i], linewidths=0, marker='o', s=50)
                 a2.scatter(i-0.4+(0.8*(j/(len(self.subjects)-1))), mi_s, c=color_r[i], linewidths=0, marker='o', s=50)
 
+            print(mode, ':')
+            print('mean r :', np.mean(R_s), '+/-', np.std(R_s))
+            print('mean MI :', np.mean(MI_s), '+/-', np.std(MI_s), end='\n\n')
             R_i.append(R_s)
             MI_i.append(MI_s)
 
