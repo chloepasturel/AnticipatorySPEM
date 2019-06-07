@@ -1852,6 +1852,8 @@ class Analysis(object):
                     
                     a0_pos = ax0.get_position().bounds
 
+                    a0_pos = ax0.get_position().bounds
+
 
             fig.add_subplot(ax1)
             fig.add_subplot(ax2)
@@ -2301,6 +2303,9 @@ class Analysis(object):
                 a1.scatter(i-0.4+(0.8*(j/(len(self.subjects)-1))), r_s, c=color_r[i], linewidths=0, marker='o', s=50)
                 a2.scatter(i-0.4+(0.8*(j/(len(self.subjects)-1))), mi_s, c=color_r[i], linewidths=0, marker='o', s=50)
 
+            print(mode, ':')
+            print('mean r :', np.mean(R_s), '+/-', np.std(R_s))
+            print('mean MI :', np.mean(MI_s), '+/-', np.std(MI_s), end='\n\n')
             R_i.append(R_s)
             MI_i.append(MI_s)
 
