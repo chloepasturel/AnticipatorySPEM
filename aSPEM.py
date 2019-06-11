@@ -1458,7 +1458,7 @@ class Analysis(object):
 
     def plot_experiment(self, sujet=[0], mode_bcp=None, tau=40, direction=True, p=None, num_block=None, mode=None,
                         fig=None, axs=None, fig_width=15, titre=None, t_titre=35, t_label=25, return_proba=None, color=[['k', 'k'], ['r', 'r'], ['k','w']],
-                        color_bcp='darkgreen', name_bcp='$P_{BBCP}$', print_suj=False,
+                        color_bcp='darkgreen', name_bcp='$P_{BBCP}$', print_suj=False, scaling_va=False,
                         alpha = [[.35,.15],[.35,.15],[1,0]], lw = 1.3, legends=False, TD=False, pause=50, ec = 0.2):
 
         import matplotlib.pyplot as plt
@@ -1512,7 +1512,7 @@ class Analysis(object):
                 gs1.update(left=0+0.072, bottom=0.85, right=1-0.04, top=1.-0.1, hspace=0.05)
                 axs[0] = plt.subplot(gs1[0])
 
-                if len(BLOCK)==1 : axs[0].plot(np.arange(1, N_trials)-.5, p[1:, BLOCK[0], 0], 'k.', ms=4)
+                if len(BLOCK)==1 : axs[0].plot(np.arange(1, N_trials), p[1:, BLOCK[0], 0], 'k.', ms=4)
                 for card in ['bottom', 'top', 'right']: axs[0].spines[card].set_visible(False)
                 axs[0].spines['left'].set_bounds(0, 1)
 
@@ -1595,13 +1595,13 @@ class Analysis(object):
                         axs[1].text(-0.055, 0.5, 'Probability', fontsize=t_label, rotation=90, transform=axs[1].transAxes, ha='right', va='center')
             else :
                 if direction is True :
-                    axs[0].step(range(N_trials), p[:, block, 0]+i_block+ec*i_block, lw=1, c=color[0][0], alpha=alpha[0][0])
+                    axs[0].step(range(N_trials), p[:, block, 0]+i_block+ec*i_block, lw=1, c=color[0][0], alpha=alpha[0][0], where='mid')
                     axs[0].fill_between(range(N_trials), i_block+np.zeros_like(p[:, block, 0])+ec*i_block,
                                               i_block+p[:, block, 0]+ec*i_block,
-                                              lw=.5, alpha=alpha[0][0], facecolor=color[0][0], step='pre')
+                                              lw=.5, alpha=alpha[0][0], facecolor=color[0][0], step='mid')
                     axs[0].fill_between(range(N_trials), i_block+np.ones_like(p[:, block, 0])+ec*i_block,
                                               i_block+p[:, block, 0]+ec*i_block,
-                                              lw=.5, alpha=alpha[0][1], facecolor=color[0][1], step='pre')
+                                              lw=.5, alpha=alpha[0][1], facecolor=color[0][1], step='mid')
                     axs[0].set_ylabel(td_label, fontsize=t_label/1.2)
                 for s in range(len(sujet)) :
                     if direction is True : a = s+1
@@ -1629,7 +1629,9 @@ class Analysis(object):
             if print_suj is True : print('sujet', suj, '=', self.subjects[suj])
 
             #-------------------------------------------------------------------------------------------------------------
-            mini = 8
+
+            if scaling_va is True : mini=0.5
+            else :                  mini = 5 #8
             ec1 = ec*mini*2
 
             if titre is None :
@@ -1656,19 +1658,35 @@ class Analysis(object):
                 ax1 = axs[a].twinx()
                 for i_block, block in enumerate(BLOCK):
                     axs[a].step(range(1), -1000, color='k', lw=lw, alpha=1, label='Eye movement'  if i_block==0 else '')
-                    ax1.step(range(N_trials), 2*(mini*i_block)+(np.array(a_anti[block])*((np.array(latency[block])-np.array(start_anti[block]))/1000))+ec1*i_block,
+                    va = (np.array(a_anti[block])*((np.array(latency[block])-np.array(start_anti[block]))/1000))
+                    if scaling_va is True : va=(va-np.min(va))/(np.max(va)-np.min(va))
+
+                    ax1.step(range(N_trials), 2*(mini*i_block)+va+ec1*i_block,
                                 color='k', lw=lw, alpha=1, label='Eye movement' if i_block==0 else '')
 
-                ax1.set_ylim(-mini-(ec1/2), len(BLOCK)*mini + ec1*len(BLOCK)-(ec1/2))
-                y_ticks=[-mini, 0, mini,
-                         mini+ec1, 2*mini+ec1, 3*mini+ec1,
-                         3*mini+2*ec1, 4*mini+2*ec1, 5*mini+2*ec1]
 
-                ax1.set_yticks(y_ticks[:len(BLOCK)*3])
-                ax1.set_yticklabels(['-%s'%mini, '0', '%s'%mini]*len(BLOCK),fontsize=t_label/2)
-                ax1.yaxis.set_label_coords(1.043, 0.5)
+
+                if scaling_va is True :
+                    y_ticks=[0, 1, 1+ec, 2+ec, 2+ec*2, 3+ec*2]
+                    ax1.set_yticklabels(['min', 'max']*len(BLOCK), fontsize=t_label/2)
+                    ax1.set_yticks(y_ticks[:len(BLOCK)*3])
+                    ax1.yaxis.set_label_coords(1.06, 0.5)
+
+
+                else:
+                    ax1.set_ylim(-mini-(ec1/2), len(BLOCK)*mini + ec1*len(BLOCK)-(ec1/2))
+                    y_ticks=[-mini, 0, mini,
+                             mini+ec1, 2*mini+ec1, 3*mini+ec1,
+                             3*mini+2*ec1, 4*mini+2*ec1, 5*mini+2*ec1]
+
+                    ax1.set_yticks(y_ticks[:len(BLOCK)*3])
+                    ax1.set_yticklabels(['-%s'%mini, '0', '%s'%mini]*len(BLOCK),fontsize=t_label/2)
+                    ax1.yaxis.set_label_coords(1.043, 0.5)
                 ax1.yaxis.set_tick_params(colors='k', direction='out')
                 ax1.yaxis.set_ticks_position('right')
+                #ax1.set_ylabel('Anticipatory eye\nvelocity °/s', rotation=-90,fontsize=t_label/1.5)
+                #ax1.set_ylabel('Velocity of anticipation °/s', rotation=-90,fontsize=t_label/1.5)
+
                 ax1.set_ylabel('Velocity of eye °/s', rotation=-90,fontsize=t_label/1.5)
                 #if mode == 'enregistrement' : axs[a].set_yticks([])
 
@@ -1849,7 +1867,7 @@ class Analysis(object):
                     #ax0.yaxis.set_ticks_position('right')
                     ax0.set_yticks([0,1])
                     ax0.set_yticklabels(['left', 'right'], fontsize=t_label/1.8)
-                    
+
                     a0_pos = ax0.get_position().bounds
 
                     a0_pos = ax0.get_position().bounds
@@ -2229,7 +2247,7 @@ class Analysis(object):
 
         if result=='bet' :
             res, ymin, ymax = 'results', -0.032, 1.032
-            ax.set_ylabel('Probability Bet', fontsize=t_label/1.2)
+            ax.set_ylabel('Bet score', fontsize=t_label/1.2)
             if titre is None : ax.set_title("Probability Bet", fontsize=t_titre/1.2, x=0.5, y=1.05)
 
         elif result=='acceleration' :
@@ -2238,8 +2256,9 @@ class Analysis(object):
             if titre is None : ax.set_title("Acceleration", fontsize=t_titre/1.2, x=0.5, y=1.05)
 
         elif result=='velocity' :
-            res, ymin, ymax = 'va', -10.64, 10.64
-            ax.set_ylabel('Velocity of anticipation (°/s)', fontsize=t_label/1.2)
+            res, ymin, ymax = 'va', -5.32, 5.32 # -10.64, 10.64 # #
+            #ax.set_ylabel('Velocity of anticipation (°/s)', fontsize=t_label/1.2)
+            ax.set_ylabel('Velocity of eye (°/s)', fontsize=t_label/1.2)
             if titre is None : ax.set_title("Velocity", fontsize=t_titre/1.2, x=0.5, y=1.05)
 
         full_result = full[res]
