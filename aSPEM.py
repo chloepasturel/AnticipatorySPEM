@@ -1555,8 +1555,8 @@ class Analysis(object):
 
             axs[i_layer].set_xlim(-1, N_trials)
             if i_layer==(len(axs)-1) :
-                axs[i_layer].set_xticks([0, 49, 99, 149, 199])
-                axs[i_layer].set_xticklabels([1, 50, 100, 150, 200], ha='left', fontsize=t_label/1.8)
+                axs[i_layer].set_xticks([0, 50, 100, 150, 200])
+                axs[i_layer].set_xticklabels([0, 50, 100, 150, 200], ha='left', fontsize=t_label/1.8)
                 axs[i_layer].xaxis.set_ticks_position('bottom')
             else :
                 axs[i_layer].set_xticks([])
@@ -1648,7 +1648,7 @@ class Analysis(object):
                 axs[a].yaxis.set_ticks_position('left')
                 y_ticks=[0, 0.5, 1, 1+ec, 1.5+ec, 2+ec, 2+ec*2, 2.5+ec*2, 3+ec*2]
                 axs[a].set_yticks(y_ticks[:len(BLOCK)*3])
-                axs[a].set_yticklabels(['0', '0.5', '1']*len(BLOCK),fontsize=t_label/2)
+                axs[a].set_yticklabels(['0', '0.5', '1']*len(BLOCK),fontsize=t_label/1.8)
 
                 axs[a].set_ylabel('Bet score', fontsize=t_label/1.5, color=color_bet)
                 axs[a].tick_params('y', colors=color_bet)
@@ -1669,7 +1669,7 @@ class Analysis(object):
 
                 if scaling_va is True :
                     y_ticks=[0, 1, 1+ec, 2+ec, 2+ec*2, 3+ec*2]
-                    ax1.set_yticklabels(['min', 'max']*len(BLOCK), fontsize=t_label/2)
+                    ax1.set_yticklabels(['min', 'max']*len(BLOCK), fontsize=t_label/1.8)
                     ax1.set_yticks(y_ticks[:len(BLOCK)*3])
                     ax1.yaxis.set_label_coords(1.06, 0.5)
 
@@ -1681,7 +1681,7 @@ class Analysis(object):
                              3*mini+2*ec1, 4*mini+2*ec1, 5*mini+2*ec1]
 
                     ax1.set_yticks(y_ticks[:len(BLOCK)*3])
-                    ax1.set_yticklabels(['-%s'%mini, '0', '%s'%mini]*len(BLOCK),fontsize=t_label/2)
+                    ax1.set_yticklabels(['-%s'%mini, '0', '%s'%mini]*len(BLOCK),fontsize=t_label/1.8)
                     ax1.yaxis.set_label_coords(1.043, 0.5)
                 ax1.yaxis.set_tick_params(colors=color_va, direction='out')
                 ax1.yaxis.set_ticks_position('right')
@@ -2124,7 +2124,8 @@ class Analysis(object):
                 #hist, x_edges, y_edges = np.histogram2d(proba, data ,bins=20)
 
                 legend = ax.legend(artists, l, loc='%s'%pos_r, fontsize=t_label/1.8, frameon=True, framealpha=0.5,
-                                   title='$\hat{P}_{%s}$, MI = %0.3f'%(mode_bcp, mutual_information(proba, data)), title_fontsize=t_label/1.8)
+                                   title='$\hat{P}_{%s}$, MI = %0.3f'%(mode_bcp, mutual_information(proba, data)),
+                                   title_fontsize=t_label/1.8)
 
                 ax.add_artist(legend)
                 ax.set_xlabel('$\hat{P}$', fontsize=t_label/1)
