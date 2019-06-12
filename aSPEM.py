@@ -1457,7 +1457,8 @@ class Analysis(object):
 
 
     def plot_experiment(self, sujet=[0], mode_bcp=None, tau=40, direction=True, p=None, num_block=None, mode=None,
-                        fig=None, axs=None, fig_width=15, titre=None, t_titre=35, t_label=25, return_proba=None, color=[['k', 'k'], ['r', 'r'], ['k','w']],
+                        fig=None, axs=None, fig_width=15, titre=None, t_titre=35, t_label=25, return_proba=None,
+                        color=[['k', 'k'], ['r', 'r'], ['k','w']], color_bet='r', color_va='k',
                         color_bcp='darkgreen', name_bcp='$P_{BBCP}$', print_suj=False, scaling_va=False,
                         alpha = [[.35,.15],[.35,.15],[1,0]], lw = 1.3, legends=False, TD=False, pause=50, ec = 0.2):
 
@@ -1642,27 +1643,27 @@ class Analysis(object):
             if mode in ['pari', 'deux'] :
 
                 for i_block, block in enumerate(BLOCK):
-                    axs[a].step(range(N_trials), i_block+results[:, block]+ec*i_block, lw=lw, alpha=1, color='r', label='Individual guess'  if i_block==0 else '')
+                    axs[a].step(range(N_trials), i_block+results[:, block]+ec*i_block, lw=lw, alpha=1, color=color_bet, label='Individual guess'  if i_block==0 else '')
 
                 axs[a].yaxis.set_ticks_position('left')
                 y_ticks=[0, 0.5, 1, 1+ec, 1.5+ec, 2+ec, 2+ec*2, 2.5+ec*2, 3+ec*2]
                 axs[a].set_yticks(y_ticks[:len(BLOCK)*3])
                 axs[a].set_yticklabels(['0', '0.5', '1']*len(BLOCK),fontsize=t_label/2)
 
-                axs[a].set_ylabel('Bet score', fontsize=t_label/1.5, color='r')
-                axs[a].tick_params('y', colors='r')
+                axs[a].set_ylabel('Bet score', fontsize=t_label/1.5, color=color_bet)
+                axs[a].tick_params('y', colors=color_bet)
                 axs[a].yaxis.set_label_coords(-0.03, 0.5)
 
             if mode in ['enregistrement', 'deux'] :
 
                 ax1 = axs[a].twinx()
                 for i_block, block in enumerate(BLOCK):
-                    axs[a].step(range(1), -1000, color='k', lw=lw, alpha=1, label='Eye movement'  if i_block==0 else '')
+                    axs[a].step(range(1), -1000, color=color_va, lw=lw, alpha=1, label='Eye movement'  if i_block==0 else '')
                     va = (np.array(a_anti[block])*((np.array(latency[block])-np.array(start_anti[block]))/1000))
                     if scaling_va is True : va=(va-np.min(va))/(np.max(va)-np.min(va))
 
                     ax1.step(range(N_trials), 2*(mini*i_block)+va+ec1*i_block,
-                                color='k', lw=lw, alpha=1, label='Eye movement' if i_block==0 else '')
+                                color=color_va, lw=lw, alpha=1, label='Eye movement' if i_block==0 else '')
 
 
 
@@ -1682,12 +1683,12 @@ class Analysis(object):
                     ax1.set_yticks(y_ticks[:len(BLOCK)*3])
                     ax1.set_yticklabels(['-%s'%mini, '0', '%s'%mini]*len(BLOCK),fontsize=t_label/2)
                     ax1.yaxis.set_label_coords(1.043, 0.5)
-                ax1.yaxis.set_tick_params(colors='k', direction='out')
+                ax1.yaxis.set_tick_params(colors=color_va, direction='out')
                 ax1.yaxis.set_ticks_position('right')
                 #ax1.set_ylabel('Anticipatory eye\nvelocity °/s', rotation=-90,fontsize=t_label/1.5)
                 #ax1.set_ylabel('Velocity of anticipation °/s', rotation=-90,fontsize=t_label/1.5)
 
-                ax1.set_ylabel('Velocity of eye °/s', rotation=-90,fontsize=t_label/1.5)
+                ax1.set_ylabel('Velocity of eye °/s', rotation=-90, fontsize=t_label/1.5, color=color_va)
                 #if mode == 'enregistrement' : axs[a].set_yticks([])
 
 
@@ -1786,7 +1787,7 @@ class Analysis(object):
                         ax2.imshow(np.log(beliefs[:max_run_length, :] + eps), cmap='Greys', extent=extent)
                     ax2.set_ylim(0, max_run_length)
                 if show_r_hat is True :
-                    ax2.plot(time, r_hat, c=c, lw=lw, alpha=.9, label='predicted run-length')
+                    ax2.plot(time, r_hat, c=c, lw=lw, alpha=1, label='predicted run-length')
 
 
                 return (ax1, ax2)
@@ -1898,7 +1899,7 @@ class Analysis(object):
             ax1.fill_between(range(N_trials), np.zeros_like(p_true), p_true, lw=0, alpha=alpha[1][0], facecolor=color[1][0], step='pre')
             ax1.fill_between(range(N_trials), np.ones_like(p_true), p_true, lw=0, alpha=alpha[1][1], facecolor=color[1][1], step='pre')
 
-            ax2.plot(np.arange(N_trials), np.ones_like(o)*40, c=color[1][0], alpha=0.7, lw=lw)
+            ax2.plot(np.arange(N_trials), np.ones_like(o)*40, c=color[1][0], alpha=0.9, lw=lw)
 
             #---------------------------------------------------------------------------
             # P_HAT
