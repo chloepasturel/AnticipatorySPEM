@@ -2009,10 +2009,10 @@ class Analysis(object):
 
 
 
-        if N_scan>0: #show_trial is False :
-            return fig, ax1, ax2, ax3
-        else:
-            return fig, ax1, ax2
+        if N_scan>0:      return fig, ax1, ax2, ax3
+        elif TD is True : return fig, ax0, ax1, ax2
+        else:             return fig, ax1, ax2
+
 
     def comparison(self, ax=None, proba='bcp', result='bet', mode_bcp='mean', show='kde', conditional_kde=True,
                     nb_point_kde=300j, color_kde='Greys', alpha=1, hatch=None, hatches=None, hatch_symbol = '/', levels=None,
