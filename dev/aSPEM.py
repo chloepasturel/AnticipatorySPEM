@@ -380,29 +380,83 @@ class aSPEM(object):
 ######################### ANALYSIS ##########################################
 #############################################################################
 
+def mutual_information(p, data, bin_p=20, bin_data=30):
+    """
+    Script to calculate Mutual Information between two discrete random variables
+    Roberto maestre - rmaestre@gmail.com
+    Bojan Mihaljevic - boki.mihaljevic@gmail.com
+
+    Calculate and return Mutual information between two random variables
+    https://github.com/rmaestre/Mutual-Information/blob/master/it_tool.py
+    https://fr.wikipedia.org/wiki/Information_mutuelle
+    """
+    #----------------------------------------------------------------------
+    #def mutual_information(hgram):
+    #   """ Mutual information for joint histogram
+    #   https://matthew-brett.github.io/teaching/mutual_information.html"""
+    #   # Convert bins counts to probability values
+    #   pxy = hgram / float(np.sum(hgram))
+    #   px = np.sum(pxy, axis=1) # marginal for x over y
+    #   py = np.sum(pxy, axis=0) # marginal for y over x
+    #   px_py = px[:, None] * py[None, :] # Broadcast to multiply marginals
+    #   # Now we can do the calculation using the pxy, px_py 2D arrays
+    #   nzs = pxy > 0 # Only non-zero pxy values contribute to the sum
+    #   return np.sum(pxy[nzs] * np.log(pxy[nzs] / px_py[nzs]))
+    #----------------------------------------------------------------------
+    #x = np.round(p, decimals=base)
+    ##y = np.round(data, decimals=base)
+    #
+    #if min(data)<0 : y = np.round(data, decimals=base-1)
+    #else :           y = np.round(data, decimals=base)
+    #
+    #support_x = set(x)
+    #support_y = set(y)
+
+    #summation = 0.00
+    #for value_x in support_x:
+    #    for value_y in support_y:
+    #        px = np.shape(np.where(x==value_x))[1] / len(x) #px=sum(x==value_x)/len(x) -> bcp plus long
+    #        py = np.shape(np.where(y==value_y))[1] / len(x) #py=sum(y==value_y)/len(y) -> bcp plus long
+    #        pxy = len(np.where(np.in1d(np.where(x==value_x)[0],
+    #                                   np.where(y==value_y)[0])==True)[0]) / len(x)
+    #        if pxy>0.00: summation += pxy * np.log2(pxy / (px*py))
+    #----------------------------------------------------------------------
+
+    x = p
+    y = data
+
+    support_x = np.linspace(min(x), max(x), bin_p)
+    support_y = np.linspace(min(y), max(y), int(len(data)/bin_data))
+
+    summation = 0.00
+    for a in range(len(support_x)-1):
+        for b in range(len(support_y)-1):
+            ind_x = np.where((x>=support_x[a]) & (x<=support_x[a+1]))[0]
+            ind_y = np.where((y>=support_y[b]) & (y<=support_y[b+1]))[0]
+
+            px = len(ind_x) / len(x)
+            py = len(ind_y) / len(x)
+            pxy = len(np.where(np.in1d(ind_x, ind_y)==True)[0]) / len(x)
+
+            if pxy>0.00: summation += pxy * np.log2(pxy / (px*py))
 
 
-def mutual_information(hgram):
-    """ Mutual information for joint histogram
-    https://matthew-brett.github.io/teaching/mutual_information.html"""
-    # Convert bins counts to probability values
-    pxy = hgram / float(np.sum(hgram))
-    px = np.sum(pxy, axis=1) # marginal for x over y
-    py = np.sum(pxy, axis=0) # marginal for y over x
-    px_py = px[:, None] * py[None, :] # Broadcast to multiply marginals
-    # Now we can do the calculation using the pxy, px_py 2D arrays
-    nzs = pxy > 0 # Only non-zero pxy values contribute to the sum
-    return np.sum(pxy[nzs] * np.log(pxy[nzs] / px_py[nzs]))
+    return summation
 
-def regress(ax, p, data, y1, y2, t_label,color='k', x1=-0.032, x2=1.032, pos='right', line=True, text=True, return_r_mi=False) :
+
+def regress(ax, p, data, y1=0, y2=1, t_label=10, color='k', x1=-0.032, x2=1.032, pos='right', line=True, text=True, return_r_mi=False, lw=2) :
     from scipy import stats
     slope, intercept, r_, p_value, std_err = stats.linregress(p, data)
     x_test = np.linspace(np.min(p), np.max(p), 100)
     fitLine = slope * x_test + intercept
 
-    hist, x_edges, y_edges = np.histogram2d(p, data ,bins=20)
+    #hist, x_edges, y_edges = np.histogram2d(p, data, bins=20)
+    #hist, x_edges, y_edges = np.histogram2d(p, data, bins=len(data)/30)
+    # mi =mutual_information(hist)
+    mi = mutual_information(p, data)
 
-    if line is True : ax.plot(x_test, fitLine, c=color, linewidth=2)
+
+    if line is True : ax.plot(x_test, fitLine, c=color, linewidth=lw)
 
     if pos[-5:]=='right' : x_pos=x2-(x2-x1)/10 ; h_pos='right'
     else:                  x_pos=x1+(x2-x1)/10 ; h_pos='left'
@@ -411,17 +465,15 @@ def regress(ax, p, data, y1, y2, t_label,color='k', x1=-0.032, x2=1.032, pos='ri
 
     if text is True :
         ax.text(x_pos, y_pos_r, 'r = %0.3f'%(r_), color=color, fontsize=t_label/1.2, ha=h_pos)
-        ax.text(x_pos, y_pos_m, 'MI = %0.3f'%(mutual_information(hist)), color=color, fontsize=t_label/1.2, ha=h_pos)
+        ax.text(x_pos, y_pos_m, 'MI = %0.3f'%(mi), color=color, fontsize=t_label/1.2, ha=h_pos)
 
-    if return_r_mi is True : return ax, r_, mutual_information(hist)
+    if return_r_mi is True : return ax, r_, mi
     else :                   return ax
 
 def results_sujet(self, ax, sujet, s, mode_bcp, tau, t_label, pause, color = [['k', 'k'], ['r', 'r'], ['k','w']], alpha = [[.35,.15],[.35,.15],[1,0]], color_bcp='darkred'):
 
     import bayesianchangepoint as bcp
     from scipy import stats
-
-
 
     lw = 1.3
     ec = 0.2 # pour l'écart entre les différents blocks
@@ -721,28 +773,28 @@ class Analysis(object):
         import bayesianchangepoint as bcp
 
         def fct_BCP(x, tau, fixed_window, sujet, block, cent) :
-
+            # TODO merge des blocks puis  range(0, 600, 50) pour les pauses plus param = taille de window
             h = 1/tau
             p_hat = np.zeros(len(x))
 
             if sujet==True :
                 for b in range(self.param_exp['N_blocks']):
                     nb = self.param_exp['N_trials']*b
-                    liste = [0,50,100,150,200]
+                    liste = [0, 50, 100, 150, 200]
                     for a in range(len(liste)-1) :
                         p_bar, r_bar, beliefs = bcp.inference(x[nb+liste[a]:nb+liste[a+1]], h=h, p0=.5, r0=1.)
                         p_hat_p, r_hat = bcp.readout(p_bar, r_bar, beliefs, mode=modes_bcp, p0=.5, fixed_window_size=fixed_window)
                         p_hat[nb+liste[a]:nb+liste[a+1]] = p_hat_p
 
             elif block==True :
-                liste = [0,50,100,150,200]
+                liste = [0, 50, 100, 150, 200]
                 for a in range(len(liste)-1) :
                     p_bar, r_bar, beliefs = bcp.inference(x[liste[a]:liste[a+1]], h=h, p0=.5, r0=1.)
                     p_hat_p, r_hat = bcp.readout(p_bar, r_bar, beliefs, mode=modes_bcp, p0=.5, fixed_window_size=fixed_window)
                     p_hat[liste[a]:liste[a+1]] = p_hat_p
 
             elif cent==True :
-                liste = [0,50,100]
+                liste = [0, 50, 100]
                 for a in range(len(liste)-1) :
                     p_bar, r_bar, beliefs = bcp.inference(x[liste[a]:liste[a+1]], h=h, p0=.5, r0=1.)
                     p_hat_p, r_hat = bcp.readout(p_bar, r_bar, beliefs, mode=modes_bcp, p0=.5, fixed_window_size=fixed_window)
@@ -1405,8 +1457,9 @@ class Analysis(object):
 
 
     def plot_experiment(self, sujet=[0], mode_bcp=None, tau=40, direction=True, p=None, num_block=None, mode=None,
-                        fig=None, axs=None, fig_width=15, titre=None, t_titre=35, t_label=25, return_proba=None, color=[['k', 'k'], ['r', 'r'], ['k','w']],
-                        color_bcp='darkgreen', name_bcp='$\hat{x}_1$', print_suj=False,
+                        fig=None, axs=None, fig_width=15, titre=None, t_titre=35, t_label=25, return_proba=None,
+                        color=[['k', 'k'], ['r', 'r'], ['k','w']], color_bet='r', color_va='k',
+                        color_bcp='darkgreen', name_bcp='$P_{BBCP}$', print_suj=False, scaling_va=False,
                         alpha = [[.35,.15],[.35,.15],[1,0]], lw = 1.3, legends=False, TD=False, pause=50, ec = 0.2):
 
         import matplotlib.pyplot as plt
@@ -1431,7 +1484,7 @@ class Analysis(object):
             for i_trial in range(n_trial):
                 p_low[i_trial], p_sup[i_trial] = beta.ppf([.05, .95], a=p_hat[i_trial]*r_hat[i_trial], b=(1-p_hat[i_trial])*r_hat[i_trial])
             ax1.plot(time, p_hat, c=color_bcp, lw=1.5, alpha=.9, label=name_bcp if name is True else '')
-            ax1.plot(time, p_sup, c=color_bcp, lw=1.2, alpha=.9, ls='--', label='CI' if name is True else '')
+            ax1.plot(time, p_sup, c=color_bcp, lw=1.2, alpha=.9, ls='--')#, label='CI' if name is True else '')
             ax1.plot(time, p_low, c=color_bcp, lw=1.2, alpha=.9, ls='--')
             ax1.fill_between(time, p_sup, p_low, lw=.5, alpha=.2, facecolor=color_bcp)
 
@@ -1460,9 +1513,9 @@ class Analysis(object):
                 gs1.update(left=0+0.072, bottom=0.85, right=1-0.04, top=1.-0.1, hspace=0.05)
                 axs[0] = plt.subplot(gs1[0])
 
-                if len(BLOCK)==1 : axs[0].plot(np.arange(1, N_trials)-.5, p[1:, BLOCK[0], 0], 'k.', ms=4)
-                for card in ['bottom', 'top', 'left']: axs[0].spines[card].set_visible(False)
-                axs[0].spines['right'].set_bounds(0, 1)
+                if len(BLOCK)==1 : axs[0].plot(np.arange(1, N_trials), p[1:, BLOCK[0], 0], 'k.', ms=4)
+                for card in ['bottom', 'top', 'right']: axs[0].spines[card].set_visible(False)
+                axs[0].spines['left'].set_bounds(0, 1)
 
                 gs2 = gridspec.GridSpec(nb_ax, 1)
                 gs2.update(left=0+0.072, bottom=0+0.1, right=1-0.04, top=0.85-0.03, hspace=0.05)
@@ -1502,11 +1555,12 @@ class Analysis(object):
 
             axs[i_layer].set_xlim(-1, N_trials)
             if i_layer==(len(axs)-1) :
-                axs[i_layer].set_xticks([0, 49, 99, 149, 199])
-                axs[i_layer].set_xticklabels([1, 50, 100, 150, 200], ha='left', fontsize=t_label/1.8)
+                axs[i_layer].set_xticks([0, 50, 100, 150, 200])
+                axs[i_layer].set_xticklabels([0, 50, 100, 150, 200], ha='left', fontsize=t_label/1.8)
                 axs[i_layer].xaxis.set_ticks_position('bottom')
             else :
                 axs[i_layer].set_xticks([])
+        axs[0].yaxis.set_ticks_position('left')
         #------------------------------------------------
         # cosmétique
         #------------------------------------------------
@@ -1542,18 +1596,18 @@ class Analysis(object):
                         axs[1].text(-0.055, 0.5, 'Probability', fontsize=t_label, rotation=90, transform=axs[1].transAxes, ha='right', va='center')
             else :
                 if direction is True :
-                    axs[0].step(range(N_trials), p[:, block, 0]+i_block+ec*i_block, lw=1, c=color[0][0], alpha=alpha[0][0])
+                    axs[0].step(range(N_trials), p[:, block, 0]+i_block+ec*i_block, lw=1, c=color[0][0], alpha=alpha[0][0], where='mid')
                     axs[0].fill_between(range(N_trials), i_block+np.zeros_like(p[:, block, 0])+ec*i_block,
                                               i_block+p[:, block, 0]+ec*i_block,
-                                              lw=.5, alpha=alpha[0][0], facecolor=color[0][0], step='pre')
+                                              lw=.5, alpha=alpha[0][0], facecolor=color[0][0], step='mid')
                     axs[0].fill_between(range(N_trials), i_block+np.ones_like(p[:, block, 0])+ec*i_block,
                                               i_block+p[:, block, 0]+ec*i_block,
-                                              lw=.5, alpha=alpha[0][1], facecolor=color[0][1], step='pre')
+                                              lw=.5, alpha=alpha[0][1], facecolor=color[0][1], step='mid')
                     axs[0].set_ylabel(td_label, fontsize=t_label/1.2)
                 for s in range(len(sujet)) :
                     if direction is True : a = s+1
                     else : a = s
-                    axs[a].step(range(N_trials), p[:, block, 1]+i_block+ec*i_block, lw=1, c=color[1][0], alpha=alpha[1][0])
+                    axs[a].step(range(N_trials), p[:, block, 1]+i_block+ec*i_block, lw=lw, c=color[1][0], alpha=1, label='$P_{real}$')
                     axs[a].fill_between(range(N_trials), i_block+np.zeros_like(p[:, block, 1])+ec*i_block, i_block+p[:, block, 1]+ec*i_block,
                                               lw=.5, alpha=alpha[1][0], facecolor=color[1][0], step='pre')
                     axs[a].fill_between(range(N_trials), i_block+np.ones_like(p[:, block, 1])+ec*i_block, i_block+p[:, block, 1]+ec*i_block,
@@ -1576,7 +1630,9 @@ class Analysis(object):
             if print_suj is True : print('sujet', suj, '=', self.subjects[suj])
 
             #-------------------------------------------------------------------------------------------------------------
-            mini = 8
+
+            if scaling_va is True : mini=0.5
+            else :                  mini = 5 #8
             ec1 = ec*mini*2
 
             if titre is None :
@@ -1587,36 +1643,52 @@ class Analysis(object):
             if mode in ['pari', 'deux'] :
 
                 for i_block, block in enumerate(BLOCK):
-                    axs[a].step(range(N_trials), i_block+results[:, block]+ec*i_block, lw=lw, alpha=1, color='r', label='Individual guess'  if i_block==0 else '')
+                    axs[a].step(range(N_trials), i_block+results[:, block]+ec*i_block, lw=lw, alpha=1, color=color_bet, label='Individual guess'  if i_block==0 else '')
 
                 axs[a].yaxis.set_ticks_position('left')
                 y_ticks=[0, 0.5, 1, 1+ec, 1.5+ec, 2+ec, 2+ec*2, 2.5+ec*2, 3+ec*2]
                 axs[a].set_yticks(y_ticks[:len(BLOCK)*3])
-                axs[a].set_yticklabels(['0', '0.5', '1']*len(BLOCK),fontsize=t_label/2)
+                axs[a].set_yticklabels(['0', '0.5', '1']*len(BLOCK),fontsize=t_label/1.8)
 
-                axs[a].set_ylabel('Bet score', fontsize=t_label/1.5, color='r')
-                axs[a].tick_params('y', colors='r')
+                axs[a].set_ylabel('Bet score', fontsize=t_label/1.5, color=color_bet)
+                axs[a].tick_params('y', colors=color_bet)
                 axs[a].yaxis.set_label_coords(-0.03, 0.5)
 
             if mode in ['enregistrement', 'deux'] :
 
                 ax1 = axs[a].twinx()
                 for i_block, block in enumerate(BLOCK):
-                    axs[a].step(range(1), -1000, color='k', lw=lw, alpha=1, label='Eye movement'  if i_block==0 else '')
-                    ax1.step(range(N_trials), 2*(mini*i_block)+(np.array(a_anti[block])*((np.array(latency[block])-np.array(start_anti[block]))/1000))+ec1*i_block,
-                                color='k', lw=lw, alpha=1, label='Eye movement' if i_block==0 else '')
+                    axs[a].step(range(1), -1000, color=color_va, lw=lw, alpha=1, label='Eye movement'  if i_block==0 else '')
+                    va = (np.array(a_anti[block])*((np.array(latency[block])-np.array(start_anti[block]))/1000))
+                    if scaling_va is True : va=(va-np.min(va))/(np.max(va)-np.min(va))
 
-                ax1.set_ylim(-mini-(ec1/2), len(BLOCK)*mini + ec1*len(BLOCK)-(ec1/2))
-                y_ticks=[-mini, 0, mini,
-                         mini+ec1, 2*mini+ec1, 3*mini+ec1,
-                         3*mini+2*ec1, 4*mini+2*ec1, 5*mini+2*ec1]
+                    ax1.step(range(N_trials), 2*(mini*i_block)+va+ec1*i_block,
+                                color=color_va, lw=lw, alpha=1, label='Eye movement' if i_block==0 else '')
 
-                ax1.set_yticks(y_ticks[:len(BLOCK)*3])
-                ax1.set_yticklabels(['-%s'%mini, '0', '%s'%mini]*len(BLOCK),fontsize=t_label/2)
-                ax1.yaxis.set_label_coords(1.043, 0.5)
-                ax1.yaxis.set_tick_params(colors='k', direction='out')
+
+
+                if scaling_va is True :
+                    y_ticks=[0, 1, 1+ec, 2+ec, 2+ec*2, 3+ec*2]
+                    ax1.set_yticklabels(['min', 'max']*len(BLOCK), fontsize=t_label/1.8)
+                    ax1.set_yticks(y_ticks[:len(BLOCK)*3])
+                    ax1.yaxis.set_label_coords(1.06, 0.5)
+
+
+                else:
+                    ax1.set_ylim(-mini-(ec1/2), len(BLOCK)*mini + ec1*len(BLOCK)-(ec1/2))
+                    y_ticks=[-mini, 0, mini,
+                             mini+ec1, 2*mini+ec1, 3*mini+ec1,
+                             3*mini+2*ec1, 4*mini+2*ec1, 5*mini+2*ec1]
+
+                    ax1.set_yticks(y_ticks[:len(BLOCK)*3])
+                    ax1.set_yticklabels(['-%s'%mini, '0', '%s'%mini]*len(BLOCK),fontsize=t_label/1.8)
+                    ax1.yaxis.set_label_coords(1.043, 0.5)
+                ax1.yaxis.set_tick_params(colors=color_va, direction='out')
                 ax1.yaxis.set_ticks_position('right')
-                ax1.set_ylabel('Velocity of eye °/s', rotation=-90,fontsize=t_label/1.5)
+                #ax1.set_ylabel('Anticipatory eye\nvelocity °/s', rotation=-90,fontsize=t_label/1.5)
+                #ax1.set_ylabel('Velocity of anticipation °/s', rotation=-90,fontsize=t_label/1.5)
+
+                ax1.set_ylabel('Velocity of eye °/s', rotation=-90, fontsize=t_label/1.5, color=color_va)
                 #if mode == 'enregistrement' : axs[a].set_yticks([])
 
 
@@ -1659,9 +1731,9 @@ class Analysis(object):
         else : return fig, axs, p
 
 
-    def plot_bcp(self, show_trial=False, block=0, trial=50, N_scan=100, fixed_window_size=40, label_bcp=r'$\hat{x}_1$', label_comp_bcp=r'$\bar{x}_1$',
+    def plot_bcp(self, show_trial=False, block=0, trial=50, N_scan=100, fixed_window_size=40, label_bcp=r'$P_{BBCP}$', label_comp_bcp=r'$P_{leaky}$',
                 pause=None, mode=['expectation', 'max', 'mean', 'fixed', 'leaky', 'hindsight'],
-                mode_compare=None, max_run_length=150, c_mode='g', c_compare='r', TD=False,
+                mode_compare=None, max_run_length=150, c_mode='g', c_compare='r', TD=False, lw=2,
                 color=[['k', 'k'], ['r', 'r'], ['k','w']], alpha = [[.35,.15],[.35,.15],[1,0]],
                 fig_width=15, t_titre=35, t_label=20, show_title=True, leg_up=None):
 
@@ -1674,8 +1746,6 @@ class Analysis(object):
 
         if type(mode) is not list : mode = [mode]
 
-
-
         N_trials = self.param_exp['N_trials']
         N_blocks = self.param_exp['N_blocks']
         p = self.param_exp['p']
@@ -1684,7 +1754,7 @@ class Analysis(object):
 
         p0, r0 =  0.5, 1.0
 
-        def plot_result_bcp(ax1, ax2, mode, observation, time, c, label, name=True) :
+        def plot_result_bcp(ax1, ax2, mode, observation, time, c, label, name=True, show_run_lengths=True, show_r_hat=True) :
 
             p_bar, r_bar, beliefs = bcp.inference(observation, h=h, p0=p0, r0=r0)
             p_hat, r_hat = bcp.readout(p_bar, r_bar, beliefs, mode=mode, fixed_window_size=fixed_window_size, p0=p0)
@@ -1693,30 +1763,32 @@ class Analysis(object):
 
             for i_trial in range(N_trial):
                 p_low[i_trial], p_sup[i_trial] = beta.ppf([.05, .95], a=p_hat[i_trial]*r_hat[i_trial], b=(1-p_hat[i_trial])*r_hat[i_trial])
-            ax1.plot(time, p_hat, c=c,  lw=1.5, alpha=.9, label=label if name is True else '')
-            if leg_up is None : ax1.plot(time, p_sup, c=c, lw=1.2, alpha=.9, ls='--', label='CI '+label if name is True else '')
-            else :              ax1.plot(time, p_sup, c=c, lw=1.2, alpha=.9, ls='--')#, label='CI '+label)
-            ax1.plot(time, p_low, c=c, lw=1.2, alpha=.9, ls='--')
+            ax1.plot(time, p_hat, c=c,  lw=lw, alpha=.9, label=label if name is True else '')
+            ax1.plot(time, p_sup, c=c, lw=lw, alpha=.9, ls='--')#, label='CI '+label if name is True else '')
+            ax1.plot(time, p_low, c=c, lw=lw, alpha=.9, ls='--')
             ax1.fill_between(time, p_sup, p_low, lw=.5, alpha=.11, facecolor=c)
 
             if ax2 is not None :
-                if N_trial < N_trials : extent = (min(time), max(time), np.max(r_bar), np.min(r_bar))
-                else : extent = None
 
-                eps=1.e-5 # 1.e-12
-                #ax2.imshow(np.log(beliefs[:max_run_length, :] + eps), cmap='Greys', extent=extent)
-                if mode == 'fixed':
-                    ax2.imshow(np.log(beliefs[:max_run_length, :]*0. + eps), cmap='Greys', extent=extent)
-                elif mode == 'leaky':
-                    beliefs_ = np.exp(-np.arange(N_r) / fixed_window_size)
-                    beliefs_ /= beliefs_.sum()
-                    beliefs_ = beliefs_[:, None]
-                    ax2.imshow(np.log((beliefs_*np.ones(N_trial))[:max_run_length, :] + eps), cmap='Greys', extent=extent)
-                else:
-                    ax2.imshow(np.log(beliefs[:max_run_length, :] + eps), cmap='Greys', extent=extent)
+                if show_run_lengths is True :
+                    if N_trial < N_trials : extent = (min(time), max(time), np.max(r_bar), np.min(r_bar))
+                    else : extent = None
 
-                ax2.plot(time, r_hat, c=c, lw=1.5, alpha=.9, label='predicted run-length')
-                ax2.set_ylim(0, max_run_length)
+                    eps=1.e-5 # 1.e-12
+                    #ax2.imshow(np.log(beliefs[:max_run_length, :] + eps), cmap='Greys', extent=extent)
+                    if mode == 'fixed':
+                        ax2.imshow(np.log(beliefs[:max_run_length, :]*0. + eps), cmap='Greys', extent=extent)
+                    elif mode == 'leaky':
+                        beliefs_ = np.exp(-np.arange(N_r) / fixed_window_size)
+                        beliefs_ /= beliefs_.sum()
+                        beliefs_ = beliefs_[:, None]
+                        ax2.imshow(np.log((beliefs_*np.ones(N_trial))[:max_run_length, :] + eps), cmap='Greys', extent=extent)
+                    else:
+                        ax2.imshow(np.log(beliefs[:max_run_length, :] + eps), cmap='Greys', extent=extent)
+                    ax2.set_ylim(0, max_run_length)
+                if show_r_hat is True :
+                    ax2.plot(time, r_hat, c=c, lw=lw, alpha=1, label='predicted run-length')
+
 
                 return (ax1, ax2)
 
@@ -1761,8 +1833,8 @@ class Analysis(object):
                         #KL_ += (1-p_hat) * np.log2(1-p_hat) - (1-p_hat) * np.log2(1-p[:, i_block, 1])
                         #KL[i_mode, i_scan, i_block] = np.mean(KL_)
             #---------------------------------------------------------------------------
-        else:
-            figsize=(fig_width, nb_fig*(fig_width)/1.6180)
+        elif TD is True : figsize = (fig_width, ((nb_fig)*fig_width)/(1.6180))
+        else:             figsize=(fig_width, nb_fig*(fig_width)/1.6180)
 
 
         fig = plt.figure(figsize=figsize)#, sharex=True)
@@ -1783,19 +1855,23 @@ class Analysis(object):
                 ax1 = plt.Subplot(fig, gs1[0])
                 ax2 = plt.Subplot(fig, gs1[1])
 
-
                 if TD is True :
                     gs0 = gridspec.GridSpec(1, 1)
-                    gs0.update(left=0+0.02, bottom=0.85, right=1+0.02, top=1.-0.1, hspace=0.05)
+                    gs0.update(left=0, bottom=0.85, right=1, top=1.-0.1, hspace=0.05)
                     ax0 = plt.Subplot(fig, gs0[0]) #plt.subplot(gs1[0])
                     fig.add_subplot(ax0)
 
-                    for card in ['bottom', 'top', 'left']: ax0.spines[card].set_visible(False)
-                    ax0.spines['right'].set_bounds(0, 1)
+                    for card in ['bottom', 'top', 'right']: ax0.spines[card].set_visible(False)
+                    ax0.spines['left'].set_bounds(0, 1)
                     ax0.set_xticks(())
-                    ax0.yaxis.set_ticks_position('right')
+                    ax0.set_xlim(-1, 200)
+                    #ax0.yaxis.set_ticks_position('right')
                     ax0.set_yticks([0,1])
                     ax0.set_yticklabels(['left', 'right'], fontsize=t_label/1.8)
+
+                    a0_pos = ax0.get_position().bounds
+
+                    a0_pos = ax0.get_position().bounds
 
 
             fig.add_subplot(ax1)
@@ -1808,18 +1884,22 @@ class Analysis(object):
             time = np.arange(N_trials)
 
             if TD is True :
-                ax0.set_ylabel('TD', fontsize=t_label/1.2)
-                ax0.plot(np.arange(N_trials)-.5, o, 'k.', ms=2, label='TD')
-                ax0.step(range(N_trials), o, lw=1, alpha=.15, c='k')
-                ax0.fill_between(range(N_trials), np.zeros_like(o), o, lw=0, alpha=alpha[0][1], facecolor=color[0][0], step='pre')
+                ax0.set_ylabel('TD', fontsize=t_label/1.5)
+                ax0.plot(np.arange(N_trials), o, 'k.', ms=2, label='TD')
+                ax0.step(range(N_trials), o, lw=1, alpha=alpha[0][1], c='k')
+                ax0.fill_between(range(N_trials), np.zeros_like(o), o, lw=0, alpha=alpha[0][0], facecolor=color[0][0], step='pre')
+                ax0.fill_between(range(N_trials), np.ones_like(o), o, lw=0, alpha=alpha[0][1], facecolor=color[0][1], step='pre')
 
             else :
-                ax1.plot(np.arange(N_trials)-.5, o, 'k.', ms=2, label='TD')
-                ax1.step(range(N_trials), o, lw=1, alpha=.15, c='k')
+                ax1.plot(np.arange(N_trials)-.5, o, 'k.', ms=4, label='TD')
+                ax1.step(range(N_trials), o, lw=lw, alpha=.15, c='k')
                 ax1.fill_between(range(N_trials), np.zeros_like(o), o, lw=0, alpha=alpha[0][1], facecolor=color[0][0], step='pre')
 
-            ax1.step(range(N_trials), p_true, lw=1, alpha=.9, c=color[1][0], label=r'$x_1$')
-            ax1.fill_between(range(N_trials), np.zeros_like(p_true), p_true, lw=0, alpha=alpha[1][1], facecolor=color[1][0], step='pre')
+            ax1.step(range(N_trials), p_true, lw=lw, alpha=1, c=color[1][0], label=r'$P_{real}$')
+            ax1.fill_between(range(N_trials), np.zeros_like(p_true), p_true, lw=0, alpha=alpha[1][0], facecolor=color[1][0], step='pre')
+            ax1.fill_between(range(N_trials), np.ones_like(p_true), p_true, lw=0, alpha=alpha[1][1], facecolor=color[1][1], step='pre')
+
+            ax2.plot(np.arange(N_trials), np.ones_like(o)*40, c=color[1][0], alpha=0.9, lw=lw)
 
             #---------------------------------------------------------------------------
             # P_HAT
@@ -1830,7 +1910,8 @@ class Analysis(object):
                 for a in range(len(liste)-1) :
                     ax1, ax2 = plot_result_bcp(ax1, ax2, m, p[liste[a]:liste[a+1], block, 0], np.arange(liste[a], liste[a+1]), c=c_mode, label=label_bcp, name=name)
                     if not mode_compare is None:
-                        ax1 = plot_result_bcp(ax1, None, mode_compare, p[liste[a]:liste[a+1], block, 0], np.arange(liste[a], liste[a+1]), c=c_compare, label=label_comp_bcp, name=name)
+                        ax1, ax2 = plot_result_bcp(ax1, ax2, mode_compare, p[liste[a]:liste[a+1], block, 0], np.arange(liste[a], liste[a+1]),
+                                              c=c_compare, label=label_comp_bcp, name=name, show_run_lengths=False)
                     name=False
                 for a in [ax1, ax2]:
                     a.bar(50, 140 + 2*(.05*140), bottom=-.05*140, color='k', width=.5, linewidth=0)
@@ -1838,16 +1919,15 @@ class Analysis(object):
                     a.bar(150, 140 + 2*(.05*140), bottom=-.05*140, color='k', width=.5, linewidth=0)
 
             else :
-                ax1, ax2 = plot_result_bcp(ax1, ax2, m, o, range(N_trials), c=c_mode, label='$\hat{x}_1$')
+                ax1, ax2 = plot_result_bcp(ax1, ax2, m, o, range(N_trials), c=c_mode, label=label_bcp)
                 if not mode_compare is None:
-                    ax1 = plot_result_bcp(ax1, None, mode_compare, o, range(N_trials), c=c_compare, label=r'$\bar{x}_1$')
+                    ax1, ax2 = plot_result_bcp(ax1, ax2, mode_compare, o, range(N_trials), c=c_compare, label=label_comp_bcp, show_run_lengths=False)
 
 
             if leg_up is True :
-                if TD is True : ax1.legend(fontsize=t_label/1.8, bbox_to_anchor=(0., 1.3, 1, 0.), loc=3, ncol=3, mode="expand", borderaxespad=0.)
+                if TD is True : ax1.legend(fontsize=t_label/1.8, bbox_to_anchor=(0., 1.25, 1, 0.), loc=3, ncol=3, mode="expand", borderaxespad=0.)
                 else :          ax1.legend(fontsize=t_label/1.8, bbox_to_anchor=(0., 2.1, 1, 0.), loc=3, ncol=3, mode="expand", borderaxespad=0.)
-            else :
-                ax1.legend(loc=(0.15, 0.55), ncol=2)#'best')
+            else :              ax1.legend(loc=(0.15, 0.55), ncol=2)#'best')
             # ax2.legend('best')
             #---------------------------------------------------------------------------
             # affiche SCORE
@@ -1868,13 +1948,15 @@ class Analysis(object):
             #---------------------------------------------------------------------------
             # cosmétique
             #---------------------------------------------------------------------------
-            for a, size in zip([ax1, ax2], [1, 140]) :
+            for a, size in zip([ax1, ax2], [1, 80]) :
                 a.axis('tight')
                 a.tick_params(labelsize=t_label/1.8, bottom=True, left=True)
 
                 a.set_xlim(-1, N_trials)
                 a.set_ylim(-.05*size, size + (.05*size))
                 a.set_yticks(np.arange(0, size + (.05*size), size/2))
+
+
 
             ax1.set_ylabel('Probability', fontsize=t_label/1.5)
             ax1.set_xticks([])
@@ -1891,10 +1973,7 @@ class Analysis(object):
             elif m == 'hindsight' : title = 'hindsight equation'
             if show_trial is True:
                 ax2.bar(trial, 140 + (.05*140)+.05*140, bottom=-.05*140, color='firebrick', width=.5, linewidth=0, alpha=1)
-
-                if show_title is True :
-
-                    ax1.set_title('Bayesian change point : %s'%title, x=0.5, y=1.05, fontsize=t_titre)
+                if show_title is True : ax1.set_title('Bayesian change point : %s'%title, x=0.5, y=1.05, fontsize=t_titre)
 
             #---------------------------------------------------------------------------
 
@@ -1922,12 +2001,17 @@ class Analysis(object):
             ax.tick_params(labelsize=t_label/1.8, bottom=True, left=True)
 
         gs.tight_layout(fig)
+        if TD is True :
+            a1_pos = ax1.get_position().bounds
+            ax0.set_position([a1_pos[0], a1_pos[1]+a1_pos[3]+0.02, a1_pos[2], a0_pos[3]])
+
         plt.show()
 
-        if N_scan>0: #show_trial is False :
-            return fig, ax1, ax2, ax3
-        else:
-            return fig, ax1, ax2
+
+
+        if N_scan>0:      return fig, ax1, ax2, ax3
+        elif TD is True : return fig, ax0, ax1, ax2
+        else:             return fig, ax1, ax2
 
 
     def comparison(self, ax=None, proba='bcp', result='bet', mode_bcp='mean', show='kde', conditional_kde=True,
@@ -2037,10 +2121,11 @@ class Analysis(object):
                     l = ['%s < kde $\\leq$ %s'%(l[x][1:].split(' <')[0], l[x][:-1].split('\\leq ')[1])
                          for x in range(len(l))]
 
-                hist, x_edges, y_edges = np.histogram2d(proba, data ,bins=20)
+                #hist, x_edges, y_edges = np.histogram2d(proba, data ,bins=20)
 
                 legend = ax.legend(artists, l, loc='%s'%pos_r, fontsize=t_label/1.8, frameon=True, framealpha=0.5,
-                                   title='$\hat{P}_{%s}$, MI = %0.3f'%(mode_bcp, mutual_information(hist)), title_fontsize=t_label/1.8)
+                                   title='$\hat{P}_{%s}$, MI = %0.3f'%(mode_bcp, mutual_information(proba, data)),
+                                   title_fontsize=t_label/1.8)
 
                 ax.add_artist(legend)
                 ax.set_xlabel('$\hat{P}$', fontsize=t_label/1)
@@ -2141,8 +2226,8 @@ class Analysis(object):
 
 
     def comparison_line(self, ax=None, result='bet', mode_bcp=['real', 'leaky', 'mean'], bins=[0,0.2,0.4,0.6,0.8,1],
-                        alpha=1, t_titre=35, t_label=25, titre=None, pause=True, color_r=['k', 'tab:orange', 'g'],
-                        fig=None, fig_width=15) :
+                        alpha=1, t_titre=35, t_label=25, titre=None, pause=True, color_r=['b', 'tab:orange', 'g'],
+                        fig=None, fig_width=15, offset=0.01, lw_r=2) :
 
         if fig is None:
             import matplotlib.pyplot as plt
@@ -2152,17 +2237,19 @@ class Analysis(object):
 
         modes_bcp, name_mode = [],[]
         for mode in mode_bcp :
-            if mode is not 'real' :
+            if mode == 'real' :
+                name_mode.append('$P_{real}$')
+            else :
                 modes_bcp.append(mode)
-                name_mode.append('$\hat{P}_{%s}$'%(mode))
-            else : name_mode.append('$P_{real}$')
+                if mode== 'mean' : name_mode.append('$P_{BBCP}$')
+                else : name_mode.append('$P_{%s}$'%(mode))
         full = Analysis.Full_list(self, modes_bcp=modes_bcp, pause=pause)
 
         xmin, xmax = -0.032, 1.032
 
         if result=='bet' :
             res, ymin, ymax = 'results', -0.032, 1.032
-            ax.set_ylabel('Probability Bet', fontsize=t_label/1.2)
+            ax.set_ylabel('Bet score', fontsize=t_label/1.2)
             if titre is None : ax.set_title("Probability Bet", fontsize=t_titre/1.2, x=0.5, y=1.05)
 
         elif result=='acceleration' :
@@ -2171,27 +2258,36 @@ class Analysis(object):
             if titre is None : ax.set_title("Acceleration", fontsize=t_titre/1.2, x=0.5, y=1.05)
 
         elif result=='velocity' :
-            res, ymin, ymax = 'va', -10.64, 10.64
-            ax.set_ylabel('Velocity of anticipation (°/s)', fontsize=t_label/1.2)
+            res, ymin, ymax = 'va', -5.32, 5.32 # -10.64, 10.64 # #
+            #ax.set_ylabel('Velocity of anticipation (°/s)', fontsize=t_label/1.2)
+            ax.set_ylabel('Velocity of eye (°/s)', fontsize=t_label/1.2)
             if titre is None : ax.set_title("Velocity", fontsize=t_titre/1.2, x=0.5, y=1.05)
 
         full_result = full[res]
 
-        ax.set_position([0,0,1,1])
-        a1 = fig.add_axes([0.05, 0.7, 0.25,0.25])
-        a2 = fig.add_axes([0.7, 0.05, 0.25, 0.25])
+        a1 = fig.add_axes([0, 1, 0.25,0.25])
+        a2 = fig.add_axes([1, 0, 0.25, 0.25])
         a1.set_title("r", fontsize=t_label/1.8)
         a2.set_title("MI", fontsize=t_label/1.8)
+        a1.set_yticks([0, 0.5, 1.])
+        a1.set_ylim(0, 1.5)
+        a1.spines['left'].set_bounds(0, 1)
 
+        a2.set_yticks([0., 1, 2])
+        a2.set_ylim(0, 3)
+        a2.spines['left'].set_bounds(0, 2)
 
         for a in [a1, a2] :
-            a.set_yticks([0,0.5,1.])
-            a.set_ylim(0,0.9)
-            a.set_xticks([0,1,2])
-            a.set_xticklabels(name_mode)
+            a.set_xticks([])
+            #a.set_xticklabels([]) #a.set_xticklabels(name_mode)
             a.tick_params(labelsize=t_label/2.7)
             for card in ['top', 'right']: a.spines[card].set_visible(False)
+            a.set_xlim(-0.6, 2.5)
+            a.spines['bottom'].set_bounds(-0.5, 2.5)
 
+        x_bin = np.linspace(-offset, offset, len(mode_bcp))
+
+        R_i, MI_i = [], []
         for i, mode in enumerate(mode_bcp) :
             if mode == 'real' : proba = 'proba'
             else :              proba = 'p_hat_'+mode
@@ -2202,20 +2298,75 @@ class Analysis(object):
 
             for b in range(len(bins)-1) :
                 d = [data[x] for x in range(len(proba)) if proba[x]>=bins[b] and proba[x]<bins[b+1]]
+                yerr_l, yerr_s = np.percentile(d, [25, 75])
+                ax.errorbar((bins[b+1]+bins[b])/2+x_bin[i], yerr_l, yerr=[[0], [yerr_s-yerr_l]], color=color_r[i], capsize=10)
+                ax.scatter((bins[b+1]+bins[b])/2+x_bin[i], np.median(d), color=color_r[i], s=100, marker='o')
+                #ax.errorbar((bins[b+1]+bins[b])/2+x_bin[i], np.mean(d), yerr=np.std(d), color=color_r[i], capsize=10, markersize=10, marker='o')
 
-                ax.errorbar((bins[b+1]+bins[b])/2, np.mean(d), yerr=np.std(d),
-                            color=color_r[i], capsize=10, markersize=10, marker='o')
+            ax, r_, mi = regress(ax, proba, data, ymin, ymax, t_label, color=color_r[i], text=False, return_r_mi=True,lw=lw_r)
+            a1.bar(i, r_, color=color_r[i], width=0.9, alpha=0.4)
+            a2.bar(i, mi, color=color_r[i], width=0.9, alpha=0.4)
+            a1.text(i, 0+0.05, '%.3f'%r_, color=color_r[i], alpha=1, ha="center", va="bottom", fontsize=t_label/2.7, weight='bold')
+            a2.text(i, 0+0.05, '%.3f'%mi, color=color_r[i], alpha=1, ha="center", va="bottom", fontsize=t_label/2.7, weight='bold')
 
-            ax, r_, mi = regress(ax, proba, data, ymin, ymax, t_label, color=color_r[i], text=False, return_r_mi=True)
-            a1.bar(i, r_, color=color_r[i])
-            a2.bar(i, mi, color=color_r[i])
+            a1.text(i, 0-0.05, name_mode[i], color=color_r[i], alpha=1, ha="center", va="top", fontsize=t_label/2, weight='bold')
+            a2.text(i, 0-0.05, name_mode[i], color=color_r[i], alpha=1, ha="center", va="top", fontsize=t_label/2, weight='bold')
 
+            R_s, MI_s = [], []
+            for j, s in enumerate(self.subjects):
+                proba_s = np.ma.masked_array(full_proba[full.sujet==s].values.tolist(), mask=np.isnan(full_result[full.sujet==s].values.tolist())).compressed()
+                data_s = np.ma.masked_array(full_result[full.sujet==s].values.tolist(), mask=np.isnan(full_result[full.sujet==s].values.tolist())).compressed()
+                ax, r_s, mi_s = regress(ax, proba_s, data_s, line=False, text=False, return_r_mi=True)
+                R_s.append(r_s)
+                MI_s.append(mi_s)
+                #a1.scatter(i, r_s, c=color_r[i], linewidths=0, marker='_', s=5500)
+                #a2.scatter(i, mi_s, c=color_r[i], linewidths=0, marker='_', s=5500)
+                a1.scatter(i-0.4+(0.8*(j/(len(self.subjects)-1))), r_s, c=color_r[i], linewidths=0, marker='o', s=50)
+                a2.scatter(i-0.4+(0.8*(j/(len(self.subjects)-1))), mi_s, c=color_r[i], linewidths=0, marker='o', s=50)
+
+            print(mode, ':')
+            print('mean r :', np.mean(R_s), '+/-', np.std(R_s))
+            print('mean MI :', np.mean(MI_s), '+/-', np.std(MI_s), end='\n\n')
+            R_i.append(R_s)
+            MI_i.append(MI_s)
+
+        from scipy.stats import wilcoxon
+
+        for i  in range(len(mode_bcp)) :
+            for j  in range(i+1, len(mode_bcp)) :
+
+                print(mode_bcp[i], mode_bcp[j])
+                a = (j-i)*0.1
+                x_1, x_2 = i-a, j+a
+                if i==1 : x_1 = i+a
+                if j==1 : x_2 = j-a
+
+                w_r = wilcoxon(R_i[i], R_i[j]) ; print('r =', w_r)
+                if w_r.pvalue < 0.05 :
+                    a1.hlines(0.9+((j-i)*0.2), x_1, x_2)
+                    #a1.vlines(x_1, np.max(R_i[i])+0.25, np.max(R_i)+((j-i)*0.25))
+                    #a1.vlines(x_2, np.max(R_i[j])+0.25, np.max(R_i)+((j-i)*0.25))
+                    a1.text((x_1+x_2)/2, 0.9+((j-i)*0.2), '**' if w_r.pvalue<0.01 else '*', fontsize=t_label/2.1, ha='center')
+
+                w_mi = wilcoxon(MI_i[i], MI_i[j]) ; print('mi =', w_mi, '\n')
+                if w_mi.pvalue < 0.05 :
+                    a2.hlines(1.8+((j-i)*0.4), x_1, x_2)
+                    #a2.vlines(x_1, np.max(MI_i[i])+0.25, np.max(MI_i)+((j-i)*0.3))
+                    #a2.vlines(x_2, np.max(MI_i[j])+0.25, np.max(MI_i)+((j-i)*0.3))
+                    a2.text((x_1+x_2)/2, 1.8+((j-i)*0.4), '**'  if w_mi.pvalue<0.01 else '*', fontsize=t_label/1.8, ha='center')
 
         if titre is not None : ax.set_title(titre, fontsize=t_titre/1.2, x=0.5, y=1.05)
         ax.axis([xmin, xmax, ymin, ymax])
-        ax.set_xlabel('$\hat{P}$', fontsize=t_label/1)
+        ax.set_xlabel('Probability', fontsize=t_label/1.2)
         ax.tick_params(labelsize=t_label/1.8, bottom=True, left=True)
         #------------------------------------------------
+        fig.tight_layout()
+
+        ax_pos = ax.get_position().bounds
+        a1.set_position([ax_pos[0]+0.055, ax_pos[1]+ax_pos[3]-0.29, 0.25,0.25])
+        a2.set_position([ax_pos[0]+ax_pos[2]-0.29, ax_pos[1]+0.055, 0.25, 0.25])
+
+
 
         if fig is None: return fig, ax
         else : return ax
