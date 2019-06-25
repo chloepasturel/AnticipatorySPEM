@@ -1483,7 +1483,7 @@ class Analysis(object):
 
             from scipy.stats import beta
             p_bar, r_bar, beliefs = bcp.inference(observation, h=h, p0=p0, r0=r0)
-            print('fixed_window_size=', fixed_window_size)
+            if mode_bcp=='leaky' : print('fixed_window_size=', fixed_window_size)
             p_hat, r_hat = bcp.readout(p_bar, r_bar, beliefs, mode=mode, fixed_window_size=fixed_window_size, p0=p0)
             p_low, p_sup = np.zeros_like(p_hat), np.zeros_like(p_hat)
 
