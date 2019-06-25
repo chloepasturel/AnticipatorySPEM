@@ -1468,13 +1468,18 @@ class Analysis(object):
         N_trials = self.param_exp['N_trials']
         N_blocks = self.param_exp['N_blocks']
         h = 1./tau
+        if mode_bcp=='leaky' :
+            fixed_window_size=tau
+        else :
+            fixed_window_size = 40
+
 
         if p is None : p = self.param_exp['p']
         if num_block is None : BLOCK = range(N_blocks)
         else: ec, BLOCK = 0.1, num_block
 
         ncol_leg = 2
-        def plot_result_bcp(ax1, mode, observation, time, n_trial, name_bcp, name=True) :
+        def plot_result_bcp(ax1, mode, observation, time, n_trial, name_bcp,  name=True) :
 
             from scipy.stats import beta
             p_bar, r_bar, beliefs = bcp.inference(observation, h=h, p0=p0, r0=r0)
@@ -1694,7 +1699,6 @@ class Analysis(object):
 
             if mode_bcp is not None :
                 ncol_leg = 4
-                fixed_window_size = 40
                 p0, r0 =  0.5, 1.0
                 p = self.PARI[self.subjects[s]]['p']
                 if pause is not None :
