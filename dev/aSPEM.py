@@ -1469,7 +1469,7 @@ class Analysis(object):
         N_blocks = self.param_exp['N_blocks']
         h = 1./tau
         if mode_bcp=='leaky' :
-            fixed_window_size=tau
+            fixed_window_size = tau
         else :
             fixed_window_size = 40
 
@@ -1483,6 +1483,7 @@ class Analysis(object):
 
             from scipy.stats import beta
             p_bar, r_bar, beliefs = bcp.inference(observation, h=h, p0=p0, r0=r0)
+            print('fixed_window_size=', fixed_window_size)
             p_hat, r_hat = bcp.readout(p_bar, r_bar, beliefs, mode=mode, fixed_window_size=fixed_window_size, p0=p0)
             p_low, p_sup = np.zeros_like(p_hat), np.zeros_like(p_hat)
 
