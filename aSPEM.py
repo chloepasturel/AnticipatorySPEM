@@ -2030,7 +2030,7 @@ class Analysis(object):
         nb_sujet = len(self.subjects)
         full = Analysis.Full_list(self, modes_bcp=mode_bcp, pause=pause)
 
-        if proba == 'real' :
+        if proba == 'true' :
             ax.set_xlabel('$P_{true}$', fontsize=t_label/1)
             proba = 'proba'
         else :
@@ -2229,7 +2229,7 @@ class Analysis(object):
         return fig, axs
 
 
-    def comparison_line(self, ax=None, result='bet', mode_bcp=['real', 'leaky', 'mean'], bins=[0,0.2,0.4,0.6,0.8,1],
+    def comparison_line(self, ax=None, result='bet', mode_bcp=['true', 'leaky', 'mean'], bins=[0,0.2,0.4,0.6,0.8,1],
                         alpha=1, t_titre=35, t_label=25, titre=None, pause=True, color_r=['b', 'tab:orange', 'g'],
                         fig=None, fig_width=15, offset=0.01, lw_r=2) :
 
@@ -2241,7 +2241,7 @@ class Analysis(object):
 
         modes_bcp, name_mode = [],[]
         for mode in mode_bcp :
-            if mode == 'real' :
+            if mode == 'true' :
                 name_mode.append('$P_{true}$')
             else :
                 modes_bcp.append(mode)
@@ -2293,7 +2293,7 @@ class Analysis(object):
 
         R_i, MI_i = [], []
         for i, mode in enumerate(mode_bcp) :
-            if mode == 'real' : proba = 'proba'
+            if mode == 'true' : proba = 'proba'
             else :              proba = 'p_hat_'+mode
             full_proba = full[proba]
 
