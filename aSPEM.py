@@ -2328,7 +2328,8 @@ class Analysis(object):
                 a1.scatter(i-0.4+(0.8*(j/(len(self.subjects)-1))), r_s, c=color_r[i], linewidths=0, marker='o', s=50)
                 a2.scatter(i-0.4+(0.8*(j/(len(self.subjects)-1))), mi_s, c=color_r[i], linewidths=0, marker='o', s=50)
 
-            print(mode, ':')
+            if mode != 'mean' : print(mode, ':')
+            else :              print('BBCP :')
             print('mean r :', np.mean(R_s), '+/-', np.std(R_s))
             print('mean MI :', np.mean(MI_s), '+/-', np.std(MI_s), end='\n\n')
             R_i.append(R_s)
@@ -2337,9 +2338,14 @@ class Analysis(object):
         from scipy.stats import wilcoxon
 
         for i  in range(len(mode_bcp)) :
-            for j  in range(i+1, len(mode_bcp)) :
+            if mode_bcp[i] != 'mean' : m_1 = mode_bcp[i]
+            else :                     m_1 = 'BBCP'
 
-                print(mode_bcp[i], mode_bcp[j])
+            for j  in range(i+1, len(mode_bcp)) :
+                if mode_bcp[j] != 'mean' : m_2 = mode_bcp[j]
+                else :                     m_2 = 'BBCP'
+
+                print(m_1, m_2)
                 a = (j-i)*0.1
                 x_1, x_2 = i-a, j+a
                 if i==1 : x_1 = i+a
