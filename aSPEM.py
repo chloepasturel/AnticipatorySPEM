@@ -1612,7 +1612,7 @@ class Analysis(object):
                 for s in range(len(sujet)) :
                     if direction is True : a = s+1
                     else : a = s
-                    axs[a].step(range(N_trials), p[:, block, 1]+i_block+ec*i_block, lw=lw, c=color[1][0], alpha=1, label='$P_{real}$')
+                    axs[a].step(range(N_trials), p[:, block, 1]+i_block+ec*i_block, lw=lw, c=color[1][0], alpha=1, label='$P_{true}$')
                     axs[a].fill_between(range(N_trials), i_block+np.zeros_like(p[:, block, 1])+ec*i_block, i_block+p[:, block, 1]+ec*i_block,
                                               lw=.5, alpha=alpha[1][0], facecolor=color[1][0], step='pre')
                     axs[a].fill_between(range(N_trials), i_block+np.ones_like(p[:, block, 1])+ec*i_block, i_block+p[:, block, 1]+ec*i_block,
@@ -1899,7 +1899,7 @@ class Analysis(object):
                 ax1.step(range(N_trials), o, lw=lw, alpha=.15, c='k')
                 ax1.fill_between(range(N_trials), np.zeros_like(o), o, lw=0, alpha=alpha[0][1], facecolor=color[0][0], step='pre')
 
-            ax1.step(range(N_trials), p_true, lw=lw, alpha=1, c=color[1][0], label=r'$P_{real}$')
+            ax1.step(range(N_trials), p_true, lw=lw, alpha=1, c=color[1][0], label=r'$P_{true}$')
             ax1.fill_between(range(N_trials), np.zeros_like(p_true), p_true, lw=0, alpha=alpha[1][0], facecolor=color[1][0], step='pre')
             ax1.fill_between(range(N_trials), np.ones_like(p_true), p_true, lw=0, alpha=alpha[1][1], facecolor=color[1][1], step='pre')
 
@@ -2031,7 +2031,7 @@ class Analysis(object):
         full = Analysis.Full_list(self, modes_bcp=mode_bcp, pause=pause)
 
         if proba == 'real' :
-            ax.set_xlabel('$P_{real}$', fontsize=t_label/1)
+            ax.set_xlabel('$P_{true}$', fontsize=t_label/1)
             proba = 'proba'
         else :
             ax.set_xlabel('$\hat{P}_{%s}$'%(mode_bcp), fontsize=t_label/1)
@@ -2242,7 +2242,7 @@ class Analysis(object):
         modes_bcp, name_mode = [],[]
         for mode in mode_bcp :
             if mode == 'real' :
-                name_mode.append('$P_{real}$')
+                name_mode.append('$P_{true}$')
             else :
                 modes_bcp.append(mode)
                 if mode== 'mean' : name_mode.append('$P_{BBCP}$')
