@@ -2772,6 +2772,178 @@ class Analysis(object):
         if fig is None: return fig, ax
         else : return ax
 
+    def plot_FIG5B(self, mode_bcp='mean', list_h=[1/40], p=None, num_block=None,
+                   fig=None, axs=None, fig_width=15, titre=None, t_titre=35, t_label=25,
+                   color=[['k', 'k'], ['r', 'r'], ['k','w']],
+                   color_bcp=['darkgreen'], name_bcp=['$P_{BBCP}$'],
+                   alpha = [[.35,.15],[.35,.15],[1,0]], lw = 1.3, pause=50, ec = 0.2):
+
+        import matplotlib.pyplot as plt
+        import bayesianchangepoint as bcp
+        from scipy import stats
+        N_trials = self.param_exp['N_trials']
+        N_blocks = self.param_exp['N_blocks']
+
+        p = self.param_exp['p']
+        ec = 0.1
+
+        def plot_result_bcp(ax1, h, observation, time, n_trial, name_bcp, color, i_block, ec, name=True) :
+
+            fixed_window_size = 1/h
+
+            from scipy.stats import beta
+            p_bar, r_bar, beliefs = bcp.inference(observation, h=h, p0=p0, r0=r0)
+            p_hat, r_hat = bcp.readout(p_bar, r_bar, beliefs, mode=mode_bcp, fixed_window_size=fixed_window_size, p0=p0)
+            p_low, p_sup = np.zeros_like(p_hat), np.zeros_like(p_hat)
+
+            for i_trial in range(n_trial):
+                p_low[i_trial], p_sup[i_trial] = beta.ppf([.05, .95], a=p_hat[i_trial]*r_hat[i_trial], b=(1-p_hat[i_trial])*r_hat[i_trial])
+            ax1.plot(time, i_block+p_hat+ec*i_block, c=color, lw=lw, alpha=.9)
+            ax1.plot(time, i_block+p_sup+ec*i_block, c=color, lw=lw, alpha=.9, ls='--')
+            ax1.plot(time, i_block+p_low+ec*i_block, c=color, lw=lw, alpha=.9, ls='--')
+            ax1.fill_between(time, i_block+p_sup+ec*i_block, i_block+p_low+ec*i_block, lw=.5, alpha=.11, facecolor=color)
+
+            return ax1
+
+
+        if fig is None:
+
+            import matplotlib.gridspec as gridspec
+            #------------------------------------------------
+            fig, axs = plt.subplots(len(list_h)+1, 1, figsize=(fig_width, ((3+0.5)*fig_width/3)/(1.6180)))
+
+            gs1 = gridspec.GridSpec(1, 1)
+            gs1.update(left=0+0.072, bottom=0.84, right=1-0.04, top=1.-0.11, hspace=0.05)
+            axs[0] = plt.subplot(gs1[0])
+
+            axs[0].plot(np.arange(1, N_trials), p[1:, num_block[0], 0], 'k.', ms=4)
+            for card in ['bottom', 'top', 'right']: axs[0].spines[card].set_visible(False)
+            axs[0].spines['left'].set_bounds(0, 1)
+
+            gs2 = gridspec.GridSpec(len(list_h), 1)
+            gs2.update(left=0+0.072, bottom=0+0.1, right=1-0.04, top=0.85-0.03, hspace=0.05)
+            for a in range(len(list_h)): axs[a+1] = plt.subplot(gs2[a])
+
+        for i_layer in range(len(axs)):
+            #------------------------------------------------
+            # Barre Pause
+            #------------------------------------------------
+            if pause is not None :
+                for num_pause in range(1,4) :
+                    axs[i_layer].bar(num_pause*pause-1, len(num_block)+ec*len(num_block), bottom=-ec/2, color='k', width=.5, linewidth=0)
+
+            #------------------------------------------------
+            # cosmétique
+            #------------------------------------------------
+            axs[i_layer].set_ylim(-(ec/2), len(num_block) +ec*len(num_block)-(ec/2))
+            y_ticks=[0, 1, 1+ec, 2+ec, 2+ec*2, 3+ec*2]
+            axs[i_layer].set_yticks(y_ticks[:len(num_block)*2])
+            axs[i_layer].yaxis.set_label_coords(-0.05, 0.5)
+            axs[i_layer].yaxis.set_tick_params(direction='out')
+            axs[i_layer].yaxis.set_ticks_position('right')
+
+            axs[i_layer].set_xlim(-1, N_trials)
+            if i_layer==(len(axs)-1) :
+                axs[i_layer].set_xticks([0, 50, 100, 150, 200])
+                axs[i_layer].set_xticklabels([0, 50, 100, 150, 200], ha='left', fontsize=t_label/1.8)
+                axs[i_layer].xaxis.set_ticks_position('bottom')
+            else :
+                axs[i_layer].set_xticks([])
+        axs[0].yaxis.set_ticks_position('left')
+        #------------------------------------------------
+        # cosmétique
+        #------------------------------------------------
+        y_ticks=[0, 1, 1+ec, 2+ec, 2+ec*2, 3+ec*2]
+        axs[0].set_yticks(y_ticks[:len(num_block)*2])
+        axs[0].set_yticklabels(['left','right']*len(num_block),fontsize=t_label/1.8)
+        ###################################################################################################################################
+
+        td_label = 'TD'
+
+        for i_block, block in enumerate(num_block):
+
+            #print(num_block, i_block, block, i_block+ec*i_block)
+            axs[0].step(range(N_trials), p[:, block, 0]+i_block+ec*i_block, lw=1, c=color[0][0], alpha=alpha[0][0], where='mid')
+            axs[0].fill_between(range(N_trials), i_block+np.zeros_like(p[:, block, 0])+ec*i_block,
+                                      i_block+p[:, block, 0]+ec*i_block,
+                                      lw=.5, alpha=alpha[0][0], facecolor=color[0][0], step='mid')
+            axs[0].fill_between(range(N_trials), i_block+np.ones_like(p[:, block, 0])+ec*i_block,
+                                      i_block+p[:, block, 0]+ec*i_block,
+                                      lw=.5, alpha=alpha[0][1], facecolor=color[0][1], step='mid')
+            axs[0].set_ylabel(td_label, fontsize=t_label/1.2)
+
+            for a in range(1, len(list_h)+1) :
+                axs[a].step(range(N_trials), p[:, block, 1]+i_block+ec*i_block, lw=lw, c=color[1][0], alpha=1, label='$P_{true}$')
+                axs[a].fill_between(range(N_trials), i_block+np.zeros_like(p[:, block, 1])+ec*i_block, i_block+p[:, block, 1]+ec*i_block,
+                                          lw=.5, alpha=alpha[1][0], facecolor=color[1][0], step='pre')
+                axs[a].fill_between(range(N_trials), i_block+np.ones_like(p[:, block, 1])+ec*i_block, i_block+p[:, block, 1]+ec*i_block,
+                                          lw=.5, alpha=alpha[1][1], facecolor=color[1][1], step='pre')
+
+                axs[a].plot(range(N_trials), 0.5*np.ones(N_trials)+i_block+ec*i_block, lw=1.5, c='k', alpha=0.5)
+                #axs[a].text(-0.055, 0.5, 'Subject %s'%(s), fontsize=t_label/1.2, rotation=90, transform=axs[a].transAxes, ha='right', va='center')
+        #-------------------------------------------------------------------------------------------------------------
+
+        p = self.PARI[self.subjects[0]]['p']
+        p0, r0 =  0.5, 1.0
+
+        for i_block, block in enumerate(num_block):
+
+            #------------------------------------------------------------
+            # BCP
+            #------------------------------------------------------------
+
+            for b, h in enumerate(list_h):
+
+                axs[1].plot(-1000000,-100000, lw=lw, c=color_bcp[b], label='h = 1/%s'%int(1/h))
+                #axs[1].plot(-1000000,-100000, lw=lw, c=color_bcp[b], label='h = $10^{%.1f}$'%(np.log10(h)))
+ 
+ 
+                if pause is None :
+                    axs[b+1] = plot_result_bcp(axs[b+1], h, p[:, block, 0], np.arange(len(p[:, block, 0])),
+                                                len(p[:, block, 0]), name_bcp[b], color_bcp[b], i_block, ec, name=True)
+                    #axs[b+1].set_ylabel('h=%s'%h, fontsize=t_label/1.5)
+                    #axs[b+1].tick_params('y', colors=color_bcp[b])
+                    
+                    
+
+                else :
+                    liste = [0,50,100,150,200]
+                    for pause in range(len(liste)-1) :
+                        if pause==0 :
+                            name=True
+                            #axs[b+1].set_ylabel('h=%s'%h, fontsize=t_label/1.5)
+                            #axs[b+1].tick_params('y', colors=color_bcp[b])
+                        else :
+                            name=False
+                        n_trial = liste[pause+1]-liste[pause]
+                        axs[b+1] = plot_result_bcp(axs[b+1], h, p[liste[pause]:liste[pause+1], block, 0], np.arange(liste[pause], liste[pause+1]),
+                                                   n_trial, name_bcp[b], color_bcp[b], i_block, ec, name=name)
+
+
+        for i in range(1,len(list_h)+1) :
+
+            #axs[i].yaxis.set_label_coords(-0.03, 0.5)
+            axs[i].set_yticklabels(['0', '0.5', '1']*len(num_block),fontsize=t_label/1.8)
+
+            axs[i].yaxis.set_ticks_position('left')
+            y_ticks=[0, 0.5, 1, 1+ec, 1.5+ec, 2+ec, 2+ec*2, 2.5+ec*2, 3+ec*2]
+            axs[i].set_yticks(y_ticks[:len(num_block)*3])
+
+        ncol_leg = 4
+        axs[1].legend(fontsize=t_label/1.8, bbox_to_anchor=(0., 1.33, 1, 0.), loc=3, ncol=ncol_leg, mode="expand", borderaxespad=0.)
+        axs[2].set_ylabel('Probability', fontsize=t_label/1.2)
+        #----------------------------------------------------------------
+
+        axs[-1].set_xlabel('Trial #', fontsize=t_label)
+        try: fig.tight_layout()
+        except: print('tight_layout failed :-(')
+        plt.subplots_adjust(hspace=0.05)
+        #------------------------------------------------
+
+        return fig, axs
+
+
+
 
 if __name__ == '__main__':
 
