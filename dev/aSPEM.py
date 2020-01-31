@@ -2836,6 +2836,8 @@ class Analysis(object):
             import matplotlib.gridspec as gridspec
             #------------------------------------------------
             fig, axs = plt.subplots(len(list_h)+1, 1, figsize=(fig_width, ((3+0.5)*fig_width/3)/(1.6180)))
+            #gs0 = gridspec.GridSpec(2, 1)
+            #gs1, gs2 = gs0[0], gs0[1]
 
             gs1 = gridspec.GridSpec(1, 1)
             gs1.update(left=0+0.072, bottom=0.84, right=1-0.04, top=1.-0.11, hspace=0.05)
@@ -2881,10 +2883,12 @@ class Analysis(object):
         y_ticks=[0, 1, 1+ec, 2+ec, 2+ec*2, 3+ec*2]
         axs[0].set_yticks(y_ticks[:len(num_block)*2])
         axs[0].set_yticklabels(['left','right']*len(num_block),fontsize=t_label/1.8)
+        axs[0].yaxis.set_label_coords(-0.07, 0.5)
         ###################################################################################################################################
 
         td_label = 'TD'
 
+        axs[0].set_ylabel(td_label, fontsize=t_label/1.5)
         for i_block, block in enumerate(num_block):
 
             #print(num_block, i_block, block, i_block+ec*i_block)
@@ -2895,7 +2899,7 @@ class Analysis(object):
             axs[0].fill_between(range(N_trials), i_block+np.ones_like(p[:, block, 0])+ec*i_block,
                                       i_block+p[:, block, 0]+ec*i_block,
                                       lw=.5, alpha=alpha[0][1], facecolor=color[0][1], step='mid')
-            axs[0].set_ylabel(td_label, fontsize=t_label/1.2)
+
 
             for a in range(1, len(list_h)+1) :
                 axs[a].step(range(N_trials), p[:, block, 1]+i_block+ec*i_block, lw=lw, c=color[1][0], alpha=1, label='$P_{true}$')
@@ -2956,15 +2960,20 @@ class Analysis(object):
 
         ncol_leg = 4
         axs[1].legend(fontsize=t_label/1.8, bbox_to_anchor=(0., 1.33, 1, 0.), loc=3, ncol=ncol_leg, mode="expand", borderaxespad=0.)
-        axs[2].set_ylabel('Probability', fontsize=t_label/1.2)
+        axs[2].set_ylabel('Probability', fontsize=t_label/1.5)
         #----------------------------------------------------------------
 
-        axs[-1].set_xlabel('Trial #', fontsize=t_label)
-        try: fig.tight_layout()
-        except: print('tight_layout failed :-(')
+        axs[-1].set_xlabel('Trial #', fontsize=t_label/1.5)
+
+
+        #gs0.tight_layout(fig) #; gs2.tight_layout(fig)
         plt.subplots_adjust(hspace=0.05)
+        fig.tight_layout()
+        #try: fig.tight_layout()
+        #except: print('tight_layout failed :-(')
         #------------------------------------------------
 
+        #fig.tight_layout()
         return fig, axs
 
 
