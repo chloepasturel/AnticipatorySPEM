@@ -2760,6 +2760,31 @@ class Analysis(object):
         ax.axis([xmin, xmax, ymin, ymax])
         ax.set_xlabel('Probability', fontsize=t_label/1.2)
         ax.tick_params(labelsize=t_label/1.8, bottom=True, left=True)
+
+        list_spine = [0, 0.2, 0.4, 0.6, 0.8, 1]
+        list_ticks, titi = [], []
+        for i, spipi in enumerate(list_spine[:-1]) :
+            ax_ = ax.twinx()
+            ax_.set_yticks([])
+            for card in ['top', 'right', 'left']: ax_.spines[card].set_visible(False)
+            ax_.spines['bottom'].set_bounds(spipi+0.03, spipi+0.17)
+
+            list_ticks.extend([spipi+0.03, spipi+0.17])
+            titi.append(spipi+0.1)
+
+        ax.set_xticks(list_ticks)
+        ax.tick_params('x', direction='in', labelcolor='w')# colors='w', labelcolor='k')#, direction='in')
+
+        tlabel = ['0', '0.2', '0.4', '0.6', '0.8', '1']
+        for i, t in enumerate(titi) :
+            ax.text(t, ymin-((ymax-ymin)*0.005), '%s - %s'%(tlabel[i], tlabel[i+1]), ha="center", va="top", fontsize=t_label/1.8)#, weight='bold')
+
+
+        for card in ['top', 'right','bottom']: ax.spines[card].set_visible(False)
+        if result=='bet' : ax.spines['left'].set_bounds(0, 1)
+        else : ax.spines['left'].set_bounds(-5, 5)
+
+
         #------------------------------------------------
         fig.tight_layout()
 
@@ -2894,17 +2919,17 @@ class Analysis(object):
 
             for b, h in enumerate(list_h):
 
-                axs[1].plot(-1000000,-100000, lw=lw, c=color_bcp[b], label='h = 1/%s'%int(1/h))
+                axs[1].plot(-1000000,-100000, lw=lw, c=color_bcp[b], label='%s = 1/%s'%(name_bcp[b], int(1/h)))
                 #axs[1].plot(-1000000,-100000, lw=lw, c=color_bcp[b], label='h = $10^{%.1f}$'%(np.log10(h)))
- 
- 
+
+
                 if pause is None :
                     axs[b+1] = plot_result_bcp(axs[b+1], h, p[:, block, 0], np.arange(len(p[:, block, 0])),
                                                 len(p[:, block, 0]), name_bcp[b], color_bcp[b], i_block, ec, name=True)
                     #axs[b+1].set_ylabel('h=%s'%h, fontsize=t_label/1.5)
                     #axs[b+1].tick_params('y', colors=color_bcp[b])
-                    
-                    
+
+
 
                 else :
                     liste = [0,50,100,150,200]
