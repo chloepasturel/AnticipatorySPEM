@@ -2209,7 +2209,7 @@ class Analysis(object):
         modes_bcp, name_mode = [],[]
         for mode in mode_bcp :
             if mode == 'real' :
-                name_mode.append('$P_{real}$')
+                name_mode.append('$P_{true}$')
             else :
                 modes_bcp.append(mode)
                 if mode== 'mean' : name_mode.append('$P_{BBCP}$')
