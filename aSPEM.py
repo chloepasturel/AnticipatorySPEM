@@ -81,7 +81,7 @@ class aSPEM(object):
             screen_width_px = 1280 #1920 #1280 for ordi enregistrement
             screen_height_px = 1024 #1080 #1024 for ordi enregistrement
             framerate = 60 #100.for ordi enregistrement
-            screen = 0 # 1 pour afficher sur l'écran 2 (ne marche pas pour enregistrement (mac))
+            screen = 0 # 1 pour afficher sur l'écran 2 (ne marche pas pour eyeMvt (mac))
 
             screen_width_cm = 37 #57. # (cm)
             viewingDistance = 57. # (cm) TODO : what is the equivalent viewing distance?
@@ -93,7 +93,7 @@ class aSPEM(object):
             # stimulus parameters
             # ---------------------------------------------------
             dot_size = 10 # (0.02*screen_height_px)
-            V_X_deg = 15 #20   # deg/s   # 15 for 'enregistrement'
+            V_X_deg = 15 #20   # deg/s   # 15 for 'eyeMvt'
             V_X = px_per_deg * V_X_deg     # pixel/s
 
             RashBass  = 100  # ms - pour reculer la cible à t=0 de sa vitesse * latency=RashBass
@@ -109,7 +109,7 @@ class aSPEM(object):
             N_trials = 200
             tau = N_trials/5.
             (trials, p) = binomial_motion(N_trials, N_blocks, tau=tau, seed=seed, N_layer=3)
-            stim_tau = .75 #1 #.35 # in seconds # 1.5 for 'enregistrement'
+            stim_tau = .75 #1 #.35 # in seconds # 1.5 for 'eyeMvt'
 
             gray_tau = .0 # in seconds
             T =  stim_tau + gray_tau
@@ -154,7 +154,7 @@ class aSPEM(object):
         prefs.general['audioLib'] = [u'pygame']
         from psychopy import sound
 
-        if self.mode=='enregistrement' :
+        if self.mode=='eyeMvt' :
             import EyeTracking as ET
             ET = ET.EyeTracking(self.param_exp['screen_width_px'], self.param_exp['screen_height_px'], self.param_exp['dot_size'], self.param_exp['N_trials'], self.observer, self.param_exp['datadir'], self.timeStr)
 
@@ -203,10 +203,10 @@ class aSPEM(object):
                 if thisKey in ['escape', 'a', 'q']:
                     core.quit()
                     win.close()
-                    if mode=='enregistrement' :
+                    if mode=='eyeMvt' :
                         ET.End_trial()
                         ET.End_exp()
-            if mode=='enregistrement' :
+            if mode=='eyeMvt' :
                 win.winHandle.set_fullscreen(False)
                 win.winHandle.set_visible(False) # remis pour voir si ça enléve l'écran blanc juste après calibration
                 ET.drift_correction()
@@ -217,7 +217,7 @@ class aSPEM(object):
             if event.getKeys(keyList=['escape', 'a', 'q']):
                 win.close()
                 core.quit()
-                if mode=='enregistrement' :
+                if mode=='eyeMvt' :
                     ET.End_trial()
                     ET.End_exp()
 
@@ -249,9 +249,9 @@ class aSPEM(object):
         # ---------------------------------------------------
         # EXPERIMENT
         # ---------------------------------------------------
-        if self.mode == 'pari' : results = np.zeros((self.param_exp['N_trials'], self.param_exp['N_blocks'] ))
+        if self.mode == 'bet' : results = np.zeros((self.param_exp['N_trials'], self.param_exp['N_blocks'] ))
 
-        if self.mode == 'enregistrement':
+        if self.mode == 'eyeMvt':
             ET.Start_exp()
 
             # Effectuez la configuration du suivi au début de l'expérience.
@@ -261,13 +261,13 @@ class aSPEM(object):
             win.winHandle.set_visible(True) # remis pour voir si ça enléve l'écran blanc juste après calibration
             win.winHandle.set_fullscreen(True)
 
-        if self.mode == 'pari' : score = 0
+        if self.mode == 'bet' : score = 0
 
         for block in range(self.param_exp['N_blocks']):
 
             x = 0
 
-            if self.mode == 'pari' :
+            if self.mode == 'bet' :
                 text_score.text = '%1.0f/100' %(score / 50 * 100)
                 text_score.draw()
                 score = 0
@@ -280,7 +280,7 @@ class aSPEM(object):
                 # PAUSE tous les 50 essais
                 # ---------------------------------------------------
                 if x == 50 :
-                    if self.mode == 'pari' :
+                    if self.mode == 'bet' :
                         text_score.text = '%1.0f/100' %(score / 50 * 100)
                         text_score.draw()
                         score = 0
@@ -293,7 +293,7 @@ class aSPEM(object):
                 # ---------------------------------------------------
                 # FIXATION
                 # ---------------------------------------------------
-                if self.mode == 'pari' :
+                if self.mode == 'bet' :
 
                     event.clearEvents()
                     ratingScale.reset()
@@ -307,7 +307,7 @@ class aSPEM(object):
                     ans = ratingScale.getRating()
                     results[trial, block] = ans
 
-                if self.mode == 'enregistrement':
+                if self.mode == 'eyeMvt':
 
                     ET.check()
                     ET.Start_trial(trial)
@@ -325,7 +325,7 @@ class aSPEM(object):
                 # ---------------------------------------------------
                 win.flip()
                 escape_possible(self.mode)
-                if self.mode == 'enregistrement': ET.StimulusOFF()
+                if self.mode == 'eyeMvt': ET.StimulusOFF()
                 core.wait(0.3)
 
                 # ---------------------------------------------------
@@ -333,12 +333,12 @@ class aSPEM(object):
                 # ---------------------------------------------------
                 escape_possible(self.mode)
                 dir_bool = self.param_exp['p'][trial, block, 0]
-                if self.mode == 'enregistrement': ET.TargetON()
+                if self.mode == 'eyeMvt': ET.TargetON()
                 presentStimulus_move(dir_bool)
                 escape_possible(self.mode)
                 win.flip()
 
-                if self.mode == 'pari' :
+                if self.mode == 'bet' :
                     score_trial = ans * (dir_bool * 2 - 1)
                 #    if score_trial > 0 :
                 #        Bip_pos.setVolume(score_trial)
@@ -350,14 +350,14 @@ class aSPEM(object):
 
                     score += score_trial
 
-                if self.mode == 'enregistrement':
+                if self.mode == 'eyeMvt':
                     ET.TargetOFF()
                     ret_value = ET.fin_enregistrement()
                     ET.check_trial(ret_value)
 
-        if self.mode == 'pari' : self.param_exp['results'] = results
+        if self.mode == 'bet' : self.param_exp['results'] = results
 
-        if self.mode == 'enregistrement': ET.End_exp()
+        if self.mode == 'eyeMvt': ET.End_exp()
 
         with open(self.exp_name(), 'wb') as fichier:
             f = pickle.Pickler(fichier)
@@ -481,13 +481,13 @@ def results_sujet(self, ax, sujet, s, mode_bcp, tau, t_label, pause, color = [['
     suj = sujet[s]
 
     print('Subject', suj, '=', self.subjects[suj])
-    N_trials = self.PARI[self.subjects[suj]]['N_trials']
-    N_blocks = self.PARI[self.subjects[suj]]['N_blocks']
-    p = self.PARI[self.subjects[suj]]['p']
+    N_trials = self.BET[self.subjects[suj]]['N_trials']
+    N_blocks = self.BET[self.subjects[suj]]['N_blocks']
+    p = self.BET[self.subjects[suj]]['p']
     # tau = N_trials/5.
     h = 1./tau
-    results = (self.PARI[self.subjects[suj]]['results']+1)/2 # results est sur [-1,1] on le ramene sur [0,1]
-    a_anti = self.ENREGISTREMENT[self.subjects[suj]]['a_anti']
+    results = (self.BET[self.subjects[suj]]['results']+1)/2 # results est sur [-1,1] on le ramene sur [0,1]
+    a_anti = self.EYEMVT[self.subjects[suj]]['a_anti']
 
     for block in range(N_blocks) :
         #----------------------------------------------------------------------------------
@@ -552,8 +552,8 @@ def results_sujet(self, ax, sujet, s, mode_bcp, tau, t_label, pause, color = [['
 class Analysis(object):
     """ docstring for the aSPEM class. """
 
-    def __init__(self, observer=None, mode=None, name_file_fit='fct_velocity_2_step_False_whitening') :
-        self.subjects = ['AM','BMC','CS','DC','FM','IP','LB','OP','RS','SR','TN','YK'] # ne plus prendre en conte YK
+    def __init__(self, observer=None, mode=None, name_file_fit='fct_velocity_sigmo') :
+        self.subjects = ['s01','s02','s03','s04','s05','s06','s07','s08','s09','s10','s11','s12']
         self.name_file_fit = name_file_fit
         self.mode = mode
         self.observer = observer
@@ -578,18 +578,18 @@ class Analysis(object):
         # récuperation de toutes les données
         # ---------------------------------------------------
         import glob
-        liste = {'pari':{}, 'enregistrement':{}}
+        liste = {'bet':{}, 'eyeMvt':{}}
         for fname in glob.glob('data/*pkl'):
             a = fname.split('/')[1].split('.')[0].split('_')
             liste[a[0]][a[1]] = a[2]+'_'+a[3]
 
-        self.PARI = {}
-        for s in liste['pari'].keys() :
+        self.BET = {}
+        for s in liste['bet'].keys() :
             if s in self.subjects :
-                a = 'data/pari_%s_%s.pkl'%(s, liste['pari'][s])
+                a = 'data/bet_%s_%s.pkl'%(s, liste['bet'][s])
                 with open(a, 'rb') as fichier :
                     b = pickle.load(fichier, encoding='latin1')
-                    self.PARI[s] = b
+                    self.BET[s] = b
 
         a = 'parametre/Delete/Delete_list_BadTrials_Full_%s.pkl'%(self.name_file_fit)
         try :
@@ -600,25 +600,25 @@ class Analysis(object):
             self.list_delete = None
             print('/!\ Le fichier Delete n\'existe pas pour %s !'%(self.name_file_fit))
 
-        self.ENREGISTREMENT = {}
-        for s in liste['enregistrement'].keys() :
+        self.EYEMVT = {}
+        for s in liste['eyeMvt'].keys() :
             if s in self.subjects:
                 a = 'parametre/%s/param_Fit_%s_%s.pkl'%(self.name_file_fit, s, self.name_file_fit)
                 try :
                     with open(a, 'rb') as fichier :
                         b = pickle.load(fichier, encoding='latin1')
-                        self.ENREGISTREMENT[s] = b
+                        self.EYEMVT[s] = b
                 except :
                     print('/!\ Le fichier param Fit n\'existe pas pour %s !'%(s))
 
         # ---------------------------------------------------
-        if self.observer is None : self.observer =  'OP'
-        if self.mode is None : self.mode = 'enregistrement'
+        if self.observer is None : self.observer =  's08'
+        if self.mode is None : self.mode = 'eyeMvt'
 
         self.timeStr = liste[self.mode][self.observer]
 
-        self.param_exp = self.PARI[self.observer]
-        if self.mode == 'enregistrement' : self.param = self.ENREGISTREMENT[self.observer]
+        self.param_exp = self.BET[self.observer]
+        if self.mode == 'eyeMvt' : self.param = self.EYEMVT[self.observer]
 
 
 
@@ -643,10 +643,10 @@ class Analysis(object):
 
         for i, suj in enumerate(self.subjects) :
 
-            results = (self.PARI[suj]['results']+1)/2
-            a_anti = self.ENREGISTREMENT[suj]['a_anti']
-            start_anti = self.ENREGISTREMENT[suj]['start_anti']
-            latency = self.ENREGISTREMENT[suj]['latency']
+            results = (self.BET[suj]['results']+1)/2
+            a_anti = self.EYEMVT[suj]['a_anti']
+            start_anti = self.EYEMVT[suj]['start_anti']
+            latency = self.EYEMVT[suj]['latency']
 
             for block in range(N_blocks):
 
@@ -1781,7 +1781,7 @@ class Analysis(object):
 
         if show=='scatter' :
             '''for x, color in enumerate(colors[:nb_sujet]):
-                s = self.PARI[x]['observer']
+                s = self.BET[x]['observer']
                 ax.scatter(full_proba[full.sujet==s], full_result[full.sujet==s], c=color, alpha=0.5, linewidths=0)'''
             alpha=0.2
             for x in range(nb_sujet):
@@ -1880,7 +1880,7 @@ class Analysis(object):
         from scipy import stats
 
         nb_sujet = len(self.subjects)
-        #full = Analysis.Full_list(self, modes_bcp=mode_bcp, pause=True) #(self.PARI, self.ENREGISTREMENT, P_HAT=True)
+        #full = Analysis.Full_list(self, modes_bcp=mode_bcp, pause=True) #(self.BET, self.EYEMVT, P_HAT=True)
 
         if plot == 'Full' :
             a = len(sujet)
@@ -2065,7 +2065,7 @@ class Analysis(object):
                 #axs[a].text(-0.055, 0.5, 'Subject %s'%(s), fontsize=t_label/1.2, rotation=90, transform=axs[a].transAxes, ha='right', va='center')
         #-------------------------------------------------------------------------------------------------------------
 
-        p = self.PARI[self.subjects[0]]['p']
+        p = self.BET[self.subjects[0]]['p']
         mini = 5 #8
         ec1 = ec*mini*2
         p0, r0 =  0.5, 1.0
@@ -2077,8 +2077,8 @@ class Analysis(object):
             v_antiti = np.zeros((len(self.subjects), N_trials))
 
             for x, y in enumerate(self.subjects) :
-                resusu[x] = (self.PARI[y]['results'][:, block]+1)/2
-                a_anti, start_anti, latency = self.ENREGISTREMENT[y]['a_anti'][block], self.ENREGISTREMENT[y]['start_anti'][block], self.ENREGISTREMENT[y]['latency'][block]
+                resusu[x] = (self.BET[y]['results'][:, block]+1)/2
+                a_anti, start_anti, latency = self.EYEMVT[y]['a_anti'][block], self.EYEMVT[y]['start_anti'][block], self.EYEMVT[y]['latency'][block]
                 v_antiti[x] = (np.array(a_anti)*((np.array(latency)-np.array(start_anti))/1000))
 
             results = np.median(resusu, axis=0)
@@ -2104,7 +2104,7 @@ class Analysis(object):
             for pause in range(len(liste)-1) :
 
                 #------------------------------------------------------------
-                # enregistrement
+                # eyeMvt
                 #------------------------------------------------------------
                 va__ = 2*(mini*i_block)+va[liste[pause]:liste[pause+1]]+ec1*i_block
                 va_sup__ = 2*(mini*i_block)+va_sup[liste[pause]:liste[pause+1]]+ec1*i_block
@@ -2119,7 +2119,7 @@ class Analysis(object):
                 ax2.plot(titi, va_low__, c=color_va, lw=lw, alpha=.9, ls='--')
 
                 #------------------------------------------------------------
-                # pari
+                # bet
                 #------------------------------------------------------------
                 results__ = i_block+results[liste[pause]:liste[pause+1]]+ec*i_block
                 results_sup__ = i_block+results_sup[liste[pause]:liste[pause+1]]+ec*i_block
@@ -2134,15 +2134,15 @@ class Analysis(object):
 
             for c, suj in zip(['b', 'g'], sujet) :
 
-                results = (self.PARI[self.subjects[suj]]['results']+1)/2 # results est sur [-1,1] on le ramene sur [0,1]
-                a_anti, start_anti, latency = self.ENREGISTREMENT[self.subjects[suj]]['a_anti'], self.ENREGISTREMENT[self.subjects[suj]]['start_anti'], self.ENREGISTREMENT[self.subjects[suj]]['latency']
+                results = (self.BET[self.subjects[suj]]['results']+1)/2 # results est sur [-1,1] on le ramene sur [0,1]
+                a_anti, start_anti, latency = self.EYEMVT[self.subjects[suj]]['a_anti'], self.EYEMVT[self.subjects[suj]]['start_anti'], self.EYEMVT[self.subjects[suj]]['latency']
                 print('sujet', suj, '=', self.subjects[suj])
-                # enregistrement
+                # eyeMvt
                 #------------------------------------------------------------
                 #axs[3].step(range(1), -1000, color=color_va, lw=lw, alpha=1)#, label='Eye movement'  if i_block==0 else '')
                 va = (np.array(a_anti[block])*((np.array(latency[block])-np.array(start_anti[block]))/1000))
                 ax2.step(range(N_trials), 2*(mini*i_block)+va+ec1*i_block, color=c, lw=lw, alpha=.7)
-                # pari
+                # bet
                 #------------------------------------------------------------
                 axs[3].step(range(N_trials), i_block+results[:, block]+ec*i_block, lw=lw, alpha=.7, color=c)#, label='Individual guess'  if i_block==0 else '')
 
@@ -2497,7 +2497,7 @@ class Analysis(object):
                 #axs[a].text(-0.055, 0.5, 'Subject %s'%(s), fontsize=t_label/1.2, rotation=90, transform=axs[a].transAxes, ha='right', va='center')
         #-------------------------------------------------------------------------------------------------------------
 
-        p = self.PARI[self.subjects[0]]['p']
+        p = self.BET[self.subjects[0]]['p']
         p0, r0 =  0.5, 1.0
 
         for i_block, block in enumerate(num_block):
@@ -2888,9 +2888,9 @@ class Analysis(object):
             if len(sujet)==1: y_t = 1.1
             else :            y_t = 1.25
             suj = sujet[s]
-            p = self.PARI[self.subjects[suj]]['p']
-            results = (self.PARI[self.subjects[suj]]['results']+1)/2 # results est sur [-1,1] on le ramene sur [0,1]
-            a_anti, start_anti, latency = self.ENREGISTREMENT[self.subjects[suj]]['a_anti'], self.ENREGISTREMENT[self.subjects[suj]]['start_anti'], self.ENREGISTREMENT[self.subjects[suj]]['latency']
+            p = self.BET[self.subjects[suj]]['p']
+            results = (self.BET[self.subjects[suj]]['results']+1)/2 # results est sur [-1,1] on le ramene sur [0,1]
+            a_anti, start_anti, latency = self.EYEMVT[self.subjects[suj]]['a_anti'], self.EYEMVT[self.subjects[suj]]['start_anti'], self.EYEMVT[self.subjects[suj]]['latency']
             if print_suj is True : print('sujet', suj, '=', self.subjects[suj])
 
             #-------------------------------------------------------------------------------------------------------------
@@ -2900,11 +2900,11 @@ class Analysis(object):
             ec1 = ec*mini*2
 
             if titre is None :
-                if mode == 'pari' :             axs[0].set_title('Bet results', fontsize=t_titre, x=0.5, y=y_t)
-                elif mode == 'enregistrement' : axs[0].set_title('Eye movements recording results', fontsize=t_titre, x=0.5, y=y_t)
+                if mode == 'bet' :             axs[0].set_title('Bet results', fontsize=t_titre, x=0.5, y=y_t)
+                elif mode == 'eyeMvt' : axs[0].set_title('Eye movements recording results', fontsize=t_titre, x=0.5, y=y_t)
                 elif mode=='deux':              axs[0].set_title('Bet + Eye movements results', fontsize=t_titre, x=0.5, y=y_t)
 
-            if mode in ['pari', 'deux'] :
+            if mode in ['bet', 'deux'] :
 
                 for i_block, block in enumerate(BLOCK):
                     axs[a].step(range(N_trials), i_block+results[:, block]+ec*i_block, lw=lw, alpha=1, color=color_bet, label='Individual guess'  if i_block==0 else '')
@@ -2918,7 +2918,7 @@ class Analysis(object):
                 axs[a].tick_params('y', colors=color_bet)
                 axs[a].yaxis.set_label_coords(-0.03, 0.5)
 
-            if mode in ['enregistrement', 'deux'] :
+            if mode in ['eyeMvt', 'deux'] :
 
                 ax1 = axs[a].twinx()
                 for i_block, block in enumerate(BLOCK):
@@ -2953,13 +2953,13 @@ class Analysis(object):
                 #ax1.set_ylabel('Velocity of anticipation °/s', rotation=-90,fontsize=t_label/1.5)
 
                 ax1.set_ylabel('Velocity of eye °/s', rotation=-90, fontsize=t_label/1.5, color=color_va)
-                #if mode == 'enregistrement' : axs[a].set_yticks([])
+                #if mode == 'eyeMvt' : axs[a].set_yticks([])
 
 
             if mode_bcp is not None :
                 ncol_leg = 4
                 p0, r0 =  0.5, 1.0
-                p = self.PARI[self.subjects[s]]['p']
+                p = self.BET[self.subjects[s]]['p']
                 if pause is not None :
                     liste = [0,50,100,150,200]
                     for pause in range(len(liste)-1) :
@@ -3002,8 +3002,8 @@ if __name__ == '__main__':
     try:
         mode = sys.argv[1]
     except:
-        mode = 'pari'
-        #mode = 'enregistrement'
+        mode = 'bet'
+        #mode = 'eyeMvt'
     try:
         timeStr = sys.argv[4]
     except:
