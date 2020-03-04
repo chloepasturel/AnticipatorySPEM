@@ -579,19 +579,19 @@ class Analysis(object):
         # ---------------------------------------------------
         import glob
         liste = {'bet':{}, 'eyeMvt':{}}
-        for fname in glob.glob('data/*pkl'):
-            a = fname.split('/')[1].split('.')[0].split('_')
+        for fname in glob.glob('../data/*pkl'):
+            a = fname.split('/')[2].split('.')[0].split('_')
             liste[a[0]][a[1]] = a[2]+'_'+a[3]
 
         self.BET = {}
         for s in liste['bet'].keys() :
             if s in self.subjects :
-                a = 'data/bet_%s_%s.pkl'%(s, liste['bet'][s])
+                a = '../data/bet_%s_%s.pkl'%(s, liste['bet'][s])
                 with open(a, 'rb') as fichier :
                     b = pickle.load(fichier, encoding='latin1')
                     self.BET[s] = b
 
-        a = 'parametre/Delete/Delete_list_BadTrials_Full_%s.pkl'%(self.name_file_fit)
+        a = '../parametre/Delete/Delete_list_BadTrials_Full_%s.pkl'%(self.name_file_fit)
         try :
             with open(a, 'rb') as fichier :
                 b = pickle.load(fichier, encoding='latin1')
@@ -603,7 +603,7 @@ class Analysis(object):
         self.EYEMVT = {}
         for s in liste['eyeMvt'].keys() :
             if s in self.subjects:
-                a = 'parametre/%s/param_Fit_%s_%s.pkl'%(self.name_file_fit, s, self.name_file_fit)
+                a = '../parametre/%s/param_Fit_%s_%s.pkl'%(self.name_file_fit, s, self.name_file_fit)
                 try :
                     with open(a, 'rb') as fichier :
                         b = pickle.load(fichier, encoding='latin1')
