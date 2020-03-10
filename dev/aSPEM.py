@@ -1017,7 +1017,7 @@ class Analysis(object):
         from ANEMO import ANEMO
         Plot = ANEMO.Plot(self.param_exp)
 
-        resultats = os.path.join('data', self.mode + '_' + self.observer + '_' + self.timeStr + '.asc')
+        resultats = os.path.join('../data', self.mode + '_' + self.observer + '_' + self.timeStr + '.asc')
         data = read_edf(resultats, 'TRIALID')
 
         fig, axs = Plot.plot_data(data, show=show, trials=trials, block=block,
