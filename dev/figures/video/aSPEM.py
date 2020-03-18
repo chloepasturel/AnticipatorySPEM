@@ -1490,7 +1490,7 @@ class Analysis(object):
             ax1.plot(time, p_hat, c=c,  lw=lw, alpha=.9, label=label if name is True else '')
             ax1.plot(time, p_sup, c=c, lw=lw, alpha=.9, ls='--')#, label='CI '+label if name is True else '')
             ax1.plot(time, p_low, c=c, lw=lw, alpha=.9, ls='--')
-            ax1.fill_between(time, p_sup, p_low, lw=.5, alpha=.11, facecolor=c)
+            ax1.fill_between(time, p_sup, p_low, lw=.5, alpha=.5, facecolor=c)
 
             if ax2 is not None :
 
@@ -1506,9 +1506,9 @@ class Analysis(object):
                         beliefs_ = np.exp(-np.arange(N_r) / fixed_window_size)
                         beliefs_ /= beliefs_.sum()
                         beliefs_ = beliefs_[:, None]
-                        ax2.imshow(np.log((beliefs_*np.ones(N_trial))[:max_run_length, :] + eps), cmap='Greys', extent=extent)
+                        ax2.imshow(np.log((beliefs_*np.ones(N_trial))[:max_run_length, :] + eps), cmap='gray', extent=extent)
                     else:
-                        ax2.imshow(np.log(beliefs[:max_run_length, :] + eps), cmap='Greys', extent=extent)
+                        ax2.imshow(np.log(beliefs[:max_run_length, :] + eps), cmap='gray', extent=extent)
                     ax2.set_ylim(0, max_run_length)
                 if show_r_hat is True :
                     ax2.plot(time, r_hat, c=c, lw=lw, alpha=1, label='predicted run-length')
@@ -1609,8 +1609,8 @@ class Analysis(object):
 
             if TD is True :
                 ax0.set_ylabel('TD', fontsize=t_label/1.5)
-                ax0.plot(np.arange(N_trials), o, 'k.', ms=2, label='TD')
-                ax0.step(range(N_trials), o, lw=1, alpha=alpha[0][1], c='k')
+                ax0.plot(np.arange(N_trials), o, 'w.', ms=2, label='TD')
+                ax0.step(range(N_trials), o, lw=1, alpha=alpha[0][1], c='w')
                 ax0.fill_between(range(N_trials), np.zeros_like(o), o, lw=0, alpha=alpha[0][0], facecolor=color[0][0], step='pre')
                 ax0.fill_between(range(N_trials), np.ones_like(o), o, lw=0, alpha=alpha[0][1], facecolor=color[0][1], step='pre')
 
@@ -1650,9 +1650,16 @@ class Analysis(object):
 
 
             if leg_up is True :
-                if TD is True : ax1.legend(fontsize=t_label/1.8, bbox_to_anchor=(0., 1.25, 1, 0.), loc=3, ncol=3, mode="expand", borderaxespad=0.)
-                else :          ax1.legend(fontsize=t_label/1.8, bbox_to_anchor=(0., 2.1, 1, 0.), loc=3, ncol=3, mode="expand", borderaxespad=0.)
-            else :              ax1.legend(loc=(0.15, 0.55), ncol=2)#'best')
+                if TD is True : leg = ax1.legend(fontsize=t_label/1.8, bbox_to_anchor=(0., 1.25, 1, 0.), loc=3, ncol=3, mode="expand", borderaxespad=0., framealpha=0)
+                else :          leg = ax1.legend(fontsize=t_label/1.8, bbox_to_anchor=(0., 2.1, 1, 0.), loc=3, ncol=3, mode="expand", borderaxespad=0., framealpha=0)
+            else :              leg = ax1.legend(loc=(0.15, 0.55), ncol=2, framealpha=0)#'best')
+
+
+            for line, text in zip(leg.get_lines(), leg.get_texts()):
+                text.set_color(line.get_color())
+
+
+            
             # ax2.legend('best')
             #---------------------------------------------------------------------------
             # affiche SCORE
@@ -1981,10 +1988,10 @@ class Analysis(object):
 
             for i_trial in range(n_trial):
                 p_low[i_trial], p_sup[i_trial] = beta.ppf([.05, .95], a=p_hat[i_trial]*r_hat[i_trial], b=(1-p_hat[i_trial])*r_hat[i_trial])
-            ax1.plot(time, i_block+p_hat+ec*i_block, c=color, lw=lw, alpha=.9, label=name_bcp if name is True else '')
-            ax1.plot(time, i_block+p_sup+ec*i_block, c=color, lw=lw, alpha=.9, ls='--')#, label='CI' if name is True else '')
-            ax1.plot(time, i_block+p_low+ec*i_block, c=color, lw=lw, alpha=.9, ls='--')
-            ax1.fill_between(time, i_block+p_sup+ec*i_block, i_block+p_low+ec*i_block, lw=.5, alpha=.11, facecolor=color)
+            ax1.plot(time, i_block+p_hat+ec*i_block, c=color, lw=lw, alpha=1, label=name_bcp if name is True else '')
+            ax1.plot(time, i_block+p_sup+ec*i_block, c=color, lw=lw, alpha=1, ls='--')#, label='CI' if name is True else '')
+            ax1.plot(time, i_block+p_low+ec*i_block, c=color, lw=lw, alpha=1, ls='--')
+            ax1.fill_between(time, i_block+p_sup+ec*i_block, i_block+p_low+ec*i_block, lw=.5, alpha=.5, facecolor=color)
 
             return ax1
 
@@ -2000,7 +2007,7 @@ class Analysis(object):
             gs1.update(left=0+0.072, bottom=0.84, right=1-0.04, top=1.-0.11, hspace=0.05)
             axs[0] = plt.subplot(gs1[0])
 
-            axs[0].plot(np.arange(1, N_trials), p[1:, num_block[0], 0], 'k.', ms=4)
+            axs[0].plot(np.arange(1, N_trials), p[1:, num_block[0], 0], 'w.', ms=4)
             for card in ['bottom', 'top', 'right']: axs[0].spines[card].set_visible(False)
             axs[0].spines['left'].set_bounds(0, 1)
 
@@ -2061,7 +2068,7 @@ class Analysis(object):
                 axs[a].fill_between(range(N_trials), i_block+np.ones_like(p[:, block, 1])+ec*i_block, i_block+p[:, block, 1]+ec*i_block,
                                           lw=.5, alpha=alpha[1][1], facecolor=color[1][1], step='pre')
 
-                axs[a].plot(range(N_trials), 0.5*np.ones(N_trials)+i_block+ec*i_block, lw=1.5, c='k', alpha=0.5)
+                axs[a].plot(range(N_trials), 0.5*np.ones(N_trials)+i_block+ec*i_block, lw=1.5, c='w', alpha=0.5)
                 #axs[a].text(-0.055, 0.5, 'Subject %s'%(s), fontsize=t_label/1.2, rotation=90, transform=axs[a].transAxes, ha='right', va='center')
         #-------------------------------------------------------------------------------------------------------------
 
@@ -2114,7 +2121,7 @@ class Analysis(object):
                 #axs[2].step(range(1), -1000, color=color_va, lw=lw, alpha=1, label='Eye movement'  if i_block==0 else '')
                 ax2.plot(titi, va__, color=color_va, lw=lw, alpha=1)#, label='Eye movement' if i_block==0 else '')
 
-                ax2.fill_between(titi, va_sup__, va_low__, lw=.5, alpha=.3, facecolor=color_va)#, step='pre')
+                ax2.fill_between(titi, va_sup__, va_low__, lw=.5, alpha=.6, facecolor=color_va)#, step='pre')
                 ax2.plot(titi, va_sup__, c=color_va, lw=lw, alpha=.9, ls='--')
                 ax2.plot(titi, va_low__, c=color_va, lw=lw, alpha=.9, ls='--')
 
@@ -2127,7 +2134,7 @@ class Analysis(object):
 
                 axs[3].plot(titi, results__, color=color_bet, lw=lw, alpha=1)#, label='Individual guess'  if i_block==0 else '')
 
-                axs[3].fill_between(titi, results_sup__, results_low__, lw=.5, alpha=.3, facecolor=color_bet)#, step='pre')
+                axs[3].fill_between(titi, results_sup__, results_low__, lw=.5, alpha=.6, facecolor=color_bet)#, step='pre')
                 axs[3].plot(titi, results_sup__, c=color_bet, lw=lw, alpha=.9, ls='--')
                 axs[3].plot(titi, results_low__, c=color_bet, lw=lw, alpha=.9, ls='--')
 
@@ -2190,7 +2197,12 @@ class Analysis(object):
         #axs[0].set_title(titre, fontsize=t_titre, x=0.5, y=y_t)
 
         ncol_leg = 4
-        axs[1].legend(fontsize=t_label/1.8, bbox_to_anchor=(0., 1.33, 1, 0.), loc=3, ncol=ncol_leg, mode="expand", borderaxespad=0.)
+        leg = axs[1].legend(fontsize=t_label/1.8, bbox_to_anchor=(0., 1.33, 1, 0.), loc=3, ncol=ncol_leg,
+                            mode="expand", borderaxespad=0., framealpha=0)
+
+
+        for line, text in zip(leg.get_lines(), leg.get_texts()):
+            text.set_color(line.get_color())
 
         axs[-1].set_xlabel('Trial #', fontsize=t_label)
         try: fig.tight_layout()
@@ -2281,12 +2293,12 @@ class Analysis(object):
                 #ax.errorbar((bins[b+1]+bins[b])/2+x_bin[i], np.mean(d), yerr=np.std(d), color=color_r[i], capsize=10, markersize=10, marker='o')
                 ax.errorbar((bins[b+1]+bins[b])/2+x_bin[i], yerr_l, yerr=[[0], [yerr_s-yerr_l]], color=color_r[i], capsize=(1000*offset)/3)
                 ax.scatter((bins[b+1]+bins[b])/2+x_bin[i], np.median(d), color=color_r[i], s=100, marker='o')
-                ax.bar((bins[b+1]+bins[b])/2+x_bin[i], yerr_s-yerr_l, offset, yerr_l, color=color_r[i], alpha=.4)
+                ax.bar((bins[b+1]+bins[b])/2+x_bin[i], yerr_s-yerr_l, offset, yerr_l, color=color_r[i], alpha=.6)
 
                 bibi.append((bins[b+1]+bins[b])/2+x_bin[i])
                 meme.append(np.median(d))
 
-            ax.plot(bibi, meme, lw=6, alpha=.4, color=color_r[i])
+            ax.plot(bibi, meme, lw=6, alpha=.6, color=color_r[i])
             #for t in [0.01,0.2,0.4,0.6,0.7,0.8,1] : ax.vlines(t, 0,1, alpha=.2) ; ax.hlines(t, 0,1, alpha=.2)
 
             R_s, MI_s = [], []
@@ -2307,8 +2319,8 @@ class Analysis(object):
             mi = np.median(MI_s)
             r_ = np.median(R_s)
 
-            a1.bar(i, r_, color=color_r[i], width=0.9, alpha=0.4)
-            a2.bar(i, mi, color=color_r[i], width=0.9, alpha=0.4)
+            a1.bar(i, r_, color=color_r[i], width=0.9, alpha=0.6)
+            a2.bar(i, mi, color=color_r[i], width=0.9, alpha=0.6)
             a1.text(i, 0+0.05, '%.3f'%r_, color=color_r[i], alpha=1, ha="center", va="bottom", fontsize=t_label/2.7, weight='bold')
             a2.text(i, 0+0.05, '%.3f'%mi, color=color_r[i], alpha=1, ha="center", va="bottom", fontsize=t_label/2.7, weight='bold')
 
@@ -2421,7 +2433,7 @@ class Analysis(object):
             ax1.plot(time, i_block+p_hat+ec*i_block, c=color, lw=lw, alpha=.9)
             ax1.plot(time, i_block+p_sup+ec*i_block, c=color, lw=lw, alpha=.9, ls='--')
             ax1.plot(time, i_block+p_low+ec*i_block, c=color, lw=lw, alpha=.9, ls='--')
-            ax1.fill_between(time, i_block+p_sup+ec*i_block, i_block+p_low+ec*i_block, lw=.5, alpha=.11, facecolor=color)
+            ax1.fill_between(time, i_block+p_sup+ec*i_block, i_block+p_low+ec*i_block, lw=.5, alpha=.7, facecolor=color)
 
             return ax1
 
@@ -2438,7 +2450,7 @@ class Analysis(object):
             gs1.update(left=0+0.072, bottom=0.84, right=1-0.04, top=1.-0.11, hspace=0.05)
             axs[0] = plt.subplot(gs1[0])
 
-            axs[0].plot(np.arange(1, N_trials), p[1:, num_block[0], 0], 'k.', ms=4)
+            axs[0].plot(np.arange(1, N_trials), p[1:, num_block[0], 0], 'w.', ms=4)
             for card in ['bottom', 'top', 'right']: axs[0].spines[card].set_visible(False)
             axs[0].spines['left'].set_bounds(0, 1)
 
@@ -2554,7 +2566,12 @@ class Analysis(object):
             axs[i].set_yticks(y_ticks[:len(num_block)*3])
 
         ncol_leg = 4
-        axs[1].legend(fontsize=t_label/1.8, bbox_to_anchor=(0., 1.33, 1, 0.), loc=3, ncol=ncol_leg, mode="expand", borderaxespad=0.)
+        leg = axs[1].legend(fontsize=t_label/1.8, bbox_to_anchor=(0., 1.33, 1, 0.), loc=3,
+                            ncol=ncol_leg, mode="expand", borderaxespad=0., framealpha=0)
+        for line, text in zip(leg.get_lines(), leg.get_texts()):
+            text.set_color(line.get_color())
+
+        
         axs[2].set_ylabel('Probability', fontsize=t_label/1.5)
         #----------------------------------------------------------------
 
