@@ -3,8 +3,6 @@ def figure():
     import matplotlib.image as mpimg
     import numpy as np
 
-
-
     import os
 
     folder = 'proba_fig/'
@@ -34,15 +32,17 @@ def figure():
     screen_height_px = (500/1.618)
     dpi = 80
 
-    s1 = 1/(nb_trial-(nb_trial/2))
-    s2 = 1/nb_trial
+    s1 = 1/(nb_trial-(nb_trial/2))  + 1/(nb_trial*2)
+    s2 = 1/nb_trial + 1/(nb_trial*2)
 
+    s2_ = 1/nb_trial
+
+    
     num_f = 0
     for t in range(1, nb_trial) :
 
         fig, ax = plt.subplots(1,1, figsize=(screen_width_px/dpi, screen_height_px/dpi), dpi=dpi)
-        if t<n_t_bascule :
-            fig1, ax1 = plt.subplots(1,1, figsize=(screen_width_px/dpi, screen_height_px/dpi), dpi=dpi)
+        if t<n_t_bascule : fig1, ax1 = plt.subplots(1,1, figsize=(screen_width_px/dpi, screen_height_px/dpi), dpi=dpi)
 
         for p_ in range(0, t) :
 
@@ -61,7 +61,7 @@ def figure():
                         newax.imshow(mpimg.imread('%s_40.png'%smile))
                         newax.axis('off')
             else :
-                newax = ax.inset_axes([1-((t-(p_-.5))/nb_trial), .7, s2, s2])
+                newax = ax.inset_axes([1-((t-(p_-.5))/nb_trial), .7, s2_, s2_])
                 newax.imshow(mpimg.imread('%s_40.png'%smile))
                 newax.axis('off')
         #---------------------------------------------------
@@ -70,6 +70,10 @@ def figure():
         if t<n_t_bascule : l_ax.append(ax1)
         for a in l_ax :
             a.step(range(t+1), p[:(t+1), 1], lw=3, c=c)
+            if t > 10 : a.step(range(9, t+1), p[9:(t+1), 1], lw=3, c='r')
+            if t > 20 : a.step(range(19, t+1), p[19:(t+1), 1], lw=3, c='g')
+            
+            
             a.spines['bottom'].set_visible(False)
             a.spines['top'].set_visible(False)
             a.spines['right'].set_visible(False)
