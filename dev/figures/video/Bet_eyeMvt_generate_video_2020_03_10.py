@@ -28,10 +28,11 @@ def run_video(NameVideo):
     # ---------------------------------------------------
     seed = 51
     N_trials = 7#200
+    lala  = [0, -.2, -.3, -.3, -.4, -.4, -.45]
     N_blocks = 1#3
     tau = N_trials/5.
     (trials, p) = binomial_motion(N_trials, N_blocks, tau=tau, seed=seed, N_layer=3)
-    stim_tau = .75 # in seconds # 1.5 for 'eyeMvt'
+    stim_tau = .75 /2 # in seconds # 1.5 for 'eyeMvt'
 
     # ---------------------------------------------------
     # setup values
@@ -50,7 +51,7 @@ def run_video(NameVideo):
     # stimulus parameters
     # ---------------------------------------------------
     dot_size = 10 # (0.02*screen_height_px)
-    V_X_deg = 15 # deg/s
+    V_X_deg = 15 *2 # deg/s
     V_X = px_per_deg * V_X_deg     # pixel/s
 
     RashBass  = 100  # ms - pour reculer la cible à t=0 de sa vitesse * latency=RashBass
@@ -78,10 +79,11 @@ def run_video(NameVideo):
     fixation = visual.GratingStim(win, mask='circle', sf=0, color='white', size=dot_size)
 
     if NameVideo=='Bet' :
-        ratingScale = visual.RatingScale(win, scale=None, low=-1, high=1, precision=100, size=.7, stretch=2.5,
+        opt_ratingScale = dict(scale=None, low=-1, high=1, precision=100, size=.7, stretch=2.5,
                         labels=('Left', 'unsure', 'Right'), tickMarks=[-1, 0., 1], tickHeight=-1.0,
                         marker='triangle', markerColor='black', lineColor='White', showValue=False, singleClick=True,
-                        showAccept=False, pos=(0, -screen_height_px/3)) #size=.4
+                        showAccept=False, pos=(0, -screen_height_px/3))
+        ratingScale = visual.RatingScale(win, markerStart=0, **opt_ratingScale) #size=.4
 
     # ---------------------------------------------------
 
@@ -116,6 +118,10 @@ def run_video(NameVideo):
     # EXPERIMENT
     # ---------------------------------------------------
 
+
+    
+
+
     for block in range(N_blocks):
 
         for trial in range(N_trials):
@@ -125,8 +131,35 @@ def run_video(NameVideo):
             # ---------------------------------------------------
             event.clearEvents()
             if NameVideo=='Bet' :
-                ratingScale.reset()
-                while ratingScale.noResponse :
+                
+                ratingScale = visual.RatingScale(win, markerStart=0, **opt_ratingScale)
+                        
+                tps_fixation = 0
+                tps_start_fix = time.time()
+                # ---------------------------------------------------
+                while (tps_fixation < 0.25) :
+                    escape_possible()
+                    tps_actuel = time.time()
+                    tps_fixation = tps_actuel - tps_start_fix
+
+                    escape_possible()
+                    ratingScale.draw()
+                    fixation.draw()
+                    win.flip()
+                    win.getMovieFrame()
+                    escape_possible()
+                
+                ratingScale = visual.RatingScale(win, markerStart=lala[trial], **opt_ratingScale)
+
+                tps_fixation = 0
+                tps_start_fix = time.time()
+                # ---------------------------------------------------
+                while (tps_fixation < 0.25) :
+                    escape_possible()
+                    tps_actuel = time.time()
+                    tps_fixation = tps_actuel - tps_start_fix
+
+                    #while ratingScale.noResponse :
                     fixation.draw()
                     ratingScale.draw()
                     escape_possible()
@@ -135,7 +168,7 @@ def run_video(NameVideo):
                 #ans = ratingScale.getRating()
 
             elif NameVideo=='eyeMvt' :
-                duree_fixation = np.random.uniform(0.4, 0.8) # durée du point de fixation (400-800 ms)
+                duree_fixation = np.random.uniform(0.3, 0.4) # durée du point de fixation (400-800 ms)
                 tps_fixation = 0
                 tps_start_fix = time.time()
                 # ---------------------------------------------------
@@ -186,6 +219,6 @@ def run_video(NameVideo):
 if __name__ == '__main__':
 
     print('Starting protocol')
-    #NameVideo = 'eyeMvt'# .mp4
-    NameVideo = 'Bet'# .mp4
+    NameVideo = 'eyeMvt'# .mp4
+    #NameVideo = 'Bet'# .mp4
     run_video(NameVideo)
