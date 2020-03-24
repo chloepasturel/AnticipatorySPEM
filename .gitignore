@@ -12,11 +12,9 @@ ancienne_version/
 biblio/Nouveau dossier/
 data/Nouveau dossier/
 dev/edfreader.py
-pygazeanalyser/
 Diapo/
 Pylink api userguide.pdf
 
-PyGazeAnalyser
 *.pyc
 .ipynb_checkpoints
 lastFrameIntervals.log
