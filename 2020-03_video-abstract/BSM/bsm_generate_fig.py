@@ -15,7 +15,7 @@ def figure():
 
     np.random.seed(13)
     nb_trial = 30
-    p1, p2, p3 = .5, .2, .8
+    p1, p2, p3 = .1, .9, .3
     p = np.random.rand(nb_trial, 2)
 
     n_t_bascule = 12
@@ -37,7 +37,7 @@ def figure():
 
     s2_ = 1/nb_trial
 
-    
+
     num_f = 0
     for t in range(1, nb_trial) :
 
@@ -72,8 +72,8 @@ def figure():
             a.step(range(t+1), p[:(t+1), 1], lw=3, c=c)
             if t > 10 : a.step(range(9, t+1), p[9:(t+1), 1], lw=3, c='r')
             if t > 20 : a.step(range(19, t+1), p[19:(t+1), 1], lw=3, c='g')
-            
-            
+
+
             a.spines['bottom'].set_visible(False)
             a.spines['top'].set_visible(False)
             a.spines['right'].set_visible(False)
