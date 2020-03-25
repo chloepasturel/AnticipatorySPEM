@@ -4,22 +4,20 @@
 import numpy as np
 import time
 
-
-
 def video():
 
     NameVideo = 'BSM'# .mp4
     import os
 
-    folder = 'BSM/proba_fig/'
+    folder = 'proba_fig'
     fileList = os.listdir(folder)
-
+    print(len(fileList))
 
     # ---------------------------------------------------
     # setup values
     # ---------------------------------------------------
-    screen_width_px = 800/1.618
-    screen_height_px = 500/1.618
+    screen_width_px = 800#/1.618
+    screen_height_px = 500#/1.618
     framerate = 60
 
     # ---------------------------------------------------
@@ -46,9 +44,9 @@ def video():
 
     clock = core.Clock()
 
-    for num_fig in range(len(fileList)) :
-        fig = visual.ImageStim(win, folder + 'proba_bsm_%s.png'%num_fig)
-        fig.setPos((-screen_width_px/6, offset))
+    for num_fig in range(1, len(fileList)) :
+        fig = visual.ImageStim(win, os.path.join(folder, 'proba_bsm_%s.png'%num_fig))
+        # fig.setPos((-screen_width_px/6, offset))
 
         if num_fig<num_fig1_bascule :   wait = wait0
         elif num_fig<num_fig2_bascule : wait = wait1
@@ -76,7 +74,7 @@ def video():
     for n, frame in enumerate(win.movieFrames):
         win.movieFrames[n] = np.array(frame)
     clip = ImageSequenceClip(win.movieFrames, fps=framerate)
-    clip.write_videofile('%s/%s.mp4'%(NameVideo, NameVideo))
+    clip.write_videofile('%s.mp4' % NameVideo)
 
     win.close()
     core.quit()
