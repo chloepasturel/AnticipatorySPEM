@@ -98,7 +98,7 @@ def figure():
 
             a.tick_params(axis='y', colors=color, labelsize=10)
             a.set_xticks([])
-            a.set_ylabel('p', color='white', fontsize=24)
+            a.set_ylabel('Probability', color='white', fontsize=24)
             # a.text(-.5, .5, 'p', color=color, fontsize=24)
             a.spines['left'].set_bounds(0, 1)
             a.set_yticks([0,.5,1])
