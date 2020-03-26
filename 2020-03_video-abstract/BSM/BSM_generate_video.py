@@ -18,7 +18,7 @@ def video():
     # ---------------------------------------------------
     screen_width_px = 800#/1.618
     screen_height_px = 500#/1.618
-    framerate = 60
+    framerate = 45
 
     # ---------------------------------------------------
     # stimulus parameters

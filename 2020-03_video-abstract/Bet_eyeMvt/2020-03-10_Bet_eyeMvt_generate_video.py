@@ -3,22 +3,22 @@
 
 import numpy as np
 import time
-from bayesianchangepoint import binomial_motion
-# def binomial_motion(N_trials, N_blocks, tau, seed, Jeffreys=True, N_layer=3):
-#     from scipy.stats import beta
-#     np.random.seed(seed)
-#
-#     trials = np.arange(N_trials)
-#     p = np.random.rand(N_trials, N_blocks, N_layer)
-#
-#     for trial in trials:
-#         p[trial, :, 2] = np.random.rand(1, N_blocks) < 1/tau # switch
-#         if Jeffreys: p_random = beta.rvs(a=.5, b=.5, size=N_blocks)
-#         else: p_random = np.random.rand(1, N_blocks)
-#         p[trial, :, 1] = (1 - p[trial, :, 2])*p[trial-1, :, 1] + p[trial, :, 2] * p_random # probability
-#         p[trial, :, 0] =  p[trial, :, 1] > np.random.rand(1, N_blocks) # Bernouilli trial
-#
-#     return (trials, p)
+# from bayesianchangepoint import binomial_motion
+def binomial_motion(N_trials, N_blocks, tau, seed, Jeffreys=True, N_layer=3):
+    from scipy.stats import beta
+    np.random.seed(seed)
+
+    trials = np.arange(N_trials)
+    p = np.random.rand(N_trials, N_blocks, N_layer)
+
+    for trial in trials:
+        p[trial, :, 2] = np.random.rand(1, N_blocks) < 1/tau # switch
+        if Jeffreys: p_random = beta.rvs(a=.5, b=.5, size=N_blocks)
+        else: p_random = np.random.rand(1, N_blocks)
+        p[trial, :, 1] = (1 - p[trial, :, 2])*p[trial-1, :, 1] + p[trial, :, 2] * p_random # probability
+        p[trial, :, 0] =  p[trial, :, 1] > np.random.rand(1, N_blocks) # Bernouilli trial
+
+    return (trials, p)
 
 
 def run_video(NameVideo):
@@ -40,7 +40,7 @@ def run_video(NameVideo):
 
     screen_width_px = 800/1.618 #1920 #1280 for ordi enregistrement
     screen_height_px = 500/1.618 #1080 #1024 for ordi enregistrement
-    framerate = 60 #100.for ordi enregistrement
+    framerate = 40 #100.for ordi enregistrement
 
     screen_width_cm = 37 # (cm)
     viewingDistance = 57. # (cm)
