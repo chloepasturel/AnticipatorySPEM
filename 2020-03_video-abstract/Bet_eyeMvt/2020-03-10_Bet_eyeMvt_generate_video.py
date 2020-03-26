@@ -219,5 +219,6 @@ def run_video(NameVideo):
 if __name__ == '__main__':
 
     print('Starting protocol')
-    for NameVideo in ['eyeMvt', 'Bet']:# .mp4
+    for NameVideo in ['Bet', 'eyeMvt', ]:# .mp4
+        print('NameVideo =', NameVideo)
         run_video(NameVideo)
