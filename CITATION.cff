@@ -1,0 +1,63 @@
+cff-version: 1.2.0
+message: If you use this software, please cite the accompanying publication (preferred-citation below).
+type: software
+title: Estimating and anticipating a dynamic probabilistic bias in visual motion direction
+authors:
+- family-names: Pasturel
+  given-names: Chloé
+- family-names: Montagnini
+  given-names: Anna
+- family-names: Perrinet
+  given-names: Laurent U
+  orcid: https://orcid.org/0000-0002-9536-010X
+repository-code: https://github.com/chloepasturel/AnticipatorySPEM
+url: https://laurentperrinet.github.io/publication/pasturel-18/
+keywords:
+- bayesian-modelling
+- eye-movements
+- motion-anticipation
+- motion-perception
+preferred-citation:
+  type: conference-paper
+  title: Estimating and anticipating a dynamic probabilistic bias in visual motion direction
+  authors:
+  - family-names: Pasturel
+    given-names: Chloé
+  - family-names: Montagnini
+    given-names: Anna
+  - family-names: Perrinet
+    given-names: Laurent U
+    orcid: https://orcid.org/0000-0002-9536-010X
+  year: 2018
+  url: https://laurentperrinet.github.io/publication/pasturel-18/
+references:
+- type: conference-paper
+  title: Estimating and anticipating a dynamic probabilistic bias in visual motion direction
+  authors:
+  - family-names: Perrinet
+    given-names: Laurent U
+    orcid: https://orcid.org/0000-0002-9536-010X
+  - family-names: Pasturel
+    given-names: Chloé
+  - family-names: Montagnini
+    given-names: Anna
+  conference:
+    name: Grenoble Workshop on Models and Analysis of Eye Movements, Grenoble, France
+  year: 2018
+  url: https://laurentperrinet.github.io/publication/pasturel-18-grenoble/
+- type: conference-paper
+  title: Estimating and anticipating a dynamic probabilistic bias in visual motion direction
+  authors:
+  - family-names: Pasturel
+    given-names: Chloé
+  - family-names: Damasse
+    given-names: Jean-Bernard
+  - family-names: Montagnini
+    given-names: Anna
+  - family-names: Perrinet
+    given-names: Laurent U
+    orcid: https://orcid.org/0000-0002-9536-010X
+  conference:
+    name: GDR Vision, Lille, 2017
+  year: 2017
+  url: https://laurentperrinet.github.io/publication/pasturel-17-gdr/
